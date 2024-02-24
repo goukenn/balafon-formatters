@@ -42,7 +42,7 @@ class JSonParser{
                 return;
             }
             if (json_parsing){
-                _r = json_parsing(parser, i, _r);
+                _r = json_parsing.apply(obj, [parser, i, _r]);
             }
             obj[i] = _r;
         });
