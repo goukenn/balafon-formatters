@@ -13,11 +13,16 @@ class Patterns{
      * @var {?bool}
      */
     allowMultiline;
+    /**
+     * @var {?bool}
+     */
+    preserveLineFeed;
 
     constructor(){
         this.patterns = [];
         this.isBlock = false;
         this.allowMultiline = true;
+        this.preserveLineFeed = false;
     }
     json_parse(parser, fieldname, data){ 
         const patterns = Utils.ArrayParser(Patterns);

@@ -45,7 +45,7 @@ class Utils{
     }
 
     static GetPatternMatcher(patterns, options){
-        const { line, pos } = options;
+        const { line, pos , debug } = options;
         let _a = null;
         let _match = 0;
         let _index = -1;
@@ -60,8 +60,11 @@ class Utils{
             }
         });
         if (_a){
-            _a.startMatch(l, _match);
-            console.log("match....", l);
+            _match.index += pos;
+            _a.startMatch(line, _match);
+            if (debug){
+                console.log("begin", {name: _a.name, line, pos: _match.index});
+            }
         }
         return _a;
     }

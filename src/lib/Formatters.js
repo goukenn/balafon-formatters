@@ -1,8 +1,10 @@
+"use strict";
 Object.defineProperty(exports, '__esModule', {value:true});
 
 const { Utils } = require("./Utils");
 const { Patterns } = require("./Patterns");
 const { JSonParser } = require("./JSonParser");
+const { Debug } = require("./Debug");
 
 /**
  * formatters entry point
@@ -10,8 +12,12 @@ const { JSonParser } = require("./JSonParser");
 class Formatters{
     patterns;
     repository;
+    debug; // allow debug
 
     constructor(){  
+        this.debug = false;
+        this.patterns = [];
+        this.repository = {};
     }
     get lineFeed(){
         return this.m_option.lineFeed;
@@ -32,6 +38,9 @@ class Formatters{
             },
             repository(d){
                 return typeof(d)=='object';
+            },
+            debug(d){
+                return typeof(d)=='boolean' || /(yes|no|1|0)/.test(d);
             }
         };
         let f = validator[field_name];
@@ -56,6 +65,12 @@ class Formatters{
                     _out[i] = _o;
                 }
                 return _out;
+            },
+            debug(d){
+                if(typeof(d)== 'boolean'){
+                    return d;
+                }
+                return !(!d);
             } 
         };
         let fc = parse[fieldname];
@@ -86,62 +101,112 @@ class Formatters{
         let _formatter = this;
         let _matcher = null;
         // buffering info to handle buffer info
-        let _info = {
-            output : [],
-            buffer : '',
-            depth: depth,
+        let _info = {  
             markerInfo : null, // store marker field info [{ marker:Pattern, buffer:string}]
+            objClass:null,
             append(s){
-                this.buffer += s;
+                let _o = this.objClass;
+                if (!_o) return;
+                if (_o.debug) { 
+                    Debug.log('append: '+ s);
+                } 
+                if (_o.lineJoin){
+                    _o.buffer = this.objClass.buffer.trimEnd()+' ';
+                    _o.lineJoin = false;
+                }
+                _o.buffer += s;
             },
             store(){
-                let s = this.buffer;
+                let s = this.objClass.buffer;
+                let d = this.objClass.depth;
                 s = s.trim();
                 if (s.length>0){
-                    this.output.push(tabStop.repeat(this.depth)+ s);
+                    this.objClass.output.push(tabStop.repeat(d)+ s);
                 }
             }
         };
         let objClass = {
             line:'',
-            pos:0
+            pos:0,
+            lineCount:0,
+            depth:0,
+            continue:false,
+            lineJoin:false,
+            buffer:'',
+            output:[], // output result
+            listener : _info,
+            debug: _formatter.debug,
+            lineFeed,
+            range:{
+                start:0, // start position
+                end:0    // number end position range
+            },
+            resetRange(){
+                this.storeRange(0,0); 
+            },
+            /**
+             * store range 
+             * @param {number} start 
+             * @param {number} end if optional 
+             */
+            storeRange(start,end){
+                this.range.start = start;
+                this.range.end = typeof(end)=='undefined' ? start: end;
+            }
         };
         Object.defineProperty(objClass, 'length', { get: function(){ return this.line.length ;}})
 
-        data.forEach((line)=>{
-            pos = 0;
-            let _inf = {line, pos}
-            let len = 0; //line.length;
-            if (_marker){
-                _marker = _formatter._handleMarker(_marker, _inf, _info, true);  
-            }else{
-                line = _inf.line.trimStart(); 
-            } 
-            len = line.length; 
-            _inf.line = line; 
-            pos = _inf.pos;
+        _info.objClass = objClass;
 
-            while(pos<len){
-                _inf.pos = pos;
-                if (_marker){
-                    _marker = _formatter._handleMarker(_marker, _inf, _info); 
+        data.forEach((line)=>{
+            
+            objClass.resetRange();
+            objClass.line = line;
+            objClass.pos = 0;
+            objClass.continue = false;
+            objClass.lineCount++;
+            
+            if (_marker){
+                objClass.continue = true;
+                objClass.lineJoin = false;
+                if (!_marker.allowMultiline){
+                    throw new Error(`marker '${_marker.name}' do not allow multi line definition.`);
                 }
 
-                _matcher = Utils.GetPatternMatcher(this.patterns, _inf);
+                _marker = _formatter._handleMarker(_marker, objClass, _info, true);  
+            } else {
+                objClass.line = objClass.line.trimStart();
+            }
+            if (line.length<=0){
+                return;
+            }
+            let ln = objClass.length;
+            let pos = objClass.pos;
+            while(pos<ln){
+                objClass.continue = false;
+                objClass.pos = pos;
+                if (_marker){
+                    objClass.continue = true;
+                    objClass.storeRange(objClass.pos);
+                    _marker = _formatter._handleMarker(_marker, objClass, _info); 
+                }
+                _matcher = Utils.GetPatternMatcher(this.patterns, objClass);
                 if (_matcher){
-                    _marker = _formatter._handleMarker(_matcher, _inf, _info); 
-                    pos = _inf.pos;
+                    objClass.storeRange(pos, _matcher.index);   
+                    _marker = _formatter._handleMarker(_matcher, objClass, _info); 
+                    pos = objClass.pos;
                 }else{
-                    pos = _inf.pos;
-                    _info.append( _inf.line.substring(pos)); 
-                    pos = _inf.line.length;
+                    pos = objClass.pos;
+                    _info.append( objClass.line.substring(pos)); 
+                    pos = objClass.line.length;
                 }
                 pos++;
             }
-            _rg.line++;
-        }); 
+            objClass.lineJoin = true;
+        });
+     
         _info.store();   
-        return _info.output.join(lineFeed);
+        return objClass.output.join(lineFeed);
     }
     /**
      * handle marker 
@@ -150,11 +215,14 @@ class Formatters{
      */
     _handleMarker(_marker, option, _info, startLine){
         if (!_marker)return;
-        let _prev = option.line.substring(option.pos, option.pos + _marker.index);
-        if (_prev.length>0){
-            // append constants
-            _info.append(_prev);
-            option.pos+= _prev.length;
+        if (!option.continue){ 
+            let _prev = option.line.substring(option.range.start, option.range.end);  
+            if (_prev.length>0){
+                // append constants
+                _info.append(_prev);
+                option.pos+= _prev.length;
+            }
+            option.storeRange(option.pos, option.pos);
         }
  
         let b = startLine ? 0 : 1;
@@ -189,6 +257,11 @@ class Formatters{
                 _endRegex = _old.endRegex;
                 _buffer = _old.content;
                 _start = false;
+                if (startLine){
+                    if (_marker.preserveLineFeed){
+                        _buffer+= option.lineFeed;
+                    }
+                }
             }
         }
         if (_start){
@@ -206,7 +279,7 @@ class Formatters{
                 l = (_start ? _marker.group[0] : _buffer)+l.substring(0, _p.index)+_p[0];
                 _info.append(l);
                 // + | move cursor to contain [ expression ]
-                option.pos += _p.index+_p[0].length; 
+                option.pos += _p.index+_p[0].length-b; 
                 return _marker.parent;
             } else {
                 if (startLine && !_marker.allowMultiline){

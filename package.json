@@ -9,6 +9,7 @@
     "vscode": "^1.1.37"
   },
   "scripts":{
-    "debug":"node ./src/main.js"
+    "debug":"node ./src/main.js",
+    "test":""
   }
 }
