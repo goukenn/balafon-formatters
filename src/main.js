@@ -2,11 +2,10 @@ const { Formatters, Utils } = require("./lib/Formatters");
 
 const data = {
     patterns:[ 
-        { include : "#string"},
-        { include : "#string-multiline" },
-        { include : "#end-instruct"},
-        { include : "#block" },
-       
+         { include : "#string"},
+         { include : "#string-multiline" },
+         { include : "#end-instruct"},
+         { include : "#block" }
     ], 
     repository:{
         block: {
@@ -25,10 +24,7 @@ const data = {
                 { include : "#end-instruct"},
                 { include : "#block" }, 
             ]
-        },
-        line:{
-            match:"\\bline\\d+\\b"
-        },
+        }, 
         string:{
             begin: /("|')/,
             end: /\$1/,
@@ -116,7 +112,7 @@ const _data = {
         "x='data' + x ; P"
     ],
     data9:[
-        "{x='data' + x;   P}"
+        "r: {x='data' + x;   P(){ y : 4}}"
     ]
 }
 formatter.debug = true;
