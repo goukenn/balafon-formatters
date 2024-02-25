@@ -1,5 +1,6 @@
 Object.defineProperty(exports, '__esModule', {value:true});
 
+const { RefPatterns } = require('./RefPatterns');
 const { Utils } = require('./Utils');
 class Patterns{
     match;
@@ -8,7 +9,19 @@ class Patterns{
     name;
     comment;
     patterns;
+    /**
+     * if match append line feed after this instruct
+     */
+    lineFeed;
+     /**
+     * @var {?bool}
+     */
     isBlock;
+
+     /**
+     * @var {?{start: string, end: string}} 
+     */
+    block;
     /**
      * @var {?bool}
      */
@@ -24,8 +37,8 @@ class Patterns{
         this.allowMultiline = true;
         this.preserveLineFeed = false;
     }
-    json_parse(parser, fieldname, data){ 
-        const patterns = Utils.ArrayParser(Patterns);
+    json_parse(parser, fieldname, data, refKey){ 
+        const patterns = Utils.ArrayParser(Patterns, RefPatterns);
         const _regex_parser = (s)=>{
             if (typeof(s)=='string'){
                 return new RegExp(s);
@@ -34,8 +47,8 @@ class Patterns{
         };
         const q = this;
         const parse = {
-            patterns(n,parser){
-                let d = patterns(n,parser);
+            patterns(n,parser, refKey){
+                let d = patterns.apply(q, [n,parser, refKey]);
                 d.forEach((s)=>{
                     s.m_parent = q;
                 });
@@ -47,7 +60,7 @@ class Patterns{
         };
         let fc = parse[fieldname];
         if (fc){
-            return fc(data, parser);
+            return fc.apply(q, [data, parser, refKey]);
         }
         return data;
     }
@@ -111,6 +124,20 @@ class Patterns{
     endRegex(p){
         let s = this.end.toString();
         return Utils.GetRegexFrom(s, p); 
+    }
+    get blockStart(){
+        const t = this.matchType;
+        if (!this.isBlock || (t!=0)){
+            return '';
+        }
+        return this.block?.start || this.begin.toString().trim();
+    }
+    get blockEnd(){
+        const t = this.matchType;
+        if (!this.isBlock || (t!=0)){
+            return '';
+        }
+        return this.block?.end || this.end.toString().trim();
     }
 }
 

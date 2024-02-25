@@ -23,7 +23,7 @@ class JSonParser{
         JSonParser._LoadData(this, obj, this.data);
         return obj;
     }
-    static _LoadData(parser, obj, data){
+    static _LoadData(parser, obj, data, refKey){
         const _throwOnError = parser.throwOnError;
         const keyData = ()=>{
             if (obj.json_keys){
@@ -37,12 +37,12 @@ class JSonParser{
             let _r = data[i];
             if (typeof(_r)=='undefined'){
                 return;
-            }
+            } 
             if ((validation)&& !validation.apply(obj, [i, _r, _throwOnError])){
                 return;
             }
             if (json_parsing){
-                _r = json_parsing.apply(obj, [parser, i, _r]);
+                _r = json_parsing.apply(obj, [parser, i, _r, refKey]);
             }
             obj[i] = _r;
         });

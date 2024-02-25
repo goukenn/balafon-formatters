@@ -1,24 +1,30 @@
 const { Formatters, Utils } = require("./lib/Formatters");
 
 const data = {
-    patterns:[
-        { include : "#line"},
+    patterns:[ 
         { include : "#string"},
         { include : "#string-multiline" },
-        {
+        { include : "#block" },
+       
+    ], 
+    repository:{
+        block: {
             begin:/\{/,
             end:/\}/,
             name:"block.definition",
             isBlock : true,
             comment: "block comment information",
+            block:{
+                start:"{",
+                end:"\n}"
+            },
             patterns:[
                 { include : "#string-multiline" },
-                { include : "#string" },
-                { include : "#line" },
+                { include : "#string" }, 
+                { include : "#end-instruct"},
+                { include : "#block" }, 
             ]
-        }
-    ], 
-    repository:{
+        },
         line:{
             match:"\\bline\\d+\\b"
         },
@@ -33,7 +39,11 @@ const data = {
                 }
             ]
         },
-
+        "end-instruct":{
+            match:/;/,
+            name:'end.instruction',
+            lineFeed: true
+        },
         "string-multiline":{
             begin: /(`)/,
             end: /\$1/,
@@ -91,10 +101,18 @@ const _data = {
         " a + `multi",
         "line` + 'preserve' ",  
     ],
-    data6:[
-        
+    data7:[
+        "info() ",
+        "{",
+        "x = 'data.'; pour le dire de la vie ",
+        "doWhile(){",
+        "y",
+        "z = 32;",
+        "}",
+        "}"
     ]
 }
 formatter.debug = true;
-let r = formatter.format(_data.data6); 
-console.log("result : ", r);
+let r = formatter.format(_data.data7); 
+console.log("result:");
+console.log(r);
