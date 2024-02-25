@@ -4,6 +4,7 @@ const data = {
     patterns:[ 
         { include : "#string"},
         { include : "#string-multiline" },
+        { include : "#end-instruct"},
         { include : "#block" },
        
     ], 
@@ -110,9 +111,15 @@ const _data = {
         "z = 32;",
         "}",
         "}"
+    ],
+    data8:[
+        "x='data' + x ; P"
+    ],
+    data9:[
+        "{x='data' + x;   P}"
     ]
 }
 formatter.debug = true;
-let r = formatter.format(_data.data7); 
+let r = formatter.format(_data.data9); 
 console.log("result:");
 console.log(r);

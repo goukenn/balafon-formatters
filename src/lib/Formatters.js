@@ -103,7 +103,7 @@ class Formatters{
         let _matcher = null;
         // buffering info to handle buffer info
         let _info = {  
-            markerInfo : null, // store marker field info [{ marker:Pattern, buffer:string}]
+            markerInfo : [], // store marker field info [{ marker:Pattern, buffer:string}]
             objClass:null,
             /**
              * append 
@@ -119,6 +119,12 @@ class Formatters{
                 if (_o.debug) { 
                     Debug.log('append: '+ s);
                 } 
+                if (_o.buffer.length>0){
+                    // join expression with single space
+                    let _trx = new RegExp("^\\s+(.+)\\s+$");
+                    s = s.replace(_trx, ' '+s.trim()+' ');
+                }
+
                 if (_o.lineJoin){
                     _o.buffer = this.objClass.buffer.trimEnd()+' ';
                     _o.lineJoin = false;
@@ -185,7 +191,7 @@ class Formatters{
             objClass.resetRange();
             objClass.line = line;
             objClass.pos = 0;
-            objClass.continue = false;
+            objClass.continue = false; 
             objClass.lineCount++;
             
             if (_marker){
@@ -193,15 +199,17 @@ class Formatters{
                     throw new Error(`marker '${_marker.name}' do not allow multi line definition.`);
                 }
                 objClass.continue = true;
-                objClass.lineJoin = false;
-
-                _marker = _formatter._handleMarker(_marker, objClass, _info, true);  
+                objClass.lineJoin = false; 
+                objClass.startLine = true; 
+                _marker = _formatter._handleMarker(_marker, objClass, _info);  
+                objClass.startLine = true; 
             } else {
                 objClass.line = objClass.line.trimStart();
             }
             if (line.length<=0){
                 return;
             }
+            objClass.startLine = false;
             let ln = objClass.length;
             let pos = objClass.pos;
             while(pos<ln){
@@ -216,12 +224,11 @@ class Formatters{
                 if (_matcher){
                     objClass.storeRange(pos, _matcher.index);   
                     _marker = _formatter._handleMarker(_matcher, objClass, _info); 
-                    pos = objClass.pos;
-                }else{
-                    pos = objClass.pos;
-                    _info.append( objClass.line.substring(pos)); 
-                    pos = objClass.line.length;
+                }else{ 
+                    _info.append( objClass.line.substring(objClass.pos)); 
+                    objClass.pos = objClass.line.length;
                 }
+                pos = objClass.pos;
                 pos++;
             }
             objClass.lineJoin = true;
@@ -235,30 +242,36 @@ class Formatters{
      * @param {*} _marker 
      * @param {*} option 
      */
-    _handleMarker(_marker, option, _info, startLine){
+    _handleMarker(_marker, option){
         if (!_marker)return;
+        const { listener } = option;
+        const _info = listener;
         if (!option.continue){ 
-            let _prev = option.line.substring(option.range.start, option.range.end);   
-
+            let _prev = option.line.substring(option.range.start, option.range.end);    
             if (_prev.length>0){
                 // append constants
                 _info.append(_prev);
                 option.pos+= _prev.length;
             }
-            option.storeRange(option.pos, option.pos);
-
-           
-        }
- 
-        let b = startLine ? 0 : 1;
+            option.storeRange(option.pos, option.pos); 
+        } 
+        
+    
         switch(_marker.matchType){
             case 0:
-                return this._handleBeginEndMarker(_marker, option, _info, startLine); 
+                // + | ---------------------------------------------
+                // + | for block definition 
+                return this._handleBeginEndMarker(_marker, option); 
             case 1:
-                // + | for matching type 
+                // + | ---------------------------------------------
+                // + | for global block matching type 
                 let c = _marker.group[0];
                 _info.append(c, _marker);
-                option.pos+= c.length - b;
+                // + | update cusor position
+                option.pos += c.length; 
+                if (option.parent == null){
+                    option.pos--;
+                }
                 return _marker.parent; 
         }
         return null;
@@ -282,129 +295,12 @@ class Formatters{
         _info.objClass.buffer = '';
         _info.objClass.output= [];
     }
-    _handleBeginEndMarker(_marker, option, _info, startLine){ // start line context . 
-        // + | for begin/end marker logic
-        if (!_info.markerInfo){
-            _info.markerInfo = [];
-        }
-        let _old=null , _endRegex=null, _matcher=null, _buffer =null;
-        let _start = true;
-        let b = startLine ? 0 : 1;
-        // move group forward
-        // restore previous info marker 
-        if ((_info.markerInfo.length>0)&&(_info.markerInfo[0].marker === _marker )){
-            _old = _info.markerInfo.shift();
-             // continue reading with this marker
-             _endRegex = _old.endRegex;
-             _buffer = _old.content;
-             _start = false;
-             if (startLine){
-                 if (_marker.preserveLineFeed){
-                    _buffer+= option.lineFeed;
-                 }
-             }
-             _info.store();
-             let _sbuffer = _info.output(true);
-             if (_sbuffer){
-                 _buffer += option.lineFeed+_sbuffer;
-             }
-            //  
-            //  + | update old buffer content
-            // this._restoreBuffer(option, _old);
-             _old.content = _buffer;
-        }
-       
-        let _match_start = _marker.group[0];
-        if (_start){
-            option.pos += _match_start.length;
-            if (_marker.isBlock && !option.continue ){  
-                Debug.log('start block:'); 
-                option.buffer = option.buffer.trimEnd(); 
-                _match_start = _marker.blockStart;  
-                option.depth++;
-            }
-        }
-        _endRegex = _endRegex || _marker.endRegex(_marker.group);
-        _matcher = Utils.GetPatternMatcher(_marker.patterns, option);
-        _buffer = ((_buffer!=null) ? _buffer : _match_start);
-
-      
+    _handleBeginEndMarker(_marker, option){ 
+        // start line context . 
+        const { listener } = option;
 
 
-        let l = option.line.substring(option.pos);
-        let _p = l.length>0? _endRegex.exec(l) : null;
-        if (_matcher==null){
-            if (_p){
-                // + | end found
-                let _end_def = _p[0]; 
-                if (_old){ 
-                    this._restoreBuffer(option, _old);
-                }
-                if (_marker.isBlock){ 
-                    _end_def = '';// _marker.blockEnd;
-                    Debug.log('end block:');
-                    option.depth--;
-                } 
-                l = (_start ? _marker.group[0] : _buffer)+l.substring(0, _p.index)+_end_def;
-                _info.append(l);
-                if (_marker.isBlock){ 
-                    _info.store();
-                    _info.append(_marker.blockEnd);
-                    _info.store();
-
-                }
-                // + | move cursor to contain [ expression ]
-                option.pos += _p.index+_p[0].length-b; 
-                return _marker.parent;
-            } else {
-                if (startLine && !_marker.allowMultiline){
-                    throw new Error('do not allow multiline');
-                }
-                // update group definition 
-                // on start add buffer if no 
-                if (_start){
-                    l = ((_buffer!=null) ? _buffer : _marker.group[0])+l; 
-                    this._backupMarkerSwapBuffer(_info, _marker, l, _endRegex);  
-                } else {
-                    if (_old){ // keep active the _old marker info 
-                        Debug.log("keep old state and update oldstate buffer");
-                        if (startLine){
-                            _info.append('on mark:'+l);
-                        }else{
-                            _old.content += l;
-                        }
-                        _info.markerInfo.unshift(_old);
-                    }
-                }
-                option.pos = option.line.length;
-                return _marker;
-            }
-        } else {
-            if (_p){
-                if (_matcher.group.index < _p.index)
-                {
-                    l = _buffer+ l.substring(0, _matcher.group.index)+_matcher.group[0];
-                    option.pos += _matcher.group.index+_matcher.group[0].length-b;
-                    _start && this._backupMarkerSwapBuffer(_info, _marker, l, _endRegex); 
-                } else {
-                    //
-                    console.log("restore .... ");
-
-                }
-                // end found
-                return _matcher.parent;
-            }
-            // option.pos += _matcher.index - 1;
-            // reduce the matching invocation 
-            if (_old){
-                _info.markerInfo.unshift(_old); 
-            }
-            option.continue = false;
-            option.storeRange(option.pos, _matcher.index);
-            let __s= this._handleMarker(_matcher, option, _info, startLine);
-            return __s;
-        }
-
+        return null;
     } 
 }
 
