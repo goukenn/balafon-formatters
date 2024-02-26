@@ -1,0 +1,52 @@
+{
+    "settings":{
+        "noSpaceJoin":true
+    },
+    "repository":{
+        "string":{
+            "begin": "(\"|')",
+            "end": "\\$1",
+            "name":"string.definition",
+            "allowMultiline":false,
+            "tokenID":"string",
+            "patterns":[
+                {
+                    "match":"\\\\."
+                }
+            ]
+        },
+        "tag-definition":{
+           "begin":"\\<([\\w]+)(\\s+|[^\\/]*\\>)", 
+           "end":"(\\/|\\<\\/$1\\s*)?\\>",
+           "name":"tag.definition.html",
+           "tokenID":"tagname",
+           "onEndDetection": "isBlock = !EmptyTag",
+           "isBlock" : false,
+
+
+           "patterns":[
+                { "include" : "#string"}
+           ]
+        },
+        "empty-tag":{
+            "begin":"\\<([\\w]+)\\s*\\/\\>",
+            "end":"(?:>)",
+            "name":"empty.tag.definition.html"
+        },
+        "operator":{
+            "begin":"\\<([\\w]+)\\s*\\/\\>",
+            "end":"(?:>)",
+            "name":"empty.tag.definition.html"
+        },
+        "comment":{
+            "begin":"\\<!--",
+            "end":"--\\>",
+            "name":"empty.tag.definition.html"
+        }
+    },
+    "patterns":[
+        { "include" : "#string"},
+        { "include" : "#tag-definition"}
+    ],
+    "scopeName":"source.text.html"
+}

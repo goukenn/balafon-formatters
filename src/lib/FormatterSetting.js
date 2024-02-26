@@ -6,6 +6,7 @@ class FormatterSetting{
     tabStop = "\t";
     lineFeed = "\n";
     blockOnSingleLine = true;
+    noSpaceJoin= false;
     depth =0;
     line = 0;
 }

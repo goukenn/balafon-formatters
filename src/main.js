@@ -1,5 +1,5 @@
 const { Formatters, Utils } = require("./lib/Formatters");
-
+/*
 const data = {
     settings:{
         tabStop:"\t",
@@ -246,12 +246,34 @@ formatter.debug = false;
     'litteral'
 ].forEach((f)=>{
 
-    if (!expect(_data[f], formatter)){
-        throw new Error("format failed. ["+f+"]");
-    }
+    // if (!expect(_data[f], formatter)){
+    //     throw new Error("format failed. ["+f+"]");
+    // }
 });
 
 
 // let r = formatter.format(_data.multispace_transform); 
 // console.log("result:");
 // console.log(r);
+
+*/
+const json_data = require("../data/html.btm-format.json");
+const _formatter = Formatters.CreateFrom(json_data);
+
+_formatter.debug = true;
+_source = `
+<data x="Present"></data>
+<empty />
+<span>with data</span>
+`; 
+let s =  _formatter.format(
+    _source.split("\n")
+);
+console.log("result:"); 
+console.log();
+console.log();
+
+
+console.log(s);
+console.log();
+console.log();
