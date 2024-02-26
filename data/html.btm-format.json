@@ -32,12 +32,14 @@
            "patterns":[
                 { "include" : "#string"},
                 { "include" : "#comment"},
-                { "include" : "#operator"}
+                { "include" : "#operator"},
+                { "include" : "#end-tag"}
            ]
         },
         "empty-tag":{
             "begin":"\\<([\\w]+)\\s*\\/\\>",
             "end":"(?:>)",
+            "lineFeed":true,
             "name":"empty.tag.definition.html"
         },
         "operator":{
@@ -48,27 +50,55 @@
             "nextTrimWhiteSpace":true
         },
         "comment":{
-            "begin":"\\<!--",
+            "begin":"\\<\\!--",
             "end":"--\\>",
             "tokenID":"comment",
-            "name":"comment.html"
+            "name":"comment.html",
+            "lineFeed":true
         },
         "doctype":{
             "begin":"\\<!DOCTYPE",
             "end":"\\>",
             "tokenID":"doctype",
-            "name":"comment.html",
+            "name":"constant.doctype.html",
+            "lineFeed":true,
             "patterns":[
                 {"include":"#string"},
                 {"include":"#url"}
             ]
+        },
+        "processor-expression":{
+            "begin":"\\<\\?[\\w]+",
+            "end":"\\?>",
+            "tokenID":"processor",
+            "name":"constant.processor.html",
+            "lineFeed":true,
+            "patterns":[
+                {"include":"#string"},
+                {"include":"#url"}
+            ]
+        },
+        "end-tag":{
+            "begin":"\\<\\/[\\w]+",
+            "end":"\\>",
+            "tokenID":"end.tag",
+            "name":"end.tag.definition.html",
+            "nextTrimWhiteSpace":true,
+            "lineFeed":true,
+            "endCaptures":{
+                "0":{
+                    "nextTrimWhiteSpace":true
+                }
+            }
         }
     },
     "patterns":[
         { "include" : "#string"},
         { "include" : "#tag-definition"},
         { "include" : "#comment"},
-        { "include" : "#doctype"}
+        { "include" : "#doctype"},
+        { "include" : "#end-tag"},
+        { "include" : "#processor-expression"}
     ],
     "scopeName":"source.text.html"
 }

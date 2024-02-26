@@ -257,25 +257,33 @@ formatter.debug = false;
 // console.log(r);
 
 */
+// let e = /(?:lala)(print)(base)(?=info)/.exec('jump lalaprintbaseinfo');
+// console.log(e);
+// return;
+
 const json_data = require("../data/html.btm-format.json");
 const _formatter = Formatters.CreateFrom(json_data);
 
 _formatter.debug = true;
 _source = `
-<!DOCTYPE html>
+
+<span> with data  </span> 
+ok
+`; 
+
+
+{/* <!DOCTYPE html><?xml blabla ?>
 <data 
 
 x   =  
     "Present">
     presentation
-</data   >
-ok
-`; 
-
-
-{/* <empty />
-<!-- comment -->
-<span>with data</span> */}
+</data   
+>
+<empty />
+<!-- comment 
+for sample 
+-->*/}
 let s =  _formatter.format(
     _source.split("\n")
 );

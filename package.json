@@ -1,6 +1,6 @@
 {
   "name": "balafon-formatters",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "src/main.js",
   "description": "Javascript Generic Formatters",
   "author":{
@@ -10,7 +10,14 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "vscode": "^1.1.37"
+    "@types/mocha": "^10.0.6",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.86.0",
+    "@vscode/l10n": "^0.0.18",
+    "@vscode/test-cli": "^0.0.4",
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
   },
   "scripts":{
     "debug":"node ./src/main.js"
@@ -19,7 +26,9 @@
     "vscode": "^1.86.0"
   },
   "activationEvents": [
-    "onLanguage:bview"
+    "onLanguage:bview",
+    "onLanguage:bcss"
   ],
-  "publisher": "C.A.D. BONDJE DOUE"
+  "publisher": "CADBONDJEDOUE"
+  
 }
