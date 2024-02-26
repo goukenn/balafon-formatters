@@ -25,6 +25,8 @@ let output = formatter.format([...]);
 
 ### FEATURES
 
+settings
+- "noSpaceJoin":true  
 
 ### RELEASES
 

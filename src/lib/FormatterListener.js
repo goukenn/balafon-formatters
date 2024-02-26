@@ -16,10 +16,14 @@ class FormatterListener{
         if (!_o) return;
         if (s.length == 0) return;
 
+        if (_marker){
+            let a = `<span class="tk s">${s}</span>`; 
+            _o.debug && Debug.log({tokenID : _marker.tokenID , value: s});
+        }
+
         if (_marker && _marker.isBlockDefinition){
             if (!_o.blockOnSingleLine && (_o.buffer.length>0)){
-                this.store();
-                // _o.output.push('');
+                this.store(); 
             } 
         }   
 
@@ -40,7 +44,9 @@ class FormatterListener{
         }
 
         if (_o.lineJoin) {
-            _o.buffer = this.objClass.buffer.trimEnd() + ' ';
+            if (!_o.noSpaceJoin){
+                _o.buffer = this.objClass.buffer.trimEnd() + ' ';
+            }
             _o.lineJoin = false;
         }
         _o.buffer += s;

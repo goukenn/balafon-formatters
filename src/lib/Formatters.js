@@ -15,6 +15,13 @@ const { FormatterSetting } = require("./FormatterSetting");
 class Formatters {
     patterns;
     repository;
+    /**
+     * @var {?string}
+     */
+    scopeName;
+     /**
+     * @var {?bool}
+     */
     debug; // allow debug
     /**
      * use to configure general setting
@@ -51,6 +58,9 @@ class Formatters {
             },
             settings(d){
                 return (d==null) || typeof (d) == 'object';
+            },
+            scopeName(d){
+                return (d==null) || typeof (d) == 'string';
             }
         };
         let f = validator[field_name];
@@ -105,6 +115,13 @@ class Formatters {
         return new FormatterSetting;
     }
     format(data, option) {
+        if (!Array.isArray(data)){
+            if (typeof(data)=='string'){
+                data = [data];
+            }
+            else throw new Error('argument not valid');
+        }
+
         const _rg = option || this.settings || Formatters.CreateDefaultOption();
         const { lineFeed, tabStop } = _rg;
         let depth = _rg.depth || 0;
@@ -481,7 +498,11 @@ class Formatters {
                 return __s;
             }
 
-            Formatters._UnshiftMarkerInfo(_info, _old);
+            if (_old){
+                Formatters._UnshiftMarkerInfo(_info, _old);
+            } else {
+                this._backupMarkerSwapBuffer(_info, _marker, _buffer, _endRegex);
+            }
 
             option.continue = false;
             option.storeRange(option.pos, _matcher.index);

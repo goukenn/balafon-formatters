@@ -3,11 +3,33 @@ Object.defineProperty(exports, '__esModule', {value:true});
 const { RefPatterns } = require('./RefPatterns');
 const { Utils } = require('./Utils');
 class Patterns{
+    /**
+     * 
+     */
     match;
+    /**
+     * start capture 
+     */
     begin;
+    /**
+     * end match
+     */
     end;
+    /**
+     * the name of this pattern
+     */
     name;
+    /**
+     * describe this pattern
+     */
     comment;
+      /**
+     * @var {?string} use for token matching
+     */
+    tokenID;
+    /**
+     * @var {?array} list of patterns
+     */
     patterns;
     /**
      * if match append line feed after this instruct
@@ -31,6 +53,11 @@ class Patterns{
      */
     preserveLineFeed;
 
+    /**
+     * replacement expression in case of tokenID and listener use replacment technique
+     */
+    replaceExpression;
+
     constructor(){
         this.patterns = [];
         this.isBlock = false;
@@ -42,6 +69,17 @@ class Patterns{
         const _regex_parser = (s)=>{
             if (typeof(s)=='string'){
                 return new RegExp(s);
+            } else if (typeof(s)=='object'){
+                if (s instanceof RegExp)
+                    return s;
+                const { option, regex } = s;
+                if (regex instanceof RegExp){
+                    regex = Utils.GetRegexFrom(regex.toString(), option);
+                    return regex;
+                }
+
+                return new RegExp(regex, option);
+
             }
             return s;
         };
