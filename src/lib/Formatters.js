@@ -413,12 +413,15 @@ class Formatters {
                 if (_old) {
                     this._restoreBuffer(option, _old);
                 }
-                if (_marker.isBlock) {
-                    _end_def = '';
-                    Debug.log('end block:');
-                    option.depth--;
-                }
-                l = (_start ? _marker.group[0] : _buffer) + l.substring(0, l_index) + _end_def;
+                // if (_marker.isBlock) {
+                //     _end_def = '';
+                //     Debug.log('end block:');
+                //     option.depth--;
+                // }
+                _buffer = (_start ? _marker.group[0] : _buffer) + l.substring(0, l_index);
+                _buffer = _info.treatEndBufferCapture(_marker, _p, _endRegex, _buffer);
+                _end_def = _p[0]; 
+                l = _buffer + _end_def;
                 _info.append(l, _marker, true);
                 // if (_marker.isBlock) {
                 //     _info.store();

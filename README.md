@@ -23,12 +23,12 @@ let output = formatter.format([...]);
 
 ```
 
-### FEATURES
+## FEATURES
 
 settings
 - "noSpaceJoin":true  
 
-### RELEASES
+## RELEASES
 
 
 - 1.0

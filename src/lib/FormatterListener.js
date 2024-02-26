@@ -19,13 +19,35 @@ class FormatterListener {
             m_lastToken = token;
         };
     }
+    /**
+     * treat buffer before send and matching
+     * @param {*} _marker 
+     * @param {*} p 
+     * @param {*} endRegex 
+     * @param {*} buffer 
+     * @returns 
+     */
+    treatEndBufferCapture(_marker, p, endRegex, buffer){
+        const { endCaptures } = _marker;
+        if (endCaptures){
+            for(let i in endCaptures){
+                let _def = _marker.endCaptures[i];
+                if ((i==0) && _def.nextTrimWhiteSpace){
+                    buffer = buffer.trimEnd();
+                } 
+            }
+        }
+        return buffer;
+    }
 
     treatEndCapture(_marker, p, endRegex){
-        if (endCapture && _marker.endCaptures){
-            for(let i in _marker.endCaptures){
-                let _def = _marker.endCaptures[i];
-
-                
+        const { endCaptures } = _marker;
+        if (endCaptures){
+            for(let i in endCaptures){
+                let _def = _marker.endCaptures[i]; 
+                if (_def.nextTrimWhiteSpace){
+                    this.objClass.buffer = this.objClass.buffer.trimEnd();
+                }
             }
         }
         return p;
@@ -47,14 +69,15 @@ class FormatterListener {
                 this.objClass.buffer = this.objClass.buffer.trimEnd();
             }
         }
-        if (_marker.captures){
+        // if (_marker.captures){
 
-        }
+        // }
         if (endCapture && _marker.endCaptures){
             for(let i in _marker.endCaptures){
                 let _def = _marker.endCaptures[i];
-
-                
+                if ((i==0) && _def.nextTrimWhiteSpace){
+                    this.objClass.buffer = this.objClass.buffer.trimEnd();
+                }
             }
         }
 
