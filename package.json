@@ -2,6 +2,7 @@
   "name": "balafon-formatters",
   "version": "1.0.0",
   "main": "src/main.js",
+  "description": "Javascript Generic Formatters",
   "author":{
     "name": "C.A.D. BONDJE DOUE",
     "email": "cbondje@igkdev.com" 
