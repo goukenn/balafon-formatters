@@ -1,6 +1,10 @@
 const { Formatters, Utils } = require("./lib/Formatters");
 
 const data = {
+    settings:{
+        tabStop:"\t",
+        blockOnSingleLine:true
+    },
     patterns:[ 
          { include : "#string"},
          { include : "#string-multiline" },
@@ -16,7 +20,7 @@ const data = {
             comment: "block comment information",
             block:{
                 start:"{",
-                end:"\n}"
+                end:"}"
             },
             patterns:[
                 { include : "#string-multiline" },
@@ -112,10 +116,142 @@ const _data = {
         "x='data' + x ; P"
     ],
     data9:[
-        "r: {x='data' + x;   P(){ y : 4}}"
+        "{; x='uri' + x;P(){ y = 4}}"
+    ],
+    multispace_transform:[
+        "bonjour     tout le  monde" //{; x='uri' + x;P(){ y = 4}}"
+    ],
+    read_empty:{
+        data:[
+        "{     }"
+    ], expected:[
+        "{}"
     ]
+    },
+    read_block:{
+        data:[
+        "{ var x }"
+    ], expected:[
+        "{",
+        "\tvar x",
+        "}"
+    ]},
+    read_block_after_line:{
+        data:[
+        "{ var x ",
+        "}"
+    ], expected:[
+        "{",
+        "\tvar x",
+        "}"
+    ]
+    },
+    function_block:{
+        data:[
+        "doSomething(){ var x ",
+        "}"
+    ], expected:[
+        "doSomething(){",
+        "\tvar x",
+        "}"
+    ]
+    },
+    function_block_2:{
+        data:[
+        "doSomething(){    var x ",
+        "   var y",
+        "}"
+    ], expected:[
+        "doSomething(){",
+        "\tvar x",
+        "\tvar y",
+        "}"
+    ]
+    },
+    segment:{
+        data:[
+        "doSomething(){    var x =   32    ;}",  
+    ], expected:[
+        "doSomething(){",
+        "\tvar x = 32;", 
+        "}"
+    ]
+    },
+    segment_2:{
+        data:[
+        "doSomething(){    var x =   32    ; var y; var z=4;}",  
+    ], expected:[
+        "doSomething(){",
+        "\tvar x = 32;", 
+        "\tvar y;", 
+        "\tvar z=4;", 
+        "}"
+    ]
+    },
+    subfunc_block:{
+        data:[
+            "A(){    var x =   32    ; B{ var y } }",  
+        ], expected:[
+            "A(){",
+            "\tvar x = 32;", 
+            "\tB{",
+            "\t\tvar y",
+            "\t}",  
+            "}"
+        ]
+    },
+    litteral:{
+        data:[
+            "A(){   'litteral {} start' }",  
+        ], expected:[
+            "A(){",
+            "\t'litteral {} start'",  
+            "}"
+        ]
+    }
 }
-formatter.debug = true;
-let r = formatter.format(_data.data9); 
-console.log("result:");
-console.log(r);
+function expect(data, formatter){
+    let r = formatter.format(data.data);
+    let s = data.expected.join("\n"); 
+    if (r == s){
+        return true;
+    }
+    console.log("result :",r);
+    console.log(r);
+
+    let idx = 0; 
+    r.split('\n').forEach((l)=>{
+        let g = data.expected[idx];
+        if (l== g){
+            console.log(l);
+        }else{
+            console.log("--"+l);
+            console.log("++"+g);
+        }
+        idx++;
+    });
+    return false;
+
+}
+formatter.debug = false;
+[
+    'read_empty', 
+    'read_block',
+    'read_block_after_line',
+    'function_block',
+    'function_block_2',
+    'segment',
+    'segment_2',
+    'subfunc_block',
+    'litteral'
+].forEach((f)=>{
+
+    if (!expect(_data[f], formatter)){
+        throw new Error("format failed. ["+f+"]");
+    }
+});
+
+
+// let r = formatter.format(_data.multispace_transform); 
+// console.log("result:");
+// console.log(r);
