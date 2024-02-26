@@ -21,11 +21,10 @@
            "name":"tag.definition.html",
            "tokenID":"tagname",
            "onEndDetection": "isBlock = !EmptyTag",
-           "isBlock" : false,
-
-
+           "isBlock" : false, 
            "patterns":[
-                { "include" : "#string"}
+                { "include" : "#string"},
+                { "include" : "#comment"}
            ]
         },
         "empty-tag":{
@@ -41,12 +40,14 @@
         "comment":{
             "begin":"\\<!--",
             "end":"--\\>",
-            "name":"empty.tag.definition.html"
+            "tokenID":"comment",
+            "name":"comment.html"
         }
     },
     "patterns":[
         { "include" : "#string"},
-        { "include" : "#tag-definition"}
+        { "include" : "#tag-definition"},
+        { "include" : "#comment"}
     ],
     "scopeName":"source.text.html"
 }

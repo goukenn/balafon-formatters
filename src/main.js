@@ -264,6 +264,7 @@ _formatter.debug = true;
 _source = `
 <data x="Present"></data>
 <empty />
+<!-- comment -->
 <span>with data</span>
 `; 
 let s =  _formatter.format(
