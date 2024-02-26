@@ -1,5 +1,6 @@
 Object.defineProperty(exports, '__esModule', {value:true});
 
+const { JSonParser } = require('./JSonParser');
 const { RefPatterns } = require('./RefPatterns');
 const { Utils } = require('./Utils');
 class Patterns{
@@ -54,9 +55,26 @@ class Patterns{
     preserveLineFeed;
 
     /**
-     * replacement expression in case of tokenID and listener use replacment technique
+     * depend on token force trim end white space for buffer
      */
-    replaceExpression;
+    nextTrimWhiteSpace = false;
+
+    /**
+     * similar likje end expression will replace the match apend value before adding it to buffer
+     */
+    replaceWith;
+
+    beginCaptures;
+
+    /**
+     * used for end captures
+     */
+    endCaptures;
+
+    /**
+     * apply to both begin and end captures definition
+     */
+    captures;
 
     constructor(){
         this.patterns = [];
@@ -83,6 +101,17 @@ class Patterns{
             }
             return s;
         };
+        const _capture_parser = (s, parser)=>{
+
+            let d = {};
+            for(let i in s){
+                let m = new Patterns; 
+                JSonParser._LoadData(parser, m, s[i]);  
+                d[i] = m; 
+            } 
+            return d;
+
+        }
         const q = this;
         const parse = {
             patterns(n,parser, refKey){
@@ -95,6 +124,10 @@ class Patterns{
             begin: _regex_parser,
             end: _regex_parser,
             match: _regex_parser,
+            replaceWith: _regex_parser,
+            beginCaptures :_capture_parser,
+            endCaptures :_capture_parser,
+            captures :_capture_parser,
         };
         let fc = parse[fieldname];
         if (fc){

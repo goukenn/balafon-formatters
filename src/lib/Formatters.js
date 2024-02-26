@@ -400,9 +400,11 @@ class Formatters {
                 // + | --------------------------------------------------
                 // + | END FOUND
                 // + | --------------------------------------------------
-                const _gp_start = (_start ? _marker.group[0] : _buffer);
+                // const _gp_start = (_start ? _marker.group[0] : _buffer);
                 l = l.substring(0, l_index)
                 // + | block-start and end-on single line treatmen
+                _info.treatEndCapture(_marker, _p, _endRegex);
+                
                 if (_marker.isBlock) {
                     return this._handleEndBlockMarker(_marker, _p, option, l, _start, _buffer, _endRegex, _old);
                 }
@@ -417,7 +419,7 @@ class Formatters {
                     option.depth--;
                 }
                 l = (_start ? _marker.group[0] : _buffer) + l.substring(0, l_index) + _end_def;
-                _info.append(l, _marker);
+                _info.append(l, _marker, true);
                 // if (_marker.isBlock) {
                 //     _info.store();
                 //     _info.append(_marker.blockEnd);
@@ -479,11 +481,7 @@ class Formatters {
                     option.continue = false;
                     option.storeRange(option.pos, _matcher.index);
                     return this._handleMarker(_matcher, option);
-                } else {
-                    //
-                    console.log("-------------------restore .... -----------------------");
-
-                }
+                } 
                 // end found
                 return _matcher.parent;
             }
