@@ -14,5 +14,12 @@
   },
   "scripts":{
     "debug":"node ./src/main.js"
-  }
+  },
+  "engines": {
+    "vscode": "^1.86.0"
+  },
+  "activationEvents": [
+    "onLanguage:bview"
+  ],
+  "publisher": "C.A.D. BONDJE DOUE"
 }
