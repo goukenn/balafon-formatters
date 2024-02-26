@@ -262,11 +262,20 @@ const _formatter = Formatters.CreateFrom(json_data);
 
 _formatter.debug = true;
 _source = `
-<data x="Present"></data>
-<empty />
-<!-- comment -->
-<span>with data</span>
+<!DOCTYPE html>
+<data 
+
+x   =  
+    "Present">
+    presentation
+</data   >
+ok
 `; 
+
+
+{/* <empty />
+<!-- comment -->
+<span>with data</span> */}
 let s =  _formatter.format(
     _source.split("\n")
 );

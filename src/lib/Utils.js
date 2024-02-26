@@ -80,6 +80,12 @@ class Utils {
         }
         return _a;
     }
+    /**
+     * get regex from
+     * @param {string} s expression
+     * @param {*} p group
+     * @returns 
+     */
     static GetRegexFrom(s, p) {
 
         s = s.replace(/[^\\]?\$([\d]+)/, (a, m) => {

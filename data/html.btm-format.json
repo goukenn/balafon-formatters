@@ -22,9 +22,17 @@
            "tokenID":"tagname",
            "onEndDetection": "isBlock = !EmptyTag",
            "isBlock" : false, 
+           "endCaptures":{
+                "0":{
+                    "comment":"remove not used white space",
+                    "match":"<\\/$1\\s+>",
+                    "replaceWith":"<\\/$1>"
+                }
+           },
            "patterns":[
                 { "include" : "#string"},
-                { "include" : "#comment"}
+                { "include" : "#comment"},
+                { "include" : "#operator"}
            ]
         },
         "empty-tag":{
@@ -33,21 +41,34 @@
             "name":"empty.tag.definition.html"
         },
         "operator":{
-            "begin":"\\<([\\w]+)\\s*\\/\\>",
-            "end":"(?:>)",
-            "name":"empty.tag.definition.html"
+            "match":"\\s*(\\+|\\*|-|%|=)\\s*", 
+            "name":"tag.operator.html",
+            "tokenID":"tag.operator",
+            "replaceWith":"$1",
+            "nextTrimWhiteSpace":true
         },
         "comment":{
             "begin":"\\<!--",
             "end":"--\\>",
             "tokenID":"comment",
             "name":"comment.html"
+        },
+        "doctype":{
+            "begin":"\\<!DOCTYPE",
+            "end":"\\>",
+            "tokenID":"doctype",
+            "name":"comment.html",
+            "patterns":[
+                {"include":"#string"},
+                {"include":"#url"}
+            ]
         }
     },
     "patterns":[
         { "include" : "#string"},
         { "include" : "#tag-definition"},
-        { "include" : "#comment"}
+        { "include" : "#comment"},
+        { "include" : "#doctype"}
     ],
     "scopeName":"source.text.html"
 }
