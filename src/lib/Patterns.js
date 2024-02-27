@@ -76,6 +76,11 @@ class Patterns{
      */
     captures;
 
+    /**
+     * get updated parent props, {isBlock:?bool, lineFeed:?bool}
+     */
+    updateParentProps;
+
     constructor(){
         this.patterns = [];
         this.isBlock = false;
