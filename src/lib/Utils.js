@@ -75,7 +75,7 @@ class Utils {
             _match.index += pos;
             _a.startMatch(line, _match);
             if (debug) {
-                console.log('begin:', { name: _a.name, line, pos: _match.index , depth, hasParent: _a.parent!=null});
+                console.log('matcher: ', { name: _a.name, line, pos: _match.index , depth, hasParent: _a.parent!=null});
             }
         }
         return _a;
