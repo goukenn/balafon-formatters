@@ -33,7 +33,8 @@ class Patterns{
      */
     patterns;
     /**
-     * if match append line feed after this instruct
+     * indicate that this must be used as lineFeed
+     * @var {?bool}
      */
     lineFeed;
      /**
@@ -80,6 +81,13 @@ class Patterns{
      * get updated parent props, {isBlock:?bool, lineFeed:?bool}
      */
     updateParentProps;
+
+
+    /**
+     * use to mark section as a buffer transform - according to parent 
+     * passing the transformed data to parent end 
+     */
+    transformToken;
 
     constructor(){
         this.patterns = [];

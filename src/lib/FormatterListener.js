@@ -3,10 +3,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { Debug } = require("./Debug");
 const { Patterns } = require("./Patterns");
 const { Utils } = require("./Utils");
-class FormatterListener {
-    markerInfo = []; // store marker field info [{ marker:Pattern, buffer:string}]
-    objClass = null;
-
+class FormatterListener { 
+    objClass = null; 
 
     constructor() {
         var m_lastToken;
@@ -18,6 +16,17 @@ class FormatterListener {
         this.setLastMarker = function (token) {
             m_lastToken = token;
         };
+    }
+    /**
+     * call to add a new block
+     */
+    startNewBlock(marker){ 
+        const o = this.objClass;
+        if (!o) return;
+        let d = o.depth
+        o.output.length = 0;
+        o.output.push('');
+        o.output.push(o.tabStop.repeat(d));
     }
     /**
      * treat buffer before send and matching
@@ -79,9 +88,7 @@ class FormatterListener {
                     this.objClass.buffer = this.objClass.buffer.trimEnd();
                 }
             }
-        }
-
-       
+        } 
         if (_marker.replaceWith && _marker.match) {
             let gp = Utils.GetRegexFrom(_marker.replaceWith.toString(), _marker.group);
             gp = gp.toString().substring(1).slice(0, -1);
@@ -160,7 +167,7 @@ class FormatterListener {
         let s = _o.buffer;
         let d = _o.depth;
         s = s.trim();
-        if (s.length > 0) {
+        if (s.length > 0){
             _o.output.push(_o.tabStop.repeat(d) + s);
         }
         _o.buffer = '';
