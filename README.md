@@ -32,3 +32,7 @@ settings
 
 
 - 1.0
+
+
+lineFeed
+marker is not a line feed directive or buffer is not empty

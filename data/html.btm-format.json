@@ -1,104 +1,156 @@
 {
-    "settings":{
-        "noSpaceJoin":true
+    "settings": {
+        "noSpaceJoin": true
     },
-    "repository":{
-        "string":{
+    "repository": {
+        "string": {
             "begin": "(\"|')",
             "end": "\\$1",
-            "name":"string.definition",
-            "allowMultiline":false,
-            "tokenID":"string",
-            "patterns":[
+            "name": "string.definition",
+            "allowMultiline": false,
+            "tokenID": "string",
+            "patterns": [
                 {
-                    "match":"\\\\."
+                    "match": "\\\\."
                 }
             ]
         },
-        "tag-definition":{
-           "begin":"\\<([\\w]+)(\\s+|[^\\/]*\\>)", 
-           "end":"(\\/|\\<\\/$1\\s*)?\\>",
-           "name":"tag.definition.html",
-           "tokenID":"tagname",
-           "onEndDetection": "isBlock = !EmptyTag",
-           "isBlock" : false, 
-           "endCaptures":{
-                "0":{
-                    "comment":"remove not used white space",
-                    "match":"<\\/$1\\s+>",
-                    "replaceWith":"<\\/$1>"
+        "tag-definition": {
+            "begin": "\\<(\\b[\\w]+\\b)",
+            "end": "(\\/|\\<\\/$1\\s*)?\\>",
+            "name": "tag.definition.html",
+            "tokenID": "tagname", 
+            "isBlock": false,
+            "block": {
+                "start": "<$1",
+                "end": "$1-info-basic"
+            },
+           "endCaptures": {
+                "0": {
+                    "comment": "remove not used white space",
+                    "match": "<\\/([\\w]+)\\s+\\>",
+                    "replaceWith": "\\<\\/$1\\>"
                 }
-           },
-           "patterns":[
-                { "include" : "#string"},
-                { "include" : "#comment"},
-                { "include" : "#operator"},
-                { "include" : "#end-tag"}
-           ]
-        },
-        "empty-tag":{
-            "begin":"\\<([\\w]+)\\s*\\/\\>",
-            "end":"(?:>)",
-            "lineFeed":true,
-            "name":"empty.tag.definition.html"
-        },
-        "operator":{
-            "match":"\\s*(\\+|\\*|-|%|=)\\s*", 
-            "name":"tag.operator.html",
-            "tokenID":"tag.operator",
-            "replaceWith":"$1",
-            "nextTrimWhiteSpace":true
-        },
-        "comment":{
-            "begin":"\\<\\!--",
-            "end":"--\\>",
-            "tokenID":"comment",
-            "name":"comment.html",
-            "lineFeed":true
-        },
-        "doctype":{
-            "begin":"\\<!DOCTYPE",
-            "end":"\\>",
-            "tokenID":"doctype",
-            "name":"constant.doctype.html",
-            "lineFeed":true,
-            "patterns":[
-                {"include":"#string"},
-                {"include":"#url"}
+            },
+            "patterns": [
+                {
+                    "include": "#end-tag"
+                },
+                {
+                    "match": "(?=\\<\\/[\\w]+\\>)",
+                    "name": "end.tag.block.html",
+                    "tokenID":"endtag.block"
+                },
+                {
+                    "match": "(?:\\>)",
+                    "name": "start.html.end.block.html",
+                    "lineFeed":false,
+                    "updateParentProps": {
+                        "isBlock": true
+                    }
+                },
+                {
+                    "match": "(?:\\/\\>)",
+                    "name": "start.empty.html.block.html",
+                    "isBlock": true
+                },
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#comment"
+                },
+                {
+                    "include": "#operator"
+                }
+                
             ]
         },
-        "processor-expression":{
-            "begin":"\\<\\?[\\w]+",
-            "end":"\\?>",
-            "tokenID":"processor",
-            "name":"constant.processor.html",
-            "lineFeed":true,
-            "patterns":[
-                {"include":"#string"},
-                {"include":"#url"}
+        "empty-tag": {
+            "begin": "\\<([\\w]+)\\s*\\/\\>",
+            "end": "(?:>)",
+            "lineFeed": true,
+            "tokenID": "empty.tag",
+            "name": "empty.tag.definition.html"
+        },
+        "operator": {
+            "match": "\\s*(\\+|\\*|-|%|=)\\s*",
+            "name": "tag.operator.html",
+            "tokenID": "tag.operator",
+            "replaceWith": "$1",
+            "nextTrimWhiteSpace": true
+        },
+        "comment": {
+            "begin": "\\<\\!--",
+            "end": "--\\>",
+            "tokenID": "comment",
+            "name": "comment.html",
+            "lineFeed": true
+        },
+        "doctype": {
+            "begin": "\\<!DOCTYPE",
+            "end": "\\>",
+            "tokenID": "doctype",
+            "name": "constant.doctype.html",
+            "lineFeed": true,
+            "patterns": [
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#url"
+                }
             ]
         },
-        "end-tag":{
-            "begin":"\\<\\/[\\w]+",
-            "end":"\\>",
-            "tokenID":"end.tag",
-            "name":"end.tag.definition.html",
-            "nextTrimWhiteSpace":true,
-            "lineFeed":true,
-            "endCaptures":{
-                "0":{
-                    "nextTrimWhiteSpace":true
+        "processor-expression": {
+            "begin": "\\<\\?[\\w]+",
+            "end": "\\?>",
+            "tokenID": "processor",
+            "name": "constant.processor.html",
+            "lineFeed": true,
+            "patterns": [
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#url"
+                }
+            ]
+        },
+        "end-tag": {
+            "begin": "\\<\\/[\\w]+(\\s+|$)",
+            "end": "\\>",
+            "tokenID": "detect-bad-end.tag",
+            "name": "end.tag.definition.html",
+            "comment": "detect non well formed end tags",
+            "nextTrimWhiteSpace": true,
+            "transformToken": true,
+            "endCaptures": {
+                "0": {
+                    "nextTrimWhiteSpace": true
                 }
             }
         }
     },
-    "patterns":[
-        { "include" : "#string"},
-        { "include" : "#tag-definition"},
-        { "include" : "#comment"},
-        { "include" : "#doctype"},
-        { "include" : "#end-tag"},
-        { "include" : "#processor-expression"}
+    "patterns": [
+        {
+            "include": "#string"
+        },
+        {
+            "include": "#tag-definition"
+        },
+        {
+            "include": "#comment"
+        },
+        {
+            "include": "#doctype"
+        },
+        {
+            "include": "#end-tag"
+        },
+        {
+            "include": "#processor-expression"
+        }
     ],
-    "scopeName":"source.text.html"
+    "scopeName": "source.text.html"
 }

@@ -257,17 +257,77 @@ formatter.debug = false;
 // console.log(r);
 
 */
-// let e = /(?:lala)(print)(base)(?=info)/.exec('jump lalaprintbaseinfo');
+// let rgx =  /(?:lala)(pr(in))(base)(?=info)/;
+// let rgx =  /(?:info)/;
+// let e = rgx.exec('jump lalaprinbaseinfo');
+
+// capture : 
+// (?:subexp) - capture in global capture result - not capture group
+// (?<=subexp) - look behind - not in global capture - not capture group
+// (?=subexp) - look ahead - not in global capture - not capture group
 // console.log(e);
+function removeCapture(str){
+    let l = str;
+    let p = 0;
+    function rm_brank(l, index, start='(', end=')'){
+        let i = 1;
+        let ln = l.length;
+        const start_index = index;
+        while((i < ln) && (i>0)){
+
+            ch = l[index+1];
+            if (ch==start){
+                i++;
+            } else if (ch ==end){
+                i--;
+            }
+            index++;
+        }
+        return l.substring(0, start_index)+l.substring(index+1);
+    }
+    let capture = false;
+    while( p = /\(\?(:|(\<)?=)./.exec(l)){
+        l = rm_brank(l, p.index);
+        capture= true;
+    }
+    return capture ? l : null;
+}
+// let p = removeCapture(rgx.toString()); // .replace(/\(\?(:|=|>)./g, '');
+// if (p){
+//      
+// p = p.substring(1).slice(0,-1);
+// let _regp = new RegExp(p);
+// let _gp = _regp.exec(e[0]); 
+// // let captureStart = e.index+_gp.index;
+// // let captureLength = _gp[0].length;
+// _gp.index += e.index;
+// _gp.input = e.input;
+// // let captureInfo = {
+// //     captureStart,
+// //     captureLength,
+// //     group: _gp
+// // };
+// console.log(_gp);
+// }
+// var entireLength = e.reduce(function (acc, match) {
+//     return acc + (match ? match.length : 0);
+// }, 0);
+// console.log(e);
+// console.log("length");
+// console.log(entireLength);
 // return;
 
 const json_data = require("../data/html.btm-format.json");
 const _formatter = Formatters.CreateFrom(json_data);
 
 _formatter.debug = true;
-_source = `
+_source = ` 
+<span> with data 
 
-<span> with data  </span> 
+</span
+
+>
+
 ok
 `; 
 

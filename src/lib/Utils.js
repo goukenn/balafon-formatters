@@ -75,18 +75,22 @@ class Utils {
             _match.index += pos;
             _a.startMatch(line, _match);
             if (debug) {
-                console.log('matcher: ', { name: _a.name, line, pos: _match.index , depth, hasParent: _a.parent!=null});
+                console.log('matcher: ', { name: _a.name, line, pos:
+                     _match.index , depth, 
+                     hasParent: _a.parent!=null,
+                     isBlock : _a.isBlock
+                });
             }
         }
         return _a;
     }
     /**
      * get regex from
-     * @param {string} s expression
+     * @param {string} s regext expression
      * @param {*} p group
      * @returns 
      */
-    static GetRegexFrom(s, p) {
+    static GetRegexFrom(s, p) { 
 
         s = s.replace(/[^\\]?\$([\d]+)/, (a, m) => {
             if (a[0] == "\\") return a;
@@ -94,8 +98,16 @@ class Utils {
                 return a[0] + p[m];
             return p[m];
         });
-        s = s.substring(1).slice(0, -1);
+        s = /^\/.+\/$/.test(s) ? s.substring(1).slice(0, -1) : s;
         return new RegExp(s);
+    }
+
+
+    static ReplaceRegexGroup(s, group){
+        let gp = Utils.GetRegexFrom(s, group);
+        gp = gp.toString().substring(1).slice(0, -1);
+        s = s.replace(s, gp);
+        return s;
     }
 }
 
