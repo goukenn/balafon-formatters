@@ -89,6 +89,12 @@ class Patterns{
      */
     transformToken;
 
+    /**
+     * list of tranform operation
+     * @var {string|string[]}
+     */
+    transform;
+
     constructor(){
         this.patterns = [];
         this.isBlock = false;
@@ -98,21 +104,7 @@ class Patterns{
     json_parse(parser, fieldname, data, refKey){ 
         const patterns = Utils.ArrayParser(Patterns, RefPatterns);
         const _regex_parser = (s)=>{
-            if (typeof(s)=='string'){
-                return new RegExp(s);
-            } else if (typeof(s)=='object'){
-                if (s instanceof RegExp)
-                    return s;
-                const { option, regex } = s;
-                if (regex instanceof RegExp){
-                    regex = Utils.GetRegexFrom(regex.toString(), option);
-                    return regex;
-                }
-
-                return new RegExp(regex, option);
-
-            }
-            return s;
+            return Utils.RegexParse(s); 
         };
         const _capture_parser = (s, parser)=>{
 
@@ -141,6 +133,16 @@ class Patterns{
             beginCaptures :_capture_parser,
             endCaptures :_capture_parser,
             captures :_capture_parser,
+            transform(n,parser){
+                if (typeof(n)=='string'){
+                    return n.split(',').forEach((i)=>{
+                        return i.trim();
+                    });
+                }
+                if (Array.isArray(n)){
+                    return n;
+                }
+            }
         };
         let fc = parse[fieldname];
         if (fc){

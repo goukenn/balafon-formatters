@@ -3,6 +3,7 @@
         "noSpaceJoin": true
     },
     "repository": {
+
         "string": {
             "begin": "(\"|')",
             "end": "\\$1",
@@ -11,7 +12,37 @@
             "tokenID": "string",
             "patterns": [
                 {
-                    "match": "\\\\."
+                    "match": "\\\\.",
+                    "name":"escaped.char"
+                }
+            ]
+        },
+        "string-named": {
+            "begin": "(\"|')",
+            "end": "\\$1",
+            "name": "string.definition",
+            "allowMultiline": false,
+            "tokenID": "string",
+            "patterns": [
+                {
+                    "match":"(?i)\\bbondje\\b",
+                    "name":"author.name",
+                    "transform":["upperCase"]
+                },
+                {
+                    "match": "\\\\.",
+                    "name":"escaped.char"
+                }
+            ]
+        },
+        "url": {
+            "match":"(?i)(?<scheme>(?:ftp|http(?:s)|[a-z]+)):(?:\\/\\/|\\/|)(?<path>(?:\\/|\\.\\.(?:\\/)?|\\.(?:\\/)?)[^\\/\\)\\(]+(?:\\/|\/[^\\/\\)\\()\\;]+))(?:;(?<queryo>[^\\?\\#]+))?(?:\\?(?<query>[^\\#]+))?(?:(?<anchor>#.+))?",
+            "name": "url.text", 
+            "tokenID": "url",
+            "patterns": [
+                {
+                    "match": "\\\\.",
+                    "name":"escaped.char"
                 }
             ]
         },
@@ -23,7 +54,7 @@
             "isBlock": false,
             "block": {
                 "start": "<$1",
-                "end": "$1-info-basic"
+                "end": "\\<\\/$1\\>"
             },
            "endCaptures": {
                 "0": {
@@ -50,9 +81,22 @@
                     }
                 },
                 {
-                    "match": "(?:\\/\\>)",
+                    "match": "(\\/\\>)",
                     "name": "start.empty.html.block.html",
-                    "isBlock": true
+                    "tokenID":"endtag.block",
+                    "lineFeed": true,
+                    "updateParentProps": {
+                        "isBlock": true
+                    }
+                },
+                {
+                    "include":"#html-attribute"
+                },
+                {
+                    "include":"#function-html-attribute"
+                },
+                {
+                    "include":"#bracket-html-attribute"
                 },
                 {
                     "include": "#string"
@@ -130,14 +174,55 @@
                     "nextTrimWhiteSpace": true
                 }
             }
+        },
+        "html-attribute":{
+            "match":"(\\*)?\\b[\\w]+\\b",
+            "name":"tag.attribute.html"
+        },
+        "bracket-html-attribute":{
+            "match":"\\[\\s*\\b[\\w]+\\b\\*\\]",
+            "name":"tag.bracket.attribute.html"
+        },
+        "function-html-attribute":{
+            "match":"\\[\\s*\\b[\\w]+\\b\\*\\]",
+            "name":"tag.function.attribute.html"
         }
     },
     "patterns": [
         {
+            "begin":"\\<\\b([\\w]+)\\b",
+            "end":"\\s*\\/\\>",
+            "name":"global.empty.tag",
+            "endCaptures":{
+                "0":{
+                    "name":"html.end.tag_definition",
+                    "transform":["trim"],
+                    "replaceWith":"></$1>",
+                    "patterns":[
+                        {
+                            "match":"^\\>",
+                            "name":"close.tag"
+                        },
+                        {
+                            "match":"\\<\\/\\b[\\w]+\\b\\>",
+                            "name": "replace.tag"
+                        }
+                    ]
+                }
+            }
+           
+        },
+        {
+            "include": "#string-named"
+        },
+        {
             "include": "#string"
         },
         {
-            "include": "#tag-definition"
+            "include": "#url"
+        },
+        {
+            "include": "#tag-definition_"
         },
         {
             "include": "#comment"
@@ -152,5 +237,7 @@
             "include": "#processor-expression"
         }
     ],
+
+
     "scopeName": "source.text.html"
 }

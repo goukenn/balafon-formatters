@@ -1,7 +1,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
- 
+
 class Utils {
     static JSonParseData(class_name, data) {
         let parser = new JSonParser;
@@ -23,6 +23,7 @@ class Utils {
             let q = this;
             d.forEach((a) => {
                 const { include } = a;
+                const _extends = a.extends;
                 let _o = null, _key = null, _def = null;
                 if (include) {
                     if (include[0] == '#') {
@@ -37,7 +38,11 @@ class Utils {
                             }
                         }
                     }
-                } else {
+                }
+                else if (_extends) {
+                    throw new Error("extends not support yet");
+                }
+                else {
                     _o = new class_name();
                     JSonParser._LoadData(parser, _o, a);
                 }
@@ -51,16 +56,16 @@ class Utils {
     }
 
     static GetPatternMatcher(patterns, options) {
-        const { line, pos, debug , depth } = options;
+        const { line, pos, debug, depth } = options;
         let _a = null;
         let _match = 0;
         let _index = -1;
         let l = line.substring(pos);
-        const {RefPatterns} = require('./RefPatterns');
+        const { RefPatterns } = require('./RefPatterns');
 
         patterns.forEach((s) => {
             let _ts = s;
-            if (s instanceof RefPatterns){
+            if (s instanceof RefPatterns) {
                 _ts = s.pattern;
             }
 
@@ -75,10 +80,11 @@ class Utils {
             _match.index += pos;
             _a.startMatch(line, _match);
             if (debug) {
-                console.log('matcher: ', { name: _a.name, line, pos:
-                     _match.index , depth, 
-                     hasParent: _a.parent!=null,
-                     isBlock : _a.isBlock
+                console.log('matcher: ', {
+                    name: _a.name, line, pos:
+                        _match.index, depth,
+                    hasParent: _a.parent != null,
+                    isBlock: _a.isBlock
                 });
             }
         }
@@ -90,7 +96,7 @@ class Utils {
      * @param {*} p group
      * @returns 
      */
-    static GetRegexFrom(s, p) { 
+    static GetRegexFrom(s, p) {
 
         s = s.replace(/[^\\]?\$([\d]+)/, (a, m) => {
             if (a[0] == "\\") return a;
@@ -103,12 +109,96 @@ class Utils {
     }
 
 
-    static ReplaceRegexGroup(s, group){
+    static ReplaceRegexGroup(s, group) {
         let gp = Utils.GetRegexFrom(s, group);
-        gp = gp.toString().substring(1).slice(0, -1);
+        gp = gp.toString().substring(1).slice(0, -1).replace(/\\\//g, "/");
         s = s.replace(s, gp);
         return s;
     }
-}
 
+    /**
+     * 
+     * @param {string} s regex string expression
+     */
+    static RegexInfo(s) {
+        let _option = /^\(\?(?<active>[ixm]+)(-(?<disable>[ixm]+))?\)/;
+        let option = '';
+        let _potion = null;
+        if (_potion = _option.exec(s)) {
+            let sp = '';
+            if (_potion.groups) {
+                sp = _potion.groups.active ?? '';
+                if (_potion.groups.disable) {
+                    _potion.groups.disable.split().forEach(i => {
+                        sp = sp.replace(i, '');
+                    });
+                }
+            }
+            s = s.replace(_option, '');
+            option = sp;
+        }
+        return {
+            s,
+            option
+        };
+    }
+
+    static RegexParse(s) {
+        if (typeof (s) == 'string') {
+            let _info = Utils.RegexInfo(s);
+            return new RegExp(_info.s, _info.option);
+        } else if (typeof (s) == 'object') {
+            if (s instanceof RegExp)
+                return s;
+            const { option, regex } = s;
+            if (regex instanceof RegExp) {
+                regex = Utils.GetRegexFrom(regex.toString(), option);
+                return regex;
+            }
+            return new RegExp(regex, option);
+
+        }
+        return s;
+    }
+    static StringValueTransform(v, transform) {
+        const _func = {
+            joinSpace(s){ 
+                s = s.replace(/\s+/g, ' ');
+                return s;
+            },
+            upperCase(v) {
+                return v.toUpperCase();
+            },
+            lowerCase(v) {
+                return v.toLowerCase();
+            },
+            trim(v) {
+                return v.trim();
+            },
+            /**
+             * 
+             * @param {string} v 
+             * @returns 
+             */
+            rtrim(v) {
+                return v.trimStart();
+            }
+            , /**
+            * 
+            * @param {string} v 
+            * @returns 
+            */
+            ltrim(v) {
+                return v.trimEnd();
+            }
+        };
+        transform.forEach((s) => {
+            if (v.length==0){
+                return;
+            }
+            v = typeof (s) == 'function' ? s(v) : _func[s](v);
+        });
+        return v;
+    }
+}
 exports.Utils = Utils;
