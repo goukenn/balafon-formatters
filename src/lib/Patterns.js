@@ -135,9 +135,13 @@ class Patterns{
             captures :_capture_parser,
             transform(n,parser){
                 if (typeof(n)=='string'){
-                    return n.split(',').forEach((i)=>{
-                        return i.trim();
+                    let t = []
+                    n.split(',').forEach((i)=>{
+                        i.trim();
+                        if (i.length>0)
+                            t.push(i);
                     });
+                    return t;
                 }
                 if (Array.isArray(n)){
                     return n;

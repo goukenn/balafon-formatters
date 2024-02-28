@@ -209,7 +209,21 @@
                         }
                     ]
                 }
-            }
+            },
+            "patterns":[
+                {
+                    "begin":"\\s*=\\s*",
+                    "end":"(?=[\\w]|\\/|\\>)",
+                    "beginCaptures":{
+                        "0":{
+                            "transform":"trim"
+                        }
+                    },
+                    "patterns":[
+                        {"include":"#string"}
+                    ]
+                }
+            ]
            
         },
         {
