@@ -1,4 +1,74 @@
+"use strict";
 const { Formatters, Utils } = require("./lib/Formatters");
+
+// let a ;
+// let b = null; //{ a:9, b:8};
+// let q = {...a, ...b};
+// function is_emptyObj(q){
+//     return Object.keys(q).length == 0
+// }
+
+// console.log(is_emptyObj(q));
+
+
+// return;
+
+// ---------------------------------------
+// check url detectetion
+// ---------------------------------------
+// let s = "(?i)(((ftp|http(s)|[a-z]+)?:(\\/{,2}))|(\\.(\\.\\/|\\/)?)|\\s*)[^\\s\\/\\)]+(\\/|(\\/[^\\s\\/\\)]+)*)(\\/)?";
+// let s = "(?<path>(?:\\.(\\.\\/)?[^\\s\\/\\)\\)]+)|[^\\s\\/\\)\\)]+(\\/|(\\/[^\\s\\/\\)/\\(]+)+))";
+// scheme detection 
+// let s = "(?<scheme>(?:ftp|http(?:s)|[a-z]+)):(?:\\/\\/|\\/|)(?<path>(?:\\/|\\.\\.(?:\\/)?|\\.(?:\\/)?)[^\\/\\)\\(]+(?:\\/|\/[^\\/\\)\\()\\;]+))(?:;(?<queryo>[^\\?\\#]+))?(?:\\?(?<query>[^\\#]+))?(?:(?<anchor>#.+))?"; 
+// let rg = Utils.RegexParse(s);
+// console.log(rg);
+
+// console.log("1", rg.exec("info")); // not a valid uri
+// console.log("2", rg.exec(".info")); //  
+// console.log("2", rg.exec("..info")); //  
+// console.log("2", rg.exec("../info")); // 
+// console.log("3", rg.exec("info/")); / 
+// console.log("3", rg.exec("http://info/")); // not a valid uri
+// console.log("3", rg.exec("//info/")); // not a valid uri
+// console.log("3", rg.exec("..info/")); // not a valid uri
+// console.log("3", rg.exec("http://info/;info=2?sample=8#present")); // not a valid uri
+// console.log(rg.exec(".info"));
+// console.log(rg.exec("./info"));
+// console.log(rg.exec("../info"));
+
+
+// return;
+// ---------------------------------------
+// test regex parse from string
+// ---------------------------------------
+// let _potion = null;
+// s = "(?i)(((ftp|http(s)|[a-z]+)?:(\\/{,2}))|(\\.)|\\s*)[^\\s\\/\\)]+(\\/[^\\s\\/\\)]+)*(\\/)?";
+// let l = Utils.RegexParse(s);
+// console.log(l);
+
+
+
+
+
+
+// let _option = /^\(\?(?<active>[ixm]+)(-(?<disable>[ixm]+))?\)/;
+// if (_potion = _option.exec(s)){
+//     let sp = '';
+//     if(_potion.groups){
+//         sp = _potion.groups.active ?? '';
+//         if (_potion.groups.disable){
+//             _potion.groups.disable.split().forEach(i=>{
+//                 sp = sp.replace(i,'');
+//             });
+//         }
+//     }
+//     s = s.replace(_option, '');
+
+//     console.log("active option ... ", _potion, sp, s);
+// }
+
+// return;
+
 /*
 const data = {
     settings:{
@@ -319,17 +389,59 @@ function removeCapture(str){
 
 const json_data = require("../data/html.btm-format.json");
 const _formatter = Formatters.CreateFrom(json_data);
+let lines = [];
+// _formatter.listener = ()=> ({
+//     treatBuffer:{
+//         /**
+//          * call before append to the buffer 
+//          * @param {*} buffer 
+//          * @param {*} value 
+//          * @param {*} otion option setting 
+//          * @param {*} _marker 
+//          * @returns 
+//          */
+//         append( buffer, value, _marker, option){
+//             // dependending on  _marker. add some value
+//             const {lineFeed, startLine, lineJoin, tabStop } = option;
+//             console.log("treate value : -------------------------------------");
 
-_formatter.debug = true;
-_source = ` 
-<span> with data 
+//             // if (_marker && /^html\./.test(_marker.name)){
+//             //     value = 'HTML:'+value;
+//             // } 
+//             // value = value.replace(/[\\<\\>]/g, '');
 
-</span
+//             return option.joinBuffer(buffer, value); 
+//         }
+//     },
+//     append(s){
+//         // append - just output to buffer data
+//         console.log('output : ', s);
+//         lines.push(s);
+        
+//     },
+//     store({output, buffer}){
+//         let option = this.objClass;;
+//         if (buffer.length>0){
+//             output.push(buffer);
+//         }  
+//     },
+//     output(){
+//         console.log("ask for output result .... ");
 
->
+//     }
+// });
+_formatter.debug = true; 
+let tests = [
+    { s: ['info'], e:'info'},
+    { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
+     { s: ['pour dire "the main : bondje test info"'], e:'pour dire "the main : BONDJE test info"'}, 
+    { s: ['par   devant'], e:'par devant'}, 
+    { s: ['par   devant'], e:'par devant'}, 
+    { s: ['<div /><div />'], e:'<div></div><div></div>'}, 
+    { s: ['<div/>    <div />     <input />'], e:'<div></div><div></div><input></input>'}, 
+    { s: ['<div/>', '<div />', '<div />'], e:'<div></div><div></div><div></div>'}, 
+];
 
-ok
-`; 
 
 
 {/* <!DOCTYPE html><?xml blabla ?>
@@ -344,14 +456,36 @@ x   =
 <!-- comment 
 for sample 
 -->*/}
-let s =  _formatter.format(
-    _source.split("\n")
-);
-console.log("result:"); 
-console.log();
-console.log();
+tests.forEach(o=>{
 
+    let s = _formatter.format(
+        o.s
+    );
+    if (s==o.e){
+        return;
+    } 
+    compareString(s, o.e);
+    throw new Error("failed");
+})
 
-console.log(s);
-console.log();
-console.log();
+function compareString(r, o){
+    let idx = 0; 
+    let data = o.split("\n");
+    console.log(' ++++ = expected');
+    console.log(' ---- = return');
+    console.log("\n-result");
+    console.log(r);
+    console.log("\n-compare");
+    r.split('\n').forEach((l)=>{
+        let g = data[idx];
+        if (l== g){
+            console.log(l);
+        }else{
+            console.log("++++ "+g);
+            console.log("---- "+l);
+        }
+        idx++;
+    });
+}
+ 
+ 

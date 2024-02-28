@@ -4,7 +4,12 @@ const { Debug } = require("./Debug");
 const { Patterns } = require("./Patterns");
 const { Utils } = require("./Utils");
 class FormatterListener { 
-    objClass = null; 
+    objClass = null;
+    
+    /**
+     * object to treat be data before adding it to buffer 
+     */
+    treatBuffer;
 
     constructor() {
         var m_lastToken;
@@ -100,7 +105,7 @@ class FormatterListener {
         return s;
     }
     /**
-     * append 
+     * append or transform value to buffer. at end on string manipulation 
      * @param {string} s 
      * @param {Patterns} _marker 
      * @returns 
@@ -111,8 +116,8 @@ class FormatterListener {
         if (s.length == 0) return;
 
         if (_marker) {
-            let a = `<span class="tk s">${s}</span>`;
-            _o.debug && Debug.log({ tokenID: _marker.tokenID, value: s });
+            // let a = `<span class="tk s">${s}</span>`;
+            _o.debug && Debug.log({ tokenID: _marker.tokenID, value: s , name: _marker.name});
             s = this.treatValue(_marker, s, endCapture);
         }
 
@@ -129,9 +134,9 @@ class FormatterListener {
         else if (_marker.lineFeed) {
             _o.buffer = this.objClass.buffer.trimEnd();
         }
-        if (_o.debug) {
-            Debug.log('append: ' + s);
-        }
+        // + | 
+        _o.debug &&  Debug.log('append: ' + s);
+    
         if (_o.buffer.length > 0) {
             // join expression with single space
             let _trx = new RegExp("^\\s+(.+)\\s+$");
@@ -140,10 +145,10 @@ class FormatterListener {
 
         if (_o.lineJoin) {
             if (!_o.noSpaceJoin) {
-                _o.buffer = this.objClass.buffer.trimEnd() + ' ';
+                _o.buffer = _o.buffer.trimEnd() + ' ';
             }
             _o.lineJoin = false;
-        }
+        } 
         _o.buffer += s;
 
         if (_marker && _marker.lineFeed) {
@@ -160,23 +165,22 @@ class FormatterListener {
         this.store();
     }
     /**
-     * store the current buffer.
+     * treat current buffer and store it to option 
+     * buffer to ouput . 
      */
-    store() {
-        const _o = this.objClass;
-        let s = _o.buffer;
-        let d = _o.depth;
+    store({buffer, output, depth, tabStop}) { 
+        let s = buffer;
+        let d = depth;
         s = s.trim();
         if (s.length > 0){
-            _o.output.push(_o.tabStop.repeat(d) + s);
-        }
-        _o.buffer = '';
+            let _tab = d > 0 ? tabStop.repeat(d) : '';
+            output.push(_tab + s);
+        } 
     }
-    output(clear) {
-        const _o = this.objClass;
-        let _s = _o.output.join(_o.lineFeed);
+    output(clear, {output, lineFeed}) { 
+        let _s = output.join(lineFeed);
         if (clear) {
-            _o.output = [];
+            output = [];
         }
         return _s;
     }
@@ -186,6 +190,9 @@ class FormatterListener {
             _o.output[_o.output.length - 1] += _o.lineFeed;
         }
     }
+
+
+    treat
 }
 
 exports.FormatterListener = FormatterListener;
