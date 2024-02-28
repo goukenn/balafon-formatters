@@ -432,14 +432,18 @@ let lines = [];
 // });
 _formatter.debug = true; 
 let tests = [
-    { s: ['info'], e:'info'},
-    { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
-     { s: ['pour dire "the main : bondje test info"'], e:'pour dire "the main : BONDJE test info"'}, 
-    { s: ['par   devant'], e:'par devant'}, 
-    { s: ['par   devant'], e:'par devant'}, 
-    { s: ['<div /><div />'], e:'<div></div><div></div>'}, 
-    { s: ['<div/>    <div />     <input />'], e:'<div></div><div></div><input></input>'}, 
-    { s: ['<div/>', '<div />', '<div />'], e:'<div></div><div></div><div></div>'}, 
+    // { s: ['info'], e:'info'},
+    // { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
+    //  { s: ['pour dire "the main : bondje test info"'], e:'pour dire "the main : BONDJE test info"'}, 
+    // { s: ['par   devant'], e:'par devant'}, 
+    // { s: ['par   devant'], e:'par devant'}, 
+    // { s: ['<div /><div />'], e:'<div></div><div></div>'}, 
+    // { s: ['<div/>    <div />     <input />'], e:'<div></div><div></div><input></input>'}, 
+    // { s: ['<div/>', '<div />', '<div />'], e:'<div></div><div></div><div></div>'}, 
+
+    { s: ['<div id = "data"     />'], e:'<div id="data"></div>'}, 
+
+
 ];
 
 

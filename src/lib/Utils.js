@@ -87,6 +87,10 @@ class Utils {
                     isBlock: _a.isBlock
                 });
             }
+            // let _treatCapture = { ..._match};
+            _match.offset = _match[0].length;
+            options.treatBeginCaptures(_a, _match);
+            
         }
         return _a;
     }
