@@ -474,7 +474,12 @@ function runTest(tests, _formatter){
         let s = _formatter.format(
             o.s
             );
-            if (s==o.e){
+            let e = o.e;
+            if (Array.isArray(o.e)){
+                e = e.join("\n");
+            }
+
+            if (s==e){
                 testCount++;
                 return;
         } 
@@ -496,9 +501,9 @@ function compareString(r, o){
         let g = data[idx];
         if (l== g){
             console.log(l);
-        }else{
-            console.log("++++ "+g);
-            console.log("---- "+l);
+        }else{ 
+            console.log("++++ |"+((g+'').length.toString().padStart(10, ' '))+" |"+g);
+            console.log("---- |"+((l+'').length.toString().padStart(10, ' '))+" |"+l); 
         }
         idx++;
     });
