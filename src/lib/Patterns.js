@@ -2,6 +2,7 @@ Object.defineProperty(exports, '__esModule', {value:true});
 
 const { JSonParser } = require('./JSonParser');
 const { RefPatterns } = require('./RefPatterns');
+const { ReplaceWithCondition } = require('./ReplaceWithCondition');
 const { Utils } = require('./Utils');
 class Patterns{
     /**
@@ -64,6 +65,12 @@ class Patterns{
      * similar likje end expression will replace the match apend value before adding it to buffer
      */
     replaceWith;
+
+    /**
+     * replace with condition object 
+     * @var {} 
+     */
+    replaceWithCondition
 
     beginCaptures;
 
@@ -130,6 +137,11 @@ class Patterns{
             end: _regex_parser,
             match: _regex_parser,
             replaceWith: _regex_parser,
+            replaceWithCondition(n , parser, ){
+                let m = new ReplaceWithCondition; 
+                JSonParser._LoadData(parser, m, n);  
+                return m;
+            },
             beginCaptures :_capture_parser,
             endCaptures :_capture_parser,
             captures :_capture_parser,
@@ -158,6 +170,9 @@ class Patterns{
         const validator = {
             patterns(d){
                 return Array.isArray(d);
+            },
+            replaceWithCondition(d){
+                return typeof(d)=='object';
             }
         };
         let f = validator[field_name];
@@ -192,6 +207,9 @@ class Patterns{
     startMatch(l, p){
         this.m_line = l;
         this.m_match = p;
+    }
+    get matchRegex(){
+        return this.matchType == 0? this.begin : this.match;
     }
     get index(){
         return this.m_match?.index;

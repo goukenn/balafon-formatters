@@ -190,30 +190,53 @@
     },
     "patterns": [
         {
-            "begin":"\\<\\b([\\w]+)\\b",
-            "end":"\\s*\\/\\>",
+            "begin":"\\<\\b([\\w]+)\\b\\s*",
+            "end":"(\\s*\\/\\>|\\<\\/$1\\s*>)",
             "name":"global.empty.tag",
             "endCaptures":{
                 "0":{
                     "name":"html.end.tag_definition",
                     "transform":["trim"],
-                    "replaceWith":"></$1>",
                     "patterns":[
                         {
-                            "match":"^\\>",
-                            "name":"close.tag"
+                            "match":"^\\s*\\/\\>",
+                            "name":"close.tag",
+                            "replaceWith":"></$1>",
+                            "replaceWithCondition":{
+                                "check": "$1",
+                                "operator":"!=",
+                                "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr"
+                            },
+                            "updateParentProps":{
+                                "isBlock":false
+                            }
+                            
                         },
                         {
                             "match":"\\<\\/\\b[\\w]+\\b\\>",
-                            "name": "replace.tag"
+                            "name": "end.tag"
+                            
                         }
                     ]
                 }
             },
             "patterns":[
                 {
+                    "begin":"([\\w\\-]+)\\s*",
+                    "end":"(?=([=]|>|\\s|$))",
+                    "name":"attribute.html",
+                    "tokenID":"attribute",
+                    "comment":"detect attribute definition-primary",
+                    "beginCaptures":{
+                        "0":{
+                            "transform":"trim"
+                        }
+                    }
+                },
+                {
                     "begin":"\\s*=\\s*",
                     "end":"(?=[\\w]|\\/|\\>)",
+                    "name":"operator.attribute.affectation.html",
                     "beginCaptures":{
                         "0":{
                             "transform":"trim"
@@ -222,7 +245,18 @@
                     "patterns":[
                         {"include":"#string"}
                     ]
+                },{
+                    "begin":"\\>",
+                    "end":"(?=\\<\\/)",
+                    "name":"inner.html",
+                    "comment":"Detect inner content.",
+                    "patterns":[
+                        { "include":"#string" },
+                        { "include":"#url" }
+                     
+                    ]
                 }
+
             ]
            
         },

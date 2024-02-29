@@ -80,11 +80,13 @@ class Utils {
             _match.index += pos;
             _a.startMatch(line, _match);
             if (debug) {
-                console.log('matcher: ', {
+                console.log('matcher-begin: ', {
                     name: _a.name, line, pos:
                         _match.index, depth,
                     hasParent: _a.parent != null,
-                    isBlock: _a.isBlock
+                    isBlock: _a.isBlock,
+                    value: _match[0],
+                    regex: _a.matchRegex  
                 });
             }
             // let _treatCapture = { ..._match};
@@ -200,9 +202,68 @@ class Utils {
             if (v.length==0){
                 return;
             }
+            let _p = null;
+            if ( _p = /^:(?<symbol>=|^|#)(.)(?<number>\d+)/.exec(s)){
+                //replacement value with pattern
+                let n = parseInt(_p.groups['number']);
+                let _s = _p.groups['symbol'];
+                if (n > v.length ){
+                    let _g = _p[2];
+                    if (_s=='#'){
+                        v = v.toString().padEnd(n, _g);
+                    } else if(_s=='^'){
+                        v = v.toString().padStart(n, _g); 
+                    }
+                    else if(_s=='='){
+                        let c = Math.floor((n - v.length) / 2);
+                       
+                        v = v.toString().padEnd((c % 2)==0? n-c: n-c+1, _g);
+                        v = v.toString().padStart(n, _g); 
+                    }
+                }
+                return v;
+            }
+
             v = typeof (s) == 'function' ? s(v) : _func[s](v);
         });
         return v;
+    }
+    /**
+     * 
+     * @param {*} q 
+     * @param {*} validator 
+     * @param {*} field_name 
+     * @param {*} d 
+     * @param {*} throw_on_error 
+     * @returns 
+     */
+    static JSonValidate(q, validator, field_name, d, throw_on_error){
+
+        let f = validator ? validator[field_name] : null;
+        if (f && !f(d)){
+            if (throw_on_error){
+                throw new Error(`[${field_name}] is not valid`);
+            }
+            return false;
+        }
+        return true;
+    }
+    /**
+     * 
+     * @param {*} q 
+     * @param {*} parse 
+     * @param {*} parser 
+     * @param {*} fieldname 
+     * @param {*} data 
+     * @param {*} refKey 
+     * @returns 
+     */
+    static JSonParse(q, parse, parser, fieldname, data, refKey){
+        let fc = parse ? parse[fieldname] : null;
+        if (fc){
+            return fc.apply(q, [data, parser, refKey]);
+        }
+        return data;
     }
 }
 exports.Utils = Utils;
