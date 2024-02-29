@@ -432,18 +432,15 @@ let lines = [];
 // });
 _formatter.debug = true; 
 let tests = [
-    // { s: ['info'], e:'info'},
-    // { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
-    //  { s: ['pour dire "the main : bondje test info"'], e:'pour dire "the main : BONDJE test info"'}, 
-    // { s: ['par   devant'], e:'par devant'}, 
-    // { s: ['par   devant'], e:'par devant'}, 
-    // { s: ['<div /><div />'], e:'<div></div><div></div>'}, 
-    // { s: ['<div/>    <div />     <input />'], e:'<div></div><div></div><input></input>'}, 
-    // { s: ['<div/>', '<div />', '<div />'], e:'<div></div><div></div><div></div>'}, 
-
+    { s: ['info'], e:'info'},
+    { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
+    { s: ['pour dire "the main : bondje test info"'], e:'pour dire "the main : BONDJE test info"'}, 
+    { s: ['par   devant'], e:'par devant'}, 
+    { s: ['par   devant'], e:'par devant'}, 
+    { s: ['<div /><div />'], e:'<div></div><div></div>'}, 
+    { s: ['<div/>    <div />     <input />'], e:'<div></div><div></div><input></input>'}, 
+    { s: ['<div/>', '<div />', '<div />'], e:'<div></div><div></div><div></div>'}, 
     { s: ['<div id = "data"     />'], e:'<div id="data"></div>'}, 
-
-
 ];
 
 
@@ -460,21 +457,36 @@ x   =
 <!-- comment 
 for sample 
 -->*/}
-tests.forEach(o=>{
+ 
 
-    let s = _formatter.format(
-        o.s
-    );
-    if (s==o.e){
-        return;
-    } 
-    compareString(s, o.e);
-    throw new Error("failed");
-})
+
+// runTest(tests, _formatter);
+
+const testdata = require('./../tests/source.data.json');
+
+runTest(testdata.tests, _formatter);
+
+
+function runTest(tests, _formatter){
+    let testCount = 0;
+
+    tests.forEach(o=>{
+        let s = _formatter.format(
+            o.s
+            );
+            if (s==o.e){
+                testCount++;
+                return;
+        } 
+
+        compareString(s, o.e);
+        throw new Error("failed : "+testCount);
+    });
+}
 
 function compareString(r, o){
     let idx = 0; 
-    let data = o.split("\n");
+    let data = typeof(o)=='string' ?  o.split("\n") : o;
     console.log(' ++++ = expected');
     console.log(' ---- = return');
     console.log("\n-result");
@@ -490,6 +502,11 @@ function compareString(r, o){
         }
         idx++;
     });
+    if (idx<data.length){
+        data.slice(idx).forEach(l=>{
+            console.log('++++ ' + l);
+        });
+    }
 }
  
  

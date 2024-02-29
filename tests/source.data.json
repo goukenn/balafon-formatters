@@ -1,0 +1,31 @@
+{
+    "tests":[
+       
+        {"s":[
+            "<input id=\"page\" />" 
+        ], "e":[
+            "<input id=\"page\"/>"
+        ], "comment": "input stay input."},
+
+        {"s":[
+            "<div id=\"page\" />" 
+        ], "e":[
+            "<div id=\"page\"></div>"
+        ]},
+
+
+        {"s":[
+            "<div id=\"page\"></div>" 
+        ], "e":[
+            "<div id=\"page\"></div>"
+        ]},
+
+        {"s":[
+            "<div id=\"h\">Hello world!!! 12.0</div>" 
+        ], "e":[
+            "<div id=\"h\">",
+            "   Hello world!!! 12.0",
+            "</div>"
+        ]}
+    ]
+}

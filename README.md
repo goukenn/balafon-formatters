@@ -28,6 +28,19 @@ let output = formatter.format([...]);
 settings
 - "noSpaceJoin":true  
 
+- tranform selection on endCaptures - parent matching groups
+
+-- =
+-- # end with
+-- ^ start with
+
+```jsonc
+{
+    // put = half matched value
+    "transform":":==40"
+}
+```
+
 ## RELEASES
 
 
@@ -36,3 +49,6 @@ settings
 
 lineFeed
 marker is not a line feed directive or buffer is not empty
+
+
+

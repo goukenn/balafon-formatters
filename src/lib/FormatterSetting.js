@@ -9,5 +9,9 @@ class FormatterSetting{
     noSpaceJoin= false;
     depth =0;
     line = 0;
+    /**
+     * by default use the current  formatter instance
+     */
+    useCurrentFormatterInstance = true;
 }
 exports.FormatterSetting = FormatterSetting;
