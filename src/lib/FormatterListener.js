@@ -168,11 +168,14 @@ class FormatterListener {
      * treat current buffer and store it to option 
      * buffer to ouput . 
      */
-    store({buffer, output, depth, tabStop}) { 
+    store({buffer, output, depth, tabStop, startBlock}) { 
         let s = buffer;
         let d = depth;
         s = s.trim();
         if (s.length > 0){
+            if (startBlock){
+                output.unshift('');
+            }
             let _tab = d > 0 ? tabStop.repeat(d) : '';
             output.push(_tab + s);
         } 

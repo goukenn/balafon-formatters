@@ -249,7 +249,10 @@
                     "begin":"\\>",
                     "end":"(?=\\<\\/)",
                     "name":"inner.html",
-                    "comment":"Detect inner content.",
+                    "comment":"detect inner content. dans start block definition",
+                    "updateParentProps":{
+                        "isBlock":true
+                    },
                     "patterns":[
                         { "include":"#string" },
                         { "include":"#url" }
