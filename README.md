@@ -27,6 +27,7 @@ let output = formatter.format([...]);
 
 settings
 - "noSpaceJoin":true  
+- block condition expression support
 
 - tranform selection on endCaptures - parent matching groups
 

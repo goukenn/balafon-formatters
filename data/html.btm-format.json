@@ -3,7 +3,11 @@
         "noSpaceJoin": true
     },
     "repository": {
-
+        "html-space-constant": {
+            "match": "\\s+",
+            "name": "constant.empty.space.html",
+            "replaceWith": " "
+        },
         "string": {
             "begin": "(\"|')",
             "end": "\\$1",
@@ -13,7 +17,7 @@
             "patterns": [
                 {
                     "match": "\\\\.",
-                    "name":"escaped.char"
+                    "name": "escaped.char"
                 }
             ]
         },
@@ -25,24 +29,26 @@
             "tokenID": "string",
             "patterns": [
                 {
-                    "match":"(?i)\\bbondje\\b",
-                    "name":"author.name",
-                    "transform":["upperCase"]
+                    "match": "(?i)\\bbondje\\b",
+                    "name": "author.name",
+                    "transform": [
+                        "upperCase"
+                    ]
                 },
                 {
                     "match": "\\\\.",
-                    "name":"escaped.char"
+                    "name": "escaped.char"
                 }
             ]
         },
         "url": {
-            "match":"(?i)(?<scheme>(?:ftp|http(?:s)|[a-z]+)):(?:\\/\\/|\\/|)(?<path>(?:\\/|\\.\\.(?:\\/)?|\\.(?:\\/)?)[^\\/\\)\\(]+(?:\\/|\/[^\\/\\)\\()\\;]+))(?:;(?<queryo>[^\\?\\#]+))?(?:\\?(?<query>[^\\#]+))?(?:(?<anchor>#.+))?",
-            "name": "url.text", 
+            "match": "(?i)(?<scheme>(?:ftp|http(?:s)|[a-z]+)):(?:\\/\\/|\\/|)(?<path>(?:\\/|\\.\\.(?:\\/)?|\\.(?:\\/)?)[^\\/\\)\\(]+(?:\\/|\/[^\\/\\)\\()\\;]+))(?:;(?<queryo>[^\\?\\#]+))?(?:\\?(?<query>[^\\#]+))?(?:(?<anchor>#.+))?",
+            "name": "url.text",
             "tokenID": "url",
             "patterns": [
                 {
                     "match": "\\\\.",
-                    "name":"escaped.char"
+                    "name": "escaped.char"
                 }
             ]
         },
@@ -50,13 +56,13 @@
             "begin": "\\<(\\b[\\w]+\\b)",
             "end": "(\\/|\\<\\/$1\\s*)?\\>",
             "name": "tag.definition.html",
-            "tokenID": "tagname", 
+            "tokenID": "tagname",
             "isBlock": false,
             "block": {
                 "start": "<$1",
                 "end": "\\<\\/$1\\>"
             },
-           "endCaptures": {
+            "endCaptures": {
                 "0": {
                     "comment": "remove not used white space",
                     "match": "<\\/([\\w]+)\\s+\\>",
@@ -70,12 +76,12 @@
                 {
                     "match": "(?=\\<\\/[\\w]+\\>)",
                     "name": "end.tag.block.html",
-                    "tokenID":"endtag.block"
+                    "tokenID": "endtag.block"
                 },
                 {
                     "match": "(?:\\>)",
                     "name": "start.html.end.block.html",
-                    "lineFeed":false,
+                    "lineFeed": false,
                     "updateParentProps": {
                         "isBlock": true
                     }
@@ -83,20 +89,20 @@
                 {
                     "match": "(\\/\\>)",
                     "name": "start.empty.html.block.html",
-                    "tokenID":"endtag.block",
+                    "tokenID": "endtag.block",
                     "lineFeed": true,
                     "updateParentProps": {
                         "isBlock": true
                     }
                 },
                 {
-                    "include":"#html-attribute"
+                    "include": "#html-attribute"
                 },
                 {
-                    "include":"#function-html-attribute"
+                    "include": "#function-html-attribute"
                 },
                 {
-                    "include":"#bracket-html-attribute"
+                    "include": "#bracket-html-attribute"
                 },
                 {
                     "include": "#string"
@@ -107,7 +113,6 @@
                 {
                     "include": "#operator"
                 }
-                
             ]
         },
         "empty-tag": {
@@ -175,93 +180,112 @@
                 }
             }
         },
-        "html-attribute":{
-            "match":"(\\*)?\\b[\\w]+\\b",
-            "name":"tag.attribute.html"
+        "html-attribute": {
+            "match": "(\\*)?\\b[\\w]+\\b",
+            "name": "tag.attribute.html"
         },
-        "bracket-html-attribute":{
-            "match":"\\[\\s*\\b[\\w]+\\b\\*\\]",
-            "name":"tag.bracket.attribute.html"
+        "bracket-html-attribute": {
+            "match": "\\[\\s*\\b[\\w]+\\b\\*\\]",
+            "name": "tag.bracket.attribute.html"
         },
-        "function-html-attribute":{
-            "match":"\\[\\s*\\b[\\w]+\\b\\*\\]",
-            "name":"tag.function.attribute.html"
-        }
-    },
-    "patterns": [
-        {
-            "begin":"\\<\\b([\\w]+)\\b\\s*",
-            "end":"(\\s*\\/\\>|\\<\\/$1\\s*>)",
-            "name":"global.empty.tag",
-            "endCaptures":{
-                "0":{
-                    "name":"html.end.tag_definition",
-                    "transform":["trim"],
-                    "patterns":[
+        "function-html-attribute": {
+            "match": "\\[\\s*\\b[\\w]+\\b\\*\\]",
+            "name": "tag.function.attribute.html"
+        },
+        "global-html-tag": {
+            "begin": "\\<\\b([\\w]+)\\b\\s*",
+            "end": "(\\s*\\/\\>|\\<\\/$1\\s*>)",
+            "name": "global.html.tag.html",
+            "endCaptures": {
+                "0": {
+                    "name": "html.end.tag_definition",
+                    "transform": [
+                        "trim"
+                    ],
+                    "patterns": [
                         {
-                            "match":"^\\s*\\/\\>",
-                            "name":"close.tag",
-                            "replaceWith":"></$1>",
-                            "replaceWithCondition":{
+                            "match": "^\\s*\\/\\>",
+                            "name": "close.tag",
+                            "replaceWith": "></$1>",
+                            "replaceWithCondition": {
                                 "check": "$1",
-                                "operator":"!=",
+                                "operator": "!=",
                                 "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr"
                             },
-                            "updateParentProps":{
-                                "isBlock":false
+                            "updateParentProps": {
+                                "isBlock": false
                             }
-                            
                         },
                         {
-                            "match":"\\<\\/\\b[\\w]+\\b\\>",
+                            "match": "\\<\\/\\b[\\w]+\\b\\>",
                             "name": "end.tag"
-                            
                         }
                     ]
                 }
             },
-            "patterns":[
+            "patterns": [
                 {
-                    "begin":"([\\w\\-]+)\\s*",
-                    "end":"(?=([=]|>|\\s|$))",
-                    "name":"attribute.html",
-                    "tokenID":"attribute",
-                    "comment":"detect attribute definition-primary",
-                    "beginCaptures":{
-                        "0":{
-                            "transform":"trim"
+                    "begin": "([\\w\\-]+)\\s*",
+                    "end": "(?=([=]|>|\\s|$))",
+                    "name": "attribute.html",
+                    "tokenID": "attribute",
+                    "comment": "detect attribute definition-primary",
+                    "beginCaptures": {
+                        "0": {
+                            "transform": "trim"
                         }
                     }
                 },
                 {
-                    "begin":"\\s*=\\s*",
-                    "end":"(?=[\\w]|\\/|\\>)",
-                    "name":"operator.attribute.affectation.html",
-                    "beginCaptures":{
-                        "0":{
-                            "transform":"trim"
+                    "begin": "\\s*=\\s*",
+                    "end": "(?=[\\w]|\\/|\\>)",
+                    "name": "operator.attribute.affectation.html",
+                    "beginCaptures": {
+                        "0": {
+                            "transform": "trim"
                         }
                     },
-                    "patterns":[
-                        {"include":"#string"}
+                    "patterns": [
+                        {
+                            "include": "#string"
+                        }
                     ]
-                },{
-                    "begin":"\\>",
-                    "end":"(?=\\<\\/)",
-                    "name":"inner.html",
-                    "comment":"detect inner content. dans start block definition",
-                    "updateParentProps":{
-                        "isBlock":true
+                },
+                {
+                    "begin": "\\>",
+                    "end": "(?=\\<(\\/)?)",
+                    "name": "inner.html",
+                    "comment": "detect inner content. start block definition if contains global.html.tag.html",
+                    "requestParentBlockCondition": "child.name == global.html.tag.html",
+                    "updateParentProps": {
+                        "isBlock": true
                     },
-                    "patterns":[
-                        { "include":"#string" },
-                        { "include":"#url" }
-                     
+                    "beginCaptures": {
+                        "0": {
+                            "name": "start.inner.html"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#global-html-tag"
+                        },
+                        {
+                            "include": "#html-space-constant"
+                        },
+                        {
+                            "include": "#string"
+                        },
+                        {
+                            "include": "#url"
+                        }
                     ]
                 }
-
             ]
-           
+        }
+    },
+    "patterns": [
+        {
+            "include": "#global-html-tag"
         },
         {
             "include": "#string-named"
@@ -271,9 +295,6 @@
         },
         {
             "include": "#url"
-        },
-        {
-            "include": "#tag-definition_"
         },
         {
             "include": "#comment"
@@ -288,7 +309,19 @@
             "include": "#processor-expression"
         }
     ],
+    "scopeName": "source.text.html",
+    "repository__":{
+        "main":{
+            "name":"start.main",
+            "match":"\\b\\w+\\b",
+            "patterns":[
+                { "include":"#main"}
+            ]
+        }
+    },
+    "patterns__":[
+        { "include":"#main"}
+    ]
 
 
-    "scopeName": "source.text.html"
 }

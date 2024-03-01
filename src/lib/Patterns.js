@@ -121,26 +121,28 @@ class Patterns{
         this.allowMultiline = true;
         this.preserveLineFeed = false;
     }
-    json_parse(parser, fieldname, data, refKey){ 
+    json_parse(parser, fieldname, data, refKey, refObj){ 
         const patterns = Utils.ArrayParser(Patterns, RefPatterns);
         const _regex_parser = (s)=>{
             return Utils.RegexParse(s); 
         };
         const _capture_parser = (s, parser)=>{
 
-            let d = {};
+            let d = {}; 
             for(let i in s){
                 let m = new Patterns; 
                 JSonParser._LoadData(parser, m, s[i]);  
                 d[i] = m; 
+                parser.initialize(m); 
             } 
             return d;
 
         }
-        const q = this;
+        const q = refObj || this;
+
         const parse = {
-            patterns(n,parser, refKey){
-                let d = patterns.apply(q, [n,parser, refKey]);
+            patterns(n,parser, refKey, refObj){
+                let d = patterns.apply(q, [n,parser, refKey, refObj]);
                 d.forEach((s)=>{
                     s.m_parent = q;
                 });
@@ -175,7 +177,7 @@ class Patterns{
         };
         let fc = parse[fieldname];
         if (fc){
-            return fc.apply(q, [data, parser, refKey]);
+            return fc.apply(q, [data, parser, refKey, refObj]);
         }
         return data;
     }

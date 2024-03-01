@@ -3,14 +3,96 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { JSonParser } = require("./JSonParser");
 
 class Utils {
-    static JSonParseData(class_name, data) {
+    /**
+    * define and inject property 
+    * @param {string} n namespace
+    * @param {undefined|*} v 
+    * @param {*} globalname 
+    * @returns 
+    */
+   static FunctionDefineArg(n, v, globalname){
+       let c = 0;
+       let result = 0;
+       let s = '';
+       if (globalname){
+           s = '((w,p,q,n)=>{n=w; while((p.length>1) && (q = p.shift())){ n[q] = n[q] || {}; n = n[q];} n[p[0]] = v})('+globalname+", \""+n+"\".split('.'), v) || ";
+       } 
+       n.split('.').forEach((i)=>{
+       if (!result){
+           result = i+'=((v)=>{ return '+s+'{'
+       }else{
+           if (c){
+               result+="{"
+           }
+           result+= i+":";
+           c++;
+       }
+   });
+   v = typeof(v)=='undefined'? 'undefined': (typeof(v)=='object'? JSON.stringify(v):v) || '"'+n+'"';
+   result += v+ '}'.repeat(c)+"})("+v+")";
+   
+   return result;
+   }
+    /**
+     * define property 
+     * @param {string} n 
+     * @param {undefined|*} v 
+     * @param {object} global object definition 
+     * @returns 
+     */
+    static DefineProp(n, v, window){
+        return ((q, v, window)=>{ let r = null; let m = null; let _last = null; let _o = null;
+            v = (typeof(v)!="undefined" ? v : n);
+            if (q.length==0) return v;
+            q.forEach(i=>{
+                if (r==null){
+                    // first object definition
+                    r = m = (window? window[i] : null) || {} ;
+                    if (window){
+                        window[i] = r;
+                    }
+                }
+                if (_last){
+                    _o = m;
+                    if ( typeof(m[i]) == 'string'){
+                        m[i] = {};
+                    }
+                    m[i] = m[i] || {};
+                    m = m[i]; 
+                }
+                _last = i; 
+            });
+            
+            if(_o) 
+                _o[_last] = v;
+            else{
+                if (window){
+                    window[q[0]] = v;
+                }
+            }
+            return r;
+        })(n.split('.'),v, window);
+    }
+
+    /**
+     * 
+     * @param {*} class_name 
+     * @param {*} data 
+     * @param {*} registry 
+     * @returns 
+     */
+    static JSonParseData(class_name, data, registry) {
         let parser = new JSonParser;
         parser.source = class_name;
         parser.data = data;
-        return Utils.LoadData(parser, new class_name(), data); //.parse();
+        parser.includes = {};
+        if (registry){
+            parser.registry = registry;
+        }
+        return Utils.LoadData(parser, new class_name(), data, null); //.parse();
     }
-    static LoadData(parser, obj, data) {
-        return JSonParser._LoadData(parser, obj, data);
+    static LoadData(parser, obj, data, refKey) {
+        return JSonParser._LoadData(parser, obj, data, refKey);
     }
     /**
      * array parser callback
@@ -18,9 +100,19 @@ class Utils {
      * @returns 
      */
     static ArrayParser(class_name, refkey_class_name) {
-        return function (d, parser, refKey) {
+        if (!refkey_class_name || typeof(refkey_class_name)=='undefined'){
+            throw new Error('missing refkey_class_name');
+        }
+        /**
+         * 
+         */
+        return function (d, parser, refKey, refObj) {
             let _out = [];
-            let q = this;
+            let q = refObj || this;
+            if (refKey==null){
+                // throw new Error("require reference key-source key pattern");
+                console.log("source resolution.");
+            }
             d.forEach((a) => {
                 const { include } = a;
                 const _extends = a.extends;
@@ -28,13 +120,20 @@ class Utils {
                 if (include) {
                     if (include[0] == '#') {
                         _key = include.substring(1);
-                        if (refKey && (refKey == _key)) {
+                        // if (_key in parser.includes){
+                        //     _o = new refkey_class_name(parser.includes[_key]);
+                        // }
+                        // else 
+                        if (refKey && (refKey == _key) && refObj) {
                             _o = new refkey_class_name(q);
                         } else {
                             _def = parser.data.repository[_key];
                             if (_def) {
                                 _o = new class_name();
-                                JSonParser._LoadData(parser, _o, _def, _key);
+                                parser.includes[_key] = _o;
+                                console.log('initialize : '+ _key);
+                                JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
+                                parser.initialize(_o);
                             }
                         }
                     }
@@ -44,7 +143,9 @@ class Utils {
                 }
                 else {
                     _o = new class_name();
-                    JSonParser._LoadData(parser, _o, a);
+                    JSonParser._LoadData(parser, _o, a, refKey, refObj || _o);
+                    parser.initialize(_o);
+                    
                 }
                 if (_o) {
                     _out.push(_o);
@@ -81,10 +182,12 @@ class Utils {
             _a.startMatch(line, _match);
             if (debug) {
                 console.log('matcher-begin: ', {
+                    '__name':_a.toString(),
                     name: _a.name, line, pos:
                         _match.index, depth,
                     hasParent: _a.parent != null,
                     isBlock: _a.isBlock,
+                    isRef: _a instanceof RefPatterns,
                     value: _match[0],
                     regex: _a.matchRegex  
                 });

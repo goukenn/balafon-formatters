@@ -10,18 +10,32 @@ class RefPatterns {
      */
     constructor(pattern){
         this.pattern = pattern;
+        
+        
+        var m_line;
+        var m_match;
+        var m_parent;
+
+        Object.defineProperty(this, 'group', {get(){ return m_match; }}); 
+        Object.defineProperty(this, 'line', {get(){ return m_line; }});
+        Object.defineProperty(this, 'parent', {get(){ return m_parent; }, set(v){ m_parent = v;}});
+
+
+        this.startMatch = (l,p)=>{
+            m_line = l;
+            m_match = p;
+        };
     }
-    get parent(){
-        return this.m_parent || null;
-    }
-    set parent(v){
-        this.m_parent = v;
-    }
+    check(l){
+        return this.pattern.check(l);
+    } 
+     
+    
     toString(){
         return `RefPatterns[#${this.pattern.name}]`;
     }
     get name(){
-        return this.toString();
+        return this.pattern.name;
     }
     /**
      * 
@@ -38,9 +52,7 @@ class RefPatterns {
     get index(){
         return this.group.index;
     }
-    get group(){
-        return this.m_match;
-    }
+    
     get line(){
         return this.m_line;
     }
