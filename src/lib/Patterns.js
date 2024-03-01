@@ -39,9 +39,22 @@ class Patterns{
      */
     lineFeed;
      /**
+      * indicate that this must be consider as a block element
      * @var {?bool}
      */
     isBlock;
+
+    /**
+     * get or set condition expression to set if this element is a bloc.
+     * @var {?string}
+     */
+    emptyBlockCondition;
+
+    /**
+     * get or set condition expression to evaluate if this element change the parent block property.
+     * @var {?string}
+     */
+    requestParentBlockCondition;
 
      /**
      * @var {?{start: string, end: string}} 
