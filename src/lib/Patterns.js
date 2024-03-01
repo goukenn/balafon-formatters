@@ -1,7 +1,6 @@
 Object.defineProperty(exports, '__esModule', {value:true});
 
-const { JSonParser } = require('./JSonParser');
-const { RefPatterns } = require('./RefPatterns');
+const { JSonParser } = require('./JSonParser'); 
 const { ReplaceWithCondition } = require('./ReplaceWithCondition');
 const { Utils } = require('./Utils');
 class Patterns{
@@ -120,8 +119,13 @@ class Patterns{
         this.isBlock = false;
         this.allowMultiline = true;
         this.preserveLineFeed = false;
+        var m_parent = null;
+
+        Object.defineProperty(this, 'parent', {get(){return m_parent;}, set(v){m_parent = v;}});
     }
     json_parse(parser, fieldname, data, refKey, refObj){ 
+        const { Patterns, RefPatterns } = Utils.Classes;
+
         const patterns = Utils.ArrayParser(Patterns, RefPatterns);
         const _regex_parser = (s)=>{
             return Utils.RegexParse(s); 
@@ -144,7 +148,7 @@ class Patterns{
             patterns(n,parser, refKey, refObj){
                 let d = patterns.apply(q, [n,parser, refKey, refObj]);
                 d.forEach((s)=>{
-                    s.m_parent = q;
+                    s.parent = q;
                 });
                 return d;
             }, // update with parent
@@ -233,12 +237,7 @@ class Patterns{
         return this.m_match;
     } 
   
-    get parent(){
-        return this.m_parent || null;
-    }
-    set parent(v){
-        this.m_parent = v;
-    }
+     
     /**
      * calculate end regex
      * @param {*} p 
@@ -262,6 +261,11 @@ class Patterns{
         }
         return this.block?.end || this.end.toString().trim();
     }
+    toString(){
+        return `Patterns[#${this.name}]`;
+    }
 }
 
+
+ 
 exports.Patterns = Patterns;

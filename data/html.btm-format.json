@@ -24,7 +24,7 @@
         "string-named": {
             "begin": "(\"|')",
             "end": "\\$1",
-            "name": "string.definition",
+            "name": "string.definition.with.name",
             "allowMultiline": false,
             "tokenID": "string",
             "patterns": [
