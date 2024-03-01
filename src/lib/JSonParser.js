@@ -6,6 +6,8 @@ Object.defineProperty(exports, '__esModule', {value:true});
 class JSonParser{
     source;
     data; 
+    registry;
+    repositoryKey;
     throwOnError;
 
     get current(){
@@ -17,13 +19,28 @@ class JSonParser{
         this.throwOnError = true;
     }
 
+    initialize(_o){
+        if (this.registry){
+            this.registry.initialize(_o);
+        }
+    }
+
     parse(){
         obj = new this.source();
         this.m_current = this.data;
         JSonParser._LoadData(this, obj, this.data);
         return obj;
     }
-    static _LoadData(parser, obj, data, refKey){
+    /**
+     * load data with reference object 
+     * @param {*} parser 
+     * @param {*} obj 
+     * @param {*} data 
+     * @param {*} refKey 
+     * @param {*} _refObj 
+     * @returns 
+     */
+    static _LoadData(parser, obj, data, refKey, _refObj){
         const _throwOnError = parser.throwOnError;
         const keyData = ()=>{
             if (obj.json_keys){
@@ -42,7 +59,7 @@ class JSonParser{
                 return;
             }
             if (json_parsing){
-                _r = json_parsing.apply(obj, [parser, i, _r, refKey]);
+                _r = json_parsing.apply(obj, [parser, i, _r, refKey, _refObj]);
             }
             obj[i] = _r;
         });

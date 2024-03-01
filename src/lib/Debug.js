@@ -4,8 +4,10 @@ Object.defineProperty(exports, '__esModule', {value:true});
 const LOG_NAME = '[igk-formatters]'
 class Debug{
     static LogLevel = 3;
-    static logger (logger){
-
+    static #Enabled = false;
+    
+    static get IsEnabled(){
+        return Debug.#Enabled;
     }
     static log(msg, level){
         if (level){
@@ -28,6 +30,13 @@ class Debug{
             });
         }
         console.log(`${LOG_NAME} - ${msg}`);
+    }
+    /**
+     * enable debug globally
+     * @param {?bool} enable 
+     */
+    static Enable(enable){
+        Debug.#Enabled = enable;
     }
 }
 
