@@ -2,24 +2,26 @@ Object.defineProperty(exports, '__esModule', {value:true});
 
 const { Patterns } = require("./Patterns");
 
-class RefPatterns {
-    pattern;
+class RefPatterns extends Patterns {
+    
     /**
      * reference pattern
      * @param {Patterns} pattern 
      */
     constructor(pattern){
+        super();
+        if (!pattern || !(pattern instanceof Patterns)){
+            throw new Error('pattern not a Pattern instance');
+        }
         this.pattern = pattern;
         
         
         var m_line;
         var m_match;
-        var m_parent;
 
         Object.defineProperty(this, 'group', {get(){ return m_match; }}); 
-        Object.defineProperty(this, 'line', {get(){ return m_line; }});
-        Object.defineProperty(this, 'parent', {get(){ return m_parent; }, set(v){ m_parent = v;}});
-
+        Object.defineProperty(this, 'line', {get(){ return m_line; }}); 
+        Object.defineProperty(this, 'pattern', { get(){return pattern; }});
 
         this.startMatch = (l,p)=>{
             m_line = l;

@@ -130,8 +130,7 @@ class Utils {
                             _def = parser.data.repository[_key];
                             if (_def) {
                                 _o = new class_name();
-                                parser.includes[_key] = _o;
-                                console.log('initialize : '+ _key);
+                                parser.includes[_key] = _o; 
                                 JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
                                 parser.initialize(_o);
                             }

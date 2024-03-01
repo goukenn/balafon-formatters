@@ -9,6 +9,12 @@ const { Debug } = require("./Debug");
 const { FormatterListener } = require("./FormatterListener");
 const { FormatterSetting } = require("./FormatterSetting");
 
+Utils.Classes = {
+    RefPatterns,
+    Patterns
+};
+ 
+
 /**
  * formatters entry point
  */
@@ -1084,10 +1090,13 @@ class Formatters {
         if (_matcher.group[0].length == 0) {
             // matcher is empty and must past to end group
             if (_endRegex.test(_buffer)) {
-                return this._handleEndBlock2(_marker);
+                return this._handleEndBlock2(_marker, option);
             }
         }
-        return this._handleEndBlock2(_matcher);
+        return this._handleMarker(_matcher, option);
+    }
+    _handleEndBlock2(_marker, option) {
+
     }
     /**
      * internal function 
