@@ -758,8 +758,8 @@ class Formatters {
         let _next_position = _marker.group.index + _marker.group.offset;
         // treat patterns
         if (_start) {
-            // before handle 
-            option.pos = _next_position; // group.index + group[0].length;
+            // + | on start before handle 
+            option.pos = _next_position;
         }
         _line = line.substring(option.pos);
 
@@ -824,7 +824,9 @@ class Formatters {
         // const _end_capture = _p[0].length == 0;
 
         if (debug) {
+            // let l = _marker.name;
             console.log('matcher-end: ', {
+                __name: _marker.toString(),
                 name: _marker.name,
                 line: option.line,
                 pos: _p.index,
@@ -870,6 +872,8 @@ class Formatters {
         if (_requestParentBlock) {
             // validate the block to 
             _marker.parent.isBlock = this._isEmptyRequestBlock({ _marker, _old, childs: _old.childs, condition: _marker.requestParentBlockCondition });
+        } else if (!_sblock && _marker?.parent?.isBlock){
+            _marker.parent.isBlock = false;
         }
 
         if ((!s && (_append != _b) && (_append.trim().length > 0)) || (_requestParentBlock && _marker.parent.isBlock)) {
@@ -882,8 +886,7 @@ class Formatters {
                     // get startup buffer  
                     if (_old.entryBuffer.length>0) {
                         _p_host.content = option.updateBufferValue(_p_host.content, _old.entryBuffer, _p_host.marker);
-                        //remove entry buffer
-
+                        // + | remove entry buffer 
                         _buffer = _buffer.replace(new RegExp('^' + _old.entryBuffer), '');
                     }
 
@@ -1090,82 +1093,19 @@ class Formatters {
         if (_matcher.group[0].length == 0) {
             // matcher is empty and must past to end group
             if (_endRegex.test(_buffer)) {
-                return this._handleEndBlock2(_marker, option);
+                return this._handleFoundEndPattern(_buffer, option.line , _marker, option,_old);
             }
+        }
+        
+        // + | update parent markerin of before handle marker 
+        if ((option.markerInfo.length==0) || (option.markerInfo[0]!== _marker)){
+            this._updateMarkerInfoOld(_marker, _old, _buffer, _endRegex, option);
         }
         return this._handleMarker(_matcher, option);
     }
     _handleEndBlock2(_marker, option) {
 
     }
-    /**
-     * internal function 
-     * @param {*} _marker 
-     * @param {*} _matcher matcher match 
-     * @param {*} _p end match
-     * @param {*} _old 
-     * @param {*} _buffer 
-     * @param {*} option 
-     * @param {*} _endRegex calculated end regex
-     * @returns 
-     */
-    // _handleSameGroup(_marker, _matcher, _p, _old, _buffer, option, _endRegex) {
-    // const t = _matcher.matchType;
-    // let l = '';
-    // const { listener } = option;
-    // switch (t) {
-    //     case 0: // begin/end matching
-    //         throw new Error('not implement begin/end same group');
-    //     case 1: // direct matching
-    //         if (_matcher.group[0].length == 0) {
-    //             // passing handle to parent buffer
-    //             let _start = false;
-    //             _marker.block = {
-    //                 start: _marker.group[0],
-    //                 end: _p[0]
-    //             };
-    //             l = option.line.substring(option.pos, _matcher.group.index);
-    //             option.pos = _p.index + _p[0].length;
-    //             return this._handleEndBlockMarker(_marker, _p, option, l, _start, _buffer, _endRegex, _old, {
-    //                 tokenID: _matcher.tokenID || _marker.tokenID
-    //             });
-    //         } else {
-    //             // just append to buffer - but clear 
-    //             listener.append(_p[0], _marker);
-    //             option.store();
-    //             _buffer += listener.output(true);
-    //             // _buffer += listener.objClass.buffer;
-
-    //             this._updateParentProps(_matcher, option)
-    //             // _marker.isBlock = true; // update parent property 
-    //             option.continue = false;
-    //             // option.startBlock = true;
-    //             _marker.isBlock && this._startNewBlock(_marker, option);
-
-
-    //             _marker.block = {
-    //                 start: _buffer,
-    //                 end: Utils.ReplaceRegexGroup('/' + _marker.block.end + '/', _marker.group)
-    //             };
-
-    //             if (!_old || (_old.marker != _marker)) {
-    //                 this._backupMarkerSwapBuffer(option, _marker, _buffer, _endRegex);
-    //                 _old = option.markerInfo[0];
-    //             } else {
-    //                 _old.content = _buffer;
-    //                 option.unshiftMarker(_old);
-    //             }
-    //             if (_marker.isBlock) {
-    //                 option.startNewBlock(_marker);
-    //             }
-    //             _old.start = false;
-    //             option.pos += _p[0].length;
-    //             return _marker;
-    //         }
-    //         break;
-    // }
-    // return _marker;
-    // }
     /**
      * update parent property
      * @param {*} _matcher 

@@ -165,9 +165,9 @@ class Utils {
 
         patterns.forEach((s) => {
             let _ts = s;
-            if (s instanceof RefPatterns) {
-                _ts = s.pattern;
-            }
+            // if (s instanceof RefPatterns) {
+            //     _ts = s.pattern;
+            // }
 
             let p = _ts.check(l);
             if (p && ((_index == -1) || (_index > p.index))) {

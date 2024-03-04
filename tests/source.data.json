@@ -1,12 +1,89 @@
 {
-    "tests":[ 
-        {"s":[
-            "<div><span>'open'</span></div>" 
-        ], "e":[
-            "<div>",
-            "\t<span>'open'</span>",
-            "</div>"
-        ]}
-        
+    "tests": [
+        {
+            "s": [
+                "<div id=\"page\"></div>"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+        {
+            "s": [
+                "<input id=\"page\" />"
+            ],
+            "e": [
+                "<input id=\"page\"/>"
+            ],
+            "comment": "input stay input."
+        },
+        {
+            "s": [
+                "<div id=\"page\" />"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+       
+        {
+            "s": [
+                "<input id=\"page\" />"
+            ],
+            "e": [
+                "<input id=\"page\"/>"
+            ],
+            "comment": "input stay input."
+        },
+        {
+            "s": [
+                "<div id=\"page\" />"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+        {
+            "s": [
+                "<div id=\"page\"></div>"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+        {
+            "s": [
+                "<div id=\"page\"/>"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+        {
+            "s": [
+                "<input id=\"input\" />"
+            ],
+            "e": [
+                "<input id=\"input\"/>"
+            ]
+        },
+        {
+            "s": [
+                "<div id=\"page\"> 'open' </div>"
+            ],
+            "e": [
+                "<div id=\"page\"> 'open' </div>"
+            ]
+        },
+        {
+            "s": [
+                "<div><span>'open'</span></div>"
+            ],
+            "e": [
+                "<div>",
+                "\t<span>'open'</span>",
+                "</div>"
+            ]
+        }
     ]
 }
