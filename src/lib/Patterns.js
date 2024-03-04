@@ -142,7 +142,7 @@ class Patterns{
             return d;
 
         }
-        const q = refObj || this;
+        const q = this;
 
         const parse = {
             patterns(n,parser, refKey, refObj){
@@ -158,7 +158,7 @@ class Patterns{
             replaceWith: _regex_parser,
             replaceWithCondition(n , parser, ){
                 let m = new ReplaceWithCondition; 
-                JSonParser._LoadData(parser, m, n);  
+                JSonParser._LoadData(parser, m, n, refObj);  
                 return m;
             },
             beginCaptures :_capture_parser,

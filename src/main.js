@@ -504,7 +504,7 @@ function compareString(r, o){
     console.log(r);
     console.log("\n-compare");
     r.split('\n').forEach((l)=>{
-        let g = data[idx];
+        let g = idx in data ? data[idx]: '';
         if (l== g){
             console.log(l);
         }else{ 
