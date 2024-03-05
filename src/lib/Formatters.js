@@ -13,7 +13,7 @@ Utils.Classes = {
     RefPatterns,
     Patterns
 };
- 
+
 
 /**
  * formatters entry point
@@ -76,11 +76,11 @@ class Formatters {
     set lineFeed(value) {
         this.m_option = value;
     }
-    json_keys(){
+    json_keys() {
         const n = 'repository';
         let tab = Object.keys(this);
-        let idx = tab.indexOf(n); 
-        delete(tab[idx]);
+        let idx = tab.indexOf(n);
+        delete (tab[idx]);
         tab.unshift(n);
         return tab;
     }
@@ -118,7 +118,7 @@ class Formatters {
         return true;
     }
     json_parse(parser, fieldname, data, refKey) {
-        const patterns = Utils.ArrayParser(Patterns, RefPatterns); 
+        const patterns = Utils.ArrayParser(Patterns, RefPatterns);
         const parse = {
             patterns,
             repository(d, parser) {
@@ -126,7 +126,7 @@ class Formatters {
                 let _o = null;
                 const { registry } = parser;
                 for (let i in d) {
-                    _o = new Patterns(); 
+                    _o = new Patterns();
                     JSonParser._LoadData(parser, _o, d[i], i, _o);
                     parser.initialize(_o);
                     _out[i] = _o;
@@ -176,7 +176,7 @@ class Formatters {
             let registry = {};
             let _entry = [];
             for (let i in _names) {
-                if (i=='global'){
+                if (i == 'global') {
                     throw new Error('global is reserved');
                 }
                 Utils.DefineProp(i, undefined, registry);
@@ -821,11 +821,11 @@ class Formatters {
     }
     _handleFoundEndPattern(_buffer, _line, _marker, _p, option, _old) {
         const { listener, debug } = option;
-        // const _end_capture = _p[0].length == 0;
 
+        debug && Debug.log('--::handleFoundEndPattern::--')
         if (debug) {
-            // let l = _marker.name;
-            console.log('matcher-end: ', {
+
+            Debug.log('matcher-end: ', {
                 __name: _marker.toString(),
                 name: _marker.name,
                 line: option.line,
@@ -845,7 +845,6 @@ class Formatters {
             // reset block value;
             _marker.isBlock = _old.oldBlockStart
             _close_block = true;
-
         }
 
         // calculate next position 
@@ -872,7 +871,7 @@ class Formatters {
         if (_requestParentBlock) {
             // validate the block to 
             _marker.parent.isBlock = this._isEmptyRequestBlock({ _marker, _old, childs: _old.childs, condition: _marker.requestParentBlockCondition });
-        } else if (!_sblock && _marker?.parent?.isBlock){
+        } else if (!_sblock && _marker?.parent?.isBlock) {
             _marker.parent.isBlock = false;
         }
 
@@ -884,7 +883,7 @@ class Formatters {
                 if (_p_host) {
                     // pass buffer content to parent
                     // get startup buffer  
-                    if (_old.entryBuffer.length>0) {
+                    if (_old.entryBuffer.length > 0) {
                         _p_host.content = option.updateBufferValue(_p_host.content, _old.entryBuffer, _p_host.marker);
                         // + | remove entry buffer 
                         _buffer = _buffer.replace(new RegExp('^' + _old.entryBuffer), '');
@@ -898,8 +897,6 @@ class Formatters {
                     option.store();
                 }
                 this._startNewBlock(_marker.parent, option);
-                
-
             }
             if (!s && (_append != _b) && (_append.trim().length > 0)) {
                 _buffer = option.updateBufferValue(_buffer, _append, _marker);
@@ -910,10 +907,10 @@ class Formatters {
         }
         option.appendToBuffer(_buffer, _marker);
         _buffer = '';
-        //}
+
 
         if (s) {
-            // change marker definition group 
+            // + | update change marker definition group 
             if (0 in s.markers) {
                 let g = s.markers[0];
                 _marker = g.marker || _marker;
@@ -921,7 +918,6 @@ class Formatters {
         }
         if (_close_block) {
             option.store();
-
         }
 
         if (_b.length > 0) {
@@ -936,11 +932,45 @@ class Formatters {
             let _tbuffer = option.flush(true);
             _tbuffer += _cbuffer;
             this._restoreBuffer(option, _old);
-
             if (_tbuffer.length > 0) {
                 option.buffer += _tbuffer;
             }
+        }
+        if ((_old == null) || (option.markerInfo.length > 0)) {
+            // + | get the first marker parent update inner childs
+            let v_marker_info = option.markerInfo[0];
+            let v_parent = v_marker_info.marker.parent;
+            if (v_parent) { 
+                if (!v_parent?.isBlock && v_marker_info.marker.updateParentProps?.isBlock) {
+                    let v_request = true;
+                    if (v_marker_info.marker.requestParentBlockCondition) {
+                        // update or start condition block
+                        v_request = this._isEmptyRequestBlock({
+                            childs: v_marker_info.childs,
+                            _marker: v_marker_info.marker,
+                            _old: v_marker_info,
+                            condition: v_marker_info.marker.requestParentBlockCondition
+                        });
+                    }
+                    if (v_request) {
+                        v_marker_info.marker.parent.isBlock = true;
+                        v_marker_info.startBlock = 0;
+                        v_marker_info.autoStartChildBlock = true;
+                        _buffer = option.buffer; // backup buffer 
+                        option.buffer = ''; // clear current buffer
+                        option.store();
+                        this._startNewBlock(v_marker_info.marker, option);
+                        option.appendToBuffer(_buffer, _marker);
+                        option.store(true);
+                    }
+                }else if (v_parent?.isBlock && v_marker_info.autoStartChildBlock){
+                    // 
+                    option.store(true);
+                }
+            }
 
+            // = | v_marker_info.content += option.buffer;
+            // option.store();
         }
 
         return _marker.parent;
@@ -987,9 +1017,11 @@ class Formatters {
      * @param {*} _marker 
      */
     _updateMarkerChild(_p_host, _marker) {
-        _p_host.childType = !_p_host.childType && (
-            !_marker.tokenID || /^constant./.test(_marker.tokenID));
-        _p_host.childs.push({ name: _marker.name, range: { start: 0, end: 0 } });
+        _p_host.childs.push({
+            name: _marker.name,
+            marker: _marker,
+            range: { start: 0, end: 0 }
+        });
     }
     _updateMarkerInfoOld(_marker, _old, _buffer, _endRegex, option) {
         if (_old) {
@@ -1018,9 +1050,9 @@ class Formatters {
             // content: l, // define content property
             endRegex: _endRegex,
             startBlock: _marker.isBlock ? 1 : 0, // start join mode 0|block = append new line before 
+            autoStartChildBlock: false, // indicate that child is an autostarted child start bloc
             oldBlockStart: _marker.isBlock, // backup the start source start  
             childs: [],
-            childType: false, // for constant only purpose
             state: {
                 buffer: option.buffer,
                 output: option.output
@@ -1093,19 +1125,19 @@ class Formatters {
         if (_matcher.group[0].length == 0) {
             // matcher is empty and must past to end group
             if (_endRegex.test(_buffer)) {
-                return this._handleFoundEndPattern(_buffer, option.line , _marker, option,_old);
+                return this._handleFoundEndPattern(_buffer, option.line, _marker, option, _old);
             }
         }
-        
+
         // + | update parent markerin of before handle marker 
-        if ((option.markerInfo.length==0) || (option.markerInfo[0]!== _marker)){
+        if ((option.markerInfo.length == 0) || (option.markerInfo[0] !== _marker)) {
             this._updateMarkerInfoOld(_marker, _old, _buffer, _endRegex, option);
         }
         return this._handleMarker(_matcher, option);
     }
-    _handleEndBlock2(_marker, option) {
+    // _handleEndBlock2(_marker, option) {
 
-    }
+    // }
     /**
      * update parent property
      * @param {*} _matcher 

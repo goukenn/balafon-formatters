@@ -2,6 +2,17 @@
     "tests": [
         {
             "s": [
+                "<div><span>'open'</span><nav>ok</nav></div>"
+            ],
+            "e": [
+                "<div>",
+                "\t<span>'open'</span>",
+                "\t<nav>ok</nav>",
+                "</div>"
+            ]
+        },
+        {
+            "s": [
                 "<div id=\"page\"></div>"
             ],
             "e": [
@@ -85,5 +96,6 @@
                 "</div>"
             ]
         }
+      
     ]
 }
