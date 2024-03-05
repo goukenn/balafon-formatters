@@ -1,6 +1,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
+const { PatternMatchInfo } = require("./PatternMatchInfo");
 
 class Utils {
     /**
@@ -172,9 +173,9 @@ class Utils {
                 _match = p;
             }
         });
-        if (_a) {
+        if (_a){
             _match.index += pos;
-            _a.startMatch(line, _match);
+            //_a.startMatch(line, _match);
             if (debug) {
                 console.log('matcher-begin: ', {
                     '__name':_a.toString(),
@@ -186,11 +187,21 @@ class Utils {
                     value: _match[0],
                     regex: _a.matchRegex  
                 });
-            }
-            // let _treatCapture = { ..._match};
+            } 
+            // + | add property to offset 
             _match.offset = _match[0].length;
-            options.treatBeginCaptures(_a, _match);
-            
+            // +| treat begin captures must be at corresponding data info
+            //options.treatBeginCaptures(_a, _match); 
+            let _info = new PatternMatchInfo;
+            _info.endRegex = _a.endRegex(_match);
+            _info.marker = _a;
+            _info.line = line;
+            _info.group = _match;
+            // _info.startLine = options.outputBuffer.line;
+            // _info.startLine = options.outputBuffer.range;
+            // init _info matcher
+
+            return _info;
         }
         return _a;
     }

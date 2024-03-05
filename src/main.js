@@ -436,7 +436,7 @@ let lines = [];
 
 //     }
 // });
-_formatter.debug = false; 
+_formatter.debug = true; 
 let tests = [
     { s: ['info'], e:'info'},
     { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
