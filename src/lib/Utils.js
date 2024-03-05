@@ -108,11 +108,7 @@ class Utils {
          */
         return function (d, parser, refKey, refObj) {
             let _out = [];
-            let q = refObj || this;
-            if (refKey==null){
-                // throw new Error("require reference key-source key pattern");
-                console.log("source resolution.");
-            }
+            let q = refObj || this; 
             d.forEach((a) => {
                 const { include } = a;
                 const _extends = a.extends;
