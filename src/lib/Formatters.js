@@ -281,7 +281,7 @@ class Formatters {
             }
         };
 
-        Object.defineProperty(objeClass, 'outputBufferInfo', { get(){return _outputBufferInfo; }})
+        Object.defineProperty(objClass, 'outputBufferInfo', { get(){return _outputBufferInfo; }})
         Object.defineProperty(objClass, 'length', { get: function () { return this.line.length; } })
         Object.defineProperty(objClass, 'tabStop', { get: function () { return tabStop; } })
         Object.defineProperty(objClass, 'lineFeed', { get: function () { return lineFeed; } })
