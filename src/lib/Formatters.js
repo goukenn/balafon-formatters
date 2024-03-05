@@ -8,10 +8,15 @@ const { JSonParser } = require("./JSonParser");
 const { Debug } = require("./Debug");
 const { FormatterListener } = require("./FormatterListener");
 const { FormatterSetting } = require("./FormatterSetting");
+const { PatternMatchInfo } = require("./PatternMatchInfo");
 
+// + | --------------------------------------------------------
+// + | export pattern match information 
+// + | --------------------------------------------------------
 Utils.Classes = {
     RefPatterns,
-    Patterns
+    Patterns,
+    PatternMatchInfo
 };
 
 
@@ -201,22 +206,43 @@ class Formatters {
         }
         return _o || new FormatterListener();
     }
-
+    /**
+     * init marker definition
+     * @param {*} option 
+     * @returns 
+     */
     #initDefinition(option) {
         const _rg = option || this.settings || Formatters.CreateDefaultOption();
         const { lineFeed, tabStop } = _rg;
         const { debug } = this;
-        const _states = [];
-        let depth = _rg.depth || 0;
-        let _marker = null;
-        let _formatter = this;
-        let _matcher = null;
-        // buffering info to handle buffer info
-        let _info = this.#createListener();
-
         const _markerInfo = [];
-
+        const _states = [];
+        let depth = _rg.depth || 0; 
+        let _formatter = this;  
+        let _info = this.#createListener(); 
         let m_pos = 0;
+        let _outputBufferInfo = {
+            line : 0,
+            start: 0,
+            end : 0,
+            /**
+             * update number information
+             * @param {number} lineCount number info
+             */
+            updateLine(lineCount){
+                this.line = lineCount;
+                this.start = this.end = 0;
+            },
+            /**
+             * update range
+             * @param {number} start 
+             * @param {undefined|number} end 
+             */
+            updateRange(start, end){
+                this.start = start;
+                this.end = typeof(end)=='undefined' ? start: end;
+            }
+        }
         const m_constants_def = {
             PrevLineFeedConstant: new PrevLineFeedConstantPattern,
             PrevConstant: new PrevConstantPattern,
@@ -254,6 +280,8 @@ class Formatters {
                 this.range.end = typeof (end) == 'undefined' ? start : end;
             }
         };
+
+        Object.defineProperty(objeClass, 'outputBufferInfo', { get(){return _outputBufferInfo; }})
         Object.defineProperty(objClass, 'length', { get: function () { return this.line.length; } })
         Object.defineProperty(objClass, 'tabStop', { get: function () { return tabStop; } })
         Object.defineProperty(objClass, 'lineFeed', { get: function () { return lineFeed; } })
@@ -291,8 +319,7 @@ class Formatters {
                 let _i = Object.getOwnPropertyDescriptor(objClass, i);
                 if (!_i || (_i.get && _i.set)) {
                     _state[i] = objClass[i];
-                }
-
+                } 
             })
             _states.unshift({ ..._state });
         }

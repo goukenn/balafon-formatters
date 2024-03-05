@@ -13,71 +13,31 @@ class RefPatterns extends Patterns {
         if (!pattern || !(pattern instanceof Patterns)){
             throw new Error('pattern not a Pattern instance');
         }
-        ///this.pattern = pattern;
-        var m_line;
-        var m_match;
-        Object.defineProperty(this, 'group', {get(){return m_match; }}); 
-        Object.defineProperty(this, 'line', {get(){return m_line; }}); 
-        Object.defineProperty(this, 'pattern', { get(){return pattern; }});
-
-        this.startMatch = (l,p)=>{
-            m_line = l;
-            m_match = p;
-        };
-        this.name = pattern.name;
-        this.end = pattern.end;
+        // + | init property ref keys 
+        (function(q, pattern){
+            const _keys = Object.keys(q);
+            _keys.forEach(i => {
+                // let t = typeof (q[i]);
+                // if (/function|object/.test(t))
+                //     return;
+                let _i = Object.getOwnPropertyDescriptor(q, i);
+                if (!_i || (_i.get) || _i.writable) {
+                    // q[i] = pattern[i];
+                    Object.defineProperty(q, i, {get(){ return pattern[i]; }})
+                } 
+            });
+        })(this, pattern);
+ 
+        Object.defineProperty(this, 'pattern', { get(){return pattern; }}); 
     }
     check(l){
         return this.pattern.check(l);
     } 
-     
-    
     toString(){
         return `RefPatterns[#${this.pattern.name}]`;
-    }  
-    get matchType(){
-        return this.pattern.matchType;
-    }
-    get index(){
-        return this.group.index;
-    }
-    
-    get line(){
-        return this.m_line;
-    }
-    get isBlock(){
-        return this.pattern.isBlock;
-    }
-    get allowMultiline(){
-        return this.pattern.allowMultiline;
-    }
-    get preserveLineFeed(){
-        return this.pattern.preserveLineFeed;
-    }
-
+    }   
     endRegex(p){
         return this.pattern.endRegex(p);
-    }
-    get patterns(){
-        return this.pattern.patterns;
-    }
-    get begin(){
-        return this.pattern.begin;
-    }
-    get match(){
-        return this.pattern.match;
-    }
-    get end(){
-        return this.pattern.end;
-    }
-    get blockStart(){
-        return this.pattern.blockStart
-    }
-    get blockEnd(){
-        return this.pattern.blockEnd;
-    }
-    get lineFeed(){
-        return this.pattern.lineFeed;
-    }
+    } 
 }
 exports.RefPatterns = RefPatterns;

@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, '__esModule', {value:true});
 
 const { JSonParser } = require('./JSonParser'); 
@@ -223,10 +224,10 @@ class Patterns{
         }
         return p;
     }
-    startMatch(l, p){
-        this.m_line = l;
-        this.m_match = p;
-    }
+    // startMatch(l, p){
+    //     this.m_line = l;
+    //     this.m_match = p;
+    // }
     get matchRegex(){
         return this.matchType == 0? this.begin : this.match;
     }
