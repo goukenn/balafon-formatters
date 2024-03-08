@@ -29,7 +29,13 @@ class Debug{
                 return v;
             });
         }
-        console.log(`${LOG_NAME} - ${msg}`);
+        let args = [];
+        if (arguments){
+            for(let i = 1; i < arguments.length; i++){
+                args.push(arguments[i]);
+            }
+        }
+        console.log(`${LOG_NAME} - ${msg}`, ...args);
     }
     /**
      * enable debug globally

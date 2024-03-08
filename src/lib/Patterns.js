@@ -21,6 +21,11 @@ class Patterns{
      * the name of this pattern
      */
     name;
+
+    /**
+     * capture set content name
+     */
+    contentName;
     /**
      * describe this pattern
      */
@@ -43,6 +48,12 @@ class Patterns{
      * @var {?bool}
      */
     isBlock;
+
+    /**
+     * indicate that this must be consider as a closing block element
+     * @var {?bool}
+     */
+    isClosingBlock = false;
 
     /**
      * get or set condition expression to set if this element is a bloc.
@@ -122,29 +133,33 @@ class Patterns{
         this.preserveLineFeed = false;
         var m_parent = null;
 
-        Object.defineProperty(this, 'parent', {get(){return m_parent;}, set(v){m_parent = v;}});
+        Object.defineProperty(this, 'parent', {get(){return m_parent;}, set(v){
+            if ((v==null)||(v instanceof Patterns) )
+                m_parent = v;
+            else 
+                throw Error('parent value not valid');
+        }});
     }
     json_parse(parser, fieldname, data, refKey, refObj){ 
-        const { Patterns, RefPatterns } = Utils.Classes;
-
+        const { Patterns, RefPatterns, CaptureInfo } = Utils.Classes;
+        const q = this;
         const patterns = Utils.ArrayParser(Patterns, RefPatterns);
+        const transform = Utils.TransformPropertyCallback();
         const _regex_parser = (s)=>{
-            return Utils.RegexParse(s); 
+            return Utils.RegexParse(s, 'd'); 
         };
         const _capture_parser = (s, parser)=>{
 
             let d = {}; 
             for(let i in s){
-                let m = new Patterns; 
+                let m = new CaptureInfo(q); 
                 JSonParser._LoadData(parser, m, s[i]);  
                 d[i] = m; 
-                parser.initialize(m); 
+                parser.initialize(m);  
             } 
             return d;
 
-        }
-        const q = this;
-
+        } 
         const parse = {
             patterns(n,parser, refKey, refObj){
                 let d = patterns.apply(q, [n,parser, refKey, refObj]);
@@ -165,20 +180,7 @@ class Patterns{
             beginCaptures :_capture_parser,
             endCaptures :_capture_parser,
             captures :_capture_parser,
-            transform(n,parser){
-                if (typeof(n)=='string'){
-                    let t = []
-                    n.split(',').forEach((i)=>{
-                        i.trim();
-                        if (i.length>0)
-                            t.push(i);
-                    });
-                    return t;
-                }
-                if (Array.isArray(n)){
-                    return n;
-                }
-            }
+           transform
         };
         let fc = parse[fieldname];
         if (fc){
@@ -224,10 +226,7 @@ class Patterns{
         }
         return p;
     }
-    // startMatch(l, p){
-    //     this.m_line = l;
-    //     this.m_match = p;
-    // }
+    
     get matchRegex(){
         return this.matchType == 0? this.begin : this.match;
     }
@@ -245,8 +244,18 @@ class Patterns{
      * @returns 
      */
     endRegex(p){
-        let s = this.end.toString();
-        return Utils.GetRegexFrom(s, p); 
+        if (this.matchType==0){ 
+            let s = this.end.toString();
+            let idx = s.lastIndexOf('/');
+            let flag = '';
+            if (idx<(s.length-1)){
+                //remove options
+                flag = s.substring(idx+1);
+                s = s.substring(0, idx+1);
+            }
+            return Utils.GetRegexFrom(s, p, flag); 
+        }
+        return null;
     }
     get blockStart(){
         const t = this.matchType;

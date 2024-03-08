@@ -193,9 +193,13 @@
             "name": "tag.function.attribute.html"
         },
         "global-html-tag": {
-            "begin": "\\<\\b([\\w]+)\\b\\s*",
-            "end": "(\\s*\\/\\>|\\<\\/$1\\s*>)",
+            "begin": "(\\<)\\b([\\w][\\w:\\-]*)\\b",
+            "end": "(\\s*\\/\\>|\\<\\/$2\\s*>)",
             "name": "global.html.tag.html",
+            "beginCaptures":{
+                "1":{"name":"tab.symbol.start.html"},
+                "2":{"name":"tabname.html"}
+            },
             "endCaptures": {
                 "0": {
                     "name": "html.end.tag_definition",
@@ -206,9 +210,9 @@
                         {
                             "match": "^\\s*\\/\\>",
                             "name": "close.tag",
-                            "replaceWith": "></$1>",
+                            "replaceWith": "></$2>",
                             "replaceWithCondition": {
-                                "check": "$1",
+                                "check": "$2",
                                 "operator": "!=",
                                 "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr"
                             },
@@ -217,8 +221,9 @@
                             }
                         },
                         {
-                            "match": "\\<\\/\\b[\\w]+\\b\\>",
-                            "name": "end.tag"
+                            "match": "\\<\\/\\b[\\w][\\w:\\-]*\\b\\>",
+                            "name": "end.tag",
+                            "isClosingBlock":true
                         }
                     ]
                 }
