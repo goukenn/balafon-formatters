@@ -3,9 +3,9 @@
   "version": "1.0.1",
   "main": "src/main.js",
   "description": "Javascript Generic Formatters",
-  "author":{
+  "author": {
     "name": "C.A.D. BONDJE DOUE",
-    "email": "cbondje@igkdev.com" 
+    "email": "cbondje@igkdev.com"
   },
   "license": "MIT",
   "private": true,
@@ -17,10 +17,13 @@
     "@vscode/test-cli": "^0.0.4",
     "@vscode/test-electron": "^2.3.8",
     "eslint": "^8.56.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   },
-  "scripts":{
-    "debug":"node ./src/main.js"
+  "scripts": {
+    "debug": "node ./src/main.js",
+    "debug-range": "node ./src/treat.token.js"
   },
   "engines": {
     "vscode": "^1.86.0"
@@ -30,5 +33,4 @@
     "onLanguage:bcss"
   ],
   "publisher": "CADBONDJEDOUE"
-  
 }

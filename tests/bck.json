@@ -1,116 +1,145 @@
 {
+    "comment": "inner transform",
+    "s": [
+        "<div     />"
+    ],
+    "e": "<div></div>"
+},
+
+{
+    "comment":"multine test",
+    "s": [
+        "<div>'open'</div>"
+    ],
+    "e": ["<div>'open'</div>"]
+}, 
+,
+{
+    "comment": "multine test",
+    "s": [
+        "<div><span>'open'</span><nav>ok</nav></div>"
+    ],
+    "e": [
+        "<div>",
+        "\t<span>'open'</span>",
+        "\t<nav>ok</nav>",
+        "</div>"
+    ]
+}
+
+
+{
     "s": [
         "<div><nav><main>main data</main></nav></div>"
     ],
     "e": [
-        "<div>", 
+        "<div>",
         "\t<nav>ok",
         "\t\t<main>main data</main>",
         "\t</nav>",
         "</div>"
     ]
 },
-
 ,
-        {
-            "s": [
-                "<div id=\"page\"></div>"
-            ],
-            "e": [
-                "<div id=\"page\"></div>"
-            ]
-        },
-        {
-            "s": [
-                "<input id=\"page\" />"
-            ],
-            "e": [
-                "<input id=\"page\"/>"
-            ],
-            "comment": "input stay input."
-        },
-        {
-            "s": [
-                "<div id=\"page\" />"
-            ],
-            "e": [
-                "<div id=\"page\"></div>"
-            ]
-        },
-       
-        {
-            "s": [
-                "<input id=\"page\" />"
-            ],
-            "e": [
-                "<input id=\"page\"/>"
-            ],
-            "comment": "input stay input."
-        },
-        {
-            "s": [
-                "<div id=\"page\" />"
-            ],
-            "e": [
-                "<div id=\"page\"></div>"
-            ]
-        },
-        {
-            "s": [
-                "<div id=\"page\"></div>"
-            ],
-            "e": [
-                "<div id=\"page\"></div>"
-            ]
-        },
-        {
-            "s": [
-                "<div id=\"page\"/>"
-            ],
-            "e": [
-                "<div id=\"page\"></div>"
-            ]
-        },
-        {
-            "s": [
-                "<input id=\"input\" />"
-            ],
-            "e": [
-                "<input id=\"input\"/>"
-            ]
-        },
-        {
-            "s": [
-                "<div id=\"page\"> 'open' </div>"
-            ],
-            "e": [
-                "<div id=\"page\"> 'open' </div>"
-            ]
-        },
-        {
-            "s": [
-                "<div><span>'open'</span></div>"
-            ],
-            "e": [
-                "<div>",
-                "\t<span>'open'</span>",
-                "</div>"
-            ]
-        }
-      
-    
-
-
-
-        {
-            "comment":"multine test",
-            "s": [
-                "<div><span>'open'</span><nav>ok</nav></div>"
-            ],
-            "e": [
-                "<div>",
-                "\t<span>'open'</span>",
-                "\t<nav>ok</nav>",
-                "</div>"
-            ]
-        }
+{
+    "s": [
+        "<div id=\"page\"></div>"
+    ],
+    "e": [
+        "<div id=\"page\"></div>"
+    ]
+},
+{
+    "s": [
+        "<input id=\"page\" />"
+    ],
+    "e": [
+        "<input id=\"page\"/>"
+    ],
+    "comment": "input stay input."
+},
+{
+    "s": [
+        "<div id=\"page\" />"
+    ],
+    "e": [
+        "<div id=\"page\"></div>"
+    ]
+},
+{
+    "s": [
+        "<input id=\"page\" />"
+    ],
+    "e": [
+        "<input id=\"page\"/>"
+    ],
+    "comment": "input stay input."
+},
+{
+    "s": [
+        "<div id=\"page\" />"
+    ],
+    "e": [
+        "<div id=\"page\"></div>"
+    ]
+},
+{
+    "s": [
+        "<div id=\"page\"></div>"
+    ],
+    "e": [
+        "<div id=\"page\"></div>"
+    ]
+},
+{
+    "s": [
+        "<div id=\"page\"/>"
+    ],
+    "e": [
+        "<div id=\"page\"></div>"
+    ]
+},
+{
+    "s": [
+        "<input id=\"input\" />"
+    ],
+    "e": [
+        "<input id=\"input\"/>"
+    ]
+},
+{
+    "s": [
+        "<div id=\"page\"> 'open' </div>"
+    ],
+    "e": [
+        "<div id=\"page\"> 'open' </div>"
+    ]
+},
+{
+    "s": [
+        "<div><span>'open'</span></div>"
+    ],
+    "e": [
+        "<div>",
+        "\t<span>'open'</span>",
+        "</div>"
+    ]
+},
+{
+    "s": [
+        "<div>ok</div>"
+    ],
+    "e": "<div>ok</div>"
+},
+{
+    "comment": "multine test",
+    "s": [
+        "<div><span>'open'</span><nav>ok</nav></div>"
+    ],
+    "e": [
+        "<div>",
+        "\t<span>'open'</span>",
+        "\t<nav>ok</nav>",
+        "</div>"
+    ]
+}

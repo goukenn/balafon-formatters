@@ -152,7 +152,7 @@ class Utils {
         }
     }
 
-    static GetPatternMatcher(patterns, options) {
+    static GetPatternMatcher(patterns, options, parentMatcherInfo=null) {
         const { line, pos, debug, depth } = options;
         let _a = null;
         let _match = 0;
@@ -192,11 +192,11 @@ class Utils {
             _match.offset = _match[0].length;
             // +| treat begin captures must be at corresponding data info
             //options.treatBeginCaptures(_a, _match); 
-            let _info = new PatternMatchInfo;
-            _info.endRegex = _a.endRegex(_match);
-            _info.marker = _a;
-            _info.line = line;
-            _info.group = _match;
+            let _info = new PatternMatchInfo; 
+            _info.use({marker:_a, endRegex: _a.endRegex(_match), 
+                line, 
+                group:_match, 
+                parent: parentMatcherInfo});
             // _info.startLine = options.outputBuffer.line;
             // _info.startLine = options.outputBuffer.range;
             // init _info matcher
@@ -211,7 +211,7 @@ class Utils {
      * @param {*} p group
      * @returns 
      */
-    static GetRegexFrom(s, p) {
+    static GetRegexFrom(s, p, flag) {
 
         s = s.replace(/[^\\]?\$([\d]+)/, (a, m) => {
             if (a[0] == "\\") return a;
@@ -220,7 +220,7 @@ class Utils {
             return p[m];
         });
         s = /^\/.+\/$/.test(s) ? s.substring(1).slice(0, -1) : s;
-        return new RegExp(s);
+        return new RegExp(s, flag || '');
     }
 
 
@@ -228,6 +228,16 @@ class Utils {
         let gp = Utils.GetRegexFrom(s, group);
         gp = gp.toString().substring(1).slice(0, -1).replace(/\\\//g, "/");
         s = s.replace(s, gp);
+        return s;
+    }
+    /**
+     * convert to string en remove the flags
+     * @param {*} regex 
+     * @returns 
+     */
+    static RegExToString(regex){
+        let s = regex.toString();
+        s = s.substring(0, s.lastIndexOf('/')+1);
         return s;
     }
 
@@ -258,9 +268,12 @@ class Utils {
         };
     }
 
-    static RegexParse(s) {
+    static RegexParse(s, flag) {
         if (typeof (s) == 'string') {
             let _info = Utils.RegexInfo(s);
+            if (flag && ((_info.option.length==0)||(_info.option.indexOf(flag)==-1))){
+                _info.option = flag;
+            }
             return new RegExp(_info.s, _info.option);
         } else if (typeof (s) == 'object') {
             if (s instanceof RegExp)
@@ -373,6 +386,22 @@ class Utils {
             return fc.apply(q, [data, parser, refKey]);
         }
         return data;
+    }
+    static TransformPropertyCallback(){
+        return  function(n,parser){
+            if (typeof(n)=='string'){
+                let t = []
+                n.split(',').forEach((i)=>{
+                    i.trim();
+                    if (i.length>0)
+                        t.push(i);
+                });
+                return t;
+            }
+            if (Array.isArray(n)){
+                return n;
+            }
+        };
     }
 }
 exports.Utils = Utils;
