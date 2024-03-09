@@ -135,7 +135,7 @@ class FormatterListener {
             _o.buffer = this.objClass.buffer.trimEnd();
         }
         // + | 
-        _o.debug &&  Debug.log('append: ' + s);
+        _o.debug &&  Debug.log('---::append:----' + s);
     
         if (_o.buffer.length > 0) {
             // join expression with single space
@@ -180,6 +180,12 @@ class FormatterListener {
             output.push(_tab + s);
         } 
     }
+    /**
+     * use this to join buffer output
+     * @param {bool} clear 
+     * @param {{output:string[], lineFeed:string}} param1 
+     * @returns {string}
+     */
     output(clear, {output, lineFeed}) { 
         let _s = output.join(lineFeed);
         if (clear) {
@@ -187,15 +193,30 @@ class FormatterListener {
         }
         return _s;
     }
-    appendLine() {
-        const _o = this.objClass;
-        if (_o.output.length > 0) {
-            _o.output[_o.output.length - 1] += _o.lineFeed;
-        }
-    }
-
-
-    treat
+    // appendLine() {
+    //     const _o = this.objClass;
+    //     if (_o.output.length > 0) {
+    //         _o.output[_o.output.length - 1] += _o.lineFeed;
+    //     }
+    // } 
+    /**
+     * transform value depending on token definition 
+     * @param {string} value 
+     * @param {null|string|string[]} tokens 
+     * @param {null|string} tokenID 
+     * @returns {string}
+     */
+    renderToken(value, tokens, tokenID){
+        // let _t = tokens.shift();
+        // if (_t=='tagname.html'){
+        //     return '<span class="s tag">'+value+'</span>';
+        // }
+        // if (/^symbol\./.test(_t)){
+        //     value = value.replace("<", "&lt;").replace(">","&gt;");
+        //     return '<span class="s symbol">'+value+'</span>';
+        // }
+        return value;
+    } 
 }
 
 exports.FormatterListener = FormatterListener;

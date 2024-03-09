@@ -194,11 +194,13 @@
         },
         "global-html-tag": {
             "begin": "(\\<)\\b([\\w][\\w:\\-]*)\\b",
-            "end": "(\\s*\\/\\>|\\<\\/$2\\s*>)",
+            "end": "(?:\\s*\\/\\>|\\<\\/$2\\s*>)",
             "name": "global.html.tag.html",
+            "isBlock":true,
+            "requestBlockCondition":"childContains(global.html.tag.html)", 
             "beginCaptures":{
-                "1":{"name":"tab.symbol.start.html"},
-                "2":{"name":"tabname.html"}
+                "1":{"name":"symbol.start.tag.html"},
+                "2":{"name":"tagname.html"}
             },
             "endCaptures": {
                 "0": {
@@ -210,7 +212,7 @@
                         {
                             "match": "^\\s*\\/\\>",
                             "name": "close.tag",
-                            "replaceWith": "></$2>",
+                            "replaceWith": "(>)(</)($2)(>)",
                             "replaceWithCondition": {
                                 "check": "$2",
                                 "operator": "!=",
@@ -218,12 +220,23 @@
                             },
                             "updateParentProps": {
                                 "isBlock": false
+                            },
+                            "captures":{
+                                "1":{"name":"symbol.end.tag.html"},
+                                "2":{"name":"symbol.start.close.tag.html"},
+                                "3":{"name":"tagname.html"},
+                                "4":{"name":"symbol.end.tag.html"}
                             }
                         },
                         {
-                            "match": "\\<\\/\\b[\\w][\\w:\\-]*\\b\\>",
+                            "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\>)",
                             "name": "end.tag",
-                            "isClosingBlock":true
+                            "isClosingBlock":true,
+                            "captures":{
+                                "1":{"name":"symbol.end.tag.html"},
+                                "2":{"name":"tagname.html"},
+                                "3":{"name":"symbol.end.tag.html"}
+                            }
                         }
                     ]
                 }
@@ -285,7 +298,10 @@
                         }
                     ]
                 }
-            ]
+            ],
+            "updateParentProps":{
+                "isBlock":false
+            }
         }
     },
     "patterns": [

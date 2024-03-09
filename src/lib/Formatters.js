@@ -10,6 +10,7 @@ const { FormatterListener } = require("./FormatterListener");
 const { FormatterSetting } = require("./FormatterSetting");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { CaptureInfo } = require("./CaptureInfo");
+const { CaptureRenderer } = require("./CaptureRenderer");
 
 // + | --------------------------------------------------------
 // + | export pattern match information 
@@ -219,19 +220,19 @@ class Formatters {
         const { debug } = this;
         const _markerInfo = [];
         const _states = [];
-        let depth = _rg.depth || 0; 
-        let _formatter = this;  
-        let _info = this.#createListener(); 
+        let depth = _rg.depth || 0;
+        let _formatter = this;
+        let _info = this.#createListener();
         let m_pos = 0;
         let _outputBufferInfo = {
-            line : 0,
+            line: 0,
             start: 0,
-            end : 0,
+            end: 0,
             /**
              * update number information
              * @param {number} lineCount number info
              */
-            updateLine(lineCount){
+            updateLine(lineCount) {
                 this.line = lineCount;
                 this.start = this.end = 0;
             },
@@ -240,9 +241,9 @@ class Formatters {
              * @param {number} start 
              * @param {undefined|number} end 
              */
-            updateRange(start, end){
+            updateRange(start, end) {
                 this.start = start;
-                this.end = typeof(end)=='undefined' ? start: end;
+                this.end = typeof (end) == 'undefined' ? start : end;
             }
         }
         const m_constants_def = {
@@ -283,7 +284,7 @@ class Formatters {
             }
         };
 
-        Object.defineProperty(objClass, 'outputBufferInfo', { get(){return _outputBufferInfo; }})
+        Object.defineProperty(objClass, 'outputBufferInfo', { get() { return _outputBufferInfo; } })
         Object.defineProperty(objClass, 'length', { get: function () { return this.line.length; } })
         Object.defineProperty(objClass, 'tabStop', { get: function () { return tabStop; } })
         Object.defineProperty(objClass, 'lineFeed', { get: function () { return lineFeed; } })
@@ -321,7 +322,7 @@ class Formatters {
                 let _i = Object.getOwnPropertyDescriptor(objClass, i);
                 if (!_i || (_i.get && _i.set)) {
                     _state[i] = objClass[i];
-                } 
+                }
             })
             _states.unshift({ ..._state });
         }
@@ -346,6 +347,10 @@ class Formatters {
             if (empty(value)) {
                 return s;
             }
+            // global treatment 
+            if (_marker.transform) {
+                value = Utils.StringValueTransform(value, _marker.transform);
+            }
             if (_marker.replaceWith) {
                 let _g = _marker?.parent?.group;
                 if (this.state == 'begin/end') {
@@ -353,10 +358,7 @@ class Formatters {
                 }
                 value = _formatter._operationReplaceWith(_marker, value, _g);
             }
-            // global treatment 
-            if (_marker.transform) {
-                value = Utils.StringValueTransform(value, _marker.transform);
-            }
+           
             if (this.listener.treatBuffer) {
                 return this.listener.treatBuffer.append(s, value, _marker, this);
             }
@@ -396,26 +398,90 @@ class Formatters {
          * @param {*} matches 
          * @returns 
          */
-        objClass.treatBeginCaptures = function (_marker, matches) {
-            let _cap = { ..._marker.captures, ..._marker.beginCaptures };
+        objClass.treatBeginCaptures = function (patternInfo) {
+            const { marker, group } = patternInfo;
+            // + | do capture treatment 
+            let _cap = { ...marker.captures, ...marker.beginCaptures };
             if (is_emptyObj(_cap)) {
                 return;
             }
-            return this.treatCaptures(_cap, _marker, matches);
+            // + | clone and reset indices before generate  
+            let _s = CaptureRenderer.CreateFromGroup(group, marker.name);
+            if (_s) {
+                let _g = _s.render(this.listener, _cap); 
+                patternInfo.startOutput = _g;
+                return;
+            }
+
+            return this.treatCaptures(_cap, marker, group);
         };
-        objClass.treatEndCaptures = function (_marker, endMatch) {
-            let _cap = { ..._marker.captures, ..._marker.endCaptures };
+        objClass.treatEndCaptures = function (markerInfo, endMatch) {
+            let _cap = { ...markerInfo.captures, ...markerInfo.endCaptures };
             if (is_emptyObj(_cap)) {
-                return;
+                return endMatch[0];
             }
+            const { marker, group } = markerInfo;
             const { debug } = this;
+            // const rMatch = Array.isArray(endMatch)? Object.assign(endMatch.slice(0), {...endMatch}) :  { ...endMatch };
+            // rMatch.index = 0;
+            let _s = CaptureRenderer.CreateFromGroup(endMatch, marker.name);
+            if (_s) {
+                const q = this;
+                let _g = _s.render(this.listener, _cap, (value, cap, id, listener)=>{
+                    if (cap.patterns) {
+                        let _bckCapture = _formatter.info.captureGroup;
+                        _formatter.info.captureGroup = markerInfo.group;
+                        debug && Debug.log('---::::treatEndCaptures::::--- contains patterns');
+                        if (_formatter.settings.useCurrentFormatterInstance) {
+                            pushState();
+                            // backup setting
+                            let _bck = {
+                                patterns: _formatter.patterns,
+                                buffer: q.buffer,
+                                output: q.output,
+                                lineCount: q.lineCount,
+                                markerInfo: q.markerInfo.slice(0),
+                                line: q.line,
+                                pos: q.pos
+                            };
+                            // clean setting
+                            q.output = [];
+                            q.buffer = [];
+                            q.lineCount = 0;
+                            _markerInfo.length = 0;
+                            _formatter.info.isSubFormatting++;
+                            _formatter.patterns = cap.patterns;
+                            value = _formatter.format(value);
+                            _formatter.info.isSubFormatting--;
+                            _formatter.patterns = _bck.patterns;
+                            // restore setting
+                            q.output = _bck.output;
+                            q.buffer = _bck.buffer;
+                            q.lineCount = _bck.lineCount;
+                            q.line = _bck.line;
+                            q.pos = _bck.pos;
+                            _bck.markerInfo.forEach(a => _markerInfo.push(a));
+                            popState();
+    
+                        } else {
+                            // passing value to pattern 
+                            let n_formatter = Formatters.CreateFrom({ patterns: d.patterns });
+                            value = n_formatter.format(value);
+                        }
+                        _formatter.info.captureGroup = _bckCapture;
+                    }
+                    return value;
+                }); 
+                markerInfo.endOutput = _g;
+                return _g;
+            }
             // let transformed = _marker.endRegex(_marker.group); 
             // use replace with to change the value at specied capture 
             let list = [];
             list.markers = {};
             let prop = null;
             let _bckCapture = _formatter.info.captureGroup;
-            _formatter.info.captureGroup = _marker.group;
+            _formatter.info.captureGroup = markerInfo.group;
             for (let i in _cap) {
                 list.push(i);
                 let d = _cap[i];
@@ -427,24 +493,23 @@ class Formatters {
 
 
                 if (d.replaceWith) {
-                    Formatters.DoReplaceWith(value, _formatter, Utils.RegExToString(d.replaceWith), _marker.group); // Formatters.GetMarkerGroup(_formatter, _marker))
+                    Formatters.DoReplaceWith(value, _formatter, Utils.RegExToString(d.replaceWith), markerInfo.group, markerInfo); // Formatters.GetMarkerGroup(_formatter, _marker))
 
                 }
                 if (d.nextTrimWhiteSpace) {
                     // TODO: Trim next buffer space 
                 }
                 if (d.transform) {
-                    value = Utils.StringValueTransform(value, d.transform);
-
+                    value = Utils.StringValueTransform(value, d.transform); 
                 }
                 if (d.name) {
                     prop = new NameOnlyConstantPattern();
-                    prop.name = d.name; 
+                    prop.name = d.name;
                     prop.isClosingBlock = d.isClosingBlock;
                     list.markers[i] = {
                         marker: prop,
                         value: value,
-                        parent: _marker
+                        parent: markerInfo
                     };
                 }
                 if (d.patterns) {
@@ -456,9 +521,9 @@ class Formatters {
                             patterns: _formatter.patterns,
                             buffer: this.buffer,
                             output: this.output,
-                            lineCount : this.lineCount,
-                            markerInfo : this.markerInfo.slice(0),
-                            line : this.line,
+                            lineCount: this.lineCount,
+                            markerInfo: this.markerInfo.slice(0),
+                            line: this.line,
                             pos: this.pos
                         };
                         // clean setting
@@ -549,9 +614,12 @@ class Formatters {
                 this.buffer = '';
             }
         }
-
-        objClass.flush = function (clear) {
-
+        /**
+         * flush and clear buffer 
+         * @param {bool} clear 
+         * @returns 
+         */
+        objClass.flush = function (clear) { 
             const _ctx = this;
             const { buffer, output, listener } = _ctx;
             let l = '';
@@ -560,8 +628,7 @@ class Formatters {
             } else {
                 l = this.output.join(lineFeed);
             }
-            if (clear) {
-
+            if (clear) { 
                 this.buffer = '';
                 this.output = [];
             }
@@ -666,7 +733,7 @@ class Formatters {
             }
         }
         objClass.store();
-        const _output =  objClass.output.join(lineFeed);
+        const _output = objClass.output.join(lineFeed);
         // + | clear buffer list 
         this.objClass.buffer = '';
         this.objClass.output = [];
@@ -684,26 +751,48 @@ class Formatters {
         option.depth++;
         option.listener.startNewBlock();
     }
+    getTokens(){
+        return 'constant';
+    }
+    getMarkerCaptures(_markerInfo, end=false){
+        const _type = _markerInfo.marker.matchType; 
+        if (_type==0){
+            const s = end ? _markerInfo.marker.endCaptures :_markerInfo.marker.beginCaptures;
+            return {..._markerInfo.marker.captures, ...s};
+        }
+        return {..._markerInfo.marker.captures};
+    }
     /**
      * do replace with
      * @param {*} value 
      * @param {*} _formatter 
      * @param {*} replace_with 
      * @param {*} group 
+     * @param {*} _marker markerInfo
      * @returns 
      */
-    static DoReplaceWith(value, _formatter, replace_with, group) {
+    static DoReplaceWith(value, _formatter, replace_with, group, _marker) {
         let g = group;
         let _rp = replace_with; // 
         let m = '';
         if (g) {
-            m = Utils.ReplaceRegexGroup(_rp, g); // 
+            m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
+            let cp = new RegExp(m, 'd');
+            let check = m.replace(/(?<=(^|[^\\]))(\(|\))/g, '');
+            let _in = value.replace(value, check);
+            // passing exec to formatt new value
+            let matches = cp.exec(_in);
+            g = CaptureRenderer.CreateFromGroup(matches, _formatter.getTokens());
+            let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker));
+            // console.log("the in ", _in, out);
+            return out;
+
         } else {
 
             m = _rp.replace(/\\\//g, "/");
         }
         value = value.replace(value, m);
-        return value; q
+        return value; 
     }
 
     /**
@@ -731,17 +820,17 @@ class Formatters {
         }
         return handle.apply(this, [_marker, option]);
     }
- /**
-  * replace with condition 
-  * @param {PatternMatchInfo} _marker 
-  * @param {*} value 
-  * @param {*} group 
-  * @returns 
-  */
+    /**
+     * replace with condition 
+     * @param {PatternMatchInfo} _marker 
+     * @param {*} value 
+     * @param {*} group 
+     * @returns 
+     */
     _operationReplaceWith(_marker, value, group) {
         let _formatter = this;
         if (_marker.replaceWith) {
-            let _rpw = Utils.RegExToString(_marker.replaceWith);  
+            let _rpw = Utils.RegExToString(_marker.replaceWith);
             const _cond = _marker.replaceWithCondition;
             let match = _cond?.match;
 
@@ -770,7 +859,7 @@ class Formatters {
                 }
 
             }
-            value = Formatters.DoReplaceWith(value, _formatter, _rpw, g);
+            value = Formatters.DoReplaceWith(value, _formatter, _rpw, g, _marker);
 
         }
         return value;
@@ -829,15 +918,15 @@ class Formatters {
         if ((markerInfo.length > 0) && (markerInfo[0].marker == patternInfo) && (_old = markerInfo.shift())) {
             _start = _old.start; // update the marker to handle start definition
             _buffer = this._updateOldMarker(_old, patternInfo, startLine, option);
-        } else if (patternInfo.start){
+        } else if (patternInfo.start) {
             // + | treat begin captures and update buffer
-            let _list =  option.treatBeginCaptures(patternInfo.marker, patternInfo.group);
+            option.treatBeginCaptures(patternInfo);
             patternInfo.start = false;
         }
 
 
         _endRegex = patternInfo.endRegex;// _endRegex || _marker.endRegex(_marker.group);
-        _buffer = _buffer || patternInfo.group[0];
+        _buffer = _buffer || patternInfo.startOutput;
         let _next_position = patternInfo.group.index + patternInfo.group.offset;
         // treat patterns
         if (_start) {
@@ -918,7 +1007,7 @@ class Formatters {
                 isBlock: _marker.isBlock,
                 value: _p[0],
                 regex: _marker.endRegex
-            }); 
+            });
         }
         let _close_block = false;
         if (_marker.isBlock) {
@@ -932,8 +1021,7 @@ class Formatters {
         // calculate next position 
         const _next_position = _p.index + _p[0].length;
         // ent treatment
-        let s = option.treatEndCaptures(_marker, _p);
-        let _b = _p[0];
+        let _b = option.treatEndCaptures(_marker, _p); 
         let _append = option.line.substring(option.pos, _p.index);
         let _sblock = _marker?.parent?.isBlock;
         let _p_host = ((option.markerInfo.length > 0) ? option.markerInfo[0] : null);
@@ -952,12 +1040,12 @@ class Formatters {
 
         if (_requestParentBlock) {
             // validate the block to 
-            _marker.parent.isBlock = this._isEmptyRequestBlock({ _marker, _old, childs: _old.childs, condition: _marker.requestParentBlockCondition });
+            _marker.parent.isBlock = this._isEmptyRequestBlock({ _marker, childs: _old.childs, condition: _marker.requestParentBlockCondition });
         } else if (!_sblock && _marker?.parent?.isBlock) {
             _marker.parent.isBlock = false;
         }
 
-        if ((!s && (_append != _b) && (_append.trim().length > 0)) || (_requestParentBlock && _marker.parent.isBlock)) {
+        if ((/* !s && */(_append != _b) && (_append.trim().length > 0)) || (_requestParentBlock && _marker.parent.isBlock)) {
             // fix that capture not added with data .
             // if request to make parent block
             if (_requestParentBlock) {
@@ -980,7 +1068,7 @@ class Formatters {
                 }
                 this._startNewBlock(_marker.parent, option);
             }
-            if (!s && (_append != _b) && (_append.trim().length > 0)) {
+            if ( /*!s && */(_append != _b) && (_append.trim().length > 0)) {
                 _buffer = option.updateBufferValue(_buffer, _append, _marker);
             }
         }
@@ -988,18 +1076,18 @@ class Formatters {
             _marker.parent.isBlock = _p_host.oldBlockStart;
         }
         option.appendToBuffer(_buffer, _marker);
-        _buffer = ''; 
+        _buffer = '';
         let _block_marker = _marker;
-        if (s) {
-            // + | update change marker definition group 
-            if (0 in s.markers) {
-                let g = s.markers[0];
-                if (g.marker){
-                    _block_marker = g.marker;
-                }
-                // _marker = g.marker || _marker;
-            }
-        }
+        // if (s) {
+        //     // + | update change marker definition group 
+        //     if (0 in s.markers) {
+        //         let g = s.markers[0];
+        //         if (g.marker) {
+        //             _block_marker = g.marker;
+        //         }
+        //         // _marker = g.marker || _marker;
+        //     }
+        // }
         if (_close_block) {
             option.store();
         }
@@ -1024,15 +1112,14 @@ class Formatters {
             // + | get the first marker parent update inner childs
             let v_marker_info = option.markerInfo[0];
             let v_parent = v_marker_info.parent;
-            if (v_parent) { 
+            if (v_parent) {
                 if (!v_parent?.isBlock && v_marker_info.marker.updateParentProps?.isBlock) {
                     let v_request = true;
                     if (v_marker_info.marker.requestParentBlockCondition) {
                         // update or start condition block
                         v_request = this._isEmptyRequestBlock({
                             childs: v_marker_info.childs,
-                            _marker: v_marker_info.marker,
-                            _old: v_marker_info,
+                            _marker: v_marker_info.marker, 
                             condition: v_marker_info.marker.requestParentBlockCondition
                         });
                     }
@@ -1047,46 +1134,64 @@ class Formatters {
                         option.appendToBuffer(_buffer, _marker);
                         option.store(true);
                     }
-                }else if (v_parent?.isBlock && v_marker_info.autoStartChildBlock){
+                } else if (v_parent?.isBlock && v_marker_info.autoStartChildBlock) {
                     option.store(true);
                 }
-            } 
-        } 
+            }
+        }
+
+        const { requestParentBlockCondition } = _marker.parent || {};
+        if (( _b == '</span>') && _p_host && requestParentBlockCondition && !_marker.parent.isBlock){
+            //check for condition in parent 
+            debug && Debug.log("request conditiong....");
+            _marker.parent.isBlock = this._isEmptyRequestBlock({ 
+                _marker: _marker.parent, childs: _p_host.childs, condition: requestParentBlockCondition });
+            if (_marker.parent.isBlock ){
+                let _tbuffer = option.buffer;
+                option.buffer = '';
+                this._startNewBlock(_marker.parent, option);
+                option.buffer = _tbuffer;
+                option.store(true);
+                option.buffer = option.flush(true);
+ 
+                
+            }
+        }
+
+
         return _marker.parent;
     }
     /**
      * check if this marker will be consider as an empty block if requested
-     * @param {*} _marker 
-     * @param {*} _old 
+     * @param { {childs: [], _marker,condition}} option  
      */
-    _isEmptyRequestBlock({ childs, _marker, _old, condition }) {
-        if (_old && true) {//_marker.blockToParentCondition){
+    _isEmptyRequestBlock({ childs, _marker, condition }) {
+        if (childs.length == 0) {
+            return false;
+        }
+        const _tchilds = childs.slice(0);
+        if (condition) {
+            let r = true;
+            let q = null;
+            let expression = this._funcRegistryExpression();
+            const list = expression.namespaces.join(',');
+            let fc = new Function("registry", "child", "marker", `const {${list}} = registry; return ${condition};`);
+            while (_tchilds.length > 0) {
+                q = _tchilds.shift();
 
-            if (childs.length == 0) {
-                return false;
-            }
-            if (condition) {
-                let r = true;
-                let q = null;
-                let expression = this._funcRegistryExpression();
-                const list = expression.namespaces.join(',');
-                let fc = new Function("registry", "child", "marker", `const {${list}} = registry;  return ${condition};`);
-                while (childs.length > 0) {
-                    q = childs.shift();
-
-                    try {
-                        r = fc.apply({ child: q }, [expression.registry, q, _marker]);
-                    }
-                    catch (e) {
-                        console.error("error : ", e);
-                        return true;
-                    }
-                    if (r) {
-                        return true;
-                    }
+                try {
+                    r = fc.apply({ child: q }, [
+                        expression.registry, q, _marker]);
                 }
-                return false;
+                catch (e) {
+                    console.error("error : ", e);
+                    return true;
+                }
+                if (r) {
+                    return true;
+                }
             }
+            return false;
         }
         return true;
     }
@@ -1222,7 +1327,7 @@ class Formatters {
      * @param {*} _matcher 
      */
     _updateParentProps(_matcher, option) {
-        if (!_matcher.updateParentProps)
+        if (!_matcher.updateParentProps || !_matcher.parent)
             return;
         const { isBlock, lineFeed } = _matcher.updateParentProps;
         _matcher.parent.isBlock = isBlock || _matcher.parent.isBlock;
