@@ -34,6 +34,8 @@ class PatternMatchInfo{
         var m_line;
         var m_isBlock = false;
         var m_lineFeed = false;
+        var m_startOutput = null;
+        var m_endOutput = null;
 
         /**
          * get or set the parent info matcher
@@ -45,6 +47,12 @@ class PatternMatchInfo{
         Object.defineProperty(this, 'endRegex', {get(){return m_endRegex; }});
         Object.defineProperty(this, 'group', {get(){return m_group; }});
         Object.defineProperty(this, 'line', {get(){return m_line; }});
+        Object.defineProperty(this, 'startOutput', {get(){return m_startOutput || m_group[0]; }, set(v){
+            m_startOutput = v;
+        }});
+        Object.defineProperty(this, 'endOutput', {get(){return m_endOutput; }, set(v){
+            m_endOutput = v;
+        }});
 
         /**
          * 

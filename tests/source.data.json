@@ -1,12 +1,17 @@
 {
-    "tests": [ 
-       
+    "tests": [
+     
         {
-            "comment":"multine test",
+            "comment": "multine test",
             "s": [
-                "<form />"
+                "<div><span>'open'</span><nav>ok</nav></div>"
             ],
-            "e": ["<form></form>"]
-       }
+            "e": [
+                "<div>",
+                "\t<span>'open'</span>",
+                "\t<nav>ok</nav>",
+                "</div>"
+            ]
+        }
     ]
 }

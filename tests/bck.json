@@ -1,10 +1,31 @@
 {
+    "comment": "multine test",
+    "s": [
+        "<form />"
+    ],
+    "e": [
+        "<form></form>"
+    ]
+},
+{
+    "s": [
+        "<div   >data</div>"
+    ],
+    "e": [
+        "<div>data</div>"
+    ]
+},
+
+
+{
     "comment": "inner transform",
     "s": [
         "<div     />"
     ],
     "e": "<div></div>"
 },
+
+
 
 {
     "comment":"multine test",
