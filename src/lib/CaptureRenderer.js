@@ -105,7 +105,7 @@ class CaptureRenderer{
      * 
      * @param {*} listener 
      * @param {*} captures 
-     * @param {*} end 
+     * @param {false|(rf, cap, id, listener):string} end 
      * @returns 
      */
     render(listener, captures, end=false ){ 
@@ -119,12 +119,14 @@ class CaptureRenderer{
         let treat_root = function (_input, root, listener, captures, tokens){
             let rf = root.value;
             let subchilds = [{root, output:[], treat:false, sub:false}];
+            let _end = false;
             while(subchilds.length>0){
                 let q = subchilds.shift();
                 let {id}= q.root;
                 if (q.treat){
                     continue;
                 }
+                _end = false;
                 if (!q.sub && q.root.childs.length>0){  
                     const childrens = q.root.childs.slice(0);
                     q.sub = true;
@@ -145,7 +147,7 @@ class CaptureRenderer{
                         if (end){
                             // special treatment for end captures
                             rf = end(rf, cap, id, listener);
-                          
+                            _end = true; 
                         }
                     }  
                     if (Array.isArray(rf)){
@@ -163,7 +165,7 @@ class CaptureRenderer{
                         rf = _out;
                     }
                     if (listener){
-                        rf = listener.renderToken(rf, tokens); 
+                        rf = _end ? rf :  listener.renderToken(rf, tokens); 
                     }
                     if (q.parent){
                         // update parent value.

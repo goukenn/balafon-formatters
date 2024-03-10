@@ -25,6 +25,22 @@ class PatternMatchInfo{
         start : 0,
         end : 0
     }
+     /**
+     * store marker info childs
+     */
+    childs = [];
+
+    /**
+     * store value
+     * @var {null|{value:string, source:string }}
+     */
+    value;
+
+    /**
+     * define block start information
+     */
+    blockStartInfo;
+ 
 
     constructor(){
         var m_parent;
@@ -36,11 +52,24 @@ class PatternMatchInfo{
         var m_lineFeed = false;
         var m_startOutput = null;
         var m_endOutput = null;
-
+        var m_updatedProperties = {};
+        var m_isBlockStared = false;
         /**
          * get or set the parent info matcher
          */
+        Object.defineProperty(this, 'isBlockStarted', {get(){ 
+            return (this.isBlock) ? m_isBlockStared : false; 
+        }, set(v){
+            if (typeof(v) != 'boolean'){
+                throw new Error('not a valid value');
+            }
+            if (this.isBlock){
+                m_isBlockStared = v;
+            }
+        }});
+
         Object.defineProperty(this, 'parent', {get(){return m_parent; }});
+        Object.defineProperty(this, 'updatedProperties', {get(){return m_updatedProperties; }});
         Object.defineProperty(this, 'isBlock', {get(){return m_isBlock; }, set(value){ m_isBlock = value; }});
         Object.defineProperty(this, 'lineFeed', {get(){return m_lineFeed; }, set(value){ m_lineFeed = value; }});
         Object.defineProperty(this, 'marker', {get(){return m_marker; }});

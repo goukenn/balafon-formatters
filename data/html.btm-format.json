@@ -1,6 +1,7 @@
 {
     "settings": {
-        "noSpaceJoin": true
+        "noSpaceJoin": true,
+        "transfromEngine":"html"
     },
     "repository": {
         "html-space-constant": {
@@ -57,11 +58,7 @@
             "end": "(\\/|\\<\\/$1\\s*)?\\>",
             "name": "tag.definition.html",
             "tokenID": "tagname",
-            "isBlock": false,
-            "block": {
-                "start": "<$1",
-                "end": "\\<\\/$1\\>"
-            },
+            "isBlock": false, 
             "endCaptures": {
                 "0": {
                     "comment": "remove not used white space",
@@ -113,14 +110,20 @@
                 {
                     "include": "#operator"
                 }
-            ]
+            ],
+            "updateParentProps":{
+                "isBlock":true
+            }
         },
         "empty-tag": {
             "begin": "\\<([\\w]+)\\s*\\/\\>",
             "end": "(?:>)",
             "lineFeed": true,
             "tokenID": "empty.tag",
-            "name": "empty.tag.definition.html"
+            "name": "empty.tag.definition.html",
+            "updateParentProps":{
+                "isBlock":true
+            }
         },
         "operator": {
             "match": "\\s*(\\+|\\*|-|%|=)\\s*",
@@ -195,9 +198,7 @@
         "global-html-tag": {
             "begin": "(\\<)\\b([\\w][\\w:\\-]*)\\b",
             "end": "(?:\\s*\\/\\>|\\<\\/$2\\s*>)",
-            "name": "global.html.tag.html",
-            "isBlock":true,
-            "requestBlockCondition":"childContains(global.html.tag.html)", 
+            "name": "global.html.tag.html", 
             "beginCaptures":{
                 "1":{"name":"symbol.start.tag.html"},
                 "2":{"name":"tagname.html"}
@@ -270,7 +271,7 @@
                     ]
                 },
                 {
-                    "begin": "\\>",
+                    "begin": "(\\>)",
                     "end": "(?=\\<(\\/)?)",
                     "name": "inner.html",
                     "comment": "Detect inner content. start block definition if contains global.html.tag.html",
@@ -281,6 +282,9 @@
                     "beginCaptures": {
                         "0": {
                             "name": "start.inner.html"
+                        },
+                        "1": {
+                            "name": "symbol.inner.end.tag.html"
                         }
                     },
                     "patterns": [
@@ -300,7 +304,7 @@
                 }
             ],
             "updateParentProps":{
-                "isBlock":false
+                "isBlock":true
             }
         }
     },
