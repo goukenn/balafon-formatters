@@ -6,8 +6,7 @@ const { Debug } = require('./Debug');
 class FormatterMarkerInfo{
     marker;
     start;
-    endRegex;
-    childs;
+    endRegex;  
     state;
     childType; 
 

@@ -45,7 +45,23 @@
         "\t<span>'open'</span>",
         "\t<nav>ok</nav>",
         "</div>"
-    ]
+    ],
+
+    {
+        "comment": "multine test",
+        "settings": {
+            "tranformEngine":"html"
+        },
+        "s": [
+            "'open'"
+        ],
+        "e": [
+            "<div>",
+            "\t<span>'open'</span>",
+            "\t<nav>ok</nav>",
+            "</div>"
+        ]
+    }
 }
 
 
@@ -161,6 +177,33 @@
         "<div>",
         "\t<span>'open'</span>",
         "\t<nav>ok</nav>",
+        "</div>"
+    ]
+}
+
+
+
+{
+    "comment": "block test",
+    "s": [
+        "<div><span>bonjour</span></div>"
+    ],
+    "e": [
+        "<div>",
+        "\t<span>bonjour</span>", 
+        "</div>"
+    ]
+},
+
+{
+    "comment": "multine test",
+    "s": [
+        "<div><span>bonjour</span><nav>ok</nav></div>"
+    ],
+    "e": [
+        "<div>",
+        "\t<span>bonjour</span>", 
+        "\t<nav>ok</nav>", 
         "</div>"
     ]
 }

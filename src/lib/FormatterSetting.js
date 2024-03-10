@@ -13,5 +13,10 @@ class FormatterSetting{
      * by default use the current  formatter instance
      */
     useCurrentFormatterInstance = true;
+
+    /**
+     * setup engine used to transform tokenID or captured expression
+     */
+    transformEngine
 }
 exports.FormatterSetting = FormatterSetting;

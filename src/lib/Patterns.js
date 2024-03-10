@@ -67,10 +67,10 @@ class Patterns{
      */
     requestParentBlockCondition;
 
-     /**
-     * @var {?{start: string, end: string}} 
-     */
-    block;
+    //  /**
+    //  * @var {?{start: string, end: string}} 
+    //  */
+    // block;
     /**
      * @var {?bool}
      */

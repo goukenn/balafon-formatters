@@ -4,12 +4,12 @@
         {
             "comment": "multine test",
             "s": [
-                "<div><span>'open'</span><nav>ok</nav></div>"
+                "<div>before data<span>bonjour</span>data spec<nav>ok</nav>after data</div>"
             ],
             "e": [
                 "<div>",
-                "\t<span>'open'</span>",
-                "\t<nav>ok</nav>",
+                "\t<span>bonjour</span>", 
+                "\t<nav>ok</nav>", 
                 "</div>"
             ]
         }
