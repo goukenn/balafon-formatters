@@ -3,13 +3,17 @@
      
         {
             "comment": "multine test",
+            
             "s": [
-                "<div>before data<span>bonjour</span>data spec<nav>ok</nav>after data</div>"
-            ],
+                "<span     >info</span>"
+                  ],
             "e": [
                 "<div>",
-                "\t<span>bonjour</span>", 
-                "\t<nav>ok</nav>", 
+                "\tbefore data",
+                "\t<span>bonjour tout</span>", 
+                "\tafter data3 information",
+                "\t<i>base</i>", 
+                "\tjob", 
                 "</div>"
             ]
         }

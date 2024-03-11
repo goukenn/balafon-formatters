@@ -195,6 +195,36 @@
             "match": "\\[\\s*\\b[\\w]+\\b\\*\\]",
             "name": "tag.function.attribute.html"
         },
+        "global-self-closing-html-tag":{
+            "begin":"(<)(img|link|br)\\b",
+            "end":"(\\/)?>",
+            "comment":"image tag must be consider as a global self closing element",
+            "name":"auto.closing.tag.html",
+            "beginCaptures":{
+                "1":{"name":"symbol.start.tag.html"},
+                "2":{"name":"tagname.html"}
+            },
+            "endCaptures":{
+                "0":{
+                    "name":"end.capture",
+                    "patterns":[
+                        {
+                            "match":">", 
+                            "replaceWith":"/>",
+                            "name":"detect.missing.close.tag.html",
+                            "captures":{
+                                "0":{"name":"symbol.end.tag.html"}
+                            }
+                        }
+                    ]
+                }
+            },
+            "patterns":[
+                {
+                    "include":"#html-attribute"
+                }
+            ]
+        },
         "global-html-tag": {
             "begin": "(\\<)\\b([\\w][\\w:\\-]*)\\b",
             "end": "(?:\\s*\\/\\>|\\<\\/$2\\s*>)",
@@ -271,6 +301,10 @@
                     ]
                 },
                 {
+                    "match":"\\s+(?=\\>)",
+                    "replaceWith":""
+                },
+                {
                     "begin": "(\\>)",
                     "end": "(?=\\<(\\/)?)",
                     "name": "inner.html",
@@ -288,6 +322,9 @@
                         }
                     },
                     "patterns": [
+                        {
+                            "include":"#global-self-closing-html-tag"
+                        },
                         {
                             "include": "#global-html-tag"
                         },
@@ -309,6 +346,9 @@
         }
     },
     "patterns": [
+        {
+            "include":"#global-self-closing-html-tag"
+        },
         {
             "include": "#global-html-tag"
         },
