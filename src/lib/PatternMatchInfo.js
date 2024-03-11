@@ -41,6 +41,10 @@ class PatternMatchInfo{
      */
     blockStartInfo;
  
+    /**
+     * formatter new line flag
+     */
+    newLine = false;
 
     constructor(){
         var m_parent;

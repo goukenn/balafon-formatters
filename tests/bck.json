@@ -207,3 +207,15 @@
         "</div>"
     ]
 }
+
+"s": [
+    "<div>before data<span>bonjour <b>tout</b></span>after data3 information<i>base</i>job</div>"
+],
+
+"s": [
+    "<div>before data<span>bonjour <b>tout</b></span></div>"
+],
+
+
+"<!-- <div>before data<span>bonjour <b>tout</b></span>after data3 information<p>base <img ></p></div> -->"
+         

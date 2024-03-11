@@ -5,6 +5,13 @@ class CaptureRenderer{
     matches;
     roots;
     subcaptures;
+    token;
+    /**
+     * null or capture renderer
+     * @param {*} matches 
+     * @param {*} token 
+     * @returns {null|CaptureRenderer}
+     */
     static CreateFromGroup(matches, token='constant'){
         function get_matche_token_info(matches, token='constant'){
             if (!matches){
@@ -99,6 +106,7 @@ class CaptureRenderer{
         _o.roots = roots;
         _o.matches = _info.matches;
         _o.subcaptures = subcaptures;
+        _o.token = token;
         return _o;
     }
     /**
@@ -108,7 +116,7 @@ class CaptureRenderer{
      * @param {false|(rf, cap, id, listener):string} end 
      * @returns 
      */
-    render(listener, captures, end=false ){ 
+    render(listener, captures, end=false , tokens){ 
         if (!captures){
             throw new Error('missing captures info');
         }
@@ -202,7 +210,7 @@ class CaptureRenderer{
             c = _input.substring(_begin, rt.start);
             c = treat_constant(c, listener); 
             _output += c;
-            _output += treat_root(_input, rt,  listener,captures);
+            _output += treat_root(_input, rt,listener,captures,tokens);
             _begin = rt.end;
         }
         if (_begin < _input.length){
