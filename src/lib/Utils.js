@@ -11,29 +11,29 @@ class Utils {
     * @param {*} globalname 
     * @returns 
     */
-   static FunctionDefineArg(n, v, globalname){
-       let c = 0;
-       let result = 0;
-       let s = '';
-       if (globalname){
-           s = '((w,p,q,n)=>{n=w; while((p.length>1) && (q = p.shift())){ n[q] = n[q] || {}; n = n[q];} n[p[0]] = v})('+globalname+", \""+n+"\".split('.'), v) || ";
-       } 
-       n.split('.').forEach((i)=>{
-       if (!result){
-           result = i+'=((v)=>{ return '+s+'{'
-       }else{
-           if (c){
-               result+="{"
-           }
-           result+= i+":";
-           c++;
-       }
-   });
-   v = typeof(v)=='undefined'? 'undefined': (typeof(v)=='object'? JSON.stringify(v):v) || '"'+n+'"';
-   result += v+ '}'.repeat(c)+"})("+v+")";
-   
-   return result;
-   }
+    static FunctionDefineArg(n, v, globalname) {
+        let c = 0;
+        let result = 0;
+        let s = '';
+        if (globalname) {
+            s = '((w,p,q,n)=>{n=w; while((p.length>1) && (q = p.shift())){ n[q] = n[q] || {}; n = n[q];} n[p[0]] = v})(' + globalname + ", \"" + n + "\".split('.'), v) || ";
+        }
+        n.split('.').forEach((i) => {
+            if (!result) {
+                result = i + '=((v)=>{ return ' + s + '{'
+            } else {
+                if (c) {
+                    result += "{"
+                }
+                result += i + ":";
+                c++;
+            }
+        });
+        v = typeof (v) == 'undefined' ? 'undefined' : (typeof (v) == 'object' ? JSON.stringify(v) : v) || '"' + n + '"';
+        result += v + '}'.repeat(c) + "})(" + v + ")";
+
+        return result;
+    }
     /**
      * define property 
      * @param {string} n 
@@ -41,38 +41,39 @@ class Utils {
      * @param {object} global object definition 
      * @returns 
      */
-    static DefineProp(n, v, window){
-        return ((q, v, window)=>{ let r = null; let m = null; let _last = null; let _o = null;
-            v = (typeof(v)!="undefined" ? v : n);
-            if (q.length==0) return v;
-            q.forEach(i=>{
-                if (r==null){
+    static DefineProp(n, v, window) {
+        return ((q, v, window) => {
+            let r = null; let m = null; let _last = null; let _o = null;
+            v = (typeof (v) != "undefined" ? v : n);
+            if (q.length == 0) return v;
+            q.forEach(i => {
+                if (r == null) {
                     // first object definition
-                    r = m = (window? window[i] : null) || {} ;
-                    if (window){
+                    r = m = (window ? window[i] : null) || {};
+                    if (window) {
                         window[i] = r;
                     }
                 }
-                if (_last){
+                if (_last) {
                     _o = m;
-                    if ( typeof(m[i]) == 'string'){
+                    if (typeof (m[i]) == 'string') {
                         m[i] = {};
                     }
                     m[i] = m[i] || {};
-                    m = m[i]; 
+                    m = m[i];
                 }
-                _last = i; 
+                _last = i;
             });
-            
-            if(_o) 
+
+            if (_o)
                 _o[_last] = v;
-            else{
-                if (window){
+            else {
+                if (window) {
                     window[q[0]] = v;
                 }
             }
             return r;
-        })(n.split('.'),v, window);
+        })(n.split('.'), v, window);
     }
 
     /**
@@ -87,7 +88,7 @@ class Utils {
         parser.source = class_name;
         parser.data = data;
         parser.includes = {};
-        if (registry){
+        if (registry) {
             parser.registry = registry;
         }
         return Utils.LoadData(parser, new class_name(), data, null); //.parse();
@@ -101,7 +102,7 @@ class Utils {
      * @returns 
      */
     static ArrayParser(class_name, refkey_class_name) {
-        if (!refkey_class_name || typeof(refkey_class_name)=='undefined'){
+        if (!refkey_class_name || typeof (refkey_class_name) == 'undefined') {
             throw new Error('missing refkey_class_name');
         }
         /**
@@ -109,7 +110,7 @@ class Utils {
          */
         return function (d, parser, refKey, refObj) {
             let _out = [];
-            let q = refObj || this; 
+            let q = refObj || this;
             d.forEach((a) => {
                 const { include } = a;
                 const _extends = a.extends;
@@ -127,7 +128,7 @@ class Utils {
                             _def = parser.data.repository[_key];
                             if (_def) {
                                 _o = new class_name();
-                                parser.includes[_key] = _o; 
+                                parser.includes[_key] = _o;
                                 JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
                                 parser.initialize(_o);
                             }
@@ -141,7 +142,7 @@ class Utils {
                     _o = new class_name();
                     JSonParser._LoadData(parser, _o, a, refKey, refObj || _o);
                     parser.initialize(_o);
-                    
+
                 }
                 if (_o) {
                     _out.push(_o);
@@ -152,7 +153,7 @@ class Utils {
         }
     }
 
-    static GetPatternMatcher(patterns, options, parentMatcherInfo=null) {
+    static GetPatternMatcher(patterns, options, parentMatcherInfo = null) {
         const { line, pos, debug, depth } = options;
         let _a = null;
         let _match = 0;
@@ -173,30 +174,32 @@ class Utils {
                 _match = p;
             }
         });
-        if (_a){
+        if (_a) {
             _match.index += pos;
             //_a.startMatch(line, _match);
             if (debug) {
                 console.log('matcher-begin: ', {
-                    '__name':_a.toString(),
+                    '__name': _a.toString(),
                     name: _a.name, line, pos:
                         _match.index, depth,
                     hasParent: _a.parent != null,
                     isBlock: _a.isBlock,
                     isRef: _a instanceof RefPatterns,
                     value: _match[0],
-                    regex: _a.matchRegex  
+                    regex: _a.matchRegex
                 });
-            } 
+            }
             // + | add property to offset 
             _match.offset = _match[0].length;
             // +| treat begin captures must be at corresponding data info
             //options.treatBeginCaptures(_a, _match); 
-            let _info = new PatternMatchInfo; 
-            _info.use({marker:_a, endRegex: _a.endRegex(_match), 
-                line, 
-                group:_match, 
-                parent: parentMatcherInfo});
+            let _info = new PatternMatchInfo;
+            _info.use({
+                marker: _a, endRegex: _a.endRegex(_match),
+                line,
+                group: _match,
+                parent: parentMatcherInfo
+            });
             // _info.startLine = options.outputBuffer.line;
             // _info.startLine = options.outputBuffer.range;
             // init _info matcher
@@ -235,9 +238,9 @@ class Utils {
      * @param {*} regex 
      * @returns 
      */
-    static RegExToString(regex){
+    static RegExToString(regex) {
         let s = regex.toString();
-        s = s.substring(0, s.lastIndexOf('/')+1);
+        s = s.substring(0, s.lastIndexOf('/') + 1);
         return s;
     }
 
@@ -271,7 +274,7 @@ class Utils {
     static RegexParse(s, flag) {
         if (typeof (s) == 'string') {
             let _info = Utils.RegexInfo(s);
-            if (flag && ((_info.option.length==0)||(_info.option.indexOf(flag)==-1))){
+            if (flag && ((_info.option.length == 0) || (_info.option.indexOf(flag) == -1))) {
                 _info.option = flag;
             }
             return new RegExp(_info.s, _info.option);
@@ -290,7 +293,7 @@ class Utils {
     }
     static StringValueTransform(v, transform) {
         const _func = {
-            joinSpace(s){ 
+            joinSpace(s) {
                 s = s.replace(/\s+/g, ' ');
                 return s;
             },
@@ -321,26 +324,26 @@ class Utils {
             }
         };
         transform.forEach((s) => {
-            if (v.length==0){
+            if (v.length == 0) {
                 return;
             }
             let _p = null;
-            if ( _p = /^:(?<symbol>=|^|#)(.)(?<number>\d+)/.exec(s)){
+            if (_p = /^:(?<symbol>=|^|#)(.)(?<number>\d+)/.exec(s)) {
                 //replacement value with pattern
                 let n = parseInt(_p.groups['number']);
                 let _s = _p.groups['symbol'];
-                if (n > v.length ){
+                if (n > v.length) {
                     let _g = _p[2];
-                    if (_s=='#'){
+                    if (_s == '#') {
                         v = v.toString().padEnd(n, _g);
-                    } else if(_s=='^'){
-                        v = v.toString().padStart(n, _g); 
+                    } else if (_s == '^') {
+                        v = v.toString().padStart(n, _g);
                     }
-                    else if(_s=='='){
+                    else if (_s == '=') {
                         let c = Math.floor((n - v.length) / 2);
-                       
-                        v = v.toString().padEnd((c % 2)==0? n-c: n-c+1, _g);
-                        v = v.toString().padStart(n, _g); 
+
+                        v = v.toString().padEnd((c % 2) == 0 ? n - c : n - c + 1, _g);
+                        v = v.toString().padStart(n, _g);
                     }
                 }
                 return v;
@@ -359,11 +362,11 @@ class Utils {
      * @param {*} throw_on_error 
      * @returns 
      */
-    static JSonValidate(q, validator, field_name, d, throw_on_error){
+    static JSonValidate(q, validator, field_name, d, throw_on_error) {
 
         let f = validator ? validator[field_name] : null;
-        if (f && !f(d)){
-            if (throw_on_error){
+        if (f && !f(d)) {
+            if (throw_on_error) {
                 throw new Error(`[${field_name}] is not valid`);
             }
             return false;
@@ -380,28 +383,73 @@ class Utils {
      * @param {*} refKey 
      * @returns 
      */
-    static JSonParse(q, parse, parser, fieldname, data, refKey){
+    static JSonParse(q, parse, parser, fieldname, data, refKey) {
         let fc = parse ? parse[fieldname] : null;
-        if (fc){
+        if (fc) {
             return fc.apply(q, [data, parser, refKey]);
         }
         return data;
     }
-    static TransformPropertyCallback(){
-        return  function(n,parser){
-            if (typeof(n)=='string'){
+    static TransformPropertyCallback() {
+        return function (n, parser) {
+            if (typeof (n) == 'string') {
                 let t = []
-                n.split(',').forEach((i)=>{
+                n.split(',').forEach((i) => {
                     i.trim();
-                    if (i.length>0)
+                    if (i.length > 0)
                         t.push(i);
                 });
                 return t;
             }
-            if (Array.isArray(n)){
+            if (Array.isArray(n)) {
                 return n;
             }
         };
+    }
+    /**
+ * do replace with
+ * @param {*} value 
+ * @param {*} _formatter 
+ * @param {*} replace_with 
+ * @param {*} group 
+ * @param {*} _marker markerInfo
+ * @returns 
+ */
+    static DoReplaceWith(value, _formatter, replace_with, group, _marker) {
+        let g = group;
+        let _rp = replace_with; // 
+        let m = '';
+        if (g) {
+            m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
+            let cp = new RegExp(m, 'd');
+            let check = m.replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
+            let _in = value.replace(value, check);
+            // passing exec to formatt new value
+            let matches = cp.exec(_in);
+            const _tokens = _formatter.tokenChains;// _formatter.getTokens();
+            g = CaptureRenderer.CreateFromGroup(matches, _tokens);
+            let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens);
+            // console.log("the in ", _in, out);
+            return out;
+
+        } else {
+            //treat:
+            _rp = _rp.substring(1).slice(0, -1)
+            if (_rp == '(?:)') {
+                _rp = '';// empty string
+            }
+            m = _rp.replace(/\\\//g, "/");
+        }
+        value = value.replace(value, m);
+        return value;
+    }
+    /**
+     * basic treat and tranform value
+     * @param {*} value 
+     * @returns 
+     */
+    TreatAndTranformValue(value){
+        return value;
     }
 }
 exports.Utils = Utils;

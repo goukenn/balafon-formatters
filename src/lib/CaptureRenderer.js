@@ -115,13 +115,16 @@ class CaptureRenderer{
      * @param {*} listener 
      * @param {*} captures 
      * @param {false|(rf, cap, id, listener):string} end 
+     * @param {*} tokens 
+     * @param {*|{debug:bool}} option 
      * @returns 
      */
-    render(listener, captures, end=false , tokens){ 
+    render(listener, captures, end=false , tokens, option){ 
         if (!captures){
             throw new Error('missing captures info');
         }
         const { matches, roots } = this;
+        const { debug, engine} = option;
         let _input = matches[0];// .input.substring(matches.index);
         let _begin = 0;
         let _output = ''; 
@@ -147,15 +150,19 @@ class CaptureRenderer{
                 }else{
                     rf = q.sub ? q.output : q.root.value;
                     tokens = tokens ? tokens.slice(0) : [];// default constant 
+                    let tokenID = null;
                     if (id in captures){
                         let cap = captures[id];
                         if (cap.name){
                             tokens.unshift(cap.name);
                         }
+                        if (cap.tokenID){
+                            tokenID = cap.tokenID;
+                        }
                         // treat pattern or other stuff 
                         if (end){
                             // special treatment for end captures
-                            rf = end(rf, cap, id, listener);
+                            rf = end(rf, cap, id, listener, {tokens, engine, debug, tokenID});
                             _end = true; 
                         } else {
                             // treat value. cap
@@ -179,7 +186,7 @@ class CaptureRenderer{
                         rf = _out;
                     }
                     if (listener){
-                        rf = _end ? rf :  listener.renderToken(rf, tokens); 
+                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug); 
                     }
                     if (q.parent){
                         // update parent value.

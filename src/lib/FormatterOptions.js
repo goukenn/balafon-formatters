@@ -1,31 +1,32 @@
-"use strict"; 
-Object.defineProperty(exports, 'enModule', {value:true});
- 
+"use strict";
+Object.defineProperty(exports, 'enModule', { value: true });
+
 const { Utils } = require("./Utils");
 /**
  * class used to expose formatter option 
  */
-class FormatterOptions{
-    line= '';    
-    pos= 0;
-    lineCount= 0;
-    continue= false;
-    lineJoin= false;
-    lineFeedFlag= false; // flag to setup line feed 
-    markerDepth= 0; // store handleMarker stack
-    output= [];// output result
-    tokenList= [];// store entry token list
-    state =  ''; // current state mode 
+class FormatterOptions {
+    line = '';
+    pos = 0;
+    lineCount = 0;
+    continue = false;
+    lineJoin = false;
+    lineFeedFlag = false; // flag to setup line feed 
+    markerDepth = 0; // store handleMarker stack
+    output = [];// output result
+    tokenList = [];// store entry token list
+    state = ''; // current state mode 
     range = {
         start: 0, // start position
         end: 0    // number end position range
     };
-    constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg){
+    constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;
         let m_depth = _rg.depth || 0;
         let m_pos = 0;
-        let _blockStarted = false; 
+        let _blockStarted = false;
+        const _bufferState = [];
         const _markerInfo = [];
         const _states = [];
         const { CaptureRenderer, FormatterBuffer, Debug } = Utils.Classes;
@@ -70,31 +71,35 @@ class FormatterOptions{
         //         start: 0, // start position
         //         end: 0    // number end position range
         //     },
-            
+
         // };
         const objClass = this;
         // inject setting property
-        for(let i in _rg){
-            if (['depth', 'line'].indexOf(i)!=-1){
+        for (let i in _rg) {
+            if (['depth', 'line'].indexOf(i) != -1) {
                 continue;
             }
-            Object.defineProperty(this, i, {get(){
-                return _rg[i];
-            }});
-        } 
-        this.resetRange = function(){
+            Object.defineProperty(this, i, {
+                get() {
+                    return _rg[i];
+                }
+            });
+        }
+        this.resetRange = function () {
             this.storeRange(0, 0);
         }
-        this.storeRange = function(start, end) {
+        this.storeRange = function (start, end) {
             this.range.start = start;
             this.range.end = typeof (end) == 'undefined' ? start : end;
         }
         Object.defineProperty(objClass, 'listener', { get: function () { return _listener; } })
-      
+
         Object.defineProperty(objClass, 'formatterBuffer', { get: function () { return _formatterBuffer; } })
-        Object.defineProperty(objClass, 'blockStarted', { get: function () { return _blockStarted; } , set(v){
-            _blockStarted = v;
-        }});
+        Object.defineProperty(objClass, 'blockStarted', {
+            get: function () { return _blockStarted; }, set(v) {
+                _blockStarted = v;
+            }
+        });
         Object.defineProperty(objClass, 'buffer', { get: function () { return _formatterBuffer.buffer; } })
         Object.defineProperty(objClass, 'outputBufferInfo', { get() { return _outputBufferInfo; } })
         Object.defineProperty(objClass, 'tokenChains', {
@@ -204,19 +209,27 @@ class FormatterOptions{
             }
             return s;
         }
-
+        function _shiftMarkerInfo(marker, tokenChains){
+            if (_formatter.isSpecialMarker(marker)){
+                if ((typeof(marker.shiftIdConstant) == 'function') && marker.shiftIdConstant())
+                    tokenChains.shift();
+            }
+        }
         /**
          * append to buffer
          * @param {string} value 
          * @param {*} _marker 
          */
         objClass.appendToBuffer = function (value, _marker, treat = true) {
-            this.debug && Debug.log("[append to buffer] - ={" + value + '}');
+            const { debug, engine } = this;
+            debug && Debug.log("[append to buffer] - ={" + value + '}');
             let _buffer = value;// this.buffer;
             const { listener, tokenChains } = this;
             if (treat && listener?.renderToken) {
+                _shiftMarkerInfo(_marker.marker, tokenChains);
+               
                 _marker.name && tokenChains.unshift(_marker.name);
-                _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID);
+                _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID, engine, debug);
             }
             this.formatterBuffer.appendToBuffer(_buffer);
             _marker.value = { source: value, value: _buffer };
@@ -237,7 +250,10 @@ class FormatterOptions{
             // + | clone and reset indices before generate  
             let _s = CaptureRenderer.CreateFromGroup(group, marker.name);
             if (_s) {
-                let _g = _s.render(this.listener, _cap, false, _formatter.getTokens());
+                let _g = _s.render(this.listener, _cap, false, this.tokenChains, {
+                    debug: this.debug,
+                    engine: this.engine
+                });
                 patternInfo.startOutput = _g;
                 return _g;
             }
@@ -250,68 +266,77 @@ class FormatterOptions{
             }
             const { marker, group } = markerInfo;
             const { debug } = this;
+            const fc_handle_end = function(value, cap, id, listener, option){
+                const {tokens, engine, debug, tokenID} = option;
+                if (cap.patterns) {
+                    let _bckCapture = _formatter.info.captureGroup;
+                    _formatter.info.captureGroup = markerInfo.group;
+                    // debug && Debug.log('---::::treatEndCaptures::::--- contains patterns');
+                    if (_formatter.settings.useCurrentFormatterInstance) {
+                        pushState();
+                        // backup setting
+                        let _bck = {
+                            patterns: _formatter.patterns,
+                            buffer: q.buffer,
+                            output: q.output,
+                            formatterBuffer: q.formatterBuffer.bufferSegments.slice(0),
+                            lineCount: q.lineCount,
+                            markerInfo: q.markerInfo.slice(0),
+                            line: q.line,
+                            pos: q.pos,
+                            depth: q.depth,
+                            tokenList: q.tokenList.slice(0),
+                            markerDepth: q.markerDepth
+                        };
+                        // clean setting
+                        q.output = [];
+                        q.formatterBuffer.clear();// = new 
+                        q.lineCount = 0;
+                        q.depth = 0;
+                       
+                        _formatter.info.isSubFormatting++;
+                        _formatter.patterns = cap.patterns;
+                        value = _formatter.format(value);
+                        _formatter.info.isSubFormatting--;
+                        _formatter.patterns = _bck.patterns;
+                        // + | restore setting
+                        q.output = _bck.output;
+                        q.lineCount = _bck.lineCount;
+                        q.line = _bck.line;
+                        q.pos = _bck.pos;
+                        q.depth = _bck.depth;
+                        // q.markerDepth = _bck.markerDepth;
+                        // q.tokenList = _bck.tokenList;
+                        _bck.markerInfo.forEach(a => _markerInfo.push(a));
+                        _bck.formatterBuffer.forEach(a => q.formatterBuffer.bufferSegments.push(a));
+                        popState();
+
+                    } else {
+                        // passing value to pattern 
+                        let n_formatter = Formatters.CreateFrom({ patterns: d.patterns });
+                        value = n_formatter.format(value);
+                    }
+                    _formatter.info.captureGroup = _bckCapture;
+                }else {
+                    // treat buffer marker 
+                   
+                    if (cap.transform)
+                    {
+
+                    }
+                    value = listener.renderToken(value, tokens, tokenID, engine, debug);
+                }
+                return value;
+
+            };
             debug && Debug.log('::TreatEndCapture:: #' + marker.name);
             let _s = CaptureRenderer.CreateFromGroup(endMatch, marker.name);
             if (_s) {
                 const q = this;
-                let _g = _s.render(this.listener, _cap, (value, cap, id, listener) => {
-                    if (cap.patterns) {
-                        let _bckCapture = _formatter.info.captureGroup;
-                        _formatter.info.captureGroup = markerInfo.group;
-                        // debug && Debug.log('---::::treatEndCaptures::::--- contains patterns');
-                        if (_formatter.settings.useCurrentFormatterInstance) {
-                            pushState();
-                            // backup setting
-                            let _bck = {
-                                patterns: _formatter.patterns,
-                                buffer: q.buffer,
-                                output: q.output,
-                                formatterBuffer: q.formatterBuffer.bufferSegments.slice(0),
-                                lineCount: q.lineCount,
-                                markerInfo: q.markerInfo.slice(0),
-                                line: q.line,
-                                pos: q.pos,
-                                depth: q.depth,
-                                tokenList: q.tokenList.slice(0),
-                                markerDepth: q.markerDepth
-                            };
-                            // clean setting
-                            q.output = [];
-                            q.formatterBuffer.clear();// = new 
-                            q.lineCount = 0;
-                            q.depth = 0;
-                            // q.markerDepth = 0;//_bck.markerDepth;
-                            // q.tokenList.length = 0;//_bck.tokenList;
-                            // _markerInfo.length = 0;
-                            // if (_markerInfo.name){
-                            //     q.tokenList.unshift(_markerInfo.name);
-                            //     q.markerDepth = 1;
-                            // } 
-                            _formatter.info.isSubFormatting++;
-                            _formatter.patterns = cap.patterns;
-                            value = _formatter.format(value);
-                            _formatter.info.isSubFormatting--;
-                            _formatter.patterns = _bck.patterns;
-                            // + | restore setting
-                            q.output = _bck.output;
-                            q.lineCount = _bck.lineCount;
-                            q.line = _bck.line;
-                            q.pos = _bck.pos;
-                            q.depth = _bck.depth;
-                            // q.markerDepth = _bck.markerDepth;
-                            // q.tokenList = _bck.tokenList;
-                            _bck.markerInfo.forEach(a => _markerInfo.push(a));
-                            _bck.formatterBuffer.forEach(a => q.formatterBuffer.bufferSegments.push(a));
-                            popState();
-
-                        } else {
-                            // passing value to pattern 
-                            let n_formatter = Formatters.CreateFrom({ patterns: d.patterns });
-                            value = n_formatter.format(value);
-                        }
-                        _formatter.info.captureGroup = _bckCapture;
-                    }
-                    return value;
+                let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains , // .getTokens(), 
+                {
+                    debug: this.debug,
+                    engine: this.engine
                 });
                 markerInfo.endOutput = _g;
                 return _g;
@@ -365,14 +390,28 @@ class FormatterOptions{
         objClass.moveTo = function (newPosition) {
             this.pos = newPosition;
         }
-        objClass.restoreBuffer = function (data) {
-            this.output = data.state.output;
-            _formatterBuffer = data.state.formatterBuffer;
-        },
-            objClass.newBuffer = function () {
-                this.output = [];
-                _formatterBuffer = new FormatterBuffer;
+        objClass.restoreBuffer = function ({state}) {
+            this.output = state.output;
+            _formatterBuffer = state.formatterBuffer;
+        };
+        objClass.newBuffer = function () {
+            this.output = [];
+            _formatterBuffer = new FormatterBuffer;
+        };
+        objClass.saveBuffer= function(){
+            _bufferState.push({
+                output: this.output,
+                formatterBuffer: this.formatterBuffer
+            });
+            this.newBuffer();
+        };
+        objClass.restoreSavedBuffer = function(){
+            let buffer = _bufferState.pop();
+            if (buffer){
+                this.restoreBuffer({state: buffer});
             }
+        }
+
 
         objClass.store = function (startBlock = false) {
             const { listener } = this;
@@ -403,11 +442,11 @@ class FormatterOptions{
             }
             return l;
         }
-        objClass.appendLine = function(){
+        objClass.appendLine = function () {
             const { listener } = this;
-            if (listener){
+            if (listener) {
                 return listener.appendLine(_formatter.settings.lineFeed, this.formatterBuffer);
-            }else{
+            } else {
                 return _formatter.appendToBuffer(_formatter.settings.lineFeed);
             }
         };
