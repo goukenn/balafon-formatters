@@ -180,7 +180,10 @@ class Patterns{
             beginCaptures :_capture_parser,
             endCaptures :_capture_parser,
             captures :_capture_parser,
-           transform
+           transform,
+           lineFeed(d, parser){
+                return typeof(d)=='boolean' ? d : false; // pars parseBool(d) "line feeed";
+           }
         };
         let fc = parse[fieldname];
         if (fc){

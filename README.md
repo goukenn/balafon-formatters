@@ -42,6 +42,19 @@ settings
 }
 ```
 
+### References
+
+replaceWith : string|ReplaceWithProtocol
+replaceWithCondition : ReplaceWithConditionProtocol
+
+```java
+protocol ReplaceWithProtocol{
+    with:{type: string, comment:''}
+    condition: { type : ReplaceWithConditionProtocol }
+}
+
+````
+
 ## RELEASES
 
 

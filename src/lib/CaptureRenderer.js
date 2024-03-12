@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', {value:true});
 
+const { Utils } = require('./Utils');
 class CaptureRenderer{
     matches;
     roots;
@@ -156,6 +157,11 @@ class CaptureRenderer{
                             // special treatment for end captures
                             rf = end(rf, cap, id, listener);
                             _end = true; 
+                        } else {
+                            // treat value. cap
+                            if (cap.transform){
+                                rf = Utils.StringValueTransform(rf, cap.transform); 
+                            } 
                         }
                     }  
                     if (Array.isArray(rf)){

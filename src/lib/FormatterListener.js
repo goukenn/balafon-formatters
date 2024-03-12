@@ -16,6 +16,13 @@ class FormatterListener {
         };
     }
     /**
+     * append new line to buffer
+     * @param {string} line_feed 
+     */
+    appendLine(line_feed, buffer){
+        buffer.appendToBuffer(line_feed);
+    }
+    /**
      * call to add a new block
      */
     startNewBlock({output, tabStop, depth}){ 
@@ -151,6 +158,11 @@ class FormatterListener {
      * @returns {string}
      */
     renderToken(value, tokens, tokenID, engine){
+        console.log('render tokens', {tokens,tokenID, value});
+        Debug.IsEnabled && Debug.log("render token", 0, {tokens,tokenID, value});
+        if (engine){
+            return engine.renderToken(value, tokens, tokenID);
+        }
         // let _t = tokens.shift();
         // if (_t=='tagname.html'){
         //     return '<span class="s tag">'+value+'</span>';
@@ -166,7 +178,6 @@ class FormatterListener {
         //     return fc(value, tokens, tokenID )
         // }
         //this.setLastMarker(tokenID);
-        console.log('render tokens', {tokens, value});
 
         return value;
     } 
