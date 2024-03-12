@@ -5,7 +5,10 @@
             "comment": "multine test",
             
             "s": [
-                "<span     >info</span>"
+                "<span     >info</span",
+                "",
+                "      >",
+                "<div>hello</div>"
                   ],
             "e": [
                 "<div>",

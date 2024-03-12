@@ -260,19 +260,26 @@
                             }
                         },
                         {
-                            "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\>)",
-                            "name": "end.tag",
+                            "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\s*)(\\>)",
+                            "name": "end.tag.html",
+                            "tokenID":"endTagName",
                             "isClosingBlock":true,
                             "captures":{
                                 "1":{"name":"symbol.end.tag.html"},
                                 "2":{"name":"tagname.html"},
-                                "3":{"name":"symbol.end.tag.html"}
+                                "4":{"name":"symbol.end.tag.html"},
+                                "3":{"name":"ignore.end.tag", "transform":"trim", "replaceWith":"_E_"}
                             }
                         }
                     ]
                 }
             },
             "patterns": [
+                {
+                    "begin":"(?=<\\/\\b([\\w][\\w:\\-]*)\\s*$)",
+                    "end":"(?=>)",
+                    "name":"detect.non.well.ended.tagname.html"
+                },
                 {
                     "begin": "([\\w\\-]+)\\s*",
                     "end": "(?=([=]|>|\\s|$))",
@@ -340,6 +347,7 @@
                     ]
                 }
             ],
+            "lineFeed":true,
             "updateParentProps":{
                 "isBlock":true
             }

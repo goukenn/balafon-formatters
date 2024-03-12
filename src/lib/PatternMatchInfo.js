@@ -75,7 +75,7 @@ class PatternMatchInfo{
         Object.defineProperty(this, 'parent', {get(){return m_parent; }});
         Object.defineProperty(this, 'updatedProperties', {get(){return m_updatedProperties; }});
         Object.defineProperty(this, 'isBlock', {get(){return m_isBlock; }, set(value){ m_isBlock = value; }});
-        Object.defineProperty(this, 'lineFeed', {get(){return m_lineFeed; }, set(value){ m_lineFeed = value; }});
+        Object.defineProperty(this, 'lineFeed', {get(){return m_lineFeed; }});
         Object.defineProperty(this, 'marker', {get(){return m_marker; }});
         Object.defineProperty(this, 'endRegex', {get(){return m_endRegex; }});
         Object.defineProperty(this, 'group', {get(){return m_group; }});
@@ -87,17 +87,20 @@ class PatternMatchInfo{
             m_endOutput = v;
         }});
 
+
         /**
          * 
          * @param {*} marker 
          */
         this.use = function({marker, endRegex, group, line, parent}){
             m_marker = marker;
-            m_isBlock = marker.isBlock;
             m_endRegex = endRegex;
             m_group = group;
             m_line = line;
             m_parent = parent;
+            // setup configurable properties
+            m_isBlock = marker.isBlock;
+            m_lineFeed = marker.lineFeed;
 
             (function(q, pattern){
                 const _keys = Object.keys(q);
