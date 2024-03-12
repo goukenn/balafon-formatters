@@ -432,8 +432,7 @@ let lines = [];
 //         }  
 //     },
 //     output(){
-//         console.log("ask for output result .... ");
-
+//         console.log("ask for output result .... "); 
 //     }
 // });
 _formatter.debug = true; 

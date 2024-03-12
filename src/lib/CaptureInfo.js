@@ -7,6 +7,11 @@ class CaptureInfo{
      * @var {?string}
      */
     name;
+
+    /**
+     * id used to setup rendering definition
+     */
+    tokenID;
     /**
      * extra patterns definition 
      * @var {null|[{include:string}|{extends: string}|Pattern]}

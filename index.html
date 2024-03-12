@@ -3,16 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test Formatter</title>
+    <title>Test Formatter</title>   
+    <!-- <script src="./dist/bformatter.js"></script> -->
   
-    <script type="module">
-        import Formatters from './dist/bformatter.js';
-        var f = null;
-        console.log('inline formatters', f, formatters);
+    <script type="module" language="javascript">
+        // use as global object . configured with webpack module
+        import * as lib from './dist/bformatter/1.0.0/bformatter.mjs'; 
+        (function(lib, t){ 
+        const { Formatters } = lib; 
+        const _formatter = Formatters.CreateFrom({
+            scopeName:'scope.litteralString',
+            patterns:[
+                {
+                    include:"#string"
+                }
+            ],
+            repository:{
+                string:{
+                    "begin":"\"",
+                    "end":"\"",
+                    "name":"constant.string.litteral"
+                }
+            },
+            engine:"html-listener"
+        }); 
+        _formatter.debug = true;
+        _formatter.listener = ()=>({
+            renderToken(v, tokens, tokenID, engine){
+                let lt = tokens.shift();
+
+                console.log('render token: ', lt , " : ", v);
+                return v;
+            },
+            store({output, buffer}){
+                console.log("store : ", buffer, output);
+                let d = document.createElement('div');
+                d.innerHTML = buffer;
+                output.push(d.outerHTML);
+            }
+
+        });
+        console.log(_formatter.listener);
+
+        t.innerHTML = _formatter.format([
+            "var info = \"du jour\";",
+            "var x = 9;"
+        ]);
+    })(lib, document.getElementById('content'));
     </script>
 </head>
 <body>
     <h1>Test formatter online</h1>
-
+    <div id="content"></div>
 </body>
 </html>
