@@ -24,8 +24,9 @@ class FormatterListener {
     }
     /**
      * call to add a new block
+     * @var {{formatterBuffer: FormatterBuffer, tabStop:string, depth:number}} param
      */
-    startNewBlock({output, tabStop, depth}){ 
+    startNewBlock({formatterBuffer, tabStop, depth}){ 
          
     } 
     
