@@ -204,6 +204,9 @@ class Formatters {
             _registryExpression = { namespaces: _entry, registry };
             return _registryExpression;
         };
+        if (!formatter.settings){
+            formatter.settings = new FormatterSetting();
+        }
         return formatter;
     }
     static CreateDefaultOption() {
@@ -260,6 +263,7 @@ class Formatters {
         let _formatter = this;
         // let pos = 0;
         const { debug, lineFeed } = objClass;
+
         // option = objClass;
         // + | ------------------------------------------------------------
         // + | START : FORMATTER LOGIC
@@ -271,8 +275,10 @@ class Formatters {
             objClass.line = line;
             objClass.pos = 0;
             objClass.continue = false;
-            objClass.lineCount++; objClass.markerDepth = 0;
-
+            objClass.lineCount++; 
+            objClass.markerDepth = 0;
+            _formatter._handleLineFeedFlag(objClass);
+           
 
 
             if (_matcherInfo) {
@@ -295,7 +301,9 @@ class Formatters {
             let pos = objClass.pos;
             const { debug } = objClass;
             while (pos < ln) {
-                objClass.continue = false; objClass.markerDepth = 0;
+                objClass.continue = false; 
+                objClass.markerDepth = 0;
+                _formatter._handleLineFeedFlag(objClass);
                 if (_matcherInfo) {
                     objClass.continue = true;
                     objClass.storeRange(objClass.pos);
@@ -343,14 +351,20 @@ class Formatters {
 
         return _output;
     }
+    _handleLineFeedFlag(option){
+        if (option.lineFeedFlag){
+            option.appendLine();
+            option.lineFeedFlag = false;
+        }
+    }
     _isBlockAndStart(_marker, option) {
         return _marker.isBlock && !option.continue;
     }
 
     _startBlock(option) {
         option.depth++;
-        const { output, tabStop, depth } = option;
-        option.listener?.startNewBlock({ buffer: '', output, tabStop, depth });
+        const { output, tabStop, depth, formatterBuffer } = option;
+        option.listener?.startNewBlock({ buffer: '', formatterBuffer, output, tabStop, depth });
     }
     getTokens() {
         return [this.scopeName];//'constant';

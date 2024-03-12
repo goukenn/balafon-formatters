@@ -52,27 +52,6 @@ class FormatterOptions {
                 this.end = typeof (end) == 'undefined' ? start : end;
             }
         }
-        // let objClass = {
-        //     ..._rg,
-        //     line: '',
-        //     pos: 0,
-        //     lineCount: 0,
-        //     continue: false,
-        //     lineJoin: false,
-        //     lineFeedFlag: false, // flag to setup line feed 
-        //     output: [], // output result
-        //     markerDepth: 0, // store handleMarker stack
-        //     tokenList: [], // store entry token list
-        //     listener: _info,
-        //     debug: _formatter.debug,
-        //     lineFeed,
-        //     state: '', // current state mode 
-        //     range: {
-        //         start: 0, // start position
-        //         end: 0    // number end position range
-        //     },
-
-        // };
         const objClass = this;
         // inject setting property
         for (let i in _rg) {
@@ -431,7 +410,7 @@ class FormatterOptions {
             const _ctx = this;
             const { buffer, output, listener } = _ctx;
             let l = '';
-            if (listener) {
+            if (listener?.output) {
                 l = listener.output.apply(null, [clear, { buffer, output, lineFeed, _ctx }]);
             } else {
                 l = this.output.join(lineFeed);
@@ -445,7 +424,10 @@ class FormatterOptions {
         objClass.appendLine = function () {
             const { listener } = this;
             if (listener) {
-                return listener.appendLine(_formatter.settings.lineFeed, this.formatterBuffer);
+                return listener.appendLine(_formatter.settings.lineFeed, 
+                    this.formatterBuffer, {store:()=>{
+                        this.store();
+                    }});
             } else {
                 return _formatter.appendToBuffer(_formatter.settings.lineFeed);
             }
