@@ -18,6 +18,16 @@ class PatternMatchInfo{
      * store start line
      */
     startLine = 0;
+
+    /**
+     * formatting start block element
+     */
+    isFormattingStartBlockElement = false; 
+
+    /**
+     * formatting listener to handle start and end block element
+     */
+    formattingBlockListener;
     /**
      * 
      */
@@ -58,6 +68,17 @@ class PatternMatchInfo{
         var m_endOutput = null;
         var m_updatedProperties = {};
         var m_isBlockStared = false;
+        var m_bufferMode = 1; // how to operate on buffer 
+         /**
+         * get or set the buffer mode. 0 - add a line before add go to 1 just append to buffer, 2 add a line after
+         */
+         Object.defineProperty(this, 'mode', { get(){ return m_bufferMode;}, set(v){
+            if (v!= m_bufferMode) {
+                m_bufferMode = v;
+                // + | change buffermode
+            }
+        }});
+
         /**
          * get or set the parent info matcher
          */

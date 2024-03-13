@@ -23,6 +23,7 @@
   },
   "scripts": {
     "debug": "node ./src/main.js",
+    "string-formatter": "node ./src/stringformatter.js",
     "debug-range": "node ./src/treat.token.js"
   },
   "engines": {

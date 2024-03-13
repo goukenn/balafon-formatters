@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, 'enModule', { value: true });
 
+const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
 /**
  * class used to expose formatter option 
@@ -197,6 +198,7 @@ class FormatterOptions {
         /**
          * append to buffer
          * @param {string} value 
+         * @param {PatternMatchInfo} _marker 
          * @param {*} _marker 
          */
         objClass.appendToBuffer = function (value, _marker, treat = true) {
@@ -392,7 +394,12 @@ class FormatterOptions {
         }
 
 
-        objClass.store = function (startBlock = false) {
+        objClass.store = 
+        /**
+         * store and clear formatter buffer  
+         * @param {bool} startBlock 
+         */
+        function (startBlock = false) {
             const { listener } = this;
             if (listener) {
                 const _ctx = this;
@@ -402,7 +409,7 @@ class FormatterOptions {
             _formatterBuffer.clear();
         }
         /**
-         * flush and clear buffer 
+         * flush with what is in the buffer - and clear buffer 
          * @param {bool} clear 
          * @returns 
          */
@@ -412,9 +419,10 @@ class FormatterOptions {
             let l = '';
             if (listener?.output) {
                 l = listener.output.apply(null, [clear, { buffer, output, lineFeed, _ctx }]);
-            } else {
+            } else { 
                 l = this.output.join(lineFeed);
             }
+            //+| clear output and buffer 
             if (clear) {
                 this.output = [];
                 this.formatterBuffer.clear();
@@ -422,14 +430,14 @@ class FormatterOptions {
             return l;
         }
         objClass.appendLine = function () {
-            const { listener } = this;
+            const { listener } = this; const { lineFeed}  = _formatter.settings;
             if (listener) {
-                return listener.appendLine(_formatter.settings.lineFeed, 
+                return listener.appendLine(lineFeed, 
                     this.formatterBuffer, {store:()=>{
                         this.store();
                     }});
             } else {
-                return _formatter.appendToBuffer(_formatter.settings.lineFeed);
+                return _formatter.appendToBuffer(lineFeed);
             }
         };
     }
