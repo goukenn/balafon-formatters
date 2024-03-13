@@ -9,12 +9,14 @@ class FormatterBuffer{
         var m_output = [];
         var m_bufferSegments = [];
         
+        
         /*
         arry of buffer segment
          */
         Object.defineProperty(this, 'bufferSegments', { get(){ return m_bufferSegments;} })
         Object.defineProperty(this, 'output', { get(){ return m_output;} }) 
         Object.defineProperty(this, 'length', { get(){ return m_bufferSegments.length;} })
+       
     }
     /**
      * get the buffer offset content
@@ -51,6 +53,18 @@ class FormatterBuffer{
      */
     clear(){
         this.bufferSegments.length = 0;
+    }
+    trimEnd(){
+        const { bufferSegments} = this;
+        let q = null;
+        while(bufferSegments.length>0){
+            q = bufferSegments.pop();
+            q = q.trimEnd();
+            if (q.length>0){
+                bufferSegments.push(q);
+                break;
+            }
+        }
     }
 }
 

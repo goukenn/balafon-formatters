@@ -65,7 +65,7 @@
                     "name":"constant.litteral",
                     "tokenID":"yield-word"
                 },
-                "end-instruction":{
+                "end-instruction-":{
                     "match":"(;)",
                     "name":"operator.end.instrution",
                     "lineFeed":true
@@ -74,7 +74,8 @@
             engine:"html-listener"
         }); 
         _formatter.debug = true;
-        _formatter.listener = ()=>( function(){
+        _formatter.listener = null;
+         ()=>( function(){
             let node = null;
             let blocks = [];
             return {
@@ -119,12 +120,13 @@
         }
         })();
         // console.log(_formatter.listener);
-
-        t.innerHTML = _formatter.format([
+        let data = _formatter.format([
             // "var info = \"du jour\";",
-            "if (true) { return \"ok data\"; }", 
+            'if (true) { return "ok data";}', 
             //" else return x; "
         ]);
+        t.innerHTML = data;
+        console.log("data:", data);
     })(lib, document.getElementById('content'));
     </script>
     </head>

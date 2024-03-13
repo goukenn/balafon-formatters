@@ -50,12 +50,6 @@ class Patterns{
     isBlock;
 
     /**
-     * indicate that this must be consider as a closing block element
-     * @var {?bool}
-     */
-    isClosingBlock = false;
-
-    /**
      * get or set condition expression to set if this element is a bloc.
      * @var {?string}
      */
@@ -66,6 +60,12 @@ class Patterns{
      * @var {?string}
      */
     requestParentBlockCondition;
+
+
+    /**
+     * mark this match as instruction separator
+     */
+    isInstructionSeparator;
 
     //  /**
     //  * @var {?{start: string, end: string}} 

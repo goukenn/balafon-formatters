@@ -12,6 +12,10 @@ class FormatterMarkerInfo{
 
     constructor(){
         var m_content = '';
+       
+        /**
+         * get or set current buffering content.
+         */
         defineProperty(this, 'content', {
             get(){
                 return m_content;
@@ -22,7 +26,8 @@ class FormatterMarkerInfo{
                     m_content = v;
                 }
             }
-        })
+        });
+       
     }
 }
 

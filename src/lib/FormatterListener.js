@@ -18,6 +18,7 @@ class FormatterListener {
     /**
      * append new line to buffer
      * @param {string} line_feed 
+     * @param {FormatterBuffer} buffer 
      */
     appendLine(line_feed, buffer){
         buffer.appendToBuffer(line_feed);
@@ -36,8 +37,7 @@ class FormatterListener {
      */
     store({buffer, output, depth, tabStop, startBlock}) { 
         let s = buffer;
-        let d = depth;
-        s = s.trim();
+        let d = depth; 
         if (s.length > 0){
             if (startBlock){
                 output.unshift('');
