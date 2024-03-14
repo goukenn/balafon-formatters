@@ -20,7 +20,10 @@ class FormatterOptions {
     lineJoin = false;
     lineFeedFlag = false; // flag to setup line feed 
     markerDepth = 0; // store handleMarker stack
-    output = [];// output result
+    /**
+     * store global output result 
+     */
+    // output = [];   // output result global output result 
     tokenList = [];// store entry token list
     state = ''; // current state mode 
     range = {
@@ -110,6 +113,9 @@ class FormatterOptions {
                 m_pos = v;
             }
         });
+        Object.defineProperty(objClass, 'output', {
+            get: function () { return _formatterBuffer.output; },
+        });
         Object.defineProperty(objClass, 'depth', {
             get() { return m_depth; },
             /**
@@ -195,9 +201,9 @@ class FormatterOptions {
             }
             return s;
         }
-        function _shiftMarkerInfo(marker, tokenChains){
-            if (_formatter.isSpecialMarker(marker)){
-                if ((typeof(marker.shiftIdConstant) == 'function') && marker.shiftIdConstant())
+        function _shiftMarkerInfo(marker, tokenChains) {
+            if (_formatter.isSpecialMarker(marker)) {
+                if ((typeof (marker.shiftIdConstant) == 'function') && marker.shiftIdConstant())
                     tokenChains.shift();
             }
         }
@@ -214,7 +220,7 @@ class FormatterOptions {
             const { listener, tokenChains } = this;
             if (treat && listener?.renderToken) {
                 _shiftMarkerInfo(_marker.marker, tokenChains);
-               
+
                 _marker.name && tokenChains.unshift(_marker.name);
                 _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID, engine, debug);
             }
@@ -253,8 +259,8 @@ class FormatterOptions {
             }
             const { marker, group } = markerInfo;
             const { debug } = this;
-            const fc_handle_end = function(value, cap, id, listener, option){
-                const {tokens, engine, debug, tokenID} = option;
+            const fc_handle_end = function (value, cap, id, listener, option) {
+                const { tokens, engine, debug, tokenID } = option;
                 if (cap.patterns) {
                     let _bckCapture = _formatter.info.captureGroup;
                     _formatter.info.captureGroup = markerInfo.group;
@@ -280,7 +286,7 @@ class FormatterOptions {
                         q.formatterBuffer.clear();// = new 
                         q.lineCount = 0;
                         q.depth = 0;
-                       
+
                         _formatter.info.isSubFormatting++;
                         _formatter.patterns = cap.patterns;
                         value = _formatter.format(value);
@@ -304,10 +310,10 @@ class FormatterOptions {
                         value = n_formatter.format(value);
                     }
                     _formatter.info.captureGroup = _bckCapture;
-                }else {
+                } else {
                     // treat buffer marker 
                     const op = [];
-                    value = _formatter._treatMarkerValue(cap, value, op ); 
+                    value = _formatter._treatMarkerValue(cap, value, op);
                     value = listener.renderToken(value, tokens, tokenID, engine, debug);
                 }
                 return value;
@@ -317,11 +323,11 @@ class FormatterOptions {
             let _s = CaptureRenderer.CreateFromGroup(endMatch, marker.name);
             if (_s) {
                 const q = this;
-                let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains , // .getTokens(), 
-                {
-                    debug: this.debug,
-                    engine: this.engine
-                });
+                let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains, // .getTokens(), 
+                    {
+                        debug: this.debug,
+                        engine: this.engine
+                    });
                 markerInfo.endOutput = _g;
                 return _g;
             }
@@ -374,77 +380,106 @@ class FormatterOptions {
         objClass.moveTo = function (newPosition) {
             this.pos = newPosition;
         }
-        objClass.restoreBuffer = function ({state}) {
-            this.output = state.output;
+        objClass.restoreBuffer = function ({ state }) {
             _formatterBuffer = state.formatterBuffer;
         };
-        objClass.newBuffer = function () {
-            this.output = [];
+        objClass.newBuffer = function (id) {
             _formatterBuffer = new FormatterBuffer;
+            _formatterBuffer.id = id;
         };
-        objClass.saveBuffer= function(){
+        objClass.saveBuffer = function () {
             _bufferState.push({
                 output: this.output,
                 formatterBuffer: this.formatterBuffer
             });
-            this.newBuffer();
+            this.newBuffer('_save_buffer_');
         };
-        objClass.restoreSavedBuffer = function(){
+        objClass.restoreSavedBuffer = function () {
             let buffer = _bufferState.pop();
-            if (buffer){
-                this.restoreBuffer({state: buffer});
+            if (buffer) {
+                this.restoreBuffer({ state: buffer });
             }
         }
 
 
-        objClass.store = 
-        /**
-         * store and clear formatter buffer  
-         * @param {bool} startBlock 
-         */
-        function (startBlock = false) {
-            const { listener } = this;
-            if (listener) {
+        objClass.store =
+            /**
+             * store and clear formatter buffer  
+             * @param {bool} startBlock 
+             */
+            function (startBlock = false) {
+                const { listener } = this;
+                if (listener) {
+                    const _ctx = this;
+                    const { buffer, output, depth } = _ctx;
+                    listener.store.apply(null, [{ buffer, output, depth, tabStop, _ctx, startBlock }]);
+                }
+                _formatterBuffer.clear();
+            }
+
+        objClass.flush =
+            /**
+           * flush with what is in the buffer - and clear buffer 
+           * @param {bool} clear 
+           * @returns 
+           */
+            function (clear) {
                 const _ctx = this;
-                const { buffer, output, depth } = _ctx;
-                listener.store.apply(null, [{ buffer, output, depth, tabStop, _ctx, startBlock }]);
+                const { buffer, output, listener } = _ctx;
+                let l = '';
+                if (listener?.output) {
+                    l = listener.output.apply(null, [clear, { buffer, output, lineFeed, _ctx }]);
+                } else {
+                    l = this.output.join(lineFeed);
+                }
+                //+| clear output and buffer 
+                if (clear) {
+                    this.formatterBuffer.clear();
+                    output.length = 0;
+                }
+                return l;
             }
-            _formatterBuffer.clear();
-        }
-     
-        objClass.flush = 
-          /**
-         * flush with what is in the buffer - and clear buffer 
-         * @param {bool} clear 
-         * @returns 
-         */
-        function (clear) {
-            const _ctx = this;
-            const { buffer, output, listener } = _ctx;
-            let l = '';
-            if (listener?.output) {
-                l = listener.output.apply(null, [clear, { buffer, output, lineFeed, _ctx }]);
-            } else { 
-                l = this.output.join(lineFeed);
-            }
-            //+| clear output and buffer 
-            if (clear) {
-                this.output = [];
-                this.formatterBuffer.clear();
-            }
-            return l;
-        }
         objClass.appendLine = function () {
-            const { listener } = this; const { lineFeed}  = _formatter.settings;
+            const { listener } = this; const { lineFeed } = _formatter.settings;
             if (listener) {
-                return listener.appendLine(lineFeed, 
-                    this.formatterBuffer, {store:()=>{
-                        this.store();
-                    }});
+                return listener.appendLine(lineFeed,
+                    this.formatterBuffer, {
+                        store: () => {
+                            this.store();
+                        }
+                });
             } else {
                 return _formatter.appendToBuffer(lineFeed);
             }
         };
+    }
+    storeAndUpdateBuffer() {
+        this.store();
+        let _buffer = this.flush(true);
+        if (_buffer.length > 0) {
+            this.formatterBuffer.appendToBuffer(_buffer);
+        }
+    }
+    /**
+     * store current buffer to output
+     * @param {*} useDepth 
+     * @param {*} blockStarted 
+     */
+    storeToOutput({ buffer = null, useDepth = false, blockStarted = false , clear=false }) {
+        buffer = buffer || this.buffer;
+        if (buffer && (buffer.length > 0)) { 
+            if (useDepth)
+                this.store(blockStarted);
+            else {
+                let l = this.buffer;
+                if (l.length) {
+                    this.output.push(l);
+                }
+            }
+        }
+        if (clear){
+            this.formatterBuffer.clear();
+        }
     }
 }
 

@@ -149,8 +149,10 @@ let lines = [
     //"if (true && info ){ if(  true ){/* handle format mode */ return; // end buffer } }",
     // "if ( true ) // basic",
     // "if ( true )",
-    "{ { { return } }"
-    // "tour d'ivoire"
+     // "{ { { return }" // missing 2
+     // "{ { { return " // missing 3
+     "{{{" // missing 1 // error
+    //"tour d'ivoire"
 ];
 _formatter.listener = null;
 () => (function () {
