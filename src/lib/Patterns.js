@@ -126,6 +126,11 @@ class Patterns{
      */
     transform;
 
+    /**
+     * formatting mode
+     */
+    formattingMode = 0;
+
     constructor(){
         this.patterns = [];
         this.isBlock = false;

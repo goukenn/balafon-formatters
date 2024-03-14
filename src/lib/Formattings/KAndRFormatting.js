@@ -2,8 +2,9 @@
 Object.defineProperty(exports, '__esModule', {value:true});
 
 const { FormatterOptions } = require('../FormatterOptions');
+const { PatternMatchInfo } = require('../PatternMatchInfo');
 const { FormattingBase } = require('./FormattingBase')
-const {FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK} = require('./FormattingMode');
+const {FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND} = require('./FormattingMode');
 
  
 const ALLOW_WHITE_SPACE = [FM_APPEND, FM_START_LINE];
@@ -49,16 +50,40 @@ class KAndRFormatting extends FormattingBase{
 
         return marker.parent;
     }
-
+    /**
+     * treat and start block definition 
+     * @param {Formatters} formatter 
+     * @param {PatternMatchInfo} patternInfo 
+     * @param {FormatterOptions} option 
+     */
     startBlockDefinition(formatter, patternInfo, option){
         patternInfo.isBlockStarted = true;
         const _old  = option.markerInfo[0];
         formatter._startBlock(option);
         let _buffer = option.buffer;
         let _cf = option.flush(true);
+        _old.content = _old.content.trim();  
         // + | each block must start and content by to depth + 1;
         option.output.push(_cf+_buffer); 
         patternInfo.mode = FM_START_BLOCK;
+        const {parent} = patternInfo;
+        if (parent){
+            parent.mode = FM_APPEND;
+        }
+    }
+
+    formatBufferMarker(formatter, _marker, option){
+        let _buffer = option.buffer;
+        const { parent } = _marker;
+        const { formattingMode } = _marker;
+
+        switch(formattingMode){
+            case 1:
+            if (parent){
+                parent.mode = FM_START_LINE_AND_APPEND;
+            }
+            break;
+        }
     }
 }
 
