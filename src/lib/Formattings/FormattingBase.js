@@ -29,15 +29,28 @@ class FormattingBase {
         throw new Error('missing code style formatters');
     }
 
-    handleEndBlockBuffer(_buffer, option){
+    handleEndBlockBuffer(_marker, _buffer, option, _old) {
         let _sbuffer = '';
-        if (option.depth>0){
-            _sbuffer = _buffer; 
-            option.flush(true);
-        }else{
+        if (option.depth > 0) { 
+            if (!_old.blockStarted && (_old.content.length==0)) {
+                option.store();
+                _sbuffer = option.flush(true);
+            } 
+            else {
+                if (_old.entryBuffer.length == _old.content.trim()) {
+                    option.store();
+                    _sbuffer = option.flush(true);
+                } else {
+                    _sbuffer = _buffer;
+                    // clean buffer 
+                    option.flush(true); 
+                }
+            }
+        } else {
             option.store();
+            _sbuffer = option.flush(true);
         }
-        return {_sbuffer};
+        return { _sbuffer };
     }
 }
 

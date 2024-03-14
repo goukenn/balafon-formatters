@@ -10,7 +10,7 @@ const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AN
 const ALLOW_WHITE_SPACE = [FM_APPEND, FM_START_LINE];
 
 class KAndRFormatting extends FormattingBase {
-    mergeEndBlock = false;
+    mergeEndBlock = true;
     /**
      * check allow empty space 
      * @param {number} mode 

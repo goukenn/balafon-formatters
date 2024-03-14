@@ -68,7 +68,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 }
                 break;
             case FM_END_BLOCK:
-                ({_sbuffer} = _formatting.handleEndBlockBuffer(_buffer, option)); 
+                ({_sbuffer} = _formatting.handleEndBlockBuffer(_marker, _buffer, option, _old)); 
                 _mode = 2;
                 break;
             case FM_START_LINE_AND_APPEND:
