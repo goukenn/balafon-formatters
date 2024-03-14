@@ -246,7 +246,7 @@ class Formatters {
         let _listener = this.#createListener();
 
         let _formatterBuffer = new FormatterBuffer;
-
+        _formatterBuffer.id = '_global_';
         const m_constants_def = {
             PrevLineFeedConstant: new PrevLineFeedConstantPattern,
             PrevConstant: new PrevConstantPattern,
@@ -342,13 +342,14 @@ class Formatters {
             objClass.lineJoin = true;
         });
 
-        debug && console.log('...end...');
+        debug && Debug.log('...end...');
         if (objClass.markerInfo.length > 0) {
+            const _formatting = this.formatting;
             // missing close marker info
-            debug && console.log('.....contains marker info .....'+objClass.markerInfo.length);
+            debug && Debug.log('.....contains marker info .....'+objClass.markerInfo.length);
             while (objClass.markerInfo.length>0){
                 let _old = objClass.markerInfo.shift(); 
-                this._handleLastExpectedBlock(_old, objClass, _matcherInfo);  
+                this._handleLastExpectedBlock(_old, objClass, _formatting);  
             }
             // let q = null;
             // while (q = objClass.markerInfo.shift()) {
@@ -364,26 +365,33 @@ class Formatters {
         objClass.store();
         const _output = objClass.output.join(lineFeed).trimEnd();
         // + | clear buffer list  
-        this.objClass.output = [];
-        this.objClass.formatterBuffer.clear();
-
+        this.objClass.formatterBuffer.clear(); 
         return _output;
     }
-    _handleLastExpectedBlock(_old, option, matcherInfo){
+    _handleLastExpectedBlock(_old, option, _formatting){
         const { marker } = _old;
         const _group = marker.group;
         let regex = Utils.ReplaceRegexGroup(Utils.RegExToString(_old.marker.end), _group);
         regex = regex.replace(/\\/g, ""); //remove ecaped 
+        _formatting.onLastExpectedBlockStart({option, _old});
 
+       
         let _p = [];
+        let f = null;
         _p.push(regex);
         _p.indices = [[0,regex.length]];
         _p.index = 0;
         if (marker.isBlock){
             option.line = regex;
             option.pos = 0;
-            this._handleFoundEndPattern(_old.content, '', marker, _p, option, _old);
-            return;
+            let _buffer = option.buffer;
+            f = _formatting.onLastExpectedBlock({mode: marker.mode, 
+                buffer: _buffer,
+                option: option,
+                formatter: this});
+          
+            f = f==null?_old.content+ option.flush(true) : f;
+            return this._handleFoundEndPattern(f, regex, marker, _p, option, _old);
         }
         const line = option.line;
         let _append = line.substring(_group.index); //  option.getLineRangeContent(); 
@@ -391,17 +399,8 @@ class Formatters {
         _p.index = _ln;
         _append+= regex;
         option.pos = _ln;
-        option.storeRange(_ln);
-
-        // if(matcherInfo){
-        //     let _bckline = option.line;
-        //     option.line = regex;
-        //     option.pos = 0;
-        //     option.markerInfo.unshift(_old);
-        //     new_info = this._handleMarker(matcherInfo, option);
-        //     option.line = _bckline;
-        // }
-        this._handleFoundEndPattern('', _append, marker, _p, option, _old);
+        option.storeRange(_ln); 
+        return this._handleFoundEndPattern('', _append, marker, _p, option, _old);
     }
     _handleLineFeedFlag(option) {
         if (option.lineFeedFlag) {
@@ -925,20 +924,24 @@ class Formatters {
         // + | node division 
         if (_marker.isBlock && _marker.blockStartInfo) {
             // just remove block before store 
-            option.depth = Math.max(--option.depth, 0);
             // reset block value;
             _marker.isBlock = (_old && _old.oldBlockStart);
             _close_block = true;
             //_marker.isBlockDefinition = null;
             if (_marker.isFormattingStartBlockElement) {
                 ({ _b } = _formatting.handleEndFormattingBeforeStore(q, _marker, option, _buffer, { _b }));
+                _buffer = option.buffer; 
+                option.flush(true);
+                option.output.push(_buffer);
             }
-            _buffer = option.buffer; // backup buffer 
-            option.output.unshift(_buffer);
-            _buffer = option.flush(true);
+            // option.flush(true); // output.push(_buffer)
+            // backup buffer 
+            // option.output.unshift(_buffer);
             // option.store();
-             option.output.push(_buffer);
+            // _buffer = option.flush(true);
+            // option.output.push(_buffer);
             _buffer = '';
+            option.depth = Math.max(--option.depth, 0);
         }
         // + | append to buffer 
         if (_b.length > 0) {
@@ -1084,7 +1087,7 @@ class Formatters {
         // + | unshift marker 
         option.unshiftMarker(_inf);
         // + | create a new buffer 
-        option.newBuffer();
+        option.newBuffer(option.markerInfo.length);
         // + | start by adding the first segment to buffer
         option.formatterBuffer.appendToBuffer(entry);
     }

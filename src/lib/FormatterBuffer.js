@@ -5,11 +5,13 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * class that help to manibule buffer by segment
  */
 class FormatterBuffer{
+    /**
+     * set the formatter buffer identification 
+     */
+    id;
     constructor(){ 
         var m_output = [];
-        var m_bufferSegments = [];
-        
-        
+        var m_bufferSegments = []; 
         /*
         arry of buffer segment
          */
@@ -52,7 +54,14 @@ class FormatterBuffer{
      * clear segments
      */
     clear(){
-        this.bufferSegments.length = 0;
+        this.bufferSegments.length = 0; 
+    }
+    clearOutput(){
+        this.output.length = 0;
+    }
+    clearAll(){
+        this.clear();
+        this.clearOutput();
     }
     trimEnd(){
         const { bufferSegments} = this;
