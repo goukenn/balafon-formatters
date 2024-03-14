@@ -3,6 +3,12 @@ Object.defineProperty(exports, 'enModule', { value: true });
 
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
+
+/**
+ * @typedef FormatterOptions
+ * @funcion newBuffer  
+ */
+
 /**
  * class used to expose formatter option 
  */
@@ -405,12 +411,14 @@ class FormatterOptions {
             }
             _formatterBuffer.clear();
         }
-        /**
+     
+        objClass.flush = 
+          /**
          * flush with what is in the buffer - and clear buffer 
          * @param {bool} clear 
          * @returns 
          */
-        objClass.flush = function (clear) {
+        function (clear) {
             const _ctx = this;
             const { buffer, output, listener } = _ctx;
             let l = '';
@@ -439,5 +447,7 @@ class FormatterOptions {
         };
     }
 }
+
+
 
 exports.FormatterOptions = FormatterOptions;

@@ -25,7 +25,7 @@ class KAndRFormatting extends FormattingBase{
     handleEndFormattingBeforeStore(formatter, marker, option, _buffer, _refData){
         let { _b } = _refData;
         let sb = '';
-        let _bbuffer = option.buffer.trimEnd();
+        let _bbuffer = option.buffer.trim();
         if (marker.childs.length==0){
             sb = _bbuffer+_b.trimStart();
             option.formatterBuffer.clear();//.bufferSegments.pop();
@@ -81,6 +81,11 @@ class KAndRFormatting extends FormattingBase{
             case 1:
             if (parent){
                 parent.mode = FM_START_LINE_AND_APPEND;
+            } else {
+                option.store();
+                option.output.push('');
+                _buffer = option.flush(true);
+                option.formatterBuffer.appendToBuffer(_buffer, _marker);
             }
             break;
         }

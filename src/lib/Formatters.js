@@ -345,19 +345,21 @@ class Formatters {
         debug && console.log('...end...');
         if (objClass.markerInfo.length > 0) {
             // missing close marker info
-            debug && console.log('.....contains marker info .....');
-            let q = null;
-            let _info = objClass.listener;
-            while (q = objClass.markerInfo.shift()) {
-                this._restoreBuffer(objClass, q);
-                objClass.formatterBuffer.appendToBuffer(q.content);
-                if (q.marker.isBlock) {
-                    objClass.depth = Math.max(--objClass.depth, 0);;
-                    objClass.output.push(objClass.buffer);
-                    objClass.formatterBuffer.clear();
-                }
-
+            debug && console.log('.....contains marker info .....'+objClass.markerInfo.length);
+            while (objClass.markerInfo.length>0){
+                let _old = objClass.markerInfo.shift(); 
+                this._handleLastExpectedBlock(_old, objClass, _matcherInfo);  
             }
+            // let q = null;
+            // while (q = objClass.markerInfo.shift()) {
+            //     this._restoreBuffer(objClass, q);
+            //     objClass.formatterBuffer.appendToBuffer(q.content);
+            //     if (q.marker.isBlock) {
+            //         objClass.depth = Math.max(--objClass.depth, 0);;
+            //         objClass.output.push(objClass.buffer);
+            //         objClass.formatterBuffer.clear();
+            //     } 
+            // }
         }
         objClass.store();
         const _output = objClass.output.join(lineFeed).trimEnd();
@@ -366,6 +368,40 @@ class Formatters {
         this.objClass.formatterBuffer.clear();
 
         return _output;
+    }
+    _handleLastExpectedBlock(_old, option, matcherInfo){
+        const { marker } = _old;
+        const _group = marker.group;
+        let regex = Utils.ReplaceRegexGroup(Utils.RegExToString(_old.marker.end), _group);
+        regex = regex.replace(/\\/g, ""); //remove ecaped 
+
+        let _p = [];
+        _p.push(regex);
+        _p.indices = [[0,regex.length]];
+        _p.index = 0;
+        if (marker.isBlock){
+            option.line = regex;
+            option.pos = 0;
+            this._handleFoundEndPattern(_old.content, '', marker, _p, option, _old);
+            return;
+        }
+        const line = option.line;
+        let _append = line.substring(_group.index); //  option.getLineRangeContent(); 
+        const _ln = _append.length;
+        _p.index = _ln;
+        _append+= regex;
+        option.pos = _ln;
+        option.storeRange(_ln);
+
+        // if(matcherInfo){
+        //     let _bckline = option.line;
+        //     option.line = regex;
+        //     option.pos = 0;
+        //     option.markerInfo.unshift(_old);
+        //     new_info = this._handleMarker(matcherInfo, option);
+        //     option.line = _bckline;
+        // }
+        this._handleFoundEndPattern('', _append, marker, _p, option, _old);
     }
     _handleLineFeedFlag(option) {
         if (option.lineFeedFlag) {
@@ -661,7 +697,7 @@ class Formatters {
             patternInfo.start = false;
             if (patternInfo.isBlock) {
                 // - on base start width K_R coding style 
-                option.formatterBuffer.trimEnd();
+                // option.formatterBuffer.trimEnd();
                 patternInfo.isFormattingStartBlockElement = true;
                 patternInfo.blockStartInfo = {
                     depth: option.depth
@@ -736,10 +772,12 @@ class Formatters {
                 }
 
                 // no end - found 
-                _continue_with_marker = true;
-                // update cursor 
+                _continue_with_marker = false;
+                // update cursor - start new marker and update - 
+                this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
                 this._appendConstant(patternInfo, _line, option);
                 option.pos = option.line.length;
+                return patternInfo;
             } else {
                 // ---------------------------------------------------------------
                 // END FOUND
