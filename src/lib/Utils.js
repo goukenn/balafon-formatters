@@ -210,8 +210,8 @@ class Utils {
     }
     /**
      * get regex from
-     * @param {string} s regext expression
-     * @param {*} p group
+     * @param {string} s regex expression
+     * @param {*} p group match
      * @returns 
      */
     static GetRegexFrom(s, p, flag) {
@@ -448,7 +448,7 @@ class Utils {
      * @param {*} value 
      * @returns 
      */
-    TreatAndTranformValue(value){
+    TreatAndTranformValue(value) {
         return value;
     }
 }

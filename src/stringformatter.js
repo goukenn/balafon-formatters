@@ -14,8 +14,8 @@ const json_data = require("../data/html.btm-format.json");
 const _formatter = Formatters.CreateFrom({
 
     scopeName: 'scope.litteralString',
-    settings:{
-        "instructionSeparator":";"
+    settings: {
+        "instructionSeparator": ";"
     },
     patterns: [
         {
@@ -27,25 +27,28 @@ const _formatter = Formatters.CreateFrom({
         {
             include: "#string"
         },
-        { 
-            include:"#branket-function-condition"
-        }, 
+        {
+            include: "#branket-function-condition"
+        },
         {
             "include": "#end-instruction"
         },
-       { 
-        include:"#block-branket"
-       },
-       { 
-        include:"#multi-line-comment"
-    }
+        {
+            include: "#block-branket"
+        },
+        {
+            include: "#multi-line-comment"
+        },
+        {
+            include: "#single-line-comment"
+        }
     ],
     repository: {
-        "reserved-words":{
-            "match":/\b(if|else|return|false|true)\b/,
-            "name":"reserverd-word",
+        "reserved-words": {
+            "match": /\b(if|else|return|false|true)\b/,
+            "name": "reserverd-word",
         },
-        "block-branket":{
+        "block-branket": {
             "begin": "\\{",
             "end": "\\}",
             "name": "block",
@@ -61,27 +64,30 @@ const _formatter = Formatters.CreateFrom({
                 {
                     include: "#trim-multispace"
                 },
-                { 
-                    include:"#block-branket"
+                {
+                    include: "#block-branket"
                 },
-                { 
-                    include:"#branket-function-condition"
-                }, 
-                { 
-                    include:"#multi-line-comment"
+                {
+                    include: "#branket-function-condition"
+                },
+                {
+                    include: "#multi-line-comment"
+                },
+                {
+                    include: "#single-line-comment"
                 }
             ]
         },
-        "trim-multispace-":{
-            "match":"\\s+",
-            "name":"multi-line-space",
-            "replaceWith":" "
+        "trim-multispace-": {
+            "match": "\\s+",
+            "name": "multi-line-space",
+            "replaceWith": " "
         },
         "end-instruction": {
             "match": "(;)",
             "name": "operator.end.instruction",
             "lineFeed": true,
-            "isInstructionSeparator":true
+            "isInstructionSeparator": true
         },
         string: {
             "begin": "(\"|')",
@@ -99,35 +105,35 @@ const _formatter = Formatters.CreateFrom({
                 name: "escaped.string"
             }]
         },
-        "branket-function-condition":{
-            begin:"\\s*\\(\\s*",
-            end:"\\s*\\)\\s*",
-            name:"branket.function",
-            transform:"trim",
-            beginCaptures:{
-                "0":{
-                    transform:"trim"
+        "branket-function-condition": {
+            begin: "\\s*\\(\\s*",
+            end: "\\s*\\)\\s*",
+            name: "branket.function",
+            transform: "trim",
+            beginCaptures: {
+                "0": {
+                    transform: "trim"
                 }
             },
-            endCaptures:{
-                "0":{
-                    transform:"trim"
+            endCaptures: {
+                "0": {
+                    transform: "trim"
                 }
             }
         },
-        "multi-line-comment":{
-            begin:"\\/\\*",
-            end:"\\*/",
-            name:"constant.comment.multiline",
-            tokenID:"comment",
-            formattingMode:1
+        "multi-line-comment": {
+            begin: "\\/\\*",
+            end: "\\*/",
+            name: "constant.comment.multiline",
+            tokenID: "comment",
+            formattingMode: 1
         },
-        "single-line-comment":{
-            begin:"\\/\\*",
-            end:"\\*/",
-            name:"constant.comment.multiline",
-            tokenID:"comment",
-            formattingMode:1
+        "single-line-comment": {
+            begin: "\\/\\/",
+            end: /$/,
+            name: "constant.comment.single-line",
+            tokenID: "comment",
+            formattingMode: 1
         }
     },
     engine: "html-listener"
@@ -138,12 +144,15 @@ let lines = [
     // "var x = 10;"
     // 'if (true) {}   ', 
     //"if (true){return first; if(false){ return second; if(iii){ return third; }}}",
-   // "if ( true) { return first; if ( ok ){ z }}",
+    // "if ( true) { return first; if ( ok ){ z }}",
     // "if (true) { var x = 8; if (false){ z = 9; }return     \"ok data\"; x=129; }",
     //"if (true && info ){ if(  true ){/* handle format mode */ return; // end buffer } }",
-    " if ( true ) // basic {"
+    // "if ( true ) // basic",
+    // "if ( true )",
+    "{ { { return } }"
+    // "tour d'ivoire"
 ];
-_formatter.listener = null; 
+_formatter.listener = null;
 () => (function () {
     let node = null;
 
@@ -168,9 +177,9 @@ _formatter.listener = null;
             // console.log('render token: ', lt , " : ", v);
             return v;
         },
-        store({ output, buffer, depth, tabStop, startBlock}) {
+        store({ output, buffer, depth, tabStop, startBlock }) {
             //console.log("store : ", buffer, output);
-            if (buffer.trim().length<=0){
+            if (buffer.trim().length <= 0) {
                 return;
             }
 
