@@ -6,6 +6,7 @@ Object.defineProperty(exports, '__esModule', {value:true});
  */
 class PatternMatchInfo{
     /**
+     * indicate new created pattern info
      * @var {bool}
      */
     start = true; 

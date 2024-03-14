@@ -421,7 +421,6 @@ let lines = [];
 //     },
 //     append(s){
 //         // append - just output to buffer data
-//         console.log('output : ', s);
 //         lines.push(s);
         
 //     },

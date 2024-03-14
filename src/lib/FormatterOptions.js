@@ -300,11 +300,8 @@ class FormatterOptions {
                     _formatter.info.captureGroup = _bckCapture;
                 }else {
                     // treat buffer marker 
-                   
-                    if (cap.transform)
-                    {
-
-                    }
+                    const op = [];
+                    value = _formatter._treatMarkerValue(cap, value, op ); 
                     value = listener.renderToken(value, tokens, tokenID, engine, debug);
                 }
                 return value;

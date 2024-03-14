@@ -28,6 +28,17 @@ class FormattingBase {
         }
         throw new Error('missing code style formatters');
     }
+
+    handleEndBlockBuffer(_buffer, option){
+        let _sbuffer = '';
+        if (option.depth>0){
+            _sbuffer = _buffer; 
+            option.flush(true);
+        }else{
+            option.store();
+        }
+        return {_sbuffer};
+    }
 }
 
 

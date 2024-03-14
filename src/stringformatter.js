@@ -27,12 +27,18 @@ const _formatter = Formatters.CreateFrom({
         {
             include: "#string"
         },
+        { 
+            include:"#branket-function-condition"
+        }, 
         {
             "include": "#end-instruction"
         },
        { 
         include:"#block-branket"
-       }
+       },
+       { 
+        include:"#multi-line-comment"
+    }
     ],
     repository: {
         "reserved-words":{
@@ -57,10 +63,16 @@ const _formatter = Formatters.CreateFrom({
                 },
                 { 
                     include:"#block-branket"
-                   }
+                },
+                { 
+                    include:"#branket-function-condition"
+                }, 
+                { 
+                    include:"#multi-line-comment"
+                }
             ]
         },
-        "trim-multispace":{
+        "trim-multispace-":{
             "match":"\\s+",
             "name":"multi-line-space",
             "replaceWith":" "
@@ -86,6 +98,36 @@ const _formatter = Formatters.CreateFrom({
                 "match": "\\\\.",
                 name: "escaped.string"
             }]
+        },
+        "branket-function-condition":{
+            begin:"\\s*\\(\\s*",
+            end:"\\s*\\)\\s*",
+            name:"branket.function",
+            transform:"trim",
+            beginCaptures:{
+                "0":{
+                    transform:"trim"
+                }
+            },
+            endCaptures:{
+                "0":{
+                    transform:"trim"
+                }
+            }
+        },
+        "multi-line-comment":{
+            begin:"\\/\\*",
+            end:"\\*/",
+            name:"constant.comment.multiline",
+            tokenID:"comment",
+            formattingMode:1
+        },
+        "single-line-comment":{
+            begin:"\\/\\*",
+            end:"\\*/",
+            name:"constant.comment.multiline",
+            tokenID:"comment",
+            formattingMode:1
         }
     },
     engine: "html-listener"
@@ -95,10 +137,11 @@ let lines = [
     // "var s = \"bonjour \\\"tout le monde\";",
     // "var x = 10;"
     // 'if (true) {}   ', 
-    // "if (true){return first; if(false){ return second; if(iii){ return third; }}}",
+    //"if (true){return first; if(false){ return second; if(iii){ return third; }}}",
    // "if ( true) { return first; if ( ok ){ z }}",
     // "if (true) { var x = 8; if (false){ z = 9; }return     \"ok data\"; x=129; }",
-    "{ if (true ){ return; } }"
+    //"if (true && info ){ if(  true ){/* handle format mode */ return; // end buffer } }",
+    " if ( true ) // basic {"
 ];
 _formatter.listener = null; 
 () => (function () {
