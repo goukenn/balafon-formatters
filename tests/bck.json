@@ -1,20 +1,4 @@
-{
-    "comment": "multine test",
-    "s": [
-        "<form />"
-    ],
-    "e": [
-        "<form></form>"
-    ]
-},
-{
-    "s": [
-        "<div   >data</div>"
-    ],
-    "e": [
-        "<div>data</div>"
-    ]
-},
+
 
 
 {
@@ -27,25 +11,9 @@
 
 
 
-{
-    "comment":"multine test",
-    "s": [
-        "<div>'open'</div>"
-    ],
-    "e": ["<div>'open'</div>"]
-}, 
+
 ,
-{
-    "comment": "multine test",
-    "s": [
-        "<div><span>'open'</span><nav>ok</nav></div>"
-    ],
-    "e": [
-        "<div>",
-        "\t<span>'open'</span>",
-        "\t<nav>ok</nav>",
-        "</div>"
-    ],
+
 
     {
         "comment": "multine test",

@@ -223,6 +223,8 @@ class Utils {
             return p[m];
         });
         s = /^\/.+\/$/.test(s) ? s.substring(1).slice(0, -1) : s;
+        
+
         return new RegExp(s, flag || '');
     }
 
@@ -415,10 +417,11 @@ class Utils {
  * @param {*} _marker markerInfo
  * @returns 
  */
-    static DoReplaceWith(value, _formatter, replace_with, group, _marker) {
+    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option) {
         let g = group;
         let _rp = replace_with; // 
         let m = '';
+        const { CaptureRenderer } = Utils.Classes;
         if (g) {
             m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
             let cp = new RegExp(m, 'd');
@@ -428,7 +431,7 @@ class Utils {
             let matches = cp.exec(_in);
             const _tokens = _formatter.tokenChains;// _formatter.getTokens();
             g = CaptureRenderer.CreateFromGroup(matches, _tokens);
-            let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens);
+            let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens, option);
             // console.log("the in ", _in, out);
             return out;
 
@@ -441,14 +444,6 @@ class Utils {
             m = _rp.replace(/\\\//g, "/");
         }
         value = value.replace(value, m);
-        return value;
-    }
-    /**
-     * basic treat and tranform value
-     * @param {*} value 
-     * @returns 
-     */
-    TreatAndTranformValue(value) {
         return value;
     }
 }
