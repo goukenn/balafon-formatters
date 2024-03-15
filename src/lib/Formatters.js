@@ -16,6 +16,7 @@ const { FormatterOptions } = require("./FormatterOptions");
 const { FormattingCodeStyles } = require("./FormattingCodeStyles");
 const { HandleFormatting, updateBuffer } = require("./Formattings/FormattingMode");
 const { FormatterMarkerInfo } = require("./FormatterMarkerInfo");
+const { RegexUtils } = require("./RegexUtils");
 
 // + | --------------------------------------------------------
 // + | export pattern match information 
@@ -29,7 +30,8 @@ Utils.Classes = {
     FormatterBuffer,
     FormatterOptions,
     FormattingCodeStyles,
-    Debug
+    Debug,
+    RegexUtils
 };
 
 
@@ -372,12 +374,14 @@ class Formatters {
         return _output;
     }
     _handleLastExpectedBlock(_old, option, _formatting) {
-        // TODO: must close last expect block
         // TODO: Dynamic closing block must not being regex closing
         const { marker } = _old;
         const _group = marker.group;
+        if (_old.marker.IsEndCaptureOnly){
+            return;
+        }
         let regex = Utils.ReplaceRegexGroup(Utils.RegExToString(_old.marker.end), _group);
-        regex = regex.replace(/\\/g, ""); //remove ecaped 
+        regex = regex.replace(/\\/g, ""); //remove escaped litteral
         _formatting.onLastExpectedBlockStart({ option, _old });
 
 
@@ -619,19 +623,6 @@ class Formatters {
             patternInfo.childs.push(_inf);
         }
         updateBuffer(data, patternInfo.mode, _inf, option);
-
-        // if (patternInfo.isBlockStarted && !patternInfo.newLine) {
-        //     // block started but not on new line 
-        //     // TODO: append to buffer to update data
-        //     data = data.trimStart();
-        //     let _buffer = option.buffer;
-        //     if (_buffer.length > 0) {
-        //         option.output.push(_buffer); // append line 
-        //     }
-        //     option.appendToBuffer(data, _inf);   
-        // } else {
-        //     option.appendToBuffer(data, _inf);
-        // }
     }
     /**
      * update maker info block
@@ -881,9 +872,35 @@ class Formatters {
 
         return r;
     }
+    /**
+     * update buffer on end
+     * @param {*} _marker 
+     * @param {*} option 
+     * @param {*} param2 
+     * @private
+     * @returns 
+     */
+    _updateBuffer(_marker, option, {_append, _buffer}){
+        const q = this;
+        if (_buffer.length > 0) {
+            // + | direct append to buffer
+            option.formatterBuffer.appendToBuffer(_buffer);
+            _buffer = '';
+        }
+        if ((_append.trim().length > 0)) {
+            // + | append constant marker definition 
+            if (_marker.isFormattingStartBlockElement && !_marker.newLine) {
+                _marker.newLine = true;
+            }
+            q._appendConstant(_marker, _append, option);
+            _append = '';
+        }
+        return { _append, _buffer};
+    }
     _handleFoundEndPattern(_buffer, _line, _marker, _p, option, _old) {
         // calculate next position 
         const { debug } = option;
+        const { parent, mode } = _marker;
         const _next_position = _p.index + _p[0].length;
         let _append = option.line.substring(option.pos, _p.index);
         // let _sblock = _marker?.parent?.isBlock;
@@ -896,32 +913,12 @@ class Formatters {
         let _b = option.treatEndCaptures(_marker, _p);
         let _close_block = false;
         const q = this;
-        const _formatting = q.formatting;
-
-        let _updateBuffer = function () {
-            if (_buffer.length > 0) {
-                // + | direct append to buffer
-                option.formatterBuffer.appendToBuffer(_buffer);
-                _buffer = '';
-            }
-            if ((_append.trim().length > 0)) {
-                // + | append constant marker definition 
-                if (_marker.isFormattingStartBlockElement && !_marker.newLine) {
-                    _marker.newLine = true;
-                }
-                q._appendConstant(_marker, _append, option);
-                _append = '';
-            }
-        }
-
+        const _formatting = q.formatting; 
         debug && Debug.log(`--::handleFoundEndPattern2::--#${_marker.name}`);
         // + | full fill pattern buffer 
-        _updateBuffer();
+        ({_append, _buffer} = this._updateBuffer(_marker, option, {_append,_buffer}));
         // + | update parent host - check update properties for end 
-        this._updateMarkerChild(_marker, option);
-
-
-
+        this._updateMarkerChild(_marker, option); 
         // + | node division 
         if (_marker.isBlock && _marker.blockStartInfo) {
             // just remove block before store 
@@ -934,6 +931,8 @@ class Formatters {
                 _buffer = option.buffer;
                 option.flush(true);
                 option.output.push(_buffer);
+            } else {
+                _formatting.handleEndFormattingOnNonStartBlockElement(q, _marker, option);
             }
             // option.flush(true); // output.push(_buffer)
             // backup buffer 
@@ -943,6 +942,9 @@ class Formatters {
             // option.output.push(_buffer);
             _buffer = '';
             option.depth = Math.max(--option.depth, 0);
+        } else {
+            _formatting.handleEndOnNonBlockElement(this, _marker, option);
+
         }
         // + | append to buffer 
         if (_b.length > 0) {
@@ -1475,3 +1477,4 @@ exports.Formatters = Formatters;
 exports.Utils = Utils;
 exports.Patterns = Patterns;
 exports.JSonParser = JSonParser;
+// Utils.DefineProperties(Utils.Classes, exports);

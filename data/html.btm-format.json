@@ -262,7 +262,7 @@
                         {
                             "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\s*)(\\>)",
                             "name": "end.tag.html",
-                            "tokenID":"endTagName",
+                            "tokenID":"endtag",
                             "captures":{
                                 "1":{"name":"symbol.end.tag.html"},
                                 "2":{"name":"tagname.html"},

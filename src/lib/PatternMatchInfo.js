@@ -135,10 +135,7 @@ class PatternMatchInfo{
                     if (_keys.indexOf(i)!=-1){
                         console.log("property alreay defined ["+i+"]");
                         return;
-                    } 
-
-
-
+                    }  
                     let _i = Object.getOwnPropertyDescriptor(pattern, i);
                     if (!_i || (_i.get) || _i.writable) {
                         // q[i] = pattern[i];
@@ -147,6 +144,13 @@ class PatternMatchInfo{
                 });
             })(this, m_marker);
         };
+    }
+    //
+    get IsEndCaptureOnly(){
+        return this.marker?.IsEndCaptureOnly;
+    }
+    get IsBeginCaptureOnly(){
+        return this.marker?.IsBeginCaptureOnly;
     }
 
     get index(){

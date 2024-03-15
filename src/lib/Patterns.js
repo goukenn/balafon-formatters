@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', {value:true});
 const { JSonParser } = require('./JSonParser'); 
 const { ReplaceWithCondition } = require('./ReplaceWithCondition');
 const { Utils } = require('./Utils');
+const { RegexUtils } = require('./RegexUtils');
 class Patterns{
     /**
      * 
@@ -222,6 +223,26 @@ class Patterns{
             return 1;
         }
         return -1;
+    }
+    /**
+     * get if end is capture only regex
+     */
+    get IsEndCaptureOnly(){
+        let s = this.end;
+        if (s){
+            return RegexUtils.IsCapturedOnlyRegex(s.toString());
+        }
+        return false;
+    }
+    /**
+     * get if begin capture only
+     */
+    get IsBeginCaptureOnly(){
+        let s = this.start;
+        if (s){
+            return RegexUtils.IsCapturedOnlyRegex(s);
+        }
+        return false;
     }
     check(l){
         let p = null;

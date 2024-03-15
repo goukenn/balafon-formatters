@@ -1,9 +1,11 @@
 "use strict";
 const { Formatters } = require('./lib/Formatters');
 const { FormattingBase } = require('./lib/Formattings/FormattingBase');
+const { RegexUtils } = require('./lib/RegexUtils');
 
 
 
+ 
 // console.log(FormattingBase, FormattingBase.Factory('KAndR'));
 
 
@@ -153,7 +155,7 @@ let lines = [
      // "{ { { return " // missing 3
      "{{if (true){ return 8;", // for multi line
      " // presentation",
-     "var x + '32 -    50';}}}" // missing 1 // error
+     "var x + '32 -    50';}}" // missing 1 // error
     //"tour d'ivoire"
 ];
 _formatter.listener = null;
