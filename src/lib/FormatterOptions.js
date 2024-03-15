@@ -18,7 +18,6 @@ class FormatterOptions {
     lineCount = 0;
     continue = false;
     lineJoin = false;
-    lineFeedFlag = false; // flag to setup line feed 
     markerDepth = 0; // store handleMarker stack
     /**
      * store global output result 

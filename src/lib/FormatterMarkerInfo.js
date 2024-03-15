@@ -8,11 +8,20 @@ const { FormatterBuffer } = require('./FormatterBuffer');
  * formatter marker info setting
  */
 class FormatterMarkerInfo{
-
+    /**
+     * buffering buffer start
+     */
     start = false;
+    /**
+     * backup state
+     */
     state;
-    childType; 
+    /**
+     * flag: indicate newly start block
+     * @var {bool}
+     */
     startBlock;
+
     oldBlockStart;
     blockStarted;
     useEntry = true;

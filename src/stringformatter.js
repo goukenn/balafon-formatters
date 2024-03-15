@@ -151,8 +151,9 @@ let lines = [
     // "if ( true )",
      // "{ { { return }" // missing 2
      // "{ { { return " // missing 3
-     "{{if (true){ return 8",
-     "}}}" // missing 1 // error
+     "{{if (true){ return 8;", // for multi line
+     " // presentation",
+     "var x + '32 -    50';}}}" // missing 1 // error
     //"tour d'ivoire"
 ];
 _formatter.listener = null;
