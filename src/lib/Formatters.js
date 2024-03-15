@@ -292,9 +292,6 @@ class Formatters {
             objClass.continue = false;
             objClass.lineCount++;
             objClass.markerDepth = 0;
-            _formatter._handleLineFeedFlag(objClass);
-
-
 
             if (_matcherInfo) {
                 if (!_matcherInfo.marker.allowMultiline) {
@@ -402,12 +399,7 @@ class Formatters {
         option.storeRange(_ln); 
         return this._handleFoundEndPattern('', _append, marker, _p, option, _old);
     }
-    _handleLineFeedFlag(option) {
-        if (option.lineFeedFlag) {
-            option.appendLine();
-            option.lineFeedFlag = false;
-        }
-    }
+    
     _isBlockAndStart(_marker, option) {
         return _marker.isBlock && !option.continue;
     }
@@ -556,9 +548,6 @@ class Formatters {
                 option.appendToBuffer(_cm_value, _marker);
             } else {
                 option.formatterBuffer.appendToBuffer(_cm_value);//, _marker);
-            }
-            if (_marker.lineFeed) {
-                option.lineFeedFlag = true;
             }
             if (_old){
                 if (b) { 
@@ -1117,6 +1106,10 @@ class Formatters {
                 _sbuffer = option.flush(true);
                 _lf = '';
                 _buffer = '';
+            }
+            else if (marker.isFormattingStartBlockElement) {
+            _sbuffer = this._operateOnFramebuffer(marker, option, _old);
+            _lf = '';
             }
         } else {
             if (marker.isFormattingStartBlockElement) {
