@@ -1,8 +1,19 @@
 {
     "tests": [
-     
         {
-            "comment": "multine test",
+
+            "s": [
+                "<div><span>'open'</span></div>"
+            ],
+            "e": [
+                "<div>",
+                "\t<span>'open'</span>",
+                "\t<nav>ok</nav>",
+                "</div>"
+            ]
+        },
+        {
+            "comment": "multi root element",
             
             "s": [
                 "<span     >info</span",
@@ -11,13 +22,24 @@
                 "<div>hello</div>"
                   ],
             "e": [
-                "<div>",
-                "\tbefore data",
-                "\t<span>bonjour tout</span>", 
-                "\tafter data3 information",
-                "\t<i>base</i>", 
-                "\tjob", 
-                "</div>"
+               "<span>info</span>",
+               "<div>hello</div>"
+            ]
+        },
+        {
+            "comment":"multine test",
+            "s": [
+                "<div>'open'</div>"
+            ],
+            "e": ["<div>'open'</div>"]
+        }, 
+        {
+            "comment": "form replacement",
+            "s": [
+                "<form />"
+            ],
+            "e": [
+                "<form></form>"
             ]
         }
     ]

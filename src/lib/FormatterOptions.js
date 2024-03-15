@@ -11,6 +11,7 @@ const { Utils } = require("./Utils");
 
 /**
  * class used to expose formatter option 
+ * @property blockStart flags to indicate block is started on document . need to reset on format focument
  */
 class FormatterOptions {
     line = '';
@@ -258,6 +259,7 @@ class FormatterOptions {
             }
             const { marker, group } = markerInfo;
             const { debug } = this;
+            const q = this;
             const fc_handle_end = function (value, cap, id, listener, option) {
                 const { tokens, engine, debug, tokenID } = option;
                 if (cap.patterns) {
@@ -278,10 +280,10 @@ class FormatterOptions {
                             pos: q.pos,
                             depth: q.depth,
                             tokenList: q.tokenList.slice(0),
-                            markerDepth: q.markerDepth
+                            markerDepth: q.markerDepth,
+                            blockStarted:  q.blockStarted
                         };
                         // clean setting
-                        q.output = [];
                         q.formatterBuffer.clear();// = new 
                         q.lineCount = 0;
                         q.depth = 0;
@@ -292,7 +294,6 @@ class FormatterOptions {
                         _formatter.info.isSubFormatting--;
                         _formatter.patterns = _bck.patterns;
                         // + | restore setting
-                        q.output = _bck.output;
                         q.lineCount = _bck.lineCount;
                         q.line = _bck.line;
                         q.pos = _bck.pos;
