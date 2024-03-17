@@ -3,12 +3,36 @@
         {
 
             "s": [
+                "<div><span>'open'</span><nav>navigation</nav>do</div>"
+            ],
+            "e": [
+                "<div>",
+                "\t<span>'open'</span>", 
+                "\t<nav>navigation</nav>", 
+                "\tdo",
+                "</div>"
+            ]
+        },
+        {
+
+            "s": [
+                "<div><span>'open'</span><nav>navigation</nav></div>"
+            ],
+            "e": [
+                "<div>",
+                "\t<span>'open'</span>", 
+                "\t<nav>navigation</nav>", 
+                "</div>"
+            ]
+        },
+        {
+
+            "s": [
                 "<div><span>'open'</span></div>"
             ],
             "e": [
                 "<div>",
-                "\t<span>'open'</span>",
-                "\t<nav>ok</nav>",
+                "\t<span>'open'</span>", 
                 "</div>"
             ]
         },
@@ -34,6 +58,7 @@
             "e": ["<div>'open'</div>"]
         }, 
         {
+            "name":"form_replacement",
             "comment": "form replacement",
             "s": [
                 "<form />"

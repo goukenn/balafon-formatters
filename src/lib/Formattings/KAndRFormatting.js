@@ -108,7 +108,7 @@ class KAndRFormatting extends FormattingBase {
                     parent.mode = FM_START_LINE_AND_APPEND;
                 } else {
                     option.store();
-                    option.output.push('');
+                    option.appendExtaOutput();
                     _buffer = option.flush(true);
                     option.formatterBuffer.appendToBuffer(_buffer, _marker);
                 }

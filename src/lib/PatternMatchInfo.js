@@ -146,11 +146,17 @@ class PatternMatchInfo{
         };
     }
     //
-    get IsEndCaptureOnly(){
-        return this.marker?.IsEndCaptureOnly;
+    get isEndCaptureOnly(){
+        return this.marker?.isEndCaptureOnly;
     }
-    get IsBeginCaptureOnly(){
-        return this.marker?.IsBeginCaptureOnly;
+    get isBeginCaptureOnly(){
+        return this.marker?.isBeginCaptureOnly;
+    }
+    /**
+     * check this is a block but non configured;
+     */
+    get isAutoBlockElement(){
+        return this.isBlock && !this.isFormattingStartBlockElement;
     }
 
     get index(){
