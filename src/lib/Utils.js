@@ -429,7 +429,7 @@ class Utils {
             let _in = value.replace(value, check);
             // passing exec to formatt new value
             let matches = cp.exec(_in);
-            const _tokens = _formatter.tokenChains;// _formatter.getTokens();
+            const _tokens = option.tokenChains; 
             g = CaptureRenderer.CreateFromGroup(matches, _tokens);
             let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens, option);
             // console.log("the in ", _in, out);
