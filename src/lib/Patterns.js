@@ -227,7 +227,7 @@ class Patterns{
     /**
      * get if end is capture only regex
      */
-    get IsEndCaptureOnly(){
+    get isEndCaptureOnly(){
         let s = this.end;
         if (s){
             return RegexUtils.IsCapturedOnlyRegex(s.toString());
@@ -237,7 +237,7 @@ class Patterns{
     /**
      * get if begin capture only
      */
-    get IsBeginCaptureOnly(){
+    get isBeginCaptureOnly(){
         let s = this.start;
         if (s){
             return RegexUtils.IsCapturedOnlyRegex(s);

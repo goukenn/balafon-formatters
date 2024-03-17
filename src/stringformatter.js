@@ -179,8 +179,7 @@ _formatter.listener = null;
             //             n.innerHTML = v;
             //             return n.outerHTML;
             //     }
-            // }
-            // console.log('render token: ', lt , " : ", v);
+            // } 
             return v;
         },
         store({ output, buffer, depth, tabStop, startBlock }) {

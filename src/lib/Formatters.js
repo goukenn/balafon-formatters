@@ -371,13 +371,14 @@ class Formatters {
         const _output = objClass.output.join(lineFeed).trimEnd();
         // + | clear buffer list  
         this.objClass.formatterBuffer.clearAll();
+        this.objClass.tokenList.length = 0;
         return _output;
     }
     _handleLastExpectedBlock(_old, option, _formatting) {
         // TODO: Dynamic closing block must not being regex closing
         const { marker } = _old;
         const _group = marker.group;
-        if (_old.marker.IsEndCaptureOnly){
+        if (_old.marker.isEndCaptureOnly){
             return;
         }
         let regex = Utils.ReplaceRegexGroup(Utils.RegExToString(_old.marker.end), _group);
@@ -639,7 +640,7 @@ class Formatters {
             option.formatterBuffer.appendToBuffer(_old.entryBuffer);
             option.store();
         } else {
-            option.output.push('');
+            option.appendExtaOutput();
         }
         this._startBlock(option);
         option.formatterBuffer.appendToBuffer(_content);
@@ -677,6 +678,7 @@ class Formatters {
         let _line = '';
         let _old = null;
         let _buffer = null;
+        const { parent } = patternInfo;
         // get _old marker to continue matching selection  
         if ((markerInfo.length > 0) && (markerInfo[0].marker == patternInfo) && (_old = markerInfo.shift())) {
             _start = false; // update the marker to handle start definition
@@ -696,7 +698,6 @@ class Formatters {
                 // +| get formatting element type 
             }
             this._updateParentProps(patternInfo, true, option);
-            const { parent } = patternInfo;
             if (parent) {
                 if (parent.isBlock && this._isChildBlock(patternInfo) &&
                     !parent.isBlockStarted) {
@@ -723,13 +724,11 @@ class Formatters {
         if (_start) {
             // + | on start before handle 
             option.pos = _next_position;
-            const { parent } = patternInfo;
             if (parent && parent.isBlock && parent.isBlockStarted && this._isChildBlock(patternInfo)) {
-                // update the block definition to child block 
-                // option.store();
-                option.output.push('');
-                //option.formatterBuffer.bufferSegments.unshift(_buffer);
-                //_buffer='';// ..output.push('');
+                // update the block definition to child block  
+                // option.appendExtaOutput(); 
+                // must add extra line
+                // patternInfo.mode = 2;
             }
         }
         _line = line.substring(option.pos);
@@ -963,12 +962,12 @@ class Formatters {
         }
         if (_old != null) {
 
-            // + | presentation and restore old buffer.
+            // + | restore buffering then update the buffer
             if ((_old.marker == _marker)) {
                 _buffer = option.buffer;
                 // - so st treat buffer 
                 if (!_old.useEntry && _marker.isBlock) {
-                    // remove entry and replace with {entry}\n\t // storage
+                    // + | remove entry and replace with {entry}\n\t // storage
                     let entry = _old.entryBuffer;
                     option.formatterBuffer.clear();
                     option.formatterBuffer.appendToBuffer('--');
@@ -977,7 +976,9 @@ class Formatters {
                     _buffer = _buffer.replace(new RegExp("^" + entry), entry + _rm);
                 }
                 option.restoreBuffer(_old);
-                option.formatterBuffer.appendToBuffer(_buffer);
+                
+                _formatting.updateEndBlockAfterRestoringBuffer(q, _marker, _buffer, _old, option);
+              
                 _buffer = '';
             }
         }
@@ -1108,6 +1109,7 @@ class Formatters {
         const _info = option.listener;
         const { marker } = _old;
         const { debug } = option;
+        const _formatting  = this.formatting;
         debug && Debug.log("--::update oldmarker::--");
         if (startLine) {
             if (marker.preserveLineFeed) {
@@ -1144,8 +1146,7 @@ class Formatters {
                         _lf = '';
 
                     } else {
-                        _sbuffer = option.buffer;
-                        option.flush(true);
+                        _sbuffer = _formatting.handleBufferingNextToSbuffer(marker, option);
                         _old.useEntry = false;
                     }
                 }
@@ -1348,7 +1349,7 @@ class Formatters {
     appendBufferAndLine(sb, marker, option) {
         option.appendToBuffer(sb, marker);
         option.store();
-        option.output.push('');
+        option.appendExtaOutput();
     }
 }
 

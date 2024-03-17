@@ -3,6 +3,7 @@ Object.defineProperty(exports, 'enModule', { value: true });
 
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
+const { Debug } = require("./Debug");
 
 /**
  * @typedef FormatterOptions
@@ -480,6 +481,10 @@ class FormatterOptions {
         if (clear){
             this.formatterBuffer.clear();
         }
+    }
+    appendExtaOutput(){
+        this.debug && Debug.log('append extra output');
+        this.output.push('');
     }
 }
 

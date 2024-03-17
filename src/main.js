@@ -342,32 +342,32 @@ formatter.debug = false;
 // (?<=subexp) - look behind - not in global capture - not capture group
 // (?=subexp) - look ahead - not in global capture - not capture group
 // console.log(e);
-function removeCapture(str){
-    let l = str;
-    let p = 0;
-    function rm_brank(l, index, start='(', end=')'){
-        let i = 1;
-        let ln = l.length;
-        const start_index = index;
-        while((i < ln) && (i>0)){
+// function removeCapture(str){
+//     let l = str;
+//     let p = 0;
+//     function rm_brank(l, index, start='(', end=')'){
+//         let i = 1;
+//         let ln = l.length;
+//         const start_index = index;
+//         while((i < ln) && (i>0)){
 
-            ch = l[index+1];
-            if (ch==start){
-                i++;
-            } else if (ch ==end){
-                i--;
-            }
-            index++;
-        }
-        return l.substring(0, start_index)+l.substring(index+1);
-    }
-    let capture = false;
-    while( p = /\(\?(:|(\<)?=)./.exec(l)){
-        l = rm_brank(l, p.index);
-        capture= true;
-    }
-    return capture ? l : null;
-}
+//             ch = l[index+1];
+//             if (ch==start){
+//                 i++;
+//             } else if (ch ==end){
+//                 i--;
+//             }
+//             index++;
+//         }
+//         return l.substring(0, start_index)+l.substring(index+1);
+//     }
+//     let capture = false;
+//     while( p = /\(\?(:|(\<)?=)./.exec(l)){
+//         l = rm_brank(l, p.index);
+//         capture= true;
+//     }
+//     return capture ? l : null;
+// }
 // let p = removeCapture(rgx.toString()); // .replace(/\(\?(:|=|>)./g, '');
 // if (p){
 //      
@@ -435,17 +435,17 @@ let lines = [];
 //     }
 // });
 _formatter.debug = true; 
-let tests = [
-    { s: ['info'], e:'info'},
-    { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
-    { s: ['pour dire "the main : bondje test info"'], e:'pour dire "the main : BONDJE test info"'}, 
-    { s: ['par   devant'], e:'par devant'}, 
-    { s: ['par   devant'], e:'par devant'}, 
-    { s: ['<div /><div />'], e:'<div></div><div></div>'}, 
-    { s: ['<div/>    <div />     <input />'], e:'<div></div><div></div><input></input>'}, 
-    { s: ['<div/>', '<div />', '<div />'], e:'<div></div><div></div><div></div>'}, 
-    { s: ['<div id = "data"     />'], e:'<div id="data"></div>'}, 
-];
+// let tests = [
+//     { s: ['info'], e:'info'},
+//     { s: ['"string test info" pour tout le   monde'], e:'"string test info" pour tout le monde'}, 
+//     { s: ['pour dire "the main : bondje test info"'], e:'pour dire "the main : BONDJE test info"'}, 
+//     { s: ['par   devant'], e:'par devant'}, 
+//     { s: ['par   devant'], e:'par devant'}, 
+//     { s: ['<div /><div />'], e:'<div></div><div></div>'}, 
+//     { s: ['<div/>    <div />     <input />'], e:'<div></div><div></div><input></input>'}, 
+//     { s: ['<div/>', '<div />', '<div />'], e:'<div></div><div></div><div></div>'}, 
+//     { s: ['<div id = "data"     />'], e:'<div id="data"></div>'}, 
+// ];
 
 
 
@@ -475,6 +475,11 @@ function runTest(tests, _formatter){
     let testCount = 0;
 
     tests.forEach(o=>{
+        if (o.name){
+            console.log('run test ... '+o.name);
+        } else {
+            return;
+        }
         let s = _formatter.format(
             o.s
             );

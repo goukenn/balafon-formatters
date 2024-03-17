@@ -4,6 +4,9 @@ Object.defineProperty(exports, '__esModule', { value: true });
 exports.FormattingBase = void (0);
 
 const CODE_STYLE_FORMATTERS = {};
+/**
+ * operation to manipulate the formatter buffer on condition.
+ */
 class FormattingBase {
 
     handleEndFound(formatter, marker, option, _buffer, _b) {
@@ -60,7 +63,7 @@ class FormattingBase {
      */
     handleEndOnNonBlockElement(formatter, marker_info, option) {
         // + | append with line feed if requested
-        const { parent, mode } = marker_info;
+        const { parent, mode, isBlock } = marker_info;
         if (parent) {
             if (marker_info.lineFeed) {
                 parent.mode = FM_START_LINE;
@@ -73,30 +76,68 @@ class FormattingBase {
     }
 
     /**
+     * operation to handle end block after restoring buffer
+     * @param {Formatters} formatter 
+     * @param {*} marker_info parent marker info 
+     * @param {*} _buffer 
+     * @param {FormatterOptions} option 
+     */
+    updateEndBlockAfterRestoringBuffer(formatter, marker_info, _buffer, _old, option) {
+        const { parent } = marker_info;
+        if (parent) { 
+            const { mode, childs, isAutoBlockElement } = parent;
+            if (isAutoBlockElement) {
+                if (childs.length > 1) {
+                    if (mode == FM_START_LINE) {
+
+                        option.saveBuffer();
+                        let _frm = option.formatterBuffer;
+                        _frm.output.push('');
+                        _frm.appendToBuffer(_buffer);
+                        option.store();
+                        _buffer = option.flush(true);
+                        option.restoreSavedBuffer();
+                        //marker_info.mode = FM_APPEND; 
+                    }
+                }
+            }
+        }
+        option.formatterBuffer.appendToBuffer(_buffer);
+    }
+
+    /**
      * element is block by auto child setup
      * @param {} formatter 
      * @param {*} marker_info 
      * @param {*} option 
      */
-    handleEndFormattingOnNonStartBlockElement(formatter, marker_info, option){
+    handleEndFormattingOnNonStartBlockElement(formatter, marker_info, option) {
         const { mode } = marker_info;
         // update buffer 
-        switch(mode){
+        switch (mode) {
             case FM_START_LINE:
                 // append line 
                 let _buffer = option.buffer;
-                option.output.push('');
+                option.appendExtaOutput();
                 let _sbuffer = option.flush(true);
                 if (_buffer.length > 0) {
                     option.output.push(_buffer); // append line 
                 }
                 option.formatterBuffer.appendToBuffer(_sbuffer);
+                marker_info.mode = FM_APPEND;
                 break;
         }
-
+    }
+    handleBufferingNextToSbuffer(marker, option) {
+        const { mode } = marker;
+        let _sbuffer = option.buffer;
+        // clear buffer 
+        _sbuffer += option.flush(true);
+        return _sbuffer;
     }
 }
 
+//+ |  on end append technique
 
 
 
@@ -106,6 +147,9 @@ exports.FormattingBase = FormattingBase
  */
 const { KAndRFormatting } = require('./KAndRFormatting');
 const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND } = require('./FormattingMode');
+const { FormatterOptions } = require('../FormatterOptions');
+const { Formatters } = require('../Formatters');
+const { FormatterBuffer } = require('../FormatterBuffer');
 
 
 const Library = {

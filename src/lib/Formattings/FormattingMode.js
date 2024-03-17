@@ -23,7 +23,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
         switch (_mode) {
             case 0:
                 option.store();
-                option.output.push('');
+                option.appendExtaOutput();
                 _sbuffer = option.flush(true);
                 _mode = 2;
                 break;
@@ -48,14 +48,14 @@ exports.HandleFormatting = function(_marker, option, _old) {
             case 3: // append-flush-next
                 _sbuffer = option.buffer;
                 option.output.push(_sbuffer);
-                option.output.push('');
+                option.appendExtaOutput();
                 _sbuffer = option.flush(true); 
                 _mode = 2;
                 break;
             case 4:
                 // store what is on the buffer append nuew file
                 option.store();
-                option.output.push('');
+                option.appendExtaOutput();
                 _sbuffer = option.flush(true);
                 _mode = 2;
 
@@ -73,7 +73,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 break;
             case FM_START_LINE_AND_APPEND:
                 option.store();
-                option.output.push('');
+                option.appendExtaOutput();
                 _sbuffer = option.flush(true);
                 if (_sbuffer.length > 0) {
                     _mode = FM_START_LINE;
@@ -86,9 +86,9 @@ exports.HandleFormatting = function(_marker, option, _old) {
 };
 
 /**
- * 
- * @param {*} data 
- * @param {*} mode 
+ * use to update the current buffer depending on the formatting mode
+ * @param {string} data 
+ * @param {number} mode 
  * @param {*} _marker 
  * @param {*} option 
  */
@@ -99,15 +99,19 @@ function updateBuffer(data, mode, _marker, option){
             let _buffer = option.buffer;
             if (_buffer.length > 0) {
                 option.output.push(_buffer); // append line 
+                option.formatterBuffer.clear();
             }
-            option.appendToBuffer(data, _marker);  
+            option.appendToBuffer(data, _marker);
+            option.store();
+            option.formatterBuffer.appendToBuffer(option.flush(true));
+
+            _marker.mode = FM_APPEND;
             break;
         case FM_APPEND:
             option.appendToBuffer(data, _marker);
         break;
         default:
-            throw new Error('update Buffer not handled : '+mode);
-            break;
+            throw new Error('update Buffer not handled : '+mode); 
     }
 };
 exports.updateBuffer = updateBuffer;
