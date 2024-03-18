@@ -223,7 +223,7 @@ class FormatterOptions {
                 _shiftMarkerInfo(_marker.marker, tokenChains);
 
                 _marker.name && tokenChains.unshift(_marker.name);
-                _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID, engine, debug);
+                _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID, engine, debug, _marker);
             }
             this.formatterBuffer.appendToBuffer(_buffer);
             _marker.value = { source: value, value: _buffer };
@@ -315,7 +315,7 @@ class FormatterOptions {
                     // treat buffer marker 
                     const op = [];
                     value = _formatter._treatMarkerValue(cap, value, op);
-                    value = listener.renderToken(value, tokens, tokenID, engine, debug);
+                    value = listener.renderToken(value, tokens, tokenID, engine, debug, cap);
                 }
                 return value;
 
@@ -412,8 +412,8 @@ class FormatterOptions {
                 const { listener } = this;
                 if (listener) {
                     const _ctx = this;
-                    const { buffer, output, depth } = _ctx;
-                    listener.store.apply(null, [{ buffer, output, depth, tabStop, _ctx, startBlock }]);
+                    const { buffer, output, depth, formatterBuffer } = _ctx;
+                    listener.store.apply(null, [{ buffer, output, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
                 }
                 _formatterBuffer.clear();
             }

@@ -4,7 +4,9 @@ const { FormattingBase } = require('./lib/Formattings/FormattingBase');
 const { RegexUtils } = require('./lib/RegexUtils');
 
 
-
+// const m = require('./formatter');
+// console.log('m is ', m);
+// return m;
  
 // console.log(FormattingBase, FormattingBase.Factory('KAndR'));
 
@@ -13,134 +15,8 @@ const { RegexUtils } = require('./lib/RegexUtils');
 
 // return;
 const json_data = require("../data/html.btm-format.json");
-const _formatter = Formatters.CreateFrom({
-
-    scopeName: 'scope.litteralString',
-    settings: {
-        "instructionSeparator": ";"
-    },
-    patterns: [
-        {
-            include: "#reserved-words"
-        },
-        {
-            include: "#trim-multispace"
-        },
-        {
-            include: "#string"
-        },
-        {
-            include: "#branket-function-condition"
-        },
-        {
-            "include": "#end-instruction"
-        },
-        {
-            include: "#block-branket"
-        },
-        {
-            include: "#multi-line-comment"
-        },
-        {
-            include: "#single-line-comment"
-        }
-    ],
-    repository: {
-        "reserved-words": {
-            "match": /\b(if|else|return|false|true)\b/,
-            "name": "reserverd-word",
-        },
-        "block-branket": {
-            "begin": "\\{",
-            "end": "\\}",
-            "name": "block",
-            "isBlock": true,
-            patterns: [
-                {
-                    include: "#reserved-words"
-                },
-                { include: "#end-instruction" },
-                {
-                    include: "#string"
-                },
-                {
-                    include: "#trim-multispace"
-                },
-                {
-                    include: "#block-branket"
-                },
-                {
-                    include: "#branket-function-condition"
-                },
-                {
-                    include: "#multi-line-comment"
-                },
-                {
-                    include: "#single-line-comment"
-                }
-            ]
-        },
-        "trim-multispace-": {
-            "match": "\\s+",
-            "name": "multi-line-space",
-            "replaceWith": " "
-        },
-        "end-instruction": {
-            "match": "(;)",
-            "name": "operator.end.instruction",
-            "lineFeed": true,
-            "isInstructionSeparator": true
-        },
-        string: {
-            "begin": "(\"|')",
-            "end": "$1",
-            "name": "constant.string.litteral",
-            "tokenID": "string",
-            "captures": {
-                "0": {
-                    "name": "sting.marker.html",
-                    "tokenID": "stringMarker"
-                }
-            },
-            patterns: [{
-                "match": "\\\\.",
-                name: "escaped.string"
-            }]
-        },
-        "branket-function-condition": {
-            begin: "\\s*\\(\\s*",
-            end: "\\s*\\)\\s*",
-            name: "branket.function",
-            transform: "trim",
-            beginCaptures: {
-                "0": {
-                    transform: "trim"
-                }
-            },
-            endCaptures: {
-                "0": {
-                    transform: "trim"
-                }
-            }
-        },
-        "multi-line-comment": {
-            begin: "\\/\\*",
-            end: "\\*/",
-            name: "constant.comment.multiline",
-            tokenID: "comment",
-            formattingMode: 1
-        },
-        "single-line-comment": {
-            begin: "\\/\\/",
-            end: /$/,
-            name: "constant.comment.single-line",
-            tokenID: "comment",
-            formattingMode: 1
-        }
-    },
-    engine: "html-listener"
-
-});
+const _bjs_data = require("./formatters/js.btm-syntaxes.json");
+const _formatter = Formatters.CreateFrom(_bjs_data);
 let lines = [
     // "var s = \"bonjour \\\"tout le monde\";",
     // "var x = 10;"
@@ -153,17 +29,20 @@ let lines = [
     // "if ( true )",
      // "{ { { return }" // missing 2
      // "{ { { return " // missing 3
-     "{{if (true){ return 8;", // for multi line
-     " // presentation",
-     "var x + '32 -    50';}}" // missing 1 // error
+    //  "if ( true ) { ",
+    //  "return    \"ok data\";}",
+     "{{if (true){ return 8; // presentation", // for multi line
+     //" // presentation",
+     "var x + '32 -    50'; m = 32;}}}" // missing 1 // error
     //"tour d'ivoire"
 ];
-_formatter.listener = null;
+_formatter.listener =  
 () => (function () {
     let node = null;
 
     return {
         renderToken(v, tokens, tokenID, engine) {
+            console.log("render tokens", {tokens, tokenID, value:v});
             let lt = tokens.shift();
             let n = null;
             // if (tokenID){
@@ -183,7 +62,7 @@ _formatter.listener = null;
             return v;
         },
         store({ output, buffer, depth, tabStop, startBlock }) {
-            //console.log("store : ", buffer, output);
+
             if (buffer.trim().length <= 0) {
                 return;
             }

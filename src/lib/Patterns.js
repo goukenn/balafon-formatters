@@ -149,16 +149,16 @@ class Patterns{
     json_parse(parser, fieldname, data, refKey, refObj){ 
         const { Patterns, RefPatterns, CaptureInfo } = Utils.Classes;
         const q = this;
-        const patterns = Utils.ArrayParser(Patterns, RefPatterns);
+        const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const transform = Utils.TransformPropertyCallback();
         const _regex_parser = (s)=>{
             return Utils.RegexParse(s, 'd'); 
         };
         const _capture_parser = (s, parser)=>{
-
+            const _info_class = parser.captureInfoClassName  || CaptureInfo;
             let d = {}; 
             for(let i in s){
-                let m = new CaptureInfo(q); 
+                let m = new _info_class(q); 
                 JSonParser._LoadData(parser, m, s[i]);  
                 d[i] = m; 
                 parser.initialize(m);  
@@ -244,16 +244,23 @@ class Patterns{
         }
         return false;
     }
-    check(l){
+    check(l, option, parentMatcherInfo){
         let p = null;
         if (this.begin){
             p = this.begin.exec(l);
         } else if (this.match){
             p = this.match.exec(l);
         } else {
+            if (this.patterns){
+                const cp = Utils.GetMatchInfo(this.patterns, l, option, parentMatcherInfo); //  Utils.GetPatternMatcher(this.patterns, option, parentMatcherInfo);
+                if (cp){
+                    return {p: cp._match, s:cp._a};
+                }
+                return false;
+            }
             throw new Error("cannot check : "+l);
         }
-        return p;
+        return {p,s:this};
     }
     
     get matchRegex(){
