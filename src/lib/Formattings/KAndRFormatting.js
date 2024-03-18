@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { FormatterOptions } = require('../FormatterOptions');
 const { PatternMatchInfo } = require('../PatternMatchInfo');
 const { FormattingBase } = require('./FormattingBase')
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND, FM_END_INSTUCTION } = require('./FormattingMode');
 
 
 const ALLOW_WHITE_SPACE = [FM_APPEND, FM_START_LINE];

@@ -46,8 +46,7 @@ class CaptureInfo{
     json_parse(parser, fieldname, data, refKey, refObj){
         const q = this;
         const { Patterns, RefPatterns } = Utils.Classes;
-
-        const patterns = Utils.ArrayParser(Patterns, RefPatterns);
+        const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const transform = Utils.TransformPropertyCallback();
         const _regex_parser = (s)=>{
             return Utils.RegexParse(s, 'd'); 

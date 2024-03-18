@@ -30,8 +30,8 @@ class RefPatterns extends Patterns {
  
         Object.defineProperty(this, 'pattern', { get(){return pattern; }}); 
     }
-    check(l){
-        return this.pattern.check(l);
+    check(l, option, parentMatcherInfo){
+        return this.pattern.check(l, option, parentMatcherInfo);
     } 
     toString(){
         return `RefPatterns[#${this.pattern.name}]`;

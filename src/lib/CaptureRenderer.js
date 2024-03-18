@@ -10,7 +10,7 @@ class CaptureRenderer{
     /**
      * null or capture renderer
      * @param {*} matches 
-     * @param {*} token 
+     * @param {string} token base token name
      * @returns {null|CaptureRenderer}
      */
     static CreateFromGroup(matches, token='constant'){
@@ -186,13 +186,13 @@ class CaptureRenderer{
                         rf = _out;
                     }
                     if (listener){
-                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug); 
+                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, null); 
                     }
                     if (q.parent){
                         // update parent value.
                         let s = -q.parent.root.start + q.root.start;
                         let e = -q.root.start+ q.root.end;
-                        let v =  q.parent.root.value;
+                        // let v =  q.parent.root.value;
                          
                         q.parent.output.push({range:[s,e], rf}); 
                     }

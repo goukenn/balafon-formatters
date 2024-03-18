@@ -23,9 +23,9 @@ const { RegexUtils } = require("./RegexUtils");
 // + | --------------------------------------------------------
 Utils.Classes = {
     RefPatterns,
-    Patterns,
+    Patterns, // replacement 
     PatternMatchInfo,
-    CaptureInfo,
+    CaptureInfo, // replacement
     CaptureRenderer,
     FormatterBuffer,
     FormatterOptions,
@@ -143,7 +143,8 @@ class Formatters {
      * @returns 
      */
     json_parse(parser, fieldname, data, refKey) {
-        const patterns = Utils.ArrayParser(Patterns, RefPatterns);
+        const _pattern_class = parser.patternClassName || Patterns;
+        const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const parse = {
             patterns,
             repository(d, parser) {
@@ -151,7 +152,7 @@ class Formatters {
                 let _o = null;
                 const { registry } = parser;
                 for (let i in d) {
-                    _o = new Patterns();
+                    _o = new _pattern_class();
                     JSonParser._LoadData(parser, _o, d[i], i, _o);
                     parser.initialize(_o);
                     _out[i] = _o;
@@ -184,7 +185,7 @@ class Formatters {
      * @param {*} data btn-format data 
      * @returns {Formatters}
      */
-    static CreateFrom(data) {
+    static CreateFrom(data, pattern_class_name) {
         const _names = {};
         let _registryExpression = null;
         const formatter = Utils.JSonParseData(Formatters, data, {
@@ -197,7 +198,7 @@ class Formatters {
                 if (n.length <= 0) return;
                 _names[n] = 1;
             }
-        });
+        }, pattern_class_name);
         Object.defineProperty(formatter, 'registerNames', { get() { return _names; } });
         formatter._funcRegistryExpression = function () {
             if (_registryExpression != null) {
@@ -233,6 +234,7 @@ class Formatters {
         const { listener } = this;
         let _o = null;
         if (listener) {
+            // + | invoke function listener creator
             _o = listener();
         }
         return _o || new FormatterListener();
@@ -280,8 +282,8 @@ class Formatters {
         let _formatter = this;
         // let pos = 0;
         const { debug, lineFeed } = objClass;
-        
-        if (!this.info?.isSubFormatting){
+
+        if (!this.info?.isSubFormatting) {
             objClass.blockStarted = false;
         }
 
@@ -346,7 +348,7 @@ class Formatters {
         });
 
         debug && Debug.log('...end...');
-        if ((objClass.markerInfo.length > 0) && (this.info.isSubFormatting==0)) {
+        if ((objClass.markerInfo.length > 0) && (this.info.isSubFormatting == 0)) {
             const _formatting = this.formatting;
             // missing close marker info
             debug && Debug.log('.....contains marker info .....' + objClass.markerInfo.length);
@@ -378,7 +380,7 @@ class Formatters {
         // TODO: Dynamic closing block must not being regex closing
         const { marker } = _old;
         const _group = marker.group;
-        if (_old.marker.isEndCaptureOnly){
+        if (_old.marker.isEndCaptureOnly) {
             return;
         }
         let regex = Utils.ReplaceRegexGroup(Utils.RegExToString(_old.marker.end), _group);
@@ -461,7 +463,7 @@ class Formatters {
         const handle = this._handleCallback(_marker.marker.matchType, option) ||
             ((m) => m.handleMarkerListener ? m.handleMarkerListener() : null)(_marker.marker);
         if (!handle || (typeof (handle) != "function")) {
-            throw new Error("marker type handler is not a valid callback");
+            throw new Error("marker type handler is not a valid callback."+_marker.marker.matchType);
         }
         return handle.apply(this, [_marker, option]);
     }
@@ -566,15 +568,8 @@ class Formatters {
             } else {
                 option.formatterBuffer.appendToBuffer(_cm_value);//, _marker);
             }
-            if (_old) {
-                if (b) {
-                    // instruction  
-                    if (_old.marker.mode == 2) {
-                        _old.marker.mode = 4;
-                    } else {
-                        _old.marker.mode = 3;
-                    }
-                }
+            if (_old && b) {
+                _formatting.handleEndInstruction(this, _marker, _old, option);
             }
         }
         //else {
@@ -879,7 +874,7 @@ class Formatters {
      * @private
      * @returns 
      */
-    _updateBuffer(_marker, option, {_append, _buffer}){
+    _updateBuffer(_marker, option, { _append, _buffer }) {
         const q = this;
         if (_buffer.length > 0) {
             // + | direct append to buffer
@@ -894,7 +889,7 @@ class Formatters {
             q._appendConstant(_marker, _append, option);
             _append = '';
         }
-        return { _append, _buffer};
+        return { _append, _buffer };
     }
     _handleFoundEndPattern(_buffer, _line, _marker, _p, option, _old) {
         // calculate next position 
@@ -912,12 +907,12 @@ class Formatters {
         let _b = option.treatEndCaptures(_marker, _p);
         let _close_block = false;
         const q = this;
-        const _formatting = q.formatting; 
+        const _formatting = q.formatting;
         debug && Debug.log(`--::handleFoundEndPattern2::--#${_marker.name}`);
         // + | full fill pattern buffer 
-        ({_append, _buffer} = this._updateBuffer(_marker, option, {_append,_buffer}));
+        ({ _append, _buffer } = this._updateBuffer(_marker, option, { _append, _buffer }));
         // + | update parent host - check update properties for end 
-        this._updateMarkerChild(_marker, option); 
+        this._updateMarkerChild(_marker, option);
         // + | node division 
         if (_marker.isBlock && _marker.blockStartInfo) {
             // just remove block before store 
@@ -933,12 +928,6 @@ class Formatters {
             } else {
                 _formatting.handleEndFormattingOnNonStartBlockElement(q, _marker, option);
             }
-            // option.flush(true); // output.push(_buffer)
-            // backup buffer 
-            // option.output.unshift(_buffer);
-            // option.store();
-            // _buffer = option.flush(true);
-            // option.output.push(_buffer);
             _buffer = '';
             option.depth = Math.max(--option.depth, 0);
         } else {
@@ -976,9 +965,9 @@ class Formatters {
                     _buffer = _buffer.replace(new RegExp("^" + entry), entry + _rm);
                 }
                 option.restoreBuffer(_old);
-                
+
                 _formatting.updateEndBlockAfterRestoringBuffer(q, _marker, _buffer, _old, option);
-              
+
                 _buffer = '';
             }
         }
@@ -1106,24 +1095,24 @@ class Formatters {
         let _sbuffer = '';
         let _lf = _old.startBlock == 1 ? option.lineFeed : '';
         let _buffer = _old.content;
-        const _info = option.listener;
         const { marker } = _old;
         const { debug } = option;
-        const _formatting  = this.formatting;
+        const _formatting = this.formatting;
         debug && Debug.log("--::update oldmarker::--");
         if (startLine) {
             if (marker.preserveLineFeed) {
                 _buffer += option.lineFeed;
             }
-            if ((option.output.length > 0) || _old.startBlock) {
-                _info.store();
-                _buffer = _buffer.trimEnd();
-                option.output.unshift('');
-                _sbuffer = option.flush(true);
-                _lf = '';
-                _buffer = '';
-            }
-            else if (marker.isFormattingStartBlockElement) {
+            // if ((option.output.length > 0) || _old.startBlock) {
+            //     option.store();
+            //     _buffer = _buffer.trimEnd();
+            //     option.output.unshift('');
+            //     _sbuffer = option.flush(true);
+            //     _lf = '';
+            //     _buffer = '';
+            // }
+            // else 
+            if (marker.isFormattingStartBlockElement) {
                 _sbuffer = this._operateOnFramebuffer(marker, option, _old);
                 _lf = '';
             }

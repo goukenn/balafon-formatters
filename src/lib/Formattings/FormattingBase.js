@@ -135,6 +135,15 @@ class FormattingBase {
         _sbuffer += option.flush(true);
         return _sbuffer;
     }
+    handleEndInstruction(formatter, marker, _old, option){
+         // instruction  
+         if (_old.marker.mode == 2) {
+            // + | change mode to 4 so that next line must on new line
+            _old.marker.mode = 4;
+        } else {
+            _old.marker.mode = FM_END_INSTUCTION; // append - then end instruction go to 
+        }
+    }
 }
 
 //+ |  on end append technique
@@ -146,7 +155,7 @@ exports.FormattingBase = FormattingBase
  * code style formatters
  */
 const { KAndRFormatting } = require('./KAndRFormatting');
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND, FM_END_INSTUCTION } = require('./FormattingMode');
 const { FormatterOptions } = require('../FormatterOptions');
 const { Formatters } = require('../Formatters');
 const { FormatterBuffer } = require('../FormatterBuffer');

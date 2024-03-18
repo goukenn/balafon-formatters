@@ -9,6 +9,14 @@ class JSonParser{
     registry;
     repositoryKey;
     throwOnError;
+    /**
+     * store pattern class name
+     */
+    patternClassName;
+    /**
+     * store capture info class name
+     */
+    captureInfoClassName;
 
     get current(){
         return this.m_current;

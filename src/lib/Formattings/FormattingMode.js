@@ -4,6 +4,7 @@ Object.defineProperty(exports, '__esModule', {value:true});
  
 const FM_APPEND = 1;
 const FM_START_BLOCK = 5;
+const FM_END_INSTUCTION = 3;
 const FM_END_BLOCK = 6;
 const FM_START_LINE = 2;
 const FM_START_LINE_AND_APPEND = 7;
@@ -13,6 +14,8 @@ exports.FM_START_LINE = FM_START_LINE;
 exports.FM_START_BLOCK = FM_START_BLOCK;
 exports.FM_END_BLOCK = FM_END_BLOCK; 
 exports.FM_START_LINE_AND_APPEND = FM_START_LINE_AND_APPEND; 
+exports.FM_END_INSTUCTION = FM_END_INSTUCTION; 
+
 
 exports.HandleFormatting = function(_marker, option, _old) {
         let _mode = _marker.mode;
@@ -25,9 +28,9 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 option.store();
                 option.appendExtaOutput();
                 _sbuffer = option.flush(true);
-                _mode = 2;
+                _mode = FM_START_LINE;
                 break;
-            case 2:
+            case FM_START_LINE:
                 // store then go to append
                 if (_buffer.trim().length == 0) {
                     option.formatterBuffer.clear();
@@ -36,7 +39,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
                     option.store();
                     _sbuffer = option.flush(true);
                     if (_sbuffer.length > 0) {
-                        _mode = 1;
+                        _mode = FM_APPEND;
                     }
                 }
                 break;
@@ -45,26 +48,26 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 _sbuffer = option.buffer;
                 _sbuffer = option.flush(true) + _sbuffer; // +option.buffer;
                 break;
-            case 3: // append-flush-next
+            case FM_END_INSTUCTION: // append-flush-next
                 _sbuffer = option.buffer;
                 option.output.push(_sbuffer);
                 option.appendExtaOutput();
                 _sbuffer = option.flush(true); 
-                _mode = 2;
+                _mode = FM_START_LINE;
                 break;
             case 4:
                 // store what is on the buffer append nuew file
                 option.store();
                 option.appendExtaOutput();
                 _sbuffer = option.flush(true);
-                _mode = 2;
+                _mode = FM_START_LINE;
 
                 break;
-            case 5: // start block - append line before append
+            case FM_START_BLOCK: // start block - append line before append
                 if (_buffer.length>0){ 
                     option.store(); 
                     _sbuffer = option.flush(true);
-                    _mode = 1;
+                    _mode = FM_APPEND;
                 }
                 break;
             case FM_END_BLOCK:
@@ -102,8 +105,8 @@ function updateBuffer(data, mode, _marker, option){
                 option.formatterBuffer.clear();
             }
             option.appendToBuffer(data, _marker);
-            option.store();
-            option.formatterBuffer.appendToBuffer(option.flush(true));
+            //option.store();
+            //option.formatterBuffer.appendToBuffer(option.flush(true));
 
             _marker.mode = FM_APPEND;
             break;

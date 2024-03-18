@@ -7,130 +7,169 @@
         <!-- <script src="./dist/bformatter.js"></script> -->
 
         <script type="module" language="javascript">
+            "use strict;";
         // use as global object . configured with webpack module
         import * as lib from './dist/bformatter/1.0.1/bformatter.mjs'; 
+        const syntax = await fetch('./src/formatters/js.btm-syntaxes.json').then(o=>{ 
+            return o.json();
+        });  
+        const { Patterns, CaptureInfo } = lib;
+        class ExtraPattern extends Patterns{
+            className;
+        }
+        class ExtraCapture extends CaptureInfo{
+            className
+            constructor(q){
+                super(q); 
+            }
+        }
+        const classDefinition = {
+            'comment':'comment',
+            'reserved-word':'rs-w',
+        };
+        function getClass(tokenID){
+            if (tokenID in classDefinition){
+                return classDefinition[tokenID];
+            }
+            return tokenID.toLowerCase();
+        }
+        
+        ///const syntax = lib.GetFormatterSyntaxe('js.btm-syntaxes.json');//dist/bformatter/1.0.1/bformatter.mjs'; 
         (function(lib, t){ 
         const { Formatters } = lib; 
-        const _formatter = Formatters.CreateFrom({
-            scopeName:'scope.litteralString',
-            patterns:[
-                {
-                    include:"#string",
-                },{
-                    include:"#reserved-word"
-                
-                },{
-                    include:"#import-word"
-                },
-                {
-                    include:"#end-instruction"
-                },
-                {
-                    include:"#constant-value"
-                },
-                {
-                    "begin":"\\{",
-                    "end":"\\}",
-                    "name":"block",
-                    "isBlock":true, 
-                    patterns:[
-                        {include:"#end-instruction"},
-                        {
-                            include:"#string"
-                        }
-                    ]
-                },
-            ],
-            repository:{
-                string:{
-                    "begin":"\"",
-                    "end":"\"",
-                    "name":"constant.string.litteral",
-                    "tokenID":"string"
-                },
-                "reserved-word":{
-                    "match":"\\b(var|else|true|false|let|const|if|while|do|return|exec|finally|catch|in|for)\\b",
-                    "end":"\"",
-                    "name":"constant.litteral",
-                    "tokenID":"reserved-word"
-                },
-                "constant-value":{
-                    "match":"\\b(true|false|pi)\\b",
-                    "end":"\"",
-                    "name":"constant.litteral",
-                    "tokenID":"reserved-word"
-                },
-                "import-word":{
-                    "match":"\\b(import|as|from)\\b",
-                    "name":"constant.litteral",
-                    "tokenID":"yield-word"
-                },
-                "end-instruction-":{
-                    "match":"(;)",
-                    "name":"operator.end.instrution",
-                    "lineFeed":true
-                }
-            },
-            engine:"html-listener"
+        const _litteral_syntax = syntax; 
+        const _formatter = Formatters.CreateFrom(syntax, {
+            patternClassName: ExtraPattern,
+            captureInfoClassName: ExtraCapture
         }); 
-        _formatter.debug = true;
-        _formatter.listener = null;
-         ()=>( function(){
-            let node = null;
+        let _listener_data = null;
+        let _maxLineCount = 0;
+        _formatter.debug = false;
+        _formatter.listener = 
+         function(){
             let blocks = [];
-            return {
-            renderToken(v, tokens, tokenID, engine){
+            let sbuffer = false;
+            let _lineCount = 0;
+            _listener_data = { 
+            renderToken(v, tokens, tokenID, engine, debug, marker){
+                // console.log("marker", marker);
+                // console.log('renderToken', {value:v, tokenID, tokens: tokens.slice(0)})
                 let lt = tokens.shift();
-                let n = null;
+                let n = null; 
                 if (tokenID){
-                    switch(tokenID){
-                        case 'string':
-                            n = document.createElement('span');
-                            n.style = 'color:red;';
-                            n.innerHTML = v;
-                            return n.outerHTML;
-                        case 'reserved-word':
-                            n = document.createElement('span');
-                            n.style = 'color:skyblue;';
-                            n.innerHTML = v;
-                            return n.outerHTML;
+                    n = document.createElement('span');
+                    n.className = getClass(tokenID);
+                    n.innerHTML = v; 
+                    if (marker?.className){
+                        n.classList.add(marker.className); 
                     }
+                    return n.outerHTML;
+                } 
+                if (/^symbol\./.test(lt)){
+                        v = v.replace("<", "&lt;").replace(">","&gt;");
+                        return '<span class="s symbol">'+v+'</span>';
                 } 
                 return v;
             },
-            store({output, buffer}){
-                // console.log("store : ", buffer, output);
-                
-                let d = document.createElement('div');
-                d.innerHTML = buffer;
-                output.push(d.outerHTML);
+            store({output, buffer, depth, tabStop, formatterBuffer}){
+                // console.error("store : ", buffer);
+                // if (formatterBuffer.id == '_global_'){
+                // if (_lineCount==0){
+                //     buffer = '---<div class="line l-'+_lineCount+'">'+buffer;
+                // }    
+                    if (depth>0){
+                        buffer = '</div><div class="line"><span>'+("&nbsp;".repeat(4)).repeat(depth)+'</span>'+buffer;
+                        sbuffer = true;
+                    } else {
+                        buffer = (sbuffer?'</div>':'')+'<div class="line">'+buffer;
+                        sbuffer = false;
+                    }
+                   // }
+                    
+                    output.push(buffer);
+                // if (node==null){
+                // let d = document.createElement('div');
+                // d.innerHTML = buffer;
+                // output.push(d.outerHTML);
+                // node = d;
+                // }else{
+                //     let d = document.createElement('span');
+                //     d.innerHTML = buffer;
+                //     node.append(d);
+                // }
+                _maxLineCount++;
             },
             appendLine(lineFeed, bufferOutput, { store }){
-                // bufferOutput.appendToBuffer("<br />");
-                store();
-            },
-            startNewBlock(){
-                //console.log(arguments);
-                node = document.createElement('n');
-                node.className = 'block - ';
+                //bufferOutput.appendToBuffer("<br />");
 
-                return;
+            },
+            startNewBlock(a){
+                // console.log("-------------:::::-------------", a);
+                // let _n = document.createElement('div');
+                // _n.className = 'block - '; 
+                // if (node){
+                //     node.appendChild(_n);
+                // }
+                // node = _n;
+                // return;
             }  
         }
-        })();
+        return _listener_data;    
+    };
         // console.log(_formatter.listener);
         let data = _formatter.format([
             // "var info = \"du jour\";",
-            'if (true) { return "ok data";}', 
+            'if (true) { ',
+            '// comment zone',
+            'var x = 109;',
+            'var y = 229;',
+            'var z = 9;',
+            'var tt = 9;',
+            'var tt = 9;',
+            'let _tt = 9.0;',
+            'const tt = .9;',
+            'const _ref_fc = function(){ return 8; }',
+            'return "ok data";}', 
             //" else return x; "
         ]);
-        t.innerHTML = data;
-        console.log("data:", data);
+        data = data+"</div>";
+        t.innerHTML = data;//_listener_data.node.outerHTML;
+        
+        let _lineCount = 0;
+        let _maxLine = (_maxLineCount+'').length;
+        let _style = 'display:inline-block; text-align:right; margin-right:4px; min-width: '+_maxLine+'em;';
+        t.querySelectorAll('div.line').forEach(i=>{
+            let n = document.createElement('div');
+            n.innerHTML = _lineCount+1;
+            n.style = _style;//'display:inline-block; min-width: 3em';
+            i.insertBefore(n, i.firstChild);
+            _lineCount++;
+        });
+        // console.log("data:");
+        // console.log(data); 
     })(lib, document.getElementById('content'));
     </script>
+    <style>
+        .code-js span.string{
+            color: red;
+        }
+        .code-js span.comment{
+            color: #12b048;
+        }
+        .code-js span.comment{
+            font-style: italic;
+            color: #12b048;
+        }
+        .code-js span.rs-w{
+            color: #1281b0;
+        }
+        .code-js span.number{
+            color: #ee9c0f;
+        }
+    </style>
     </head>
     <body>
         <h1>Test formatter online</h1>
-        <code id="content"></code>
+        <code id="content" class="code-js"></code>
     </body>
 </html>

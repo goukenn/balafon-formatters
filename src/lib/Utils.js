@@ -5,6 +5,16 @@ const { PatternMatchInfo } = require("./PatternMatchInfo");
 
 class Utils {
     /**
+     * define properties
+     * @param {*} target 
+     * @param {*} def 
+     */
+    static DefineProperties(target, def){
+        for(let i in def){
+            target[i]=def[i];
+        }
+    }
+    /**
     * define and inject property 
     * @param {string} n namespace
     * @param {undefined|*} v 
@@ -76,18 +86,33 @@ class Utils {
         })(n.split('.'), v, window);
     }
 
+    static ArrayPatternsFromParser(parser, Patterns, RefPatterns){
+
+        const _pattern_class = parser.patternClassName || Patterns;
+        return Utils.ArrayParser(_pattern_class, RefPatterns);
+    }
     /**
      * 
      * @param {*} class_name 
      * @param {*} data 
      * @param {*} registry 
+     * @param {null|undefined|{patternClassName: undefined|class, captureInfoClassName:undefined|class}} registry 
      * @returns 
      */
-    static JSonParseData(class_name, data, registry) {
+    static JSonParseData(class_name, data, registry, pattern_class_name) {
         let parser = new JSonParser;
         parser.source = class_name;
         parser.data = data;
         parser.includes = {};
+        if (typeof(pattern_class_name)=='object')
+        {
+            const { patternClassName, captureInfoClassName } = pattern_class_name;
+            parser.patternClassName = patternClassName;
+            parser.captureInfoClassName = captureInfoClassName;
+        }else{
+
+            parser.patternClassName = pattern_class_name;
+        }
         if (registry) {
             parser.registry = registry;
         }
@@ -153,28 +178,43 @@ class Utils {
         }
     }
 
-    static GetPatternMatcher(patterns, options, parentMatcherInfo = null) {
-        const { line, pos, debug, depth } = options;
+    static GetMatchInfo(patterns, l, options, parentMatcherInfo){
         let _a = null;
         let _match = 0;
         let _index = -1;
-        let l = line.substring(pos);
-        const { RefPatterns } = require('./RefPatterns');
-
         patterns.forEach((s) => {
             let _ts = s;
-            // if (s instanceof RefPatterns) {
-            //     _ts = s.pattern;
-            // }
-
-            let p = _ts.check(l);
+            let p = null;
+            let _d = _ts.check(l, options, parentMatcherInfo);
+            if (_d){
+                ({p,s} = _d);
+            }
             if (p && ((_index == -1) || (_index > p.index))) {
                 _index = p.index;
                 _a = s;
                 _match = p;
             }
         });
+        return {_a, _match};
+    }
+    /**
+     * 
+     * @param {*} patterns 
+     * @param {*} options 
+     * @param {*} parentMatcherInfo 
+     * @returns 
+     */
+    static GetPatternMatcher(patterns, options, parentMatcherInfo = null) {
+        const { line, pos, debug, depth } = options;
+        let _a = null;
+        let _match = 0;
+        let _index = -1;
+        let l = line.substring(pos);
+        const { RefPatterns } = Utils.Classes; 
+        ({_a, _match} = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+
         if (_a) {
+            // console.log(_match);
             _match.index += pos;
             //_a.startMatch(line, _match);
             if (debug) {

@@ -66,13 +66,14 @@ class FormatterListener {
      * @param {null|string} tokenID 
      * @param {null|FormatterEngine} engine 
      * @param {?bool} debug 
+     * @param {*} marker parent marker  
      * @returns {string}
      */
-    renderToken(value, tokens, tokenID, engine, debug){
+    renderToken(value, tokens, tokenID, engine, debug, marker){
 
         debug && Debug.log("render token", 0, {tokens,tokenID, value});
         if (engine){
-            return engine.renderToken(value, tokens, tokenID);
+            return engine.renderToken(value, tokens, tokenID, marker);
         }
         // let _t = tokens.shift();
         // if (_t=='tagname.html'){

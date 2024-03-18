@@ -57,12 +57,9 @@ protocol ReplaceWithProtocol{
 
 ## RELEASES
 
+- 1.0.1
+- 1.0.0
 
-- 1.0
-
-
-lineFeed
-marker is not a line feed directive or buffer is not empty
 
 
 
