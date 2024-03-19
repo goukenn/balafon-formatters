@@ -267,7 +267,7 @@
                                 "1":{"name":"symbol.end.tag.html"},
                                 "2":{"name":"tagname.html"},
                                 "4":{"name":"symbol.end.tag.html"},
-                                "3":{"name":"ignore.end.tag", "transform":"trim", "replaceWith":"_E_"}
+                                "3":{"name":"ignore.end.tag", "transform":"trim"}
                             }
                         }
                     ]

@@ -434,7 +434,7 @@ let lines = [];
 //         console.log("ask for output result .... "); 
 //     }
 // });
-_formatter.debug = false; 
+_formatter.debug = true; 
  
 
 

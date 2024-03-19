@@ -151,8 +151,9 @@ class CaptureRenderer{
                     rf = q.sub ? q.output : q.root.value;
                     tokens = tokens ? tokens.slice(0) : [];// default constant 
                     let tokenID = null;
+                    let cap = null;
                     if (id in captures){
-                        let cap = captures[id];
+                        cap = captures[id];
                         if (cap.name){
                             tokens.unshift(cap.name);
                         }

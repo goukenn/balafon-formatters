@@ -128,7 +128,7 @@
             'var tt = 9;',
             'let _tt = 9.0;',
             'const tt = .9;',
-            'const _ref_fc = function(){ return 8; }',
+            'const _ref_fc = function((a, b)=>{ return "ok"; }){ return 8; }',
             'return "ok data";}', 
             //" else return x; "
         ]);
@@ -165,6 +165,15 @@
         }
         .code-js span.number{
             color: #ee9c0f;
+        }
+        .code-js span.op{
+            color: var(--btm-operator-cl, lime);
+        }
+        .code-js{
+            --btm-operator-cl: red;
+        }
+        :root{
+            --btm-operator-cl: orangered;
         }
     </style>
     </head>
