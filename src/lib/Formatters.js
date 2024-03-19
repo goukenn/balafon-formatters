@@ -1418,7 +1418,7 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
             m_stream.appendToBuffer(v);
         }
         this.clear = function () {
-            m_stream = '';
+            m_stream.clear();
         }
         Object.defineProperty(this, 'buffer', { get() { return m_stream.buffer; } });
         Object.defineProperty(this, 'from', {
@@ -1471,7 +1471,6 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                     return _old.marker;
                 }
             });
-
             return r;
         };
     }
