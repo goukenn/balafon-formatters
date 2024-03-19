@@ -1,11 +1,11 @@
 # balafon generic formatters
 
-
 match : string or regex data - if string will be converted to regex with i case
 
 ## usage
 
 - create a formatter with a json settings
+- inspired from [marcomates.com](https://macromates.com/manual/en/language_grammars)
 
 ```js
 const { Formatters } = require('./src/lib/Formatters')
@@ -29,11 +29,14 @@ settings
 - "noSpaceJoin":true  
 - block condition expression support
 
-- tranform selection on endCaptures - parent matching groups
-
--- = with the value
--- # end with
--- ^ start with
+- `tranform` selection by invoking some string functio
+    - padding with symbol
+        - = with the value
+        - # end with
+        - ^ start with
+    - replace with expression argument is $0 will be the place holder
+        - "[ $0 ]"
+- `replaceWith`replace the cibling with expression that depend on begin/end matcher
 
 ```jsonc
 {

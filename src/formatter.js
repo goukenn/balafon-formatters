@@ -6,4 +6,4 @@ exports.Formatters = Formatters;
 exports.Patterns = Patterns; 
 exports.CaptureInfo = Utils.Classes.CaptureInfo; 
 exports.Utils = Utils; 
-exports.Version = '1.0.0';
+exports.Version = process.env.VERSION || '1.0.0'; 
