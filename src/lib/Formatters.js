@@ -765,7 +765,7 @@ class Formatters {
                 }
 
                 // no end - found 
-                _continue_with_marker = false;
+                // _continue_with_marker = false;
                 // update cursor - start new marker and update - 
                 this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
                 this._appendConstant(patternInfo, _line, option);
