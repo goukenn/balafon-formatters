@@ -1,7 +1,18 @@
 "use strict";
-const { Formatters } = require('./lib/Formatters');
+const { Formatters, Utils } = require('./lib/Formatters');
 const { FormattingBase } = require('./lib/Formattings/FormattingBase');
 const { RegexUtils } = require('./lib/RegexUtils');
+
+// let v = "var = ";
+// let s = '[ \$0 - [information] ]';
+// let _p = null;
+
+// if (_p = /^\[(?<expression>.+)\]$/.exec(s)){
+//    let c = Utils.GetRegexFrom(_p.groups['expression'], [v]);
+//    v =  v.replace(v, c.toString().slice(1,-1));
+// }
+// console.log(v);
+// return;
 
 
 // const m = require('./formatter');
@@ -31,10 +42,11 @@ let lines = [
      // "{ { { return " // missing 3
     //  "if ( true ) { ",
     //  "return    \"ok data\";}",
-     "{{if (true){ return 8; // presentation", // for multi line
+    "{{if (true){ return 8; // presentation", // for multi line
      //" // presentation",
-     "var x + '32 -    50'; m = 32;}}}" // missing 1 // error
-    //"tour d'ivoire"
+    "var x + '32 -    50'; m = 32;}}}" // missing 1 // error
+    //"tour d'ivoire",
+    // "=>'information'"
 ];
 _formatter.listener =  
 () => (function () {

@@ -31,7 +31,7 @@ settings
 
 - tranform selection on endCaptures - parent matching groups
 
--- =
+-- = with the value
 -- # end with
 -- ^ start with
 

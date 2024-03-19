@@ -561,6 +561,14 @@ class Formatters {
                 if (_marker.captures) {
                     _cm_value = option.treatBeginCaptures(_marker);
                 }
+
+                if (_marker.patterns?.length>0){
+                    const lp = Utils.GetPatternMatcherInfoFromLine(_cm_value, _marker.patterns, option, _marker );
+                    if (lp){
+                        _cm_value = this._treatMarkerValue(lp, _cm_value, _op, option);
+                    }
+                }
+
             }
 
             if (_op.indexOf('replaceWith') == -1) {
@@ -728,7 +736,7 @@ class Formatters {
         }
         _line = line.substring(option.pos);
 
-        let _continue_with_marker = false;
+        // let _continue_with_marker = false;
         const { _p, _matcher } = this.detectPatternInfo(_line, patternInfo, option);
         const _formatting = this.formatting;
 
@@ -808,16 +816,16 @@ class Formatters {
             return this._handleFoundEndPattern(_buffer, _line, patternInfo, _p, option, _old);
             // throw new Error("Detected after not handle");
         }
-        if (_continue_with_marker) {
-            this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
-            return patternInfo;
-        }
+        // if (_continue_with_marker) {
+        //     this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
+        //     return patternInfo;
+        // }
 
-        // + | default append 
-        listener.append(group[0], patternInfo);
-        // + | move forward
-        option.moveTo(_next_position);
-        return null;
+        // // + | default append 
+        // listener.append(group[0], patternInfo);
+        // // + | move forward
+        // option.moveTo(_next_position);
+        // return null;
     }
     /**
      * detect logical pattern info
@@ -958,11 +966,17 @@ class Formatters {
                 if (!_old.useEntry && _marker.isBlock) {
                     // + | remove entry and replace with {entry}\n\t // storage
                     let entry = _old.entryBuffer;
-                    option.formatterBuffer.clear();
-                    option.formatterBuffer.appendToBuffer('--');
-                    option.store(true);
-                    let _rm = option.flush(true).replace('--', '');
-                    _buffer = _buffer.replace(new RegExp("^" + entry), entry + _rm);
+                    // let tbuffer = option.buffer;
+                    // option.formatterBuffer.clear(); 
+                    option.store(false);
+                    // option.formatterBuffer.output.push('-');
+                    let _rm = option.flush(true);
+                    _buffer = _rm.trimStart().replace(new RegExp("^" + entry), '');//entry + _rm);
+                    option.formatterBuffer.appendToBuffer(_buffer);
+                    option.formatterBuffer.output.push(entry);
+                    option.store();
+                    _buffer = option.flush(true);  
+                    //_buffer = _buffer.replace(new RegExp("^" + entry), entry + _rm);
                 }
                 option.restoreBuffer(_old);
 

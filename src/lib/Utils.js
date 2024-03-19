@@ -9,9 +9,9 @@ class Utils {
      * @param {*} target 
      * @param {*} def 
      */
-    static DefineProperties(target, def){
-        for(let i in def){
-            target[i]=def[i];
+    static DefineProperties(target, def) {
+        for (let i in def) {
+            target[i] = def[i];
         }
     }
     /**
@@ -86,7 +86,7 @@ class Utils {
         })(n.split('.'), v, window);
     }
 
-    static ArrayPatternsFromParser(parser, Patterns, RefPatterns){
+    static ArrayPatternsFromParser(parser, Patterns, RefPatterns) {
 
         const _pattern_class = parser.patternClassName || Patterns;
         return Utils.ArrayParser(_pattern_class, RefPatterns);
@@ -104,12 +104,11 @@ class Utils {
         parser.source = class_name;
         parser.data = data;
         parser.includes = {};
-        if (typeof(pattern_class_name)=='object')
-        {
+        if (typeof (pattern_class_name) == 'object') {
             const { patternClassName, captureInfoClassName } = pattern_class_name;
             parser.patternClassName = patternClassName;
             parser.captureInfoClassName = captureInfoClassName;
-        }else{
+        } else {
 
             parser.patternClassName = pattern_class_name;
         }
@@ -147,15 +146,22 @@ class Utils {
                         //     _o = new refkey_class_name(parser.includes[_key]);
                         // }
                         // else 
-                        if (refKey && (refKey == _key) && refObj) {
-                            _o = new refkey_class_name(q);
-                        } else {
-                            _def = parser.data.repository[_key];
-                            if (_def) {
-                                _o = new class_name();
-                                parser.includes[_key] = _o;
-                                JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
-                                parser.initialize(_o);
+                        if (_key in parser.includes) {
+                            _o = new refkey_class_name(parser.includes[_key]);
+                        }
+                        else {
+
+                            if (refKey && (refKey == _key) && refObj) {
+                                _o = new refkey_class_name(q);
+                            } else {
+                                _def = parser.data.repository[_key];
+                                if (_def) {
+                                    // console.log('load : ', _key);
+                                    _o = new class_name();
+                                    parser.includes[_key] = _o;
+                                    JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
+                                    parser.initialize(_o);
+                                }
                             }
                         }
                     }
@@ -178,7 +184,7 @@ class Utils {
         }
     }
 
-    static GetMatchInfo(patterns, l, options, parentMatcherInfo){
+    static GetMatchInfo(patterns, l, options, parentMatcherInfo) {
         let _a = null;
         let _match = 0;
         let _index = -1;
@@ -186,8 +192,8 @@ class Utils {
             let _ts = s;
             let p = null;
             let _d = _ts.check(l, options, parentMatcherInfo);
-            if (_d){
-                ({p,s} = _d);
+            if (_d) {
+                ({ p, s } = _d);
             }
             if (p && ((_index == -1) || (_index > p.index))) {
                 _index = p.index;
@@ -195,7 +201,7 @@ class Utils {
                 _match = p;
             }
         });
-        return {_a, _match};
+        return { _a, _match };
     }
     /**
      * 
@@ -210,8 +216,59 @@ class Utils {
         let _match = 0;
         let _index = -1;
         let l = line.substring(pos);
-        const { RefPatterns } = Utils.Classes; 
-        ({_a, _match} = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+        const { RefPatterns } = Utils.Classes;
+        ({ _a, _match } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+
+        if (_a) {
+            // console.log(_match);
+            _match.index += pos;
+            //_a.startMatch(line, _match);
+            if (debug) {
+                console.log('matcher-begin: ', {
+                    '__name': _a.toString(),
+                    name: _a.name, line, pos:
+                        _match.index, depth,
+                    hasParent: _a.parent != null,
+                    isBlock: _a.isBlock,
+                    isRef: _a instanceof RefPatterns,
+                    value: _match[0],
+                    regex: _a.matchRegex
+                });
+            }
+            // + | add property to offset 
+            _match.offset = _match[0].length;
+            // +| treat begin captures must be at corresponding data info
+            //options.treatBeginCaptures(_a, _match); 
+            let _info = new PatternMatchInfo;
+            _info.use({
+                marker: _a, endRegex: _a.endRegex(_match),
+                line,
+                group: _match,
+                parent: parentMatcherInfo
+            });
+            // _info.startLine = options.outputBuffer.line;
+            // _info.startLine = options.outputBuffer.range;
+            // init _info matcher
+
+            return _info;
+        }
+        return _a;
+    }
+    /**
+     * 
+     * @param {string} l 
+     * @param {*} patterns 
+     * @param {*} options 
+     * @param {*} parentMatcherInfo 
+     * @returns 
+     */
+    static GetPatternMatcherInfoFromLine(line, patterns, options, parentMatcherInfo){
+        const { debug, depth } = options;
+        const { RefPatterns } = Utils.Classes;
+        let _a = null;
+        let _match = 0;
+        let pos = 0;
+        ({ _a, _match } = Utils.GetMatchInfo(patterns, line, options, parentMatcherInfo));
 
         if (_a) {
             // console.log(_match);
@@ -263,7 +320,7 @@ class Utils {
             return p[m];
         });
         s = /^\/.+\/$/.test(s) ? s.substring(1).slice(0, -1) : s;
-        
+
 
         return new RegExp(s, flag || '');
     }
@@ -370,8 +427,8 @@ class Utils {
                 return;
             }
             let _p = null;
-            if (_p = /^:(?<symbol>=|^|#)(.)(?<number>\d+)/.exec(s)) {
-                //replacement value with pattern
+            if (_p = /^:(?<symbol>=|\^|#)(.)(?<number>\d+)/.exec(s)) {
+                // + | replacement value with pattern
                 let n = parseInt(_p.groups['number']);
                 let _s = _p.groups['symbol'];
                 if (n > v.length) {
@@ -382,14 +439,19 @@ class Utils {
                         v = v.toString().padStart(n, _g);
                     }
                     else if (_s == '=') {
-                        let c = Math.floor((n - v.length) / 2);
-
+                        let c = Math.floor((n - v.length) / 2); 
                         v = v.toString().padEnd((c % 2) == 0 ? n - c : n - c + 1, _g);
                         v = v.toString().padStart(n, _g);
                     }
                 }
                 return v;
             }
+        
+            if (_p = /^\[(?<expression>.+)\]$/.exec(s)){
+                let c = Utils.GetRegexFrom(_p.groups['expression'], [v]);
+                v =  v.replace(v, c.toString().slice(1,-1));
+                return v;
+             }
 
             v = typeof (s) == 'function' ? s(v) : _func[s](v);
         });
@@ -469,7 +531,7 @@ class Utils {
             let _in = value.replace(value, check);
             // passing exec to formatt new value
             let matches = cp.exec(_in);
-            const _tokens = option.tokenChains; 
+            const _tokens = option.tokenChains;
             g = CaptureRenderer.CreateFromGroup(matches, _tokens);
             let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens, option);
             // console.log("the in ", _in, out);

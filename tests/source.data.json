@@ -3,13 +3,13 @@
         {
 
             "s": [
-                "<div><span>'open'</span><nav>navigation</nav>do</div>"
+                "<div><span>'open'</span><nav>navigation</nav>done</div>"
             ],
             "e": [
                 "<div>",
                 "\t<span>'open'</span>", 
                 "\t<nav>navigation</nav>", 
-                "\tdo",
+                "\tdone",
                 "</div>"
             ]
         },

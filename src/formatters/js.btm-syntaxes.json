@@ -16,6 +16,9 @@
                     "include": "#reserved-words"
                 },
                 {
+                    "include": "#operators"
+                },
+                {
                     "include": "#number"
                 },
                 {
@@ -53,31 +56,7 @@
             "isBlock": true,
             "patterns": [
                 {
-                    "include": "#reserved-words"
-                },
-                {
-                    "include": "#end-instruction"
-                },
-                {
-                    "include": "#string"
-                },
-                {
-                    "include": "#number"
-                },
-                {
-                    "include": "#trim-multispace"
-                },
-                {
-                    "include": "#block-branket"
-                },
-                {
-                    "include": "#branket-function-condition"
-                },
-                {
-                    "include": "#multi-line-comment"
-                },
-                {
-                    "include": "#single-line-comment"
+                    "include":"#core-definition"
                 }
             ]
         },
@@ -94,11 +73,11 @@
         },
         "string": {
             "begin": "(\"|')",
-            "end": "$1",
+            "end": "($1)",
             "name": "constant.string.litteral",
             "tokenID": "string",
             "captures": {
-                "0": {
+                "1": {
                     "name": "sting.marker.html",
                     "tokenID": "stringMarker"
                 }
@@ -127,7 +106,13 @@
             },
             "patterns":[
                 {
-                    "include": "#reserved-words"
+                    "include":"#string"
+                },
+                {
+                    "include":"#reserved-words"
+                },
+                {
+                    "include": "#block-branket"
                 }
             ]
         },
@@ -146,10 +131,24 @@
             "formattingMode": 1
         },
         "number": {
-            "match": "\\b(\\.\\d+)|(\\d+(\\.(\\d+)?)?)", 
+            "match": "(\\.\\d+)|(\\d+(\\.(\\d+)?)?)", 
             "name": "constant.number.js",
             "tokenID": "number",
             "className":"number-class"
+        },
+        "operators": {
+            "match": "\\s*(=>|=((=)?=)?|&(&)?|\\|\\||<=|>=|!)\\s*", 
+            "name": "operator.js",
+            "tokenID": "operator",
+            "className":"op",
+            "transform":["trim", "[ $0 ]"],
+            "patterns":[
+                {
+                    "match":"\\s*=>\\s*",
+                    "name":"lamda",
+                    "transform":"trim"
+                }
+            ]
         }
     },
     "engine": "html-listener"
