@@ -5,6 +5,7 @@ const { JSonParser } = require('./JSonParser');
 const { ReplaceWithCondition } = require('./ReplaceWithCondition');
 const { Utils } = require('./Utils');
 const { RegexUtils } = require('./RegexUtils');
+const { BlockInfo } = require('./BlockInfo');
 class Patterns{
     /**
      * 
@@ -46,7 +47,7 @@ class Patterns{
     lineFeed;
      /**
       * indicate that this must be consider as a block element
-     * @var {?bool}
+     * @var {?bool|BlockInfo}
      */
     isBlock;
 
@@ -188,7 +189,16 @@ class Patterns{
             captures :_capture_parser,
            transform,
            lineFeed(d, parser){
-                return typeof(d)=='boolean' ? d : false; // pars parseBool(d) "line feeed";
+                return typeof(d)=='boolean' ? d : false; 
+           },
+           isBlock(d, parser){
+                let _t = typeof(d);
+                if (_t=='object'){
+                    let m = new BlockInfo;
+                    JSonParser._LoadData(parser, m, d);
+                    return m;
+                }
+                return _t=='boolean' ? d : false;
            }
         };
         let fc = parse[fieldname];

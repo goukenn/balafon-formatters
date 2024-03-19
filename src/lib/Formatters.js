@@ -17,6 +17,7 @@ const { FormattingCodeStyles } = require("./FormattingCodeStyles");
 const { HandleFormatting, updateBuffer } = require("./Formattings/FormattingMode");
 const { FormatterMarkerInfo } = require("./FormatterMarkerInfo");
 const { RegexUtils } = require("./RegexUtils");
+const { BlockInfo } = require("./BlockInfo");
 
 // + | --------------------------------------------------------
 // + | export pattern match information 
@@ -31,7 +32,8 @@ Utils.Classes = {
     FormatterOptions,
     FormattingCodeStyles,
     Debug,
-    RegexUtils
+    RegexUtils,
+    BlockInfo
 };
 
 
@@ -87,9 +89,16 @@ class Formatters {
 
     }
 
+
+    /**
+     * get the line feed
+     */
     get lineFeed() {
         return this.m_option.lineFeed;
     }
+    /**
+     * set the line feed
+     */
     set lineFeed(value) {
         this.m_option = value;
     }
@@ -179,6 +188,17 @@ class Formatters {
             return fc(data, parser, refKey);
         }
         return data;
+    }
+    /**
+     * create and load the formatting marker 
+     * @param {string} name 
+     */
+    static Load(name, pattern_class_name){
+        const data = require("../../data/"+name+".btm-format.json");
+        if (data){
+            return Formatters.CreateFrom(data, pattern_class_name)
+        }
+        return null;
     }
     /**
      * create module from btm-format
@@ -1457,11 +1477,18 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                     option.pos = Math.max(_next_position - _cbuffer.length, 0); // _line.length;
                     option.storeRange(option.pos);
                     option.line = _cbuffer + _line;
-                    let ret = _formatter._handleMarker(patternInfo.parent, option);
-                    option.line = _cline;
-                    option.pos -= _cbuffer.length;
+                    if (patternInfo.parent){
+                        let ret = _formatter._handleMarker(patternInfo.parent, option);
+                        option.line = _cline;
+                        option.pos -= _cbuffer.length;
+                        option.storeRange(option.pos);
+                        return ret;
+                    }
+                    // update parent detection 
                     option.storeRange(option.pos);
-                    return ret;
+                    // TODO: handle stream with no parent
+                    throw new Error('Stream Not implement With no parent');
+
                 },
                 handleConstant(patterInfo, _line, option) {
                     if (_line.trim().length > 0) {
