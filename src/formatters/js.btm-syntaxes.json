@@ -60,6 +60,23 @@
                 }
             ]
         },
+        "block-branket-in-function": {
+            "begin": "\\{",
+            "end": "\\}\\s*(?=,|\\))?",
+            "name": "block.in.function.js",
+            "isBlock": true,
+            "beginCaptures":{
+                "0":{"name":"begin.brace.js"}
+            },
+            "endCaptures":{
+                "0":{"name":"end.brace.js"}
+            }, 
+            "patterns": [
+                {
+                    "include":"#core-definition"
+                }
+            ]
+        },
         "trim-multispace": {
             "match": "\\s+",
             "name": "multi-line-space",
@@ -112,7 +129,13 @@
                     "include":"#reserved-words"
                 },
                 {
-                    "include": "#block-branket"
+                    "include": "#branket-function-condition"
+                },
+                {
+                    "include": "#operators"
+                },
+                {
+                    "include": "#block-branket-in-function"
                 }
             ]
         },
