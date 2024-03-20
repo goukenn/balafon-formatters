@@ -83,7 +83,7 @@ class FormatterOptions {
             this.range.end = typeof (end) == 'undefined' ? start : end;
         }
         Object.defineProperty(objClass, 'listener', { get: function () { return _listener; } })
-
+        Object.defineProperty(objClass, 'formatter', { get: function () { return _formatter; } }) 
         Object.defineProperty(objClass, 'formatterBuffer', { get: function () { return _formatterBuffer; } })
         Object.defineProperty(objClass, 'blockStarted', {
             get: function () { return _blockStarted; }, set(v) {
@@ -167,6 +167,9 @@ class FormatterOptions {
                 }
             }
         }
+
+        objClass.pushState = pushState;
+        objClass.popState = popState;
         /**
          * treat how to update the current buffer before add it to listener
          * @param {string} s 
@@ -244,10 +247,7 @@ class FormatterOptions {
             // + | clone and reset indices before generate  
             let _s = CaptureRenderer.CreateFromGroup(group, marker.name);
             if (_s) {
-                let _g = _s.render(this.listener, _cap, false, this.tokenChains, {
-                    debug: this.debug,
-                    engine: this.engine
-                });
+                let _g = _s.render(this.listener, _cap, false, this.tokenChains,  this);
                 patternInfo.startOutput = _g;
                 return _g;
             }
@@ -264,53 +264,7 @@ class FormatterOptions {
             const fc_handle_end = function (value, cap, id, listener, option) {
                 const { tokens, engine, debug, tokenID } = option;
                 if (cap.patterns) {
-                    let _bckCapture = _formatter.info.captureGroup;
-                    _formatter.info.captureGroup = markerInfo.group;
-                    // debug && Debug.log('---::::treatEndCaptures::::--- contains patterns');
-                    if (_formatter.settings.useCurrentFormatterInstance) {
-                        pushState();
-                        // backup setting
-                        let _bck = {
-                            patterns: _formatter.patterns,
-                            buffer: q.buffer,
-                            output: q.output,
-                            formatterBuffer: q.formatterBuffer.bufferSegments.slice(0),
-                            lineCount: q.lineCount,
-                            markerInfo: q.markerInfo.slice(0),
-                            line: q.line,
-                            pos: q.pos,
-                            depth: q.depth,
-                            tokenList: q.tokenList.slice(0),
-                            markerDepth: q.markerDepth,
-                            blockStarted:  q.blockStarted
-                        };
-                        // clean setting
-                        q.formatterBuffer.clear();// = new 
-                        q.lineCount = 0;
-                        q.depth = 0;
-
-                        _formatter.info.isSubFormatting++;
-                        _formatter.patterns = cap.patterns;
-                        value = _formatter.format(value);
-                        _formatter.info.isSubFormatting--;
-                        _formatter.patterns = _bck.patterns;
-                        // + | restore setting
-                        q.lineCount = _bck.lineCount;
-                        q.line = _bck.line;
-                        q.pos = _bck.pos;
-                        q.depth = _bck.depth;
-                        // q.markerDepth = _bck.markerDepth;
-                        // q.tokenList = _bck.tokenList;
-                        _bck.markerInfo.forEach(a => _markerInfo.push(a));
-                        _bck.formatterBuffer.forEach(a => q.formatterBuffer.bufferSegments.push(a));
-                        popState();
-
-                    } else {
-                        // passing value to pattern 
-                        let n_formatter = Formatters.CreateFrom({ patterns: d.patterns });
-                        value = n_formatter.format(value);
-                    }
-                    _formatter.info.captureGroup = _bckCapture;
+                    value= Utils.TreatPatternValue(value, cap.patter, markerInfo.group, this); 
                 } else {
                     // treat buffer marker 
                     const op = [];
@@ -324,16 +278,22 @@ class FormatterOptions {
             let _s = CaptureRenderer.CreateFromGroup(endMatch, marker.name);
             if (_s) {
                 const q = this;
-                let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains, // .getTokens(), 
-                    {
-                        debug: this.debug,
-                        engine: this.engine
-                    });
+                let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
+                    this
+                );
                 markerInfo.endOutput = _g;
                 return _g;
             }
             return null; //this.treatCaptures(_cap, marker, endMatch);
         }
+        function getRenderOption(q) {
+            return {
+                debug: q.debug,
+                engine: q.engine,
+                formatter: _formatter
+            };
+        }
+
         /**
          * deprecated use only renderer to treat value 
          * @param {*} _cap 
@@ -445,9 +405,9 @@ class FormatterOptions {
             if (listener) {
                 return listener.appendLine(lineFeed,
                     this.formatterBuffer, {
-                        store: () => {
-                            this.store();
-                        }
+                    store: () => {
+                        this.store();
+                    }
                 });
             } else {
                 return _formatter.appendToBuffer(lineFeed);
@@ -466,9 +426,9 @@ class FormatterOptions {
      * @param {*} useDepth 
      * @param {*} blockStarted 
      */
-    storeToOutput({ buffer = null, useDepth = false, blockStarted = false , clear=false }) {
+    storeToOutput({ buffer = null, useDepth = false, blockStarted = false, clear = false }) {
         buffer = buffer || this.buffer;
-        if (buffer && (buffer.length > 0)) { 
+        if (buffer && (buffer.length > 0)) {
             if (useDepth)
                 this.store(blockStarted);
             else {
@@ -478,11 +438,11 @@ class FormatterOptions {
                 }
             }
         }
-        if (clear){
+        if (clear) {
             this.formatterBuffer.clear();
         }
     }
-    appendExtaOutput(){
+    appendExtaOutput() {
         this.debug && Debug.log('append extra output');
         this.output.push('');
     }

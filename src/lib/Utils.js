@@ -551,5 +551,57 @@ class Utils {
         value = value.replace(value, m);
         return value;
     }
+
+    static TreatPatternValue(value, patterns, group, option){
+        const _formatter = option.formatter;
+        let _bckCapture = _formatter.info.captureGroup;
+        _formatter.info.captureGroup = group;
+        const q = option;
+        // debug && Debug.log('---::::treatEndCaptures::::--- contains patterns');
+        if (_formatter.settings.useCurrentFormatterInstance) {
+            option.pushState();
+            // backup setting
+            let _bck = {
+                patterns: _formatter.patterns,
+                buffer: q.buffer,
+                output: q.output,
+                formatterBuffer: q.formatterBuffer.bufferSegments.slice(0),
+                lineCount: q.lineCount,
+                markerInfo: q.markerInfo.slice(0),
+                line: q.line,
+                pos: q.pos,
+                depth: q.depth,
+                tokenList: q.tokenList.slice(0),
+                markerDepth: q.markerDepth,
+                blockStarted:  q.blockStarted
+            };
+            // clean setting
+            q.formatterBuffer.clear();// = new 
+            q.lineCount = 0;
+            q.depth = 0;
+
+            _formatter.info.isSubFormatting++;
+            _formatter.patterns = patterns;
+            value = _formatter.format(value);
+            _formatter.info.isSubFormatting--;
+            _formatter.patterns = _bck.patterns;
+            // + | restore setting
+            q.lineCount = _bck.lineCount;
+            q.line = _bck.line;
+            q.pos = _bck.pos;
+            q.depth = _bck.depth;
+        
+            _bck.markerInfo.forEach(a => _markerInfo.push(a));
+            _bck.formatterBuffer.forEach(a => q.formatterBuffer.bufferSegments.push(a));
+            option.popState();
+
+        } else {
+            // passing value to pattern 
+            let n_formatter = Formatters.CreateFrom({ patterns: d.patterns });
+            value = n_formatter.format(value);
+        }
+        _formatter.info.captureGroup = _bckCapture;
+        return value;
+    }
 }
 exports.Utils = Utils;
