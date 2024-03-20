@@ -6,7 +6,7 @@ const _formatter = Formatters.CreateFrom({
     "scopeName":"scope.js",
     patterns:[{
         "begin":/(?=\{)/,
-        "end":/\}\s*=/,
+        "end":/(?=\}\s*=\s*)/,
         "name":"destructuration.affection.js",
         "isBlock":{
             "mode":"inline"
@@ -21,14 +21,13 @@ const _formatter = Formatters.CreateFrom({
 });
 
 
-console.log(_formatter);
-return;
+ 
 
 
 _formatter.debug = true;
 const data = _formatter.format([
 "const {one, ",
-"two} = info()"
+"two})"
 ]);
 
 console.log('result:');
