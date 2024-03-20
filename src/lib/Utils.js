@@ -215,9 +215,10 @@ class Utils {
         let _a = null;
         let _match = 0;
         let _index = -1;
+        let _indexOf = -1;
         let l = line.substring(pos);
         const { RefPatterns } = Utils.Classes;
-        ({ _a, _match } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+        ({ _a, _match, _indexOf } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
 
         if (_a) {
             // console.log(_match);
@@ -244,8 +245,10 @@ class Utils {
                 marker: _a, endRegex: _a.endRegex(_match),
                 line,
                 group: _match,
-                parent: parentMatcherInfo
+                parent: parentMatcherInfo,
+                patterns
             });
+
             // _info.startLine = options.outputBuffer.line;
             // _info.startLine = options.outputBuffer.range;
             // init _info matcher

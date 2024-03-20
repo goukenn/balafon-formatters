@@ -46,7 +46,7 @@ class RegexUtils{
         if (s==null){
             return false;
         }
-        f = s.length>0;  
+        f = s.length==0;  
         return f;
     }
 }

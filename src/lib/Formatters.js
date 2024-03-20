@@ -776,7 +776,9 @@ class Formatters {
                     let _nPatternInfo = new PatternMatchInfo();
                     _nPatternInfo.use({
                         marker: _stream_buffer,
-                        endRegex: _endRegex, group: patternInfo.group, line: option.line, parent: patternInfo
+                        endRegex: _endRegex, group: patternInfo.group, line: option.line, 
+                        parent: patternInfo,
+                        patterns : patternInfo.hostPatterns
                     });
 
                     option.pos = option.line.length;
@@ -1454,39 +1456,54 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
     get matchType() {
         return 4;
     }
+    get isEndCaptureOnly(){
+        return this.from.isEndCaptureOnly;
+    }
+    get isBeginCaptureOnly(){
+        return this.from.isBeginCaptureOnly;
+    }
     handleMarkerListener() {
         const q = this;
-        return function (markerInfo, option) {
+        return function (markerInfo, options) {
             const _formatter = this;
-            let _next_position = option.pos;
-            const _line = option.line.substring(option.pos);//+'sample';
-            const { _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, option);
-            let _old = option.markerInfo.length > 0 ? option.markerInfo.shift() : null;
-            // let _buffer = q.buffer;
+            let _next_position = options.pos;
+            const _line = options.line.substring(options.pos);//+'sample';
+            const { _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, options);
+            let _old = options.markerInfo.length > 0 ? options.markerInfo.shift() : null;
+            let _buffer = q.buffer;
+            let _found = false;
+            options.pos++;
+            options.storeRange(options.pos);
             const r = _formatter.handleMatchLogic({
                 _p,
                 _old,
                 _matcher,
                 _line,
                 patternInfo: q.from,
-                option,
-                endFound(_buffer, _line, patternInfo, _p, option, _old) {
+                option: options,
+                _buffer,
+                endFound(_buffer, _line, patternInfo, _p, options, _old) {
                     // q.appendToBuffer(_line);
-                    let _cline = option.line;
+                    _found = true;
+                    let _cline = options.line;
                     let _cbuffer = q.buffer;
-                    option.pos = Math.max(_next_position - _cbuffer.length, 0); // _line.length;
-                    option.storeRange(option.pos);
-                    option.line = _cbuffer + _line;
+                    options.pos = Math.max(_next_position - _cbuffer.length, 0); // _line.length;
+                    options.storeRange(options.pos);
+                    options.line = _cbuffer + _line;
                     if (patternInfo.parent){
-                        let ret = _formatter._handleMarker(patternInfo.parent, option);
-                        option.line = _cline;
-                        option.pos -= _cbuffer.length;
-                        option.storeRange(option.pos);
+                        let ret = _formatter._handleMarker(patternInfo.parent, options);
+                        options.line = _cline;
+                        options.pos -= _cbuffer.length;
+                        options.storeRange(options.pos);
                         return ret;
                     }
-                    // update parent detection 
-                    option.storeRange(option.pos);
+                    // + | put this line to buffer and skip 
                     // TODO: handle stream with no parent
+                    options.storeRange(options.pos);
+                    const _idx = patternInfo.indexOf;
+                    const _patterns = patternInfo.hostPatterns.slice(_idx+1); 
+                    let g = Utils.GetPatternMatcherInfoFromLine(options.line, _patterns, options);
+
                     throw new Error('Stream Not implement With no parent');
 
                 },
@@ -1495,9 +1512,13 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                         q.appendToBuffer(_line);
                     }
                     option.markerInfo.unshift(_old);
+                    option.pos = _line.length;
                     return _old.marker;
                 }
             });
+            if (!_found){
+                // throw new Error('stream end not found : '+options.pos);
+            }
             return r;
         };
     }
