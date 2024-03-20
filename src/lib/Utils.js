@@ -211,7 +211,8 @@ class Utils {
      * @returns 
      */
     static GetPatternMatcher(patterns, options, parentMatcherInfo = null) {
-        const { line, pos, debug, depth } = options;
+        const { line, pos, debug, depth, lineCount } = options;
+        const { FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
         let _index = -1;
@@ -235,6 +236,11 @@ class Utils {
                     value: _match[0],
                     regex: _a.matchRegex
                 });
+            }
+            if (_a.throwError){
+                let e = _a.throwError;
+                const msg = typeof(e)=='object' ? e.message : 'invalid match';  
+                throw new FormatterPatternException(msg, _a, _match, lineCount);
             }
             // + | add property to offset 
             _match.offset = _match[0].length;
@@ -552,6 +558,14 @@ class Utils {
         return value;
     }
 
+    /**
+     * Treat patterns values
+     * @param {string} value value to treat 
+     * @param {*} patterns 
+     * @param {*} group - parent group match to resolve
+     * @param {*} option - options
+     * @returns 
+     */
     static TreatPatternValue(value, patterns, group, option){
         const _formatter = option.formatter;
         let _bckCapture = _formatter.info.captureGroup;
@@ -591,7 +605,7 @@ class Utils {
             q.pos = _bck.pos;
             q.depth = _bck.depth;
         
-            _bck.markerInfo.forEach(a => _markerInfo.push(a));
+            _bck.markerInfo.forEach(a => q.markerInfo.push(a));
             _bck.formatterBuffer.forEach(a => q.formatterBuffer.bufferSegments.push(a));
             option.popState();
 

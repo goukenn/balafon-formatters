@@ -106,8 +106,6 @@ function updateBuffer(data, mode, _marker, option){
             }
             option.appendToBuffer(data, _marker);
             //option.store();
-            //option.formatterBuffer.appendToBuffer(option.flush(true));
-
             _marker.mode = FM_APPEND;
             break;
         case FM_APPEND:

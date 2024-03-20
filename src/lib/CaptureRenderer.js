@@ -129,6 +129,7 @@ class CaptureRenderer{
         let _input = matches[0];// .input.substring(matches.index);
         let _begin = 0;
         let _output = ''; 
+        let _formatter = option.formatter;
         let treat_root = function (_input, root, listener, captures, tokens){
             let rf = root.value;
             let subchilds = [{root, output:[], treat:false, sub:false}];
@@ -168,9 +169,15 @@ class CaptureRenderer{
                             _end = true; 
                         } else {
                             // treat value. cap
-                            if (cap.transform){
-                                rf = Utils.StringValueTransform(rf, cap.transform); 
-                            } 
+                            if(_formatter){
+                                const op = [];
+                                rf = _formatter.treatMarkerValue(cap, rf, op, option);
+
+                            }else{
+                                if (cap.transform){
+                                    rf = Utils.StringValueTransform(rf, cap.transform); 
+                                }  
+                            }  
                             if (cap.patterns){
                                 rf = Utils.TreatPatternValue(rf, cap.patterns, self.matches, option);
                             }
