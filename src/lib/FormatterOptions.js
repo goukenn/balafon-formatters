@@ -41,6 +41,7 @@ class FormatterOptions {
         const _markerInfo = [];
         const _states = [];
         const { CaptureRenderer, FormatterBuffer, Debug } = Utils.Classes;
+        let m_appendToBufferListener = null;
         let _outputBufferInfo = {
             line: 0,
             start: 0,
@@ -112,6 +113,15 @@ class FormatterOptions {
             get: function () { return m_pos; }, set(v) {
                 // console.log("set position", v);
                 m_pos = v;
+            }
+        });
+        /**
+         * append to buffer listener callback
+         * @var {null|(value:string)} 
+         */
+        Object.defineProperty(objClass, 'appendToBufferListener', {
+            get: function () { return m_appendToBufferListener; }, set(v) { 
+                m_appendToBufferListener = v;
             }
         });
         Object.defineProperty(objClass, 'output', {
@@ -220,15 +230,19 @@ class FormatterOptions {
         objClass.appendToBuffer = function (value, _marker, treat = true) {
             const { debug, engine } = this;
             debug && Debug.log("[append to buffer] - ={" + value + '}');
-            let _buffer = value;// this.buffer;
-            const { listener, tokenChains } = this;
-            if (treat && listener?.renderToken) {
-                _shiftMarkerInfo(_marker.marker, tokenChains);
-
-                _marker.name && tokenChains.unshift(_marker.name);
-                _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID, engine, debug, _marker);
+            let _buffer = value;
+            if (m_appendToBufferListener){
+                value = m_appendToBufferListener(value, _marker, treat, this);
             }
-            this.formatterBuffer.appendToBuffer(_buffer);
+            else{ 
+                const { listener, tokenChains } = this;
+                if (treat && listener?.renderToken) {
+                    _shiftMarkerInfo(_marker.marker, tokenChains); 
+                    _marker.name && tokenChains.unshift(_marker.name);
+                    _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID, engine, debug, _marker);
+                }
+                this.formatterBuffer.appendToBuffer(_buffer);
+            }
             _marker.value = { source: value, value: _buffer };
         }
         /**
@@ -268,7 +282,7 @@ class FormatterOptions {
                 } else {
                     // treat buffer marker 
                     const op = [];
-                    value = _formatter._treatMarkerValue(cap, value, op);
+                    value = _formatter.treatMarkerValue(cap, value, op);
                     value = listener.renderToken(value, tokens, tokenID, engine, debug, cap);
                 }
                 return value;

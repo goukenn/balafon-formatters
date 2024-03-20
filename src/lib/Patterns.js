@@ -6,6 +6,7 @@ const { ReplaceWithCondition } = require('./ReplaceWithCondition');
 const { Utils } = require('./Utils');
 const { RegexUtils } = require('./RegexUtils');
 const { BlockInfo } = require('./BlockInfo');
+const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
 class Patterns{
     /**
      * 
@@ -133,6 +134,12 @@ class Patterns{
      */
     formattingMode = 0;
 
+    /**
+     * throw error on matching
+     * @var {null|bool|string|PatterMatchErrorInfo}
+     */
+    throwError;
+
     constructor(){
         this.patterns = [];
         this.isBlock = false;
@@ -167,6 +174,7 @@ class Patterns{
             return d;
 
         } 
+       
         const parse = {
             patterns(n,parser, refKey, refObj){
                 let d = patterns.apply(q, [n,parser, refKey, refObj]);
@@ -199,6 +207,14 @@ class Patterns{
                     return m;
                 }
                 return _t=='boolean' ? d : false;
+           },
+           throwError(d,parser){
+                if (typeof(d)=="string"){
+                    let l = new PatterMatchErrorInfo;
+                    l.message = d;
+                    return l;
+                }
+                return objOrBool(d, parser, PatterMatchErrorInfo); 
            }
         };
         let fc = parse[fieldname];
@@ -253,6 +269,12 @@ class Patterns{
             return RegexUtils.IsCapturedOnlyRegex(s);
         }
         return false;
+    }
+    /**
+     * new line continue state
+     */
+    get newLineContinueState(){
+        return true;
     }
     check(l, option, parentMatcherInfo){
         let p = null;
@@ -322,6 +344,16 @@ class Patterns{
     }
 }
 
+
+const objOrBool = (d, parser, class_type)=>{
+    let _t = typeof(d);
+    if (_t=='object'){
+        let m = new class_type;
+        JSonParser._LoadData(parser, m, d);
+        return m;
+    }
+    return _t=='boolean' ? d : false;
+}
 
  
 exports.Patterns = Patterns;

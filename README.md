@@ -56,7 +56,12 @@ protocol ReplaceWithProtocol{
     condition: { type : ReplaceWithConditionProtocol }
 }
 
-````
+```
+
+- Note: 
+    - In order to operate on the entired mactch result - do not capturure sub element. 
+
+
 
 ## RELEASES
 
