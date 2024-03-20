@@ -400,7 +400,10 @@ class Formatters {
         // TODO: Dynamic closing block must not being regex closing
         const { marker } = _old;
         const _group = marker.group;
-        if (_old.marker.isEndCaptureOnly) {
+        if (marker.marker.throwErrorOnEndSyntax){
+            throw new Error('invalid syntax');
+        }
+        if (marker.isEndCaptureOnly) {
             return;
         }
         let regex = Utils.ReplaceRegexGroup(Utils.RegExToString(_old.marker.end), _group);
@@ -448,9 +451,19 @@ class Formatters {
             listener.startNewBlock({ buffer: '', formatterBuffer, output, tabStop, depth });
         }
     }
+    /**
+     * get new tokens array 
+     * @returns 
+     */
     getTokens() {
-        return [this.scopeName];//'constant';
+        return [this.scopeName];
     }
+    /**
+     * get Marker captures depending on markerInfo
+     * @param {*} _markerInfo 
+     * @param {*} end 
+     * @returns 
+     */
     getMarkerCaptures(_markerInfo, end = false) {
         const _type = _markerInfo.marker.matchType;
         if (_type == 0) {
@@ -770,16 +783,8 @@ class Formatters {
 
                 if (patternInfo.group[0].length == 0) {
                     // + | detect buffer empty - buffer detection 
-                    let _stream_buffer = new StreamConstantPattern();
-                    _stream_buffer.from = patternInfo;
-                    _stream_buffer.appendToBuffer(_line);
-                    let _nPatternInfo = new PatternMatchInfo();
-                    _nPatternInfo.use({
-                        marker: _stream_buffer,
-                        endRegex: _endRegex, group: patternInfo.group, line: option.line, 
-                        parent: patternInfo,
-                        patterns : patternInfo.hostPatterns
-                    });
+                    let _nPatternInfo = this._createStreamConstantPattern(patternInfo, _line, _endRegex, option);
+                
 
                     option.pos = option.line.length;
                     this._updateMarkerInfoOld(_nPatternInfo, null, '', _endRegex, option);
@@ -1269,19 +1274,27 @@ class Formatters {
      * @param {*} option 
      * @returns 
      */
-    detectConstantPattern(patternInfo, _line, option) {
-        let _stream_buffer = new StreamConstantPattern();
+    detectConstantPattern(patternInfo, _line, option) { 
         const _endRegex = patternInfo.endRegex;
+        let _nPatternInfo = this._createStreamConstantPattern(patternInfo, _line, _endRegex, option);  
+        option.pos = option.line.length;
+        this._updateMarkerInfoOld(_nPatternInfo, null, '', _endRegex, option);
+        return _nPatternInfo;
+    }
+    _createStreamConstantPattern(patternInfo, _line, _endRegex, option){
+        // patterns : patternInfo.hostPatterns
+        let _stream_buffer = new StreamConstantPattern();
         _stream_buffer.from = patternInfo;
         _stream_buffer.appendToBuffer(_line);
         let _nPatternInfo = new PatternMatchInfo();
         _nPatternInfo.use({
             marker: _stream_buffer,
-            endRegex: _endRegex, group: patternInfo.group, line: option.line, parent: patternInfo
+            endRegex: _endRegex, 
+            group: patternInfo.group, 
+            line: option.line, // source line
+            parent: patternInfo,
+            patterns : patternInfo.hostPatterns
         });
-
-        option.pos = option.line.length;
-        this._updateMarkerInfoOld(_nPatternInfo, null, '', _endRegex, option);
         return _nPatternInfo;
     }
     /**
@@ -1453,6 +1466,9 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
 
         })
     }
+    get throwErrorOnEndSyntax(){
+        return true;
+    }
     get matchType() {
         return 4;
     }
@@ -1471,7 +1487,7 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
             const { _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, options);
             let _old = options.markerInfo.length > 0 ? options.markerInfo.shift() : null;
             let _buffer = q.buffer;
-            let _found = false;
+            // let _found = false;
             options.pos++;
             options.storeRange(options.pos);
             const r = _formatter.handleMatchLogic({
@@ -1484,7 +1500,7 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                 _buffer,
                 endFound(_buffer, _line, patternInfo, _p, options, _old) {
                     // q.appendToBuffer(_line);
-                    _found = true;
+                    // _found = true;
                     let _cline = options.line;
                     let _cbuffer = q.buffer;
                     options.pos = Math.max(_next_position - _cbuffer.length, 0); // _line.length;
@@ -1503,7 +1519,10 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                     const _idx = patternInfo.indexOf;
                     const _patterns = patternInfo.hostPatterns.slice(_idx+1); 
                     let g = Utils.GetPatternMatcherInfoFromLine(options.line, _patterns, options);
-
+                    if (g){
+                        options.tokenList.shift();
+                        return g;
+                    }
                     throw new Error('Stream Not implement With no parent');
 
                 },
@@ -1516,9 +1535,9 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                     return _old.marker;
                 }
             });
-            if (!_found){
+            //if (!_found){
                 // throw new Error('stream end not found : '+options.pos);
-            }
+            //}
             return r;
         };
     }

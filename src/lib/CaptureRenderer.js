@@ -123,7 +123,8 @@ class CaptureRenderer{
         if (!captures){
             throw new Error('missing captures info');
         }
-        const { matches, roots } = this;
+        const self = this;
+        const { matches, roots } = self;
         const { debug, engine} = option;
         let _input = matches[0];// .input.substring(matches.index);
         let _begin = 0;
@@ -170,6 +171,9 @@ class CaptureRenderer{
                             if (cap.transform){
                                 rf = Utils.StringValueTransform(rf, cap.transform); 
                             } 
+                            if (cap.patterns){
+                                rf = Utils.TreatPatternValue(rf, cap.patterns, self.matches, option);
+                            }
                         }
                     }  
                     if (Array.isArray(rf)){
