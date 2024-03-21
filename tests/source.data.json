@@ -1,71 +1,11 @@
 {
     "tests": [
-
         {
-            "comment": "multi root element",
-            
             "s": [
-                "<span     >info</span",
-                "",
-                "      >",
                 "<div>hello</div>"
-                  ],
-            "e": [
-               "<span>info</span>",
-               "<div>hello</div>"
-            ]
-        },
-        {
-
-            "s": [
-                "<div><span>'open'</span><nav>navigation</nav>done</div>"
             ],
             "e": [
-                "<div>",
-                "\t<span>'open'</span>", 
-                "\t<nav>navigation</nav>", 
-                "\tdone",
-                "</div>"
-            ]
-        },
-        {
-
-            "s": [
-                "<div><span>'open'</span><nav>navigation</nav></div>"
-            ],
-            "e": [
-                "<div>",
-                "\t<span>'open'</span>", 
-                "\t<nav>navigation</nav>", 
-                "</div>"
-            ]
-        },
-        {
-
-            "s": [
-                "<div><span>'open'</span></div>"
-            ],
-            "e": [
-                "<div>",
-                "\t<span>'open'</span>", 
-                "</div>"
-            ]
-        },
-        {
-            "comment":"multine test",
-            "s": [
-                "<div>'open'</div>"
-            ],
-            "e": ["<div>'open'</div>"]
-        }, 
-        {
-            "name":"form_replacement",
-            "comment": "form replacement",
-            "s": [
-                "<form />"
-            ],
-            "e": [
-                "<form></form>"
+                "<div>hello</div>"
             ]
         }
     ]

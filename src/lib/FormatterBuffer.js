@@ -75,6 +75,17 @@ class FormatterBuffer{
             }
         }
     }
+    /**
+     * last segment value
+     * @returns {null|string}
+     */
+    lastSegment(){
+        const { bufferSegments} = this;
+        if (bufferSegments.length>0){
+            return bufferSegments[bufferSegments.length-1];
+        }
+        return null;
+    }
 }
 
 exports.FormatterBuffer = FormatterBuffer;

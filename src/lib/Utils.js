@@ -385,17 +385,23 @@ class Utils {
             option
         };
     }
-
+    static RegexParseInfo(s, flag){
+        let _info = Utils.RegexInfo(s);
+        if (flag && ((_info.option.length == 0) || (_info.option.indexOf(flag) == -1))) {
+            _info.option = flag;
+        }
+        return _info;
+    }
     static RegexParse(s, flag) {
         if (typeof (s) == 'string') {
-            let _info = Utils.RegexInfo(s);
-            if (flag && ((_info.option.length == 0) || (_info.option.indexOf(flag) == -1))) {
-                _info.option = flag;
-            }
+            let _info = Utils.RegexParseInfo(s,flag); 
             return new RegExp(_info.s, _info.option);
         } else if (typeof (s) == 'object') {
-            if (s instanceof RegExp)
-                return s;
+            if (s instanceof RegExp){ 
+                
+                let _info = Utils.RegexParseInfo(s.toString(), flag);  
+                return new RegExp(_info.s, _info.option);
+            }
             const { option, regex } = s;
             if (regex instanceof RegExp) {
                 regex = Utils.GetRegexFrom(regex.toString(), option);

@@ -311,45 +311,69 @@
                     "replaceWith":""
                 },
                 {
-                    "begin": "(\\>)",
-                    "end": "(?=\\<(\\/)?)",
-                    "name": "inner.html",
-                    "comment": "Detect inner content. start block definition if contains global.html.tag.html",
-                    "requestParentBlockCondition": "child.name == global.html.tag.html",
-                    "updateParentProps": {
-                        "isBlock": true
-                    },
-                    "beginCaptures": {
-                        "0": {
-                            "name": "start.inner.html"
-                        },
-                        "1": {
-                            "name": "symbol.inner.end.tag.html"
-                        }
-                    },
-                    "patterns": [
-                        {
-                            "include":"#global-self-closing-html-tag"
-                        },
-                        {
-                            "include": "#global-html-tag"
-                        },
-                        {
-                            "include": "#html-space-constant"
-                        },
-                        {
-                            "include": "#string"
-                        },
-                        {
-                            "include": "#url"
-                        }
-                    ]
+                    "include":"#inner-html"
                 }
             ],
             "lineFeed":true,
             "updateParentProps":{
                 "isBlock":true
             }
+        },
+        "inner-html":{
+            "begin": "(\\>)",
+            "end": "(?=\\<(?:\\/)?)",
+            "name": "inner.html",
+            "comment": "Detect inner content. start block definition if contains global.html.tag.html",
+            "requestParentBlockCondition": "child.name == global.html.tag.html",
+            "updateParentProps": {
+                "isBlock": true
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "start.inner.html"
+                },
+                "1": {
+                    "name": "symbol.inner.end.tag.html"
+                }
+            },
+            "patterns": [
+                {
+                    "include":"#global-self-closing-html-tag"
+                },
+                {
+                    "include": "#global-html-tag"
+                },
+                {
+                    "include": "#html-space-constant"
+                },
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#url"
+                },
+                {
+                    "include": "#detect-end-closetag"
+                }
+            ]
+        },
+        "detect-end-closetag-":{
+            "comment":"detect end close tag",
+            "begin": "(?=\\<\\/\\b[\\w](?:[\\w\\d\\-]*(?::[\\w][\\w\\d\\-]*)?)\b)",
+            "end": "(?=\\>)",
+            "name": "detect.closetag.html",
+            "isBlock": false,
+            "patterns":[
+                {
+                    "include":"#join-space"
+                }
+            ]  
+        },
+        "join-space":{
+            "match":"\\s+", 
+            "name":"white.space.html",
+            "replaceWith":" ",
+            "isGlueValue":true
         }
     },
     "patterns": [

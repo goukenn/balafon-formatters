@@ -609,13 +609,16 @@ class Formatters {
             }
 
             // combine value
-            if (option.glueValue == _cm_value){
-                return _marker.parent;
-            }
+            // if (option.glueValue == _cm_value){
+            //     return _marker.parent;
+            // }
 
             if (_op.indexOf('replaceWith') == -1) {
                 option.appendToBuffer(_cm_value, _marker);
             } else {
+                if ((option.glueValue == _cm_value)){
+                    return _marker.parent;
+                }  
                 option.formatterBuffer.appendToBuffer(_cm_value);//, _marker);
             }
             if (_old && b) {
@@ -810,10 +813,15 @@ class Formatters {
                 // must add extra line
                 // patternInfo.mode = 2;
             //}
-            if (patternInfo.isStreamCapture){
-                return this._startStreamingPattern(patternInfo, _line, _endRegex, option); 
-            } 
+            // if (patternInfo.isStreamCapture){
+            //     return this._startStreamingPattern(patternInfo, _line, _endRegex, option); 
+            // } 
         }
+        _line = line.substring(option.pos);
+
+        if (_start && patternInfo.isStreamCapture){
+            return this._startStreamingPattern(patternInfo, _line, _endRegex, option); 
+        } 
 
         // let _continue_with_marker = false;  
         const { _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option, _start);
@@ -906,9 +914,9 @@ class Formatters {
         let _matcher = null;
         let _p = null; // end matcher 
         let _endRegex = patternInfo.endRegex;
-        let _offset = 0;//start ? 1 : 0;
+
         let _error = null;
-        option.pos += _offset;
+
 
         try {
             _matcher = (_line.length > 0) &&
@@ -921,11 +929,11 @@ class Formatters {
             }
             _error = {
                 _line,
-                index: e.match.index - option.pos + _offset
+                index: e.match.index - option.pos
             }
         }
 
-        option.pos -= _offset;
+
         _p = _line.length > 0 ? _endRegex.exec(_line) : null;
         if (_p) {
             _p.index += option.pos;
