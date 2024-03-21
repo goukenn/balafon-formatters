@@ -1,5 +1,20 @@
 {
     "tests": [
+
+        {
+            "comment": "multi root element",
+            
+            "s": [
+                "<span     >info</span",
+                "",
+                "      >",
+                "<div>hello</div>"
+                  ],
+            "e": [
+               "<span>info</span>",
+               "<div>hello</div>"
+            ]
+        },
         {
 
             "s": [
@@ -34,20 +49,6 @@
                 "<div>",
                 "\t<span>'open'</span>", 
                 "</div>"
-            ]
-        },
-        {
-            "comment": "multi root element",
-            
-            "s": [
-                "<span     >info</span",
-                "",
-                "      >",
-                "<div>hello</div>"
-                  ],
-            "e": [
-               "<span>info</span>",
-               "<div>hello</div>"
             ]
         },
         {

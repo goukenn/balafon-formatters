@@ -135,6 +135,11 @@ class Patterns{
     formattingMode = 0;
 
     /**
+     * a glue value - to merge on 
+     */
+    isGlueValue;
+
+    /**
      * throw error on matching
      * @var {null|bool|string|PatterMatchErrorInfo}
      */
@@ -264,9 +269,20 @@ class Patterns{
      * get if begin capture only
      */
     get isBeginCaptureOnly(){
-        let s = this.start;
+        let s = this.begin;
         if (s){
             return RegexUtils.IsCapturedOnlyRegex(s);
+        }
+        return false;
+    }
+    /**
+     * get if block is capture only
+     * @return {boolean}
+     */
+    get isCaptureOnly(){
+        let { begin , end} = this;
+        if (begin && end){
+            return this.isBeginCaptureOnly && this.isEndCaptureOnly;
         }
         return false;
     }

@@ -482,7 +482,7 @@ function runTest(tests, _formatter){
                 testCount++;
                 return;
         } 
-
+        console.log('input : ', o.s.join(''));
         compareString(s, o.e);
         throw new Error("failed : "+testCount);
     });

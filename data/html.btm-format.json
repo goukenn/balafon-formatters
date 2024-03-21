@@ -381,19 +381,5 @@
             "include": "#processor-expression"
         }
     ],
-    "scopeName": "source.text.html",
-    "repository__":{
-        "main":{
-            "name":"start.main",
-            "match":"\\b\\w+\\b",
-            "patterns":[
-                { "include":"#main"}
-            ]
-        }
-    },
-    "patterns__":[
-        { "include":"#main"}
-    ]
-
-
+    "scopeName": "source.text.html"
 }
