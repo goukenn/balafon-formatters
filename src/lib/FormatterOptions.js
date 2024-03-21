@@ -31,6 +31,10 @@ class FormatterOptions {
         start: 0, // start position
         end: 0    // number end position range
     };
+    /**
+     * flag for glue value
+     */
+    glueValue = null;
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;
@@ -278,7 +282,7 @@ class FormatterOptions {
             const fc_handle_end = function (value, cap, id, listener, option) {
                 const { tokens, engine, debug, tokenID } = option;
                 if (cap.patterns) {
-                    value= Utils.TreatPatternValue(value, cap.patter, markerInfo.group, this); 
+                    value= Utils.TreatPatternValue(value, cap.patterns, markerInfo.group, q); 
                 } else {
                     // treat buffer marker 
                     const op = [];

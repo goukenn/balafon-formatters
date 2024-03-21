@@ -184,6 +184,13 @@ class Utils {
         }
     }
 
+    /**
+     * get match info
+     * @var {array} patterns
+     * @var {array} l string
+     * @var {*} options
+     * @var {*} parentMatcherInfo
+     */
     static GetMatchInfo(patterns, l, options, parentMatcherInfo) {
         let _a = null;
         let _match = 0;

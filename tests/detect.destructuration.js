@@ -101,7 +101,7 @@ const _formatter = Formatters.CreateFrom({
   }
 });
 
-_formatter.debug = true;
+_formatter.debug = false;
 const data = _formatter.format(["const {one","   :  ","   77 ", ", two: 36","} = ()"]);
 
 console.log("result:");

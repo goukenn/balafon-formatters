@@ -188,6 +188,15 @@ class PatternMatchInfo {
     get isBeginCaptureOnly() {
         return this.marker?.isBeginCaptureOnly;
     }
+    get isCaptureOnly() {
+        return this.marker?.isCaptureOnly;
+    }
+    /**
+     * get if this match info is a stream capture
+     */
+    get isStreamCapture(){
+        return this.isCaptureOnly && (this.group[0].length == 0);
+    }
     /**
      * check this is a block but non configured;
      */
