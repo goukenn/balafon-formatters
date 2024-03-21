@@ -32,7 +32,7 @@ class FormatterOptions {
         end: 0    // number end position range
     };
     /**
-     * flag for glue value
+     * flag for glue value : used to skip entry data for match.
      */
     glueValue = null;
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
