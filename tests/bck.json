@@ -1,84 +1,6 @@
-{
-    "comment": "multi root element",
-    
-    "s": [
-        "<span     >info</span",
-        "",
-        "      >",
-        "<div>hello</div>"
-          ],
-    "e": [
-       "<span>info</span>",
-       "<div>hello</div>"
-    ]
-}
+
 // good
 
-
-{
-
-    "s": [
-        "<div><span>'open'</span><nav>navigation</nav>done</div>"
-    ],
-    "e": [
-        "<div>",
-        "\t<span>'open'</span>", 
-        "\t<nav>navigation</nav>", 
-        "\tdone",
-        "</div>"
-    ]
-},
-{
-
-    "s": [
-        "<div><span>'open'</span><nav>navigation</nav></div>"
-    ],
-    "e": [
-        "<div>",
-        "\t<span>'open'</span>", 
-        "\t<nav>navigation</nav>", 
-        "</div>"
-    ]
-},
-{
-
-    "s": [
-        "<div><span>'open'</span></div>"
-    ],
-    "e": [
-        "<div>",
-        "\t<span>'open'</span>", 
-        "</div>"
-    ]
-},
-{
-    "comment":"multine test",
-    "s": [
-        "<div>'open'</div>"
-    ],
-    "e": ["<div>'open'</div>"]
-}, 
-{
-    "name":"form_replacement",
-    "comment": "form replacement",
-    "s": [
-        "<form />"
-    ],
-    "e": [
-        "<form></form>"
-    ]
-}
-
-
-// end good
-
-{
-    "comment": "inner transform",
-    "s": [
-        "<div     />"
-    ],
-    "e": "<div></div>"
-},
 
 
 
@@ -150,30 +72,6 @@
         "<input id=\"page\"/>"
     ],
     "comment": "input stay input."
-},
-{
-    "s": [
-        "<div id=\"page\" />"
-    ],
-    "e": [
-        "<div id=\"page\"></div>"
-    ]
-},
-{
-    "s": [
-        "<div id=\"page\"></div>"
-    ],
-    "e": [
-        "<div id=\"page\"></div>"
-    ]
-},
-{
-    "s": [
-        "<div id=\"page\"/>"
-    ],
-    "e": [
-        "<div id=\"page\"></div>"
-    ]
 },
 {
     "s": [

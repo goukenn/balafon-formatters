@@ -796,8 +796,7 @@ class Formatters {
         }
         _buffer = _start ? patternInfo.startOutput : _buffer;
         _endRegex = patternInfo.endRegex;// _endRegex || _marker.endRegex(_marker.group);
-        let _next_position = patternInfo.group.index + patternInfo.group.offset;
-        _line = line.substring(option.pos);
+         _line = line.substring(option.pos);
 
         if (_line.length == 0) {
             this._updateMarkerInfoOld(patternInfo, _old, _buffer, patternInfo.endRegex, option);
@@ -805,6 +804,7 @@ class Formatters {
         }
         // treat patterns
         if (_start) {
+            let _next_position = patternInfo.group.index + patternInfo.group.offset;
             // + | on start before handle 
             option.pos = _next_position;
             //if (parent && parent.isBlock && parent.isBlockStarted && this._isChildBlock(patternInfo)) {
@@ -1601,6 +1601,19 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
         return patternInfo.parent;
         throw new Error('Stream Not implement With no parent');
     }
+    moveToPatterns(patternInfo, _patterns, option, _old, markerInfo) {
+        let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option);
+        if (_old) { 
+            if (_old?.marker == markerInfo) {
+                option.restoreBuffer(_old);
+            }
+        }
+        if (g) {
+            option.tokenList.shift();
+            return g;
+        }
+        return patternInfo.parent;
+    }
     handleMarkerListener(){
         const q = this;
         let _restored = false;
@@ -1680,17 +1693,25 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                     endFound(_buffer, _line, patternInfo, _p, options, _old) {
                         // q.appendToBuffer(_line);
                         // _found = true;
+                        const { parent } = patternInfo;
                         let _cline = options.line;
                         let _cbuffer = q.buffer;
                         options.pos = Math.max(_next_position - _cbuffer.length, 0); // _line.length;
                         options.storeRange(options.pos);
                         options.line = _cbuffer + _line;
-                        if (patternInfo.parent) {
-                            let ret = _formatter._handleMarker(patternInfo.parent, options);
-                            options.line = _cline;
-                            options.pos -= _cbuffer.length;
-                            options.storeRange(options.pos);
+                        if (parent) {
+                            _restoreState(options, _bck);
+                            // let idx = patternInfo.indexOf;
+
+                            // let _patterns = parent.patterns.slice(idx+1);
+                            const ret = _formatter._handleMarker(parent, options);
+                            // const ret = q.moveToPatterns(parent, _patterns, options, _old, markerInfo);
                             return ret;
+                            // let ret = _formatter._handleMarker(patternInfo.parent, options);
+                            // options.line = _cline;
+                            // options.pos -= _cbuffer.length;
+                            // options.storeRange(options.pos);
+                            // return ret;
                         }
                         // + | put this line to buffer and skip 
                         // TODO: handle stream with no parent
