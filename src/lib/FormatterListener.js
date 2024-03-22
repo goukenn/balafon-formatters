@@ -30,7 +30,19 @@ class FormatterListener {
     startNewBlock({formatterBuffer, tabStop, depth}){ 
          
     } 
-    
+    /**
+     * override en output
+     * @param {*} param0 
+     */
+    endOutput({lineFeed}){
+
+    }
+    /**
+     * override end content
+     */
+    endContent(){
+
+    }
     /**
      * treat current buffer and store it to option 
      * buffer to ouput . 
@@ -47,7 +59,7 @@ class FormatterListener {
         } 
     }
     /**
-     * use this to join buffer output
+     * use this to join everything that as represent in buffer with the lineFeed data
      * @param {bool} clear 
      * @param {{output:string[], lineFeed:string}} param1 
      * @returns {string}

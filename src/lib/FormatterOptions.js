@@ -26,6 +26,11 @@ class FormatterOptions {
      */
     // output = [];   // output result global output result 
     tokenList = [];// store entry token list
+    /**
+     * line feed flag in order to store on next root operation
+     * @var {?boolean} 
+     */
+    lineFeedFlag;
     state = ''; // current state mode 
     range = {
         start: 0, // start position
@@ -387,10 +392,9 @@ class FormatterOptions {
              * @param {bool} startBlock 
              */
             function (startBlock = false) {
-                const { listener } = this;
+                const _ctx = this;
+                const { buffer, output, depth, formatterBuffer , listener} = _ctx;
                 if (listener) {
-                    const _ctx = this;
-                    const { buffer, output, depth, formatterBuffer } = _ctx;
                     listener.store.apply(null, [{ buffer, output, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
                 }
                 _formatterBuffer.clear();
@@ -461,8 +465,12 @@ class FormatterOptions {
         }
     }
     appendExtaOutput() {
-        this.debug && Debug.log('append extra output');
-        this.output.push('');
+        this.debug && Debug.log('---:append extra output:---');
+        const { listener } = this;
+        if (listener?.appendExtraOutput){
+            listener.appendExtraOutput({output: this.output});
+        }else 
+            this.output.push('');
     }
 }
 

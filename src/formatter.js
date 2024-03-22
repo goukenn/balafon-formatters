@@ -7,3 +7,9 @@ exports.Patterns = Patterns;
 exports.CaptureInfo = Utils.Classes.CaptureInfo; 
 exports.Utils = Utils; 
 exports.Version = process.env.VERSION || '1.0.0'; 
+exports.Web = (()=>{
+    const Utils = require ("./web/Utils")
+    return {
+        Utils
+    };
+})();

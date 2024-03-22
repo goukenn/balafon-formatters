@@ -72,6 +72,17 @@ class FormattingBase {
                 // + passing current mode to parent
                 parent.mode = mode;
             }
+        } else {
+            // + | dependengin on mode.
+            switch(mode){
+                case FM_START_LINE_AND_APPEND:
+                    // apend 
+                    // let _buffer = option.buffer;
+                    // option.output.push('');
+                    option.lineFeedFlag = true; //'---';
+
+                    break;
+            }
         }
     }
 
