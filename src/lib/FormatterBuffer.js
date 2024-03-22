@@ -86,6 +86,15 @@ class FormatterBuffer{
         }
         return null;
     }
+    /**
+     * replace last segment with new value
+     * @param {*} newValue 
+     */
+    replaceLastSegment(newValue){
+        const { bufferSegments} = this;
+        bufferSegments.pop();
+        bufferSegments.push(newValue); 
+    }
 }
 
 exports.FormatterBuffer = FormatterBuffer;

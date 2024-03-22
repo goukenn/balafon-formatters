@@ -19,6 +19,7 @@
     "dotenv": "^16.4.5",
     "eslint": "^8.56.0",
     "typescript": "^5.3.3",
+    "unit.js": "^2.1.1",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   },
@@ -27,7 +28,8 @@
     "string-formatter": "node ./src/stringformatter.js",
     "debug-range": "node ./src/treat.token.js",
     "debug-detect-destructure": "node ./tests/detect.destructuration.js",
-    "debug-end-tag": "node ./tests/detect.close.brank.js"
+    "debug-end-tag": "node ./tests/detect.close.brank.js",
+    "debug-bcss": "node ./tests/bcss.test.js"
   },
   "engines": {
     "vscode": "^1.86.0"

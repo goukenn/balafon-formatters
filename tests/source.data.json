@@ -74,6 +74,38 @@
             "e": [
                 "<form></form>"
             ]
+        },
+        {
+            "s": [
+                "<div id=\"page\" />"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+        {
+            "s": [
+                "<div id=\"page\"></div>"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+        {
+            "s": [
+                "<div id=\"page\"/>"
+            ],
+            "e": [
+                "<div id=\"page\"></div>"
+            ]
+        },
+        {
+            "s": [
+                "<div id=\"page\"> 'open' </div>"
+            ],
+            "e": [
+                "<div id=\"page\"> 'open' </div>"
+            ]
         }
     ]
 }

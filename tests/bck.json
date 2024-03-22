@@ -83,14 +83,6 @@
 },
 {
     "s": [
-        "<div id=\"page\"> 'open' </div>"
-    ],
-    "e": [
-        "<div id=\"page\"> 'open' </div>"
-    ]
-},
-{
-    "s": [
         "<div><span>'open'</span></div>"
     ],
     "e": [

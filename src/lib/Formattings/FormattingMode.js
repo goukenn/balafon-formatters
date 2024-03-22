@@ -16,6 +16,12 @@ exports.FM_END_BLOCK = FM_END_BLOCK;
 exports.FM_START_LINE_AND_APPEND = FM_START_LINE_AND_APPEND; 
 exports.FM_END_INSTUCTION = FM_END_INSTUCTION; 
 
+const PFM_LINE_FEED = 1;
+
+exports.PatternFormattingMode = {
+    PFM_LINE_FEED
+};
+
 
 exports.HandleFormatting = function(_marker, option, _old) {
         let _mode = _marker.mode;
@@ -98,14 +104,14 @@ exports.HandleFormatting = function(_marker, option, _old) {
 function updateBuffer(data, mode, _marker, option){
     switch(mode){
         case FM_START_LINE:
+        case FM_END_BLOCK:
             data = data.trimStart();
             let _buffer = option.buffer;
             if (_buffer.length > 0) {
                 option.output.push(_buffer); // append line 
                 option.formatterBuffer.clear();
             }
-            option.appendToBuffer(data, _marker);
-            //option.store();
+            option.appendToBuffer(data, _marker); 
             _marker.mode = FM_APPEND;
             break;
         case FM_APPEND:

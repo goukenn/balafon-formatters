@@ -25,8 +25,8 @@ const { RegexUtils } = require('./lib/RegexUtils');
 
 
 // return;
-const json_data = require("../data/html.btm-format.json");
-const _bjs_data = require("./formatters/js.btm-syntaxes.json");
+
+const _bjs_data = require("./formatters/js.btm-syntax.json");
 const _formatter = Formatters.CreateFrom(_bjs_data);
 let lines = [
     // "var s = \"bonjour \\\"tout le monde\";",

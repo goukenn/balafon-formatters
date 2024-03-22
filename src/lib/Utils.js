@@ -291,7 +291,7 @@ class Utils {
             _match.index += pos;
             //_a.startMatch(line, _match);
             if (debug) {
-                console.log('matcher-begin: ', {
+                console.log('matcher-begin-1: ', {
                     '__name': _a.toString(),
                     name: _a.name, line, pos:
                         _match.index, depth,

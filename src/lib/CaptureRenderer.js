@@ -188,6 +188,7 @@ class CaptureRenderer{
                         let offset = 0;
                         let _out = '';
                         let c = '';
+                        // + | order block 
                         rf.forEach(s=>{
                             c = treat_constant(nv.substring(offset, s.range[0]), listener);
                             let dt = c+s.rf;// +nv;//.substring(s.range[0]+s.range[1]);
@@ -202,10 +203,10 @@ class CaptureRenderer{
                     }
                     if (q.parent){
                         // update parent value.
-                        let s = -q.parent.root.start + q.root.start;
-                        let e = -q.root.start+ q.root.end;
+                        let s =  q.root.start - q.parent.root.start;
+                        let e =  q.root.end - q.root.start;
                         // let v =  q.parent.root.value;
-                         
+                        // + | transform to [start_index, length] of nv to replace
                         q.parent.output.push({range:[s,e], rf}); 
                     }
 
