@@ -58,6 +58,11 @@ class PatternMatchInfo {
     newLine = false;
 
     /**
+     * get or store the end group
+     */
+    endGroup = null;
+
+    /**
      * get or set the index of this Pattern in parent array
      * @var {number}
      */
