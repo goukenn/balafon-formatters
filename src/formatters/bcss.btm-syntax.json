@@ -245,6 +245,7 @@
             "begin": "(\\{)",
             "end": "(\\})",
             "isBlock": true,
+            "name":"meta.inner.media.block.capture.bcss",
             "patterns": [
                 {
                     "include": "#media-inner-property"

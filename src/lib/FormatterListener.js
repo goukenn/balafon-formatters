@@ -54,7 +54,7 @@ class FormatterListener {
             if (startBlock){
                 output.unshift('');
             }
-            let _tab = d > 0 ? d+tabStop.repeat(d) : '';
+            let _tab = d > 0 ? tabStop.repeat(d) : '';
             output.push(_tab + s);
         } 
     }
