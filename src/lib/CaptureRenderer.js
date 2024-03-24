@@ -154,6 +154,22 @@ class CaptureRenderer{
                     tokens = tokens ? tokens.slice(0) : [];// default constant 
                     let tokenID = null;
                     let cap = null;
+                   
+                    if (Array.isArray(rf)){
+                        const nv = q.root.value;
+                        let offset = 0;
+                        let _out = '';
+                        let c = '';
+                        // + | order block 
+                        rf.forEach(s=>{
+                            c = treat_constant(nv.substring(offset, s.range[0]), listener);
+                            let dt = c+s.rf;// +nv;//.substring(s.range[0]+s.range[1]);
+                            offset = s.range[0]+s.range[1];
+                            _out +=dt;
+                        });
+                        _out+= treat_constant(nv.substring(offset), listener);
+                        rf = _out;
+                    }
                     if (id in captures){
                         cap = captures[id];
                         if (cap.name){
@@ -182,22 +198,7 @@ class CaptureRenderer{
                                 rf = Utils.TreatPatternValue(rf, cap.patterns, self.matches, option);
                             }
                         }
-                    }  
-                    if (Array.isArray(rf)){
-                        const nv = q.root.value;
-                        let offset = 0;
-                        let _out = '';
-                        let c = '';
-                        // + | order block 
-                        rf.forEach(s=>{
-                            c = treat_constant(nv.substring(offset, s.range[0]), listener);
-                            let dt = c+s.rf;// +nv;//.substring(s.range[0]+s.range[1]);
-                            offset = s.range[0]+s.range[1];
-                            _out +=dt;
-                        });
-                        _out+= treat_constant(nv.substring(offset), listener);
-                        rf = _out;
-                    }
+                    } 
                     if (listener){
                         rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap); 
                     }

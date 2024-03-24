@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const _utils = require("../lib/Utils")
  
 
-const { Patterns, CaptureInfo } = _utils.Utils.Classes;
+const { Patterns, CaptureInfo, Debug } = _utils.Utils.Classes;
 
 function InitLine(target, max_line_count) {
     let _maxLine = (max_line_count + '').length;
@@ -57,6 +57,7 @@ const webStyleClass = {
  */
 function webFormattingListener(_def) {
     _def._maxLineCount = 0;
+    _def.globalClassMap = {};
     return function () {
         let blocks = [];
         let sbuffer = false;
@@ -78,7 +79,7 @@ function webFormattingListener(_def) {
             }, 
             renderToken(v, tokens, tokenID, engine, debug, marker) {
                 // console.log("marker", marker);
-                console.log('renderToken', {value:v, tokenID, tokens: tokens.slice(0)})
+                debug && Debug.log('renderToken', {value:v, tokenID, tokens: tokens.slice(0)})
                 if (v.length==0){
                     return '';
                 }
@@ -88,17 +89,22 @@ function webFormattingListener(_def) {
                 let _map = {};
                 if (tokenID) {
                     _map[tokenID] = 1;
+                    _def.globalClassMap[tokenID] = 1;
                 }
                 if (marker?.className){
                     marker.className.split(' ').forEach(a=>{
                        if(a.trim().length==0)return;
                         _map[a]=1;
+                        _def.globalClassMap[tokenID] = 1;
                     });
                 }
                 if (/^symbol\./.test(lt)) {
                     v = v.replace("<", "&lt;").replace(">", "&gt;");
                     _map['s']=1;
                     _map['symbol']=1; 
+                }
+                if (/^constant\.color/.test(lt)){
+                    v = "<div class=\"inline-color\" style=\"display:inline-block; margin: 0 4px; background-color:"+v+"; width:8px; height:8px;\"></div>"+v;
                 }
                 _clname = Object.keys(_map).join(' ');
                 if (_clname.length==0){
