@@ -215,9 +215,10 @@ class Utils {
                 _from = from;
             }
         });
-        // if (_match==0){
-        //     return false;
-        // }
+       
+        if (_match===0){
+            return false;
+        }
         return { _a, _match ,_from};
     }
     /**
@@ -235,7 +236,15 @@ class Utils {
         let _from = -1;
         let l = line.substring(pos);
         const { RefPatterns } = Utils.Classes;
+        console.log(l);
+
+        // ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo, true));
+        // let m = {_a, _match, _from};
         ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+        // let _m1 = {_a, _match, _from};
+
+    
+   
 
         if (_a) {
             // console.log(_match);
