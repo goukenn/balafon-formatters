@@ -814,7 +814,8 @@
             "match": "\\s*(#([0-9a-f]{8}|[\\da-f]{6}|[\\da-f]{4}|[\\da-f]{3}))\\s*",
             "captures": {
                 "1": {
-                    "name": "constant.type.hex.color.bcss"
+                    "name": "constant.color.hex.bcss",
+                    "className":"color"
                 }
             }
         },
