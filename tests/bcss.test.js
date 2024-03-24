@@ -40,8 +40,8 @@ _formatter.listener = null;
 // _formatter.listener = webUtils.webFormattingListener(_def);
 let src = `# default-media sm
 @def{  
-    body
-.p
+    body .p +    
+b\\:hover
 {
         display: none;
         min-width:100px;

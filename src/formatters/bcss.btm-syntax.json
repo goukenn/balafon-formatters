@@ -137,7 +137,7 @@
                 },
                 {
                     "name": "meta.base.selector.bcss",
-                    "begin": "\\s*(\\*|((?:\\.|#)?[\\w\\-]+))",
+                    "begin": "(\\*|((?:\\.|#)?[\\w\\-]+))",
                     "end": "(?=\\{|\\})",
                     "comment": "detect base selector",
                     "formattingMode": 1,
@@ -156,14 +156,10 @@
                             "className":"selector-op operator"
                         },
                         {
-                            "match":"(\\.[\\w\\-]+)", 
+                            "match":"\\s*(\\.[\\w\\-]+)", 
                             "className":"class_name",
-                            "startLineTransform":["trim", "[ $0]"]
-                        },
-                        {
-                            "match":"^\\s*(\\.[\\w\\-]+)\\s*", 
-                            "className":"class_name", 
-                            "transform":["trim", "[ $0]"]
+                            "startLineTransform":["trim", "[ $0]"],
+                            "transform":["trim", "[$0]"]
                         },
                         {
                             "include": "#single-line-comment"
