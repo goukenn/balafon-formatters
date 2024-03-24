@@ -55,7 +55,8 @@ b\\:hover{
     info{
         color:red;
     }
-}@sm-screen{
+}
+@sm-screen{
     body{
         background-color:red;
     }
