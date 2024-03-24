@@ -60,8 +60,14 @@ b\\:hover{
     body{
         background-color:red;
     }
-    p{
+    p[type=info]:visited:not(.sample){
         color:yellow;
+    }
+}`;
+src = `
+@def{
+    d{ 
+            color     :    red; 
     }
 }`;
 const g = src.split("\n");
