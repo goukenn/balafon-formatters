@@ -14,15 +14,7 @@
         //     return o.json();
         // });  
         const { Patterns, CaptureInfo } = lib;
-        class ExtraPattern extends Patterns{
-            className;
-        }
-        class ExtraCapture extends CaptureInfo{
-            className
-            constructor(q){
-                super(q); 
-            }
-        }
+       
         const classDefinition = {
             'comment':'comment',
             'reserved-word':'rs-w',
@@ -104,11 +96,9 @@
         }
         ///const syntax = lib.GetFormatterSyntaxe('js.btm-syntaxes.json');//dist/bformatter/1.0.1/bformatter.mjs'; 
         (function(lib, t){ 
-        const { Formatters, WebCodeListener, Web } = lib;  
-        const _formatter = Formatters.Load('js', {
-            patternClassName: ExtraPattern,
-            captureInfoClassName: ExtraCapture
-        }); 
+        const { Formatters, WebCodeListener, Web } = lib;
+        console.log(Web.Utils.webStyleClass);  
+        const _formatter = Formatters.Load('js', Web.Utils.webStyleClass); 
         let _listener_data = null;
         let _def = {}; 
         _formatter.debug = false;
@@ -139,7 +129,18 @@
     (function(t){
         const { Formatters , Web } = lib; 
         let src = `# default-media sm
-@def{}
+@def{
+    body{
+        p{
+            color:red;
+            display: block;
+            local{
+                color:yellow;
+                border-color: #444;
+            }
+        }
+    }
+}
 
 
 @sm-screen{
@@ -156,22 +157,8 @@
     }
 }
 @colors{}`;
-
-let __src = `@def{  
-    body .p +
-b\\:hover
-{
-        display: none;
-        min-width:100px;
-        p{
-            color:red;
-            display: block;
-            local{
-                color:yellow;
-            }
-        }
-    }
-}`;
+  
+ 
 let _src = [
     "# default-media sm",  
     "@def{",
@@ -183,10 +170,7 @@ let _src = [
     "@colors{}"
 ].join("\r\n");
         let type = t.getAttribute('data-code-type');
-        let g = Formatters.Load(type, {
-            patternClassName: ExtraPattern,
-            captureInfoClassName: ExtraCapture
-        });
+        let g = Formatters.Load(type, lib.Web.Utils.webStyleClass);
         if (g){
             let _lineCount = 1;
             let _def = {};
