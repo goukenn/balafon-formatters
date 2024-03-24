@@ -40,11 +40,27 @@ _formatter.listener = null;
 // _formatter.listener = webUtils.webFormattingListener(_def);
 let src = `# default-media sm
 @def{  
-    body .p +    
-b\\:hover
-{
+    body .p +
+b\\:hover{
         display: none;
         min-width:100px;
+        p{
+            color:red;
+            display: block;
+            local{
+                color:yellow;
+            }
+        }
+    }
+    info{
+        color:red;
+    }
+}@sm-screen{
+    body{
+        background-color:red;
+    }
+    p{
+        color:yellow;
     }
 }`;
 const g = src.split("\n");
@@ -57,8 +73,8 @@ const g = src.split("\n");
 // ];
 
 const data = _formatter.format(g);
- 
+
 
 console.log("result: ");
-console.log(data); 
+console.log(data);
 console.log(':--done--:');

@@ -176,7 +176,6 @@
             "name": "end.tag.definition.html",
             "comment": "detect non well formed end tags",
             "nextTrimWhiteSpace": true,
-            "transformToken": true,
             "endCaptures": {
                 "0": {
                     "nextTrimWhiteSpace": true

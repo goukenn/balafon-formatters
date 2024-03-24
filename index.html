@@ -139,9 +139,9 @@
     (function(t){
         const { Formatters , Web } = lib; 
         let src = `# default-media sm
+@def{}
 
 
-        @def{}
 @sm-screen{
     // presentation du jour
     body{
@@ -151,8 +151,27 @@
     body > div{
         min-width:100px;
     }
+    info{
+        color:red;
+    }
 }
 @colors{}`;
+
+let __src = `@def{  
+    body .p +
+b\\:hover
+{
+        display: none;
+        min-width:100px;
+        p{
+            color:red;
+            display: block;
+            local{
+                color:yellow;
+            }
+        }
+    }
+}`;
 let _src = [
     "# default-media sm",  
     "@def{",
@@ -210,6 +229,7 @@ let _src = [
             --btm-directive-cl: #fd9312;
             --btm-operator-cl: #44D5DF;
             --btm-property-cl:#2a8084;
+            --btm-length-cl:#842a2a;
         }
         code span.comment{
             color: var(--btm-comment-cl)
@@ -229,6 +249,9 @@ let _src = [
         }
         code span.prop{
             color: var(--btm-property-cl)
+        } 
+        code span.length{
+            color: var(--btm-length-cl)
         } 
     </style>
     </head>

@@ -122,13 +122,6 @@ class Patterns{
      */
     updateParentProps;
 
-
-    /**
-     * use to mark section as a buffer transform - according to parent 
-     * passing the transformed data to parent end 
-     */
-    transformToken;
-
     /**
      * list of tranform operation
      * @var {string|string[]}
