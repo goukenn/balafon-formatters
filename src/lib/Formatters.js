@@ -732,6 +732,10 @@ class Formatters {
             c = Utils.StringValueTransform(c, _marker.transform);
             op.push('transform');
         }
+        if (option && (option.startLine) && _marker.startLineTransform){
+            c = Utils.StringValueTransform(c, _marker.startLineTransform);
+            op.push('startLineTransform');
+        }
         return c;
     }
     /**
