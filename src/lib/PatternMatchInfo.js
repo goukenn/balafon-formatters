@@ -62,6 +62,12 @@ class PatternMatchInfo {
      */
     endGroup = null;
 
+     /**
+     * @var {?boolean}
+     */
+     isShiftenName = false;
+
+
     /**
      * get or set the index of this Pattern in parent array
      * @var {number}
@@ -74,6 +80,9 @@ class PatternMatchInfo {
         }
         return -1;
     }
+
+   
+
 
     constructor() {
         var m_parent;
@@ -89,6 +98,7 @@ class PatternMatchInfo {
         var m_isBlockStared = false;
         var m_bufferMode = 1; // how to operate on buffer 
         var m_patterns = null;
+        var m_fromGroup = null; // store pattern group - to dected token id
         /**
         * get or set the buffer mode. 0 - add a line before add go to 1 just append to buffer, 2 add a line after
         */
@@ -149,12 +159,17 @@ class PatternMatchInfo {
                 return m_patterns;
             }
         });
+        Object.defineProperty(this, 'fromGroup', {
+            get() {
+                return m_fromGroup;
+            }
+        });
 
         /**
          * 
          * @param {*} marker 
          */
-        this.use = function ({ marker, endRegex, group, line, parent, patterns }) {
+        this.use = function ({ marker, endRegex, group, line, parent, patterns , fromGroup}) {
             m_marker = marker;
             m_endRegex = endRegex;
             m_group = group;
@@ -164,6 +179,7 @@ class PatternMatchInfo {
             m_isBlock = marker.isBlock;
             m_lineFeed = marker.lineFeed;
             m_patterns = patterns;
+            m_fromGroup = fromGroup;
 
             (function (q, pattern) {
                 const _keys = Object.keys(q);

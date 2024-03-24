@@ -292,6 +292,22 @@ class Patterns{
     get newLineContinueState(){
         return true;
     }
+    static Init(_o){
+        if ((_o.matchType == -1) && (_o.patterns?.length>0)){
+            _o.patterns.forEach(s=>{
+                _o._initRef(s);
+            });
+        }
+    }
+    /**
+     * initialize reference
+     * @param {*} a 
+     */
+    _initRef(a){
+        if (!a.tokenID && this.tokenID){
+            a.tokenID = this.tokenID;
+        }
+    }
     check(l, option, parentMatcherInfo){
         let p = null;
         if (this.begin){
@@ -299,10 +315,11 @@ class Patterns{
         } else if (this.match){
             p = this.match.exec(l);
         } else {
+            // + | use for pattern only definition list
             if (this.patterns){
-                const cp = Utils.GetMatchInfo(this.patterns, l, option, parentMatcherInfo); //  Utils.GetPatternMatcher(this.patterns, option, parentMatcherInfo);
+                const cp = Utils.GetMatchInfo(this.patterns, l, option, parentMatcherInfo); 
                 if (cp){
-                    return {p: cp._match, s:cp._a};
+                    return {p: cp._match, s:cp._a, from:this, basefrom: this};
                 }
                 return false;
             }
@@ -314,6 +331,7 @@ class Patterns{
     get matchRegex(){
         return this.matchType == 0? this.begin : this.match;
     }
+    // TODO : remove data 
     get index(){
         return this.m_match?.index;
     }
@@ -341,20 +359,20 @@ class Patterns{
         }
         return null;
     }
-    get blockStart(){
-        const t = this.matchType;
-        if (!this.isBlock || (t!=0)){
-            return '';
-        }
-        return this.block?.start || this.begin.toString().trim();
-    }
-    get blockEnd(){
-        const t = this.matchType;
-        if (!this.isBlock || (t!=0)){
-            return '';
-        }
-        return this.block?.end || this.end.toString().trim();
-    }
+    // get blockStart(){
+    //     const t = this.matchType;
+    //     if (!this.isBlock || (t!=0)){
+    //         return '';
+    //     }
+    //     return this.block?.start || this.begin.toString().trim();
+    // }
+    // get blockEnd(){
+    //     const t = this.matchType;
+    //     if (!this.isBlock || (t!=0)){
+    //         return '';
+    //     }
+    //     return this.block?.end || this.end.toString().trim();
+    // }
     toString(){
         return `Patterns[#${this.name}]`;
     }

@@ -230,10 +230,26 @@ class FormatterOptions {
                     tokenChains.shift();
             }
         }
+        function getTokenID(marker){
+            while(marker){ 
+                if (marker.tokenID){
+                    return marker.tokenID;
+                }
+                if (marker.fromGroup){
+                    if (marker.fromGroup.tokenID){
+                        return marker.fromGroup.tokenID;
+                    }
+                }
+
+                marker = marker.parent;
+            }
+            return null;
+        }
         /**
          * append to buffer
          * @param {string} value 
          * @param {PatternMatchInfo} _marker 
+         * @param {?boolean} treat render token with listener  
          * @param {*} _marker 
          */
         objClass.appendToBuffer = function (value, _marker, treat = true) {
@@ -248,7 +264,8 @@ class FormatterOptions {
                 if (treat && listener?.renderToken) {
                     _shiftMarkerInfo(_marker.marker, tokenChains); 
                     _marker.name && tokenChains.unshift(_marker.name);
-                    _buffer = listener.renderToken(_buffer, tokenChains, _marker.tokenID, engine, debug, _marker);
+                    const tokenID = getTokenID(_marker);
+                    _buffer = listener.renderToken(_buffer, tokenChains, tokenID, engine, debug, _marker);
                 }
                 this.formatterBuffer.appendToBuffer(_buffer);
             }
@@ -411,7 +428,7 @@ class FormatterOptions {
                 const { buffer, output, listener } = _ctx;
                 let l = '';
                 if (listener?.output) {
-                    l = listener.output.apply(null, [clear, { buffer, output, lineFeed, _ctx }]);
+                    l = listener.output.apply(null, [{ buffer, output, lineFeed, _ctx }]);
                 } else {
                     l = this.output.join(lineFeed);
                 }

@@ -138,7 +138,31 @@
 
     (function(t){
         const { Formatters , Web } = lib; 
-        let src = t.innerHTML;
+        let src = `# default-media sm
+
+
+        @def{}
+@sm-screen{
+    // presentation du jour
+    body{
+        background-color:red;
+        display:none;
+    }
+    body > div{
+        min-width:100px;
+    }
+}
+@colors{}`;
+let _src = [
+    "# default-media sm",  
+    "@def{",
+    "// presentation",
+    "}",  
+    "@sm-screen{",
+    "   ",
+    "}",
+    "@colors{}"
+].join("\r\n");
         let type = t.getAttribute('data-code-type');
         let g = Formatters.Load(type, {
             patternClassName: ExtraPattern,
@@ -147,8 +171,10 @@
         if (g){
             let _lineCount = 1;
             let _def = {};
-            g.listener = WebCodeHighlight(_def);
-            t.innerHTML = g.format(src.split("\n"));// "</div>";            
+            g.listener = Web.Utils.webFormattingListener(_def);
+            let data = g.format(src.split("\n"));
+            console.log(data);
+            t.innerHTML = data; // "</div>";            
             Web.Utils.InitLine(t, _def._maxLineCount);  
         }
 
@@ -179,7 +205,31 @@
         }
         :root{
             --btm-operator-cl: orangered;
+            --btm-comment-cl: #12b048;
+            --btm-var-cl: #1233FD;
+            --btm-directive-cl: #fd9312;
+            --btm-operator-cl: #44D5DF;
+            --btm-property-cl:#2a8084;
         }
+        code span.comment{
+            color: var(--btm-comment-cl)
+        }
+        code span.describ-name{
+            color: var(--btm-var-cl)
+        }
+        code span.directive{
+            color: var(--btm-directive-cl);
+            font-weight: bold;
+        }
+        code span.operator, code span.op {
+            color: var(--btm-operator-cl);
+        }
+        code span.selector{
+            color: var(--btm-var-cl);
+        }
+        code span.prop{
+            color: var(--btm-property-cl)
+        } 
     </style>
     </head>
     <body>
@@ -187,17 +237,7 @@
         <code id="content" class="code-js"></code>
 
         <code id="bcss-demo" data-code-type="bcss">
-# default-media sm
-@def{
 
-}
-@sm{
-    
-}
-
-@colors{
-
-}
         </code>
     </body>
 </html>

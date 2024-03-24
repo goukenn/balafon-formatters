@@ -2,7 +2,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const _utils = require("../lib/Utils")
-
+ 
 
 const { Patterns, CaptureInfo } = _utils.Utils.Classes;
 
@@ -32,6 +32,12 @@ function getClass(tokenID){
 
 class ExtraPattern extends Patterns{
     className;
+    _initRef(a){
+        super._initRef(a);
+        if (!a.className && this.className){
+            a.className = this.className;
+        }
+    }
 }
 class ExtraCapture extends CaptureInfo{
     className
@@ -56,87 +62,109 @@ function webFormattingListener(_def) {
         let sbuffer = false;
         let _lineCount = 0;
         let _self = this;
-        let _buffers = [];
         let _r_def = {
             endOutput({lineFeed}){
-                return _buffers.join(lineFeed);
+                return '';
             },
             endContent(){
-                return "";// </div>"
+                return "";
             },
+            appendConstant({_inf, update, data, patternInfo}){
+                if (data.trim().length == 0){
+                    if (patternInfo.isBlock && (patternInfo.childs.length==0))
+                    return;
+                } 
+                update(); 
+            }, 
             renderToken(v, tokens, tokenID, engine, debug, marker) {
                 // console.log("marker", marker);
-                // console.log('renderToken', {value:v, tokenID, tokens: tokens.slice(0)})
+                console.log('renderToken', {value:v, tokenID, tokens: tokens.slice(0)})
+                if (v.length==0){
+                    return '';
+                }
                 let lt = tokens.shift();
                 let n = null;
+                let _clname = '';
+                let _map = {};
                 if (tokenID) {
-                    let _clname = getClass(tokenID);
+                    _map[tokenID] = 1;
+                }
+                if (marker?.className){
+                    marker.className.split(' ').forEach(a=>{
+                       if(a.trim().length==0)return;
+                        _map[a]=1;
+                    });
+                }
+                if (/^symbol\./.test(lt)) {
+                    v = v.replace("<", "&lt;").replace(">", "&gt;");
+                    _map['s']=1;
+                    _map['symbol']=1; 
+                }
+                _clname = Object.keys(_map).join(' ');
+                if (_clname.length==0){
+                    return v;
+                }
                     if (typeof(document) != 'undefined'){
                     n = document.createElement('span');
                     n.className = _clname;
                     n.innerHTML = v;
-                    if (marker?.className) {
-                        n.classList.add(marker.className);
-                    }
+                    
                     return n.outerHTML;
                     } else {
-
-                        if (marker?.className) {
-                            _clname += ' '+marker.className;
+                        if (_clname.length>0){
+                            _clname = " class=\""+_clname+"\"";
                         }
-                        let sb = '<span class=\"'+_clname+'\">'+v+'</span>';
+                        let sb = '<span'+_clname+'>'+v+'</span>';
                         return sb;
-                    }
-                }
-                if (/^symbol\./.test(lt)) {
-                    v = v.replace("<", "&lt;").replace(">", "&gt;");
-                    return '<span class="s symbol">' + v + '</span>';
-                }
-                return v;
+                    }  
             },
             newLine(){
-                console.log('bind extra line');
+                console.log('bind:newLine');
             },
             appendExtraOutput({output}){
-                console.log('bind extra line');
-                // output.push('|---|');
+                // console.log('bind:appendExtraOutput');
+                output.push('');
             },
+            treatOutput({output, lineFeed, tabStop}){
+                const l = [];
+
+                output.forEach((m)=>{
+                    m.split("\n").forEach(_l=>{
+                        //if (_l.length==0) return; // 
+                        _l = "<div class=\"line\">"+_l;
+                        _l+= "</div>";
+                        l.push(_l);
+                        _def._maxLineCount++;
+                    });
+                });
+                return l.join(lineFeed).trimEnd();
+            },
+            output({ buffer, output, lineFeed, flush, _ctx }){    
+                let l = '';
+                //if (output.length>0)
+                    l =  output.join(lineFeed);
+
+                return l;
+            },
+            /**
+             * store what is in the buffer to output
+             * @param {*} param0 
+             */
             store({ output, buffer, depth, tabStop, formatterBuffer }) {
-                if (_self.info.isSubFormatting){
-                    output.push(buffer);
-                    return;
-                }
-                let _line_counter = 0;
-                let _buffer_id = formatterBuffer.id;
-                let _const_cant_store = _buffer_id != '_save_buffer_';
-  
+                
                 const store_buffer = function(buffer){
                     if (buffer.length==0){
                         return;
                     }
                     if (depth > 0) {
-                        buffer = '</div><div class="line"><span>' + ("&nbsp;".repeat(4)).repeat(depth) + '</span>' + buffer;
-                        sbuffer = true;
+                        buffer = '<span>' + ("&nbsp;".repeat(4)).repeat(depth) + '</span>' + buffer;
                     } else { 
-                        buffer = (sbuffer ? '</div>' : '') + '<div class="line">' + buffer+'</div>'; 
-                        sbuffer = false;
-                    }
-                    if (_const_cant_store){
-                        _buffers.push(buffer);
-                    }
-                    _line_counter++;
+                        buffer = buffer; 
+                    } 
                     output.push(buffer);
                 }
-                const r = output.slice(0);
-                output.length = 0;
-                r.push(buffer);
-                r.forEach(store_buffer);
-                // if (_const_cant_store){
-                //     output.length = 0;
-                //     _def._maxLineCount += _line_counter;
-                // }
-
-                //output = _buffers;
+                const r = [buffer]; 
+                r.forEach(store_buffer); 
             },
             startNewBlock(a) {
             }

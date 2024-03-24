@@ -199,7 +199,7 @@ class CaptureRenderer{
                         rf = _out;
                     }
                     if (listener){
-                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, null); 
+                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap); 
                     }
                     if (q.parent){
                         // update parent value.
