@@ -37,10 +37,12 @@ const _formatter = Formatters.Load('bcss', webUtils.webStyleClass);
 const _def = {};
 _formatter.debug = true;
 _formatter.listener = null;
-_formatter.listener = webUtils.webFormattingListener(_def);
+// _formatter.listener = webUtils.webFormattingListener(_def);
 let src = `# default-media sm
 @def{  
-    body > div.info.format#id{
+    body
+.p
+{
         display: none;
         min-width:100px;
     }

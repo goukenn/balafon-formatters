@@ -136,12 +136,9 @@
                     "include": "#single-line-comment"
                 },
                 {
-                    "include": "#glue-white-space"
-                },
-                {
                     "name": "meta.base.selector.bcss",
-                    "begin": "(\\*|((?:\\.|#)?[\\w\\-]+))",
-                    "end": "$",
+                    "begin": "\\s*(\\*|((?:\\.|#)?[\\w\\-]+))",
+                    "end": "(?=\\{|\\})",
                     "comment": "detect base selector",
                     "formattingMode": 1,
                     "tokenID":"selector",
@@ -154,16 +151,25 @@
                     },
                     "patterns": [
                         {
-                            "include":"#css-selector"
+                            "match":"\\s*(?:\\>|\\+|~)\\s*",
+                            "transform":["trim", "[ $0 ]"],
+                            "className":"selector-op operator"
+                        },
+                        {
+                            "match":"(\\.[\\w\\-]+)", 
+                            "className":"class_name",
+                            "startLineTransform":["trim", "[ $0]"]
+                        },
+                        {
+                            "match":"^\\s*(\\.[\\w\\-]+)\\s*", 
+                            "className":"class_name", 
+                            "transform":["trim", "[ $0]"]
                         },
                         {
                             "include": "#single-line-comment"
                         },
                         {
                             "include": "#block-inner-media-capture"
-                        },
-                        {
-                            "include": "#glue-white-space"
                         }
                     ]
                 }
@@ -178,7 +184,7 @@
             "tokenID":"selector",
             "beginCaptures":{
                 "0":{
-                   "transform":["trim","[ $0 ]"],
+                   "transform":["trim","[ $0- ]"],
                    "tokenID":"operator"
                } 
             },

@@ -97,7 +97,13 @@ class Patterns{
      * replace with condition object 
      * @var {} 
      */
-    replaceWithCondition
+    replaceWithCondition;
+
+    /**
+     * apply transform on start line
+     * @var {null|string|string[]}
+     */
+    startLineTransform;
 
     beginCaptures;
 
