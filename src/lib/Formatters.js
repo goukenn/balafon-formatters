@@ -1360,7 +1360,7 @@ class Formatters {
         if (_matcher.group[0].length == 0) {
             // matcher is empty and must past to end group
             if (_endRegex.test(_buffer)) {
-                return this._handleFoundEndPattern(_buffer, option.line, _marker, option, _old);
+                return this._handleFoundEndPattern(_buffer, option.line, _marker, _p, option, _old);
             }
         }
         // + | update parent markerin of before handle marker 
@@ -1737,7 +1737,7 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
         function _restoreSavedBuffer(option) {
             let _nbuffer = option.buffer;
             if (!_restored && (_nbuffer.length > 0)) {
-                q.appendToBuffer(_nbuffer); // .trimEnd());
+                q.appendToBuffer(_nbuffer); 
             }
             option.restoreSavedBuffer();
         }
