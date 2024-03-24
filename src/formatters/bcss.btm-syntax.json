@@ -871,9 +871,8 @@
         },
         "global-directive-media": {
             "begin": "\\s*(@\\b(?:def|(x(x)?)?(sm|lg)(-screen)?|root))\\b",
-            "end": "(?=\\s*|@|$)",
-            "name": "media.directive.bcss",
-            "formattingMode":1,
+            "end": "(?=@|\\s*|$)",
+            "name": "media.directive.bcss", 
             "beginCaptures": {
                 "1": {
                     "name": "meta.global.directive.media.bcss",
