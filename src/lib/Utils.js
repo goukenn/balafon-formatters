@@ -156,11 +156,13 @@ class Utils {
                             } else {
                                 _def = parser.data.repository[_key];
                                 if (_def) {
-                                    // console.log('load : ', _key);
+                                    //console.log('load : ', _key);
                                     _o = new class_name();
                                     parser.includes[_key] = _o;
                                     JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
                                     parser.initialize(_o);
+                                    class_name.Init(_o);
+                                  
                                 }
                             }
                         }
@@ -190,25 +192,33 @@ class Utils {
      * @var {array} l string
      * @var {*} options
      * @var {*} parentMatcherInfo
+     * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined}}
      */
     static GetMatchInfo(patterns, l, options, parentMatcherInfo) {
         let _a = null;
+        let _from = null;
         let _match = 0;
         let _index = -1;
+
         patterns.forEach((s) => {
             let _ts = s;
             let p = null;
+            let from =null;
             let _d = _ts.check(l, options, parentMatcherInfo);
             if (_d) {
-                ({ p, s } = _d);
+                ({ p, s, from } = _d);
             }
             if (p && ((_index == -1) || (_index > p.index))) {
                 _index = p.index;
                 _a = s;
                 _match = p;
+                _from = from;
             }
         });
-        return { _a, _match };
+        // if (_match==0){
+        //     return false;
+        // }
+        return { _a, _match ,_from};
     }
     /**
      * 
@@ -222,11 +232,10 @@ class Utils {
         const { FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
-        let _index = -1;
-        let _indexOf = -1;
+        let _from = -1;
         let l = line.substring(pos);
         const { RefPatterns } = Utils.Classes;
-        ({ _a, _match, _indexOf } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+        ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
 
         if (_a) {
             // console.log(_match);
@@ -241,7 +250,9 @@ class Utils {
                     isBlock: _a.isBlock,
                     isRef: _a instanceof RefPatterns,
                     value: _match[0],
-                    regex: _a.matchRegex
+                    detectOn: l,
+                    regex: _a.matchRegex,
+                    isFromGroupRef: _from != null
                 });
             }
             if (_a.throwError){
@@ -259,7 +270,8 @@ class Utils {
                 line,
                 group: _match,
                 parent: parentMatcherInfo,
-                patterns
+                patterns,
+                fromGroup: _from
             });
 
             // _info.startLine = options.outputBuffer.line;

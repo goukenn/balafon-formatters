@@ -76,11 +76,11 @@ class FormattingBase {
             // + | dependengin on mode.
             switch(mode){
                 case FM_START_LINE_AND_APPEND:
+                case FM_END_BLOCK:
                     // apend 
                     // let _buffer = option.buffer;
                     // option.output.push('');
-                    option.lineFeedFlag = true; //'---';
-
+                    option.lineFeedFlag = true; //'---'; 
                     break;
             }
         }

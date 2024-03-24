@@ -54,7 +54,7 @@ class FormatterListener {
             if (startBlock){
                 output.unshift('');
             }
-            let _tab = d > 0 ? tabStop.repeat(d) : '';
+            let _tab = d > 0 ? d+tabStop.repeat(d) : '';
             output.push(_tab + s);
         } 
     }
@@ -64,11 +64,8 @@ class FormatterListener {
      * @param {{output:string[], lineFeed:string}} param1 
      * @returns {string}
      */
-    output(clear, {output, lineFeed}) { 
-        let _s = output.join(lineFeed);
-        if (clear) {
-            output = [];
-        }
+    output({output, lineFeed}) { 
+        let _s = output.join(lineFeed); 
         return _s;
     }  
     /**
