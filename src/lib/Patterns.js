@@ -318,7 +318,7 @@ class Patterns{
             if (this.patterns){
                 const cp = Utils.GetMatchInfo(this.patterns, l, option, parentMatcherInfo); 
                 if (cp){
-                    return {p: cp._match, s:cp._a, from:this};
+                    return {p: cp._match, s:cp._a, from:this, patterns: this.patterns};
                 }
                 return false;
             }

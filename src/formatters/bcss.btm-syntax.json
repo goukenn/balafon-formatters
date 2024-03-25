@@ -116,18 +116,18 @@
                 }
             }
         },
-        "bcss-media-block-capture": {
-            "begin": "(\\{)",
-            "end": "(\\})",
+        "block-capture": {
+            "begin": "\\{",
+            "end": "\\}",
             "name": "meta.block.capture.bcss",
             "comment": "media block capture",
             "endCaptures": {
-                "1": {
+                "0": {
                     "name": "meta.block.end.capture.bcss"
                 }
             },
             "beginCaptures": {
-                "1": {
+                "0": {
                     "name": "meta.block.start.capture.bcss"
                 }
             },
@@ -136,76 +136,59 @@
                     "include": "#single-line-comment"
                 },
                 {
-                    "include": "#css-media-property-selector"
+                    "name": "meta.base.selector.bcss",
+                    "begin": "(\\*|((?:\\.|#)?[a-zA-Z_][0-9a-zA-Z_\\-]*))",
+                    "end": "(?=\\{|)",
+                    "comment": "detect base css selector",
+                    "formattingMode": 1,
+                    "tokenID":"selector",
+                    "beginCaptures":{
+                        "1":{
+                            "name":"root.selector.bcss",
+                            "tokenID":"selector-base",
+                            "className":"selector"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "begin":"\\s*(?:\\>|\\+|~)\\s*",
+                            "end":"(?=\\{|\\w|.|#)",
+                            "beginCaptures":{
+                                "0":{
+                                    "transform":["trim", "[ $0 ]"]
+                                }
+                            },
+                            "className":"selector-op operator" 
+                        },
+                        {
+                            "match":"\\s*(\\.[\\w\\-]+)", 
+                            "className":"class_name",
+                            "startLineTransform":["trim", "[ $0]"],
+                            "transform":["trim", "[$0]"]
+                        },
+                        {
+                            "match":"\\s*(\\#[\\w\\-]+)", 
+                            "className":"identifier",
+                            "startLineTransform":["trim", "[ $0]"],
+                            "transform":["trim", "[$0]"]
+                        },
+                        {
+                            "match":"\\s*([\\w\\-]+)", 
+                            "className":"tagname",
+                            "startLineTransform":["trim", "[ -$0]"],
+                            "transform":["trim", "[$0]"]
+                        },
+                        {
+                            "include": "#single-line-comment"
+                        },
+                        {
+                            "include": "#block-inner-media-capture"
+                        }
+                    ]
                 }
-               
             ],
             "isBlock": true,
             "formattingMode": 1
-        },
-        "css-media-property-selector": {
-            "name": "meta.base.selector.bcss",
-            "begin": "(\\*|((?:\\.|#)?[\\w\\-]+))",
-            "end": "(?=\\{|\\}|$)",
-            "comment": "detect base selector",
-            "formattingMode": 1,
-            "tokenID":"selector",
-            "beginCaptures":{
-                "1":{
-                    "name":"root.selector.bcss",
-                    "tokenID":"selector-base",
-                    "className":"selector"
-                }
-            },
-            "patterns": [
-                {
-                    "include":"#css-media-properties"
-                } 
-            ]
-        }, 
-        "css-media-properties":{
-            "patterns": [
-                {
-                    "begin":"\\s*(?:\\>|\\+|~)\\s*",
-                    "end":"(?=\\{|\\w|.|#)",
-                    "beginCaptures":{
-                        "0":{
-                            "transform":["trim", "[ $0 ]"],
-                            "className":"selector-op operator",
-                            "tokenID":"selector" 
-                        }
-                    }
-                },
-                {
-                    "match":"\\s*(\\.[\\w\\-]+)", 
-                    "className":"class_name",
-                    "startLineTransform":["trim", "[ $0]"],
-                    "transform":["trim", "[$0]"]
-                },
-                {
-                    "match":"\\s*(\\#[\\w\\-]+)", 
-                    "className":"identifier",
-                    "startLineTransform":["trim", "[ $0]"],
-                    "transform":["trim", "[$0]"]
-                },
-                {
-                    "match":"\\s*([\\w\\-]+)", 
-                    "className":"tagname",
-                    "startLineTransform":["trim", "[ $0]"],
-                    "transform":["trim", "[$0]"]
-                },
-                {
-                    "match":"\\\\:[\\w\\-]+", 
-                    "className":"event-selector", 
-                    "name":"event selector"
-                },
-                {
-                    "include": "#single-line-comment"
-                },
-                {
-                    "include": "#block-inner-media-capture"
-                }
-            ]
         },
         "css-selector":   {
             "begin":"\\s*(?:\\>|\\+|~)\\s*",
@@ -239,7 +222,32 @@
             ]
         },
         "media-inner-property": {
-            "begin": "\\b((?:--)?[\\w][\\w-]*)\\b\\s*",
+            "comment":[
+                "depending on inner property we have :",
+                "css_property_name: value;",
+                "or",
+                "selector--- {",
+                "so single word  operator. or []",
+                "or @..."
+            ],
+            "patterns":[
+                {
+                    "name":"bcss-inner-property-detection",
+                    "begin":"(?=\\s*(?:--)?(?:[_a-zA-Z][_a-zA-Z0-9]*)\\b)",
+                    "end":"(?=\\{|:)",
+                    "patterns":[
+                        {"match":"\\s+", "replaceWith":""}
+                    ]
+                },
+                {
+                    "begin":"((?:--)?(?:[_a-zA-Z][_a-zA-Z0-9]*))(:)",
+                    "end":";|(?=\\})",
+                    "name":"property-definition"
+                }
+            ]
+        },
+        "media-inner-property-real":{
+            "begin": "\\b((?:--)?[\\w][\\w-]*)\\b",
             "end": ";|(?=\\})",
             "formattingMode": 1,
             "tranform": "trim",
@@ -257,13 +265,15 @@
             },
             "patterns": [
                 {
-                    "begin": "(:)",
+                    "begin": "(\\s*(?::)\\s*)",
                     "end": "(?=;|\\})",
                     "name": "property.value.bcss",
+                    "transform":"trim",
                     "beginCaptures": {
                         "1": {
                             "name": "meta.selector.bcss",
-                            "tokenID":"op"
+                            "tokenID":"op",
+                            "replaceWith":"__RI__"
                         }
                     },
                     "patterns": [
@@ -271,9 +281,6 @@
                             "include": "#value-definition"
                         }
                     ]
-                },
-                {
-                    "include":"#block-inner-media-capture"
                 },
                 {
                     "include": "#property-rule"
@@ -284,15 +291,11 @@
             "begin": "(\\{)",
             "end": "(\\})",
             "isBlock": true,
-            "formattingMode":1,
             "name":"meta.inner.media.block.capture.bcss",
             "patterns": [
                 {
                     "include": "#media-inner-property"
-                }, 
-                {
-                    "include": "#block-inner-media-capture"
-                } 
+                }
             ]
         },
         "comment": {
@@ -814,8 +817,7 @@
             "match": "\\s*(#([0-9a-f]{8}|[\\da-f]{6}|[\\da-f]{4}|[\\da-f]{3}))\\s*",
             "captures": {
                 "1": {
-                    "name": "constant.color.hex.bcss",
-                    "className":"color"
+                    "name": "constant.type.hex.color.bcss"
                 }
             }
         },
@@ -872,8 +874,8 @@
         },
         "global-directive-media": {
             "begin": "\\s*(@\\b(?:def|(x(x)?)?(sm|lg)(-screen)?|root))\\b",
-            "end": "(?=@|\\s*|$)",
-            "name": "media.directive.bcss", 
+            "end": "$",
+            "name": "media.directive.bcss",
             "beginCaptures": {
                 "1": {
                     "name": "meta.global.directive.media.bcss",
@@ -883,13 +885,10 @@
             },
             "patterns": [
                 {
-                    "include": "#bcss-media-block-capture"
-                },
-                {
-                    "match":"\\s+",
-                    "transfrom":"trim"
+                    "include": "#block-capture"
                 }
-            ]
+            ],
+            "className": "directive media-directive"
         },
         "global-colors-directive": {
             "begin": "\\s*(@\\b(?:colors)\\b)",

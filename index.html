@@ -97,7 +97,7 @@
         ///const syntax = lib.GetFormatterSyntaxe('js.btm-syntaxes.json');//dist/bformatter/1.0.1/bformatter.mjs'; 
         (function(lib, t){ 
         const { Formatters, WebCodeListener, Web } = lib;
-        console.log(Web.Utils.webStyleClass);  
+ 
         const _formatter = Formatters.Load('js', Web.Utils.webStyleClass); 
         let _listener_data = null;
         let _def = {}; 
@@ -121,7 +121,7 @@
             //" else return x; "
         ]);
         data = data+"</div>";
-        t.innerHTML = data;//_listener_data.node.outerHTML;
+        t.innerHTML = data; 
         Web.Utils.InitLine(t, _maxLineCount);
     })(lib, document.getElementById('content'));
 
@@ -149,26 +149,20 @@
         background-color:red;
         display:none;
     }
-    body > div{
+    body > div\\:hover::hover{
         min-width:100px;
     }
     info{
         color:red;
     }
+    info:first-child{
+        border-radius:33px;
+    }
+    p[type=info]:visited:not(.sample){
+        color:yellow;
+    }
 }
-@colors{}`;
-  
- 
-let _src = [
-    "# default-media sm",  
-    "@def{",
-    "// presentation",
-    "}",  
-    "@sm-screen{",
-    "   ",
-    "}",
-    "@colors{}"
-].join("\r\n");
+@colors{}`; 
         let type = t.getAttribute('data-code-type');
         let g = Formatters.Load(type, lib.Web.Utils.webStyleClass);
         if (g){
@@ -176,8 +170,8 @@ let _src = [
             let _def = {};
             g.listener = Web.Utils.webFormattingListener(_def);
             let data = g.format(src.split("\n"));
-            console.log(data);
-            t.innerHTML = data; // "</div>";            
+             
+            t.innerHTML = data;          
             Web.Utils.InitLine(t, _def._maxLineCount);  
         }
 
@@ -214,6 +208,7 @@ let _src = [
             --btm-operator-cl: #44D5DF;
             --btm-property-cl:#2a8084;
             --btm-length-cl:#842a2a;
+            --btm-event-cl:#DFDDFF;
         }
         code span.comment{
             color: var(--btm-comment-cl)
@@ -237,6 +232,9 @@ let _src = [
         code span.length{
             color: var(--btm-length-cl)
         } 
+        code span.selector.event-selector{
+            color: var(--btm-event-cl)
+        }
     </style>
     </head>
     <body>

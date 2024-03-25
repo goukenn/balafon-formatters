@@ -192,13 +192,14 @@ class Utils {
      * @var {array} l string
      * @var {*} options
      * @var {*} parentMatcherInfo
-     * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined}}
+     * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined, patterns}}
      */
     static GetMatchInfo(patterns, l, options, parentMatcherInfo) {
         let _a = null;
         let _from = null;
         let _match = 0;
         let _index = -1;
+        let _patterns = patterns;
 
         patterns.forEach((s) => {
             let _ts = s;
@@ -206,20 +207,21 @@ class Utils {
             let from =null;
             let _d = _ts.check(l, options, parentMatcherInfo);
             if (_d) {
-                ({ p, s, from } = _d);
+                ({ p, s, from, patterns } = _d);
             }
             if (p && ((_index == -1) || (_index > p.index))) {
                 _index = p.index;
                 _a = s;
                 _match = p;
                 _from = from;
+                _patterns = patterns || _patterns;
             }
         });
        
         if (_match===0){
             return false;
         }
-        return { _a, _match ,_from};
+        return { _a, _match ,_from, patterns: _patterns};
     }
     /**
      * 
@@ -239,7 +241,8 @@ class Utils {
        
 
 
-        ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+        // ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+        ({ _a, _match, _from, patterns } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
 
 
         if (_a) {
@@ -270,22 +273,21 @@ class Utils {
             // +| treat begin captures must be at corresponding data info
             //options.treatBeginCaptures(_a, _match); 
             let _info = new PatternMatchInfo;
-            _info.use({
-                marker: _a, endRegex: _a.endRegex(_match),
-                line,
-                group: _match,
-                parent: parentMatcherInfo,
-                patterns,
-                fromGroup: _from
-            });
-
-            // _info.startLine = options.outputBuffer.line;
-            // _info.startLine = options.outputBuffer.range;
-            // init _info matcher
-
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns);            
             return _info;
         }
         return _a;
+    }
+    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns){
+        _info.use({
+            marker: _a, 
+            endRegex: _a.endRegex(_match),
+            line,
+            group: _match,
+            parent: parentMatcherInfo,
+            patterns,
+            fromGroup: _from
+        });
     }
     /**
      * 
@@ -301,7 +303,8 @@ class Utils {
         let _a = null;
         let _match = 0;
         let pos = 0;
-        ({ _a, _match } = Utils.GetMatchInfo(patterns, line, options, parentMatcherInfo));
+        let _from = null;
+        ({ _a, _match, _from, patterns } = Utils.GetMatchInfo(patterns, line, options, parentMatcherInfo));
 
         if (_a) {
             // console.log(_match);
@@ -324,16 +327,7 @@ class Utils {
             // +| treat begin captures must be at corresponding data info
             //options.treatBeginCaptures(_a, _match); 
             let _info = new PatternMatchInfo;
-            _info.use({
-                marker: _a, endRegex: _a.endRegex(_match),
-                line,
-                group: _match,
-                parent: parentMatcherInfo
-            });
-            // _info.startLine = options.outputBuffer.line;
-            // _info.startLine = options.outputBuffer.range;
-            // init _info matcher
-
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns);            
             return _info;
         }
         return _a;
