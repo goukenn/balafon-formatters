@@ -23,6 +23,16 @@ exports.PatternFormattingMode = {
 };
 
 
+exports.FormattingMode = {
+    FM_APPEND,
+    FM_START_BLOCK,
+    FM_END_INSTUCTION,
+    FM_END_BLOCK,
+    FM_START_LINE,
+    FM_START_LINE_AND_APPEND 
+};
+
+
 exports.HandleFormatting = function(_marker, option, _old) {
         let _mode = _marker.mode;
         let _sbuffer = '';
@@ -117,6 +127,10 @@ function updateBuffer(data, mode, _marker, option){
         case FM_APPEND:
             option.appendToBuffer(data, _marker);
         break;
+        case FM_START_BLOCK:
+            // depending on the formatting mode start new bloack
+            console.log("mode:", );
+            break;
         default:
             throw new Error('update Buffer not handled : '+mode); 
     }

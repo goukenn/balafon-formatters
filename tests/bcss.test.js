@@ -66,7 +66,7 @@ b\\:hover{
 }`;
 src = `
 @def{
-    d{ 
+    doaction{ 
             color     :    red; 
     }
 }`;

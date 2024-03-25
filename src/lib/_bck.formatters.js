@@ -970,7 +970,7 @@ class Formatters {
 
                 if (_matcher.isStreamCapture) {
                     // + | detect buffer empty - buffer detection 
-                    this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
+                    //this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
                     return this._startStreamingPattern(_matcher, option.line, _endRegex, option, _error,false);
                 }
                 // handle matcher 
@@ -990,7 +990,10 @@ class Formatters {
                     option.pos = _p.index;
 
                     return patternInfo;
-                } 
+                } else{
+                    // +| update buffer 
+                    // _buffer+= _matcher.group[0];
+                }
                 return this._handleSameGroup2(patternInfo, _matcher, _p, _old, _buffer, option, _endRegex);
             }
             // priority to current marker 
