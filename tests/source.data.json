@@ -25,10 +25,11 @@
         },
         {
             "s": [
-                "<div><span>'open'</span><nav>navigation</nav>done</div>"
+                "<div>hello friend<span>'open'</span><nav>navigation</nav>done</div>"
             ],
             "e": [
                 "<div>",
+                "\thello friend",
                 "\t<span>'open'</span>",
                 "\t<nav>navigation</nav>",
                 "\tdone",

@@ -74,12 +74,11 @@ class FormattingBase {
             }
         } else {
             // + | dependengin on mode.
-            switch(mode){
+            switch (mode) {
                 case FM_START_LINE_AND_APPEND:
                 case FM_END_BLOCK:
                     // apend 
-                    // let _buffer = option.buffer;
-                    // option.output.push('');
+                    // let _buffer = option.buffer; 
                     option.lineFeedFlag = true; //'---'; 
                     break;
             }
@@ -94,26 +93,56 @@ class FormattingBase {
      * @param {FormatterOptions} option 
      */
     updateEndBlockAfterRestoringBuffer(formatter, marker_info, _buffer, _old, option) {
-        const { parent } = marker_info;
-        if (parent) { 
+        const { parent, isBlock } = marker_info;
+        if (parent) {
             const { mode, childs, isAutoBlockElement } = parent;
             if (isAutoBlockElement) {
-                if (childs.length > 1) {
+                if ((childs.length > 1)) {
                     if (mode == FM_START_LINE) {
 
                         option.saveBuffer();
-                        let _frm = option.formatterBuffer;
+                        let _frm = option.formatterBuffer; 
                         _frm.output.push('');
                         _frm.appendToBuffer(_buffer);
                         option.store();
                         _buffer = option.flush(true);
-                        option.restoreSavedBuffer();
-                        //marker_info.mode = FM_APPEND; 
+                        option.restoreSavedBuffer(); 
                     }
+                } else if (isBlock && !option.formatterBuffer.isEmpty){
+                    let c = option.buffer; 
+                    c = option.flush(true)+c;
+                    option.output.push(c); 
+                    option.output.push(_buffer);
+                    _buffer = option.flush(true);
                 }
-            }
+            } 
         }
         option.formatterBuffer.appendToBuffer(_buffer);
+    }
+    /**
+    * treat and start block definition 
+    * @param {Formatters} formatter 
+    * @param {PatternMatchInfo} patternInfo 
+    * @param {FormatterOptions} option 
+    */
+    startBlockDefinition(formatter, patternInfo, option) {
+        patternInfo.isBlockStarted = true;
+        formatter._startBlock(option);
+        if (!option.isCurrentFormatterBufferIsRootBuffer) {
+            let _cf = option.flush(true);
+            if (_cf.length>0){
+                throw new Error('start block contains definition: '+_cf);
+            }
+        }
+        if (option.markerInfo.length > 0) {
+            const _old = option.markerInfo[0];
+            _old.content = _old.content.trim();
+        }
+        patternInfo.mode = FM_START_BLOCK;
+        const { parent } = patternInfo;
+        if (parent) {
+            parent.mode = FM_APPEND;
+        }
     }
 
     /**
@@ -129,7 +158,7 @@ class FormattingBase {
             case FM_START_LINE:
                 // append line 
                 let _buffer = option.buffer;
-                option.appendExtaOutput();
+                option.appendExtraOutput();
                 let _sbuffer = option.flush(true);
                 if (_buffer.length > 0) {
                     option.output.push(_buffer); // append line 
@@ -146,15 +175,18 @@ class FormattingBase {
         _sbuffer += option.flush(true);
         return _sbuffer;
     }
-    handleEndInstruction(formatter, marker, _old, option){
-         // instruction  
-         if (_old.marker.mode == 2) {
+    handleEndInstruction(formatter, marker, _old, option) {
+        // instruction  
+        if (_old.marker.mode == 2) {
             // + | change mode to 4 so that next line must on new line
             _old.marker.mode = 4;
         } else {
             _old.marker.mode = FM_END_INSTUCTION; // append - then end instruction go to 
         }
     }
+    formatJoinFirstEntry(entryBuffer, buffer){
+        return [entryBuffer, buffer].join("\n");
+    } 
 }
 
 //+ |  on end append technique

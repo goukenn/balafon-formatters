@@ -66,7 +66,7 @@ class Patterns{
 
 
     /**
-     * mark this match as instruction separator
+     * mark this match as instruction separator. by default will be use as lineFeed
      */
     isInstructionSeparator;
 
@@ -143,6 +143,14 @@ class Patterns{
      * @var {null|bool|string|PatterMatchErrorInfo}
      */
     throwError;
+
+    /**
+     * stream action type.
+     * value use only on streaming
+     * @var {?string|'parent'|'next'}
+     */
+    streamAction;
+   
 
     constructor(){
         this.patterns = [];
@@ -373,7 +381,12 @@ class Patterns{
     //     return this.block?.end || this.end.toString().trim();
     // }
     toString(){
-        return `Patterns[#${this.name}]`;
+        let { name, begin, end, match } = this;
+        if (!name){
+            name = JSON.stringify({type:this.matchType, match, 
+                begin: begin});
+        }
+        return `Patterns[#${name}]`;
     }
 }
 

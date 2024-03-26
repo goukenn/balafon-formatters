@@ -22,6 +22,10 @@ class FormatterOptions {
     lineJoin = false;
     markerDepth = 0; // store handleMarker stack
     /**
+     * flag to call on end of file
+     */
+    EOF = false;
+    /**
      * store global output result 
      */
     // output = [];   // output result global output result 
@@ -30,7 +34,7 @@ class FormatterOptions {
      * line feed flag in order to store on next root operation
      * @var {?boolean} 
      */
-    lineFeedFlag;
+    lineFeedFlag = false;
     state = ''; // current state mode 
     range = {
         start: 0, // start position
@@ -92,6 +96,11 @@ class FormatterOptions {
             this.range.start = start;
             this.range.end = typeof (end) == 'undefined' ? start : end;
         }
+        this.isRootFormatterBuffer = function (formatter_buffer){
+            return formatter_buffer === _formatterBuffer;
+        }
+        Object.defineProperty(objClass, 'isCurrentFormatterBufferIsRootBuffer', { get(){
+            return this.isRootFormatterBuffer(this.formatterBuffer); } })
         Object.defineProperty(objClass, 'listener', { get: function () { return _listener; } })
         Object.defineProperty(objClass, 'formatter', { get: function () { return _formatter; } }) 
         Object.defineProperty(objClass, 'formatterBuffer', { get: function () { return _formatterBuffer; } })
@@ -119,8 +128,7 @@ class FormatterOptions {
         Object.defineProperty(objClass, 'markerInfo', { get: function () { return _markerInfo; } })
         Object.defineProperty(objClass, 'constants', { get: function () { return m_constants_def; } })
         Object.defineProperty(objClass, 'pos', {
-            get: function () { return m_pos; }, set(v) {
-                // console.log("set position", v);
+            get: function () { return m_pos; }, set(v) { 
                 m_pos = v;
             }
         });
@@ -481,13 +489,16 @@ class FormatterOptions {
             this.formatterBuffer.clear();
         }
     }
-    appendExtaOutput() {
+    appendExtraOutput() {
         this.debug && Debug.log('---:append extra output:---');
-        const { listener } = this;
+        const { listener, output } = this;
+        FormatterOptions.AppendExtraLiveOutput({listener, output});
+    }
+    static AppendExtraLiveOutput({listener, output}){        
         if (listener?.appendExtraOutput){
-            listener.appendExtraOutput({output: this.output});
+            listener.appendExtraOutput({output: output});
         }else 
-            this.output.push('');
+            output.push('');
     }
 }
 

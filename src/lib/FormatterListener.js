@@ -83,22 +83,7 @@ class FormatterListener {
         debug && Debug.log("render token", 0, {tokens,tokenID, value});
         if (engine){
             return engine.renderToken(value, tokens, tokenID, marker);
-        }
-        // let _t = tokens.shift();
-        // if (_t=='tagname.html'){
-        //     return '<span class="s tag">'+value+'</span>';
-        // }
-        // if (/^symbol\./.test(_t)){
-        //     value = value.replace("<", "&lt;").replace(">","&gt;");
-        //     return '<span class="s symbol">'+value+'</span>';
-        // }
-        // let fc = {string(v){
-        //     return '<span class="s string">'+v+'</span>';
-        // }}[tokenID];
-        // if (fc){
-        //     return fc(value, tokens, tokenID )
-        // }
-        //this.setLastMarker(tokenID); 
+        } 
         return value;
     } 
 }
