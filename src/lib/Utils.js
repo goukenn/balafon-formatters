@@ -155,8 +155,7 @@ class Utils {
                                 _o = new refkey_class_name(q);
                             } else {
                                 _def = parser.data.repository[_key];
-                                if (_def) {
-                                    //console.log('load : ', _key);
+                                if (_def) { 
                                     _o = new class_name();
                                     parser.includes[_key] = _o;
                                     JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
@@ -245,10 +244,8 @@ class Utils {
         ({ _a, _match, _from, patterns } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
 
 
-        if (_a) {
-            // console.log(_match);
-            _match.index += pos;
-            //_a.startMatch(line, _match);
+        if (_a) { 
+            _match.index += pos; 
             if (debug) {
                 console.log('matcher-begin: ', {
                     '__name': _a.toString(),
@@ -306,10 +303,8 @@ class Utils {
         let _from = null;
         ({ _a, _match, _from, patterns } = Utils.GetMatchInfo(patterns, line, options, parentMatcherInfo));
 
-        if (_a) {
-            // console.log(_match);
-            _match.index += pos;
-            //_a.startMatch(line, _match);
+        if (_a) { 
+            _match.index += pos; 
             if (debug) {
                 console.log('matcher-begin-1: ', {
                     '__name': _a.toString(),
@@ -567,7 +562,7 @@ class Utils {
             const _tokens = option.tokenChains;
             g = CaptureRenderer.CreateFromGroup(matches, _tokens);
             let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens, option);
-            // console.log("the in ", _in, out);
+            
             return out;
 
         } else {

@@ -1,0 +1,32 @@
+{
+    "scopeName":"source.format-only-text",
+    "comment":"format and branket only demonstration",
+    "repository":{
+        "skip-multispace":{
+            "name":"meta.join.multispace.fm.only",
+            "match":"\\s+",
+            "replaceWith":" "
+        },
+        "global-block":{
+            "begin":"(\\{)",
+            "end":"(\\})",
+            "isBlock":true,
+            "patterns":[
+                {"match":"\\s*(:)\\s*",
+                "transform":["trim", "[$0]"]},
+                {"include":"#skip-multispace"},
+                {"include":"#global-block"},
+                {
+                    "name":"instruction.separator",
+                    "match":"(;)",
+                    "isInstructionSeparator":true,
+                    "lineFeed":true
+                }
+            ]
+        }
+    },
+    "patterns":[
+        {"include":"#skip-multispace"},
+        {"include":"#global-block"}
+    ]
+}

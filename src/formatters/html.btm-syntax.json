@@ -276,7 +276,9 @@
                 {
                     "begin":"(?=<\\/\\b([\\w][\\w:\\-]*)\\s*$)",
                     "end":"(?=>)",
-                    "name":"detect.non.well.ended.tagname.html"
+                    "comment":"comment stream buffer to handle non well closed tag",
+                    "name":"detect.non.well.ended.tagname.html",
+                    "streamAction":"parent"
                 },
                 {
                     "begin": "([\\w\\-]+)\\s*",

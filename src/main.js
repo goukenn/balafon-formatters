@@ -13,13 +13,17 @@ const json_data = require("./formatters/html.btm-syntax.json");
 const testdata = require('./../tests/source.data.json');
 const _formatter = Formatters.CreateFrom(json_data);
 
-function runTest(tests, _formatter){
+function runTest(tests, _formatter, index){
     let testCount = 0;
-
+    if (index){
+        tests = tests.slice(index);
+    }
     tests.forEach(o=>{
         if (o.name){
             console.log('run test ... '+o.name);
-        } 
+        } else{
+            console.log("runngin test " + testCount);
+        }
         // else {
         //     return;
         // }

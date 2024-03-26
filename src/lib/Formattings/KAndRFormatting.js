@@ -77,26 +77,9 @@ class KAndRFormatting extends FormattingBase {
 
         return marker.parent;
     }
-    /**
-     * treat and start block definition 
-     * @param {Formatters} formatter 
-     * @param {PatternMatchInfo} patternInfo 
-     * @param {FormatterOptions} option 
-     */
-    startBlockDefinition(formatter, patternInfo, option) {
-        patternInfo.isBlockStarted = true;
-        const _old = option.markerInfo[0];
-        formatter._startBlock(option);
-        let _buffer = option.buffer;
-        let _cf = option.flush(true);
-        _old.content = _old.content.trim();
-        // + | each block must start and content by to depth + 1;
-        option.output.push(_cf + _buffer);
-        patternInfo.mode = FM_START_BLOCK;
-        const { parent } = patternInfo;
-        if (parent) {
-            parent.mode = FM_APPEND;
-        }
+   
+    formatJoinFirstEntry(entryBuffer, buffer){
+        return [entryBuffer, buffer].join('');
     }
 
     formatBufferMarker(formatter, _marker, option) {
@@ -110,13 +93,7 @@ class KAndRFormatting extends FormattingBase {
                     parent.mode = FM_START_LINE_AND_APPEND;
                 } else {
                     // + | update current buffer to handle
-                    formatter.updateBuffedValueAsToken(_buffer, _marker, option, true);
-                    // option.formatterBuffer.clear();
-                    // option.appendToBuffer(_buffer, _marker);
-                    // option.store();
-                    // option.appendExtaOutput();
-                    // _buffer = option.flush(true);
-                    // option.formatterBuffer.appendToBuffer(_buffer, _marker);
+                    formatter.updateBuffedValueAsToken(_buffer, _marker, option, true); 
                 }
                 break;
         }

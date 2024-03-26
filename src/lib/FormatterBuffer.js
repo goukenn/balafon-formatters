@@ -20,6 +20,9 @@ class FormatterBuffer{
         Object.defineProperty(this, 'length', { get(){ return m_bufferSegments.length;} })
        
     }
+    get isEmpty(){
+        return this.bufferSegments.length==0;
+    }
     /**
      * get the buffer offset content
      * @param {number} offset 

@@ -77,8 +77,7 @@ function webFormattingListener(_def) {
                 } 
                 update(); 
             }, 
-            renderToken(v, tokens, tokenID, engine, debug, marker) {
-                // console.log("marker", marker);
+            renderToken(v, tokens, tokenID, engine, debug, marker) {                
                 debug && Debug.log('renderToken', {value:v, tokenID, tokens: tokens.slice(0)})
                 if (v.length==0){
                     return '';
@@ -127,8 +126,8 @@ function webFormattingListener(_def) {
             newLine(){
                 console.log('bind:newLine');
             },
-            appendExtraOutput({output}){
-                // console.log('bind:appendExtraOutput');
+            appendExtraOutput({output}){ 
+                // + | just push and extra value to join on render
                 output.push('');
             },
             treatOutput({output, lineFeed, tabStop}){
