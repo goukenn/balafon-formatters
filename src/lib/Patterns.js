@@ -384,7 +384,7 @@ class Patterns{
         let { name, begin, end, match } = this;
         if (!name){
             name = JSON.stringify({type:this.matchType, match, 
-                begin: begin});
+                begin, end});
         }
         return `Patterns[#${name}]`;
     }

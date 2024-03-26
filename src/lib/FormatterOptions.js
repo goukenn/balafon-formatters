@@ -26,6 +26,10 @@ class FormatterOptions {
      */
     EOF = false;
     /**
+     * flag to set on en of line
+     */
+    EOL = false;
+    /**
      * store global output result 
      */
     // output = [];   // output result global output result 
