@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', {value:true});
 
+const START_HERE = "(??)";
+
 /**
  * regex utility class 
  */

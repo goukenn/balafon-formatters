@@ -1,7 +1,8 @@
 
 const { Formatters } = require("../src/lib/Formatters");
-const webUtils = require("../src/web/Utils");
-
+const webUtils = require("../src/web/Utils"); 
+ 
+ 
 
 const _formatter = Formatters.CreateFrom({
     debug:true,
@@ -12,6 +13,16 @@ const _formatter = Formatters.CreateFrom({
             "end":"(\\})",
             "endMissingValue":"}",
             "name":"meta.block.capture.bcss"
+        },
+        "length-with-unit": {
+            "name": "constant.type.length.bcss",
+            "match": "(-)?(((\\d+)?\\.)?\\d+(Q|fr|dpi|dpcm|dppx|x|cm|mm|em|rem|in|pt|ex|ch|cap|ic|lh|r(cap|ch|em|ex|ic|lh)|(d|l|s)?(vh|vw)|vb|vi|vmin|vmax|cq(b|h|i|max|min|w)|%)|\\d+px|\\d+(\\.\\d+)?)",
+            "tokenID":"length"
+        },
+        "css-property-value":{
+            "patterns":[
+                {"include":"#length-with-unit"}
+            ]
         }
     },
     patterns: [
@@ -70,16 +81,56 @@ const _formatter = Formatters.CreateFrom({
             "replaceWith": "$1: selector definition"
         },
         {
-            "name":"meta.selector.capture.bcss",
-            "match":"P:(.+)(:)",          
-            "replaceWith": "$1: value definition;"
+            "name":"meta.property.capture.bcss",
+            "begin":"P:(.+)(:)",    
+            "end":";",   
+            "beginCaptures":{
+                "0":{ 
+                    "replaceWith": "($1)(:)",
+                    "captures":{
+                        "0":{"name":"property.name.bcss"},
+                        "1":{"name":"meta.operator.seperator.bcss"}
+                    }
+                }
+            },
+            patterns:[{
+                "name":"property.value.bcss",
+                "begin":"(??)",
+                "end":"(?=;)",
+                "beginCaptures":{
+                    "0":{ 
+                        "transform": "trim",
+                    }
+                },
+                "patterns":[
+                    {
+                        "match":"\\s+",
+                        "transform":"trim"
+                    },
+                    {
+                        "include":"#css-property-value"
+                    }
+                ]
+            }]
+            // captures:{
+            //     "1":{
+            //         name:"local.data",
+            //         className:"css-property" 
+            //     },
+            //     "2":{
+            //         name:"property.value.separator.bcss",
+            //         className:"css-prop-separator" 
+            //     }
+            // }
         }
     ]
-});
+},  webUtils.webStyleClass);
 
 // const _src = `on line`;
 // const _src = `     bodycolor\\:hover{`;
-const _src = `     bodycolor-line: info du jour et de la nuit`;
+const _src = `     bodycolor-line:     12px;`; //  du jour et de la nuit`;
+const _def = {};
+// _formatter.listener = webUtils.webFormattingListener(_def);
 
 const out = _formatter.format(_src.split("\n"));
 console.log("result \n" + out);

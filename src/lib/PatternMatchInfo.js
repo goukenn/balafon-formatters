@@ -213,9 +213,18 @@ class PatternMatchInfo {
         return this.marker?.isCaptureOnly;
     }
     /**
+     * get if this empty block is start only use definition 
+     */
+    get isStartOnly(){
+        return this.marker?.isStartOnly;
+    }
+    /**
      * get if this match info is a stream capture
      */
     get isStreamCapture(){
+        if (this.marker?.isStartOnly){
+            return false;
+        }
         return this.isCaptureOnly && (this.group[0].length == 0);
     }
     /**
