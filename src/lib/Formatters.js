@@ -316,6 +316,10 @@ class Formatters {
             }
             else throw new Error('argument not valid');
         }
+        if (typeof(this.scopeName)=='undefined')
+        {
+            throw new Error('scope name is not defined');
+        }
         let objClass = this.objClass;
         if (!objClass) {
             objClass = this.#initDefinition(option);
