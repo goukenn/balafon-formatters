@@ -27,23 +27,18 @@ class FormatterMarkerInfo{
     useEntry = true;
 
     constructor(formatter, _marker, entry, _endRegex, option){
-        var m_formatterBuffer = new FormatterBuffer;
+ 
 
         this.startBlock = _marker.isBlock ? 1 : 0;
         this.oldBlockStart = _marker.isBlock;
         this.blockStarted = false;
         
 
-        Object.defineProperty(this, 'formatter', {get(){return formatter;}});
-        Object.defineProperty(this, 'formatterBuffer', {get(){return m_formatterBuffer;}});
+        Object.defineProperty(this, 'formatter', {get(){return formatter;}}); 
         Object.defineProperty(this, 'marker', {get(){return _marker;}});
         Object.defineProperty(this, 'endRegex', {get(){return _endRegex;}});
 
-        this.state = {
-            buffer: option.formatterBuffer.buffer, // store old buffer
-            output: option.output,
-            formatterBuffer: option.formatterBuffer
-        }; 
+        
     
         (function (entry, _inf) {
             var _content = entry;
@@ -81,6 +76,22 @@ class FormatterMarkerInfo{
             });
         })(entry, this); 
     } 
+    /**
+     * save state 
+     * @param {*} option 
+     */
+    saveState(option){
+        // + | save buffer state 
+        this.state = {
+            buffer: option.formatterBuffer.buffer, // store old buffer
+            output: option.output,
+            formatterBuffer: option.formatterBuffer,
+            get currentBufferContent(){
+                return this.formatterBuffer.buffer;
+            }
+        }; 
+    }
+
 }
 
 exports.FormatterMarkerInfo = FormatterMarkerInfo;

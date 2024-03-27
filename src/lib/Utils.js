@@ -190,7 +190,7 @@ class Utils {
      * @var {array} patterns
      * @var {array} l string
      * @var {*} options
-     * @var {*} parentMatcherInfo
+     * @var {*} parentMatcherInfo parent pattern for get result
      * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined, patterns}}
      */
     static GetMatchInfo(patterns, l, options, parentMatcherInfo) {
@@ -554,16 +554,21 @@ class Utils {
         const { CaptureRenderer } = Utils.Classes;
         if (g) {
             m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
-            let cp = new RegExp(m, 'd');
             let check = m.replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
-            let _in = value.replace(value, check);
+            
+            // consider escape to check
+            let cp = new RegExp(m.replace(/\\/g, '\\\\'), 'd');
+            let _in = value.replace(value, check).replace(/\\\\/g,/\\0/);
             // passing exec to formatt new value
             let matches = cp.exec(_in);
             const _tokens = option.tokenChains;
-            g = CaptureRenderer.CreateFromGroup(matches, _tokens);
-            let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens, option);
-            
-            return out;
+            if (matches){
+                g = CaptureRenderer.CreateFromGroup(matches, _tokens);
+                let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens, option);            
+                return out;
+            } else {
+
+            }
 
         } else {
             //treat:
@@ -598,7 +603,7 @@ class Utils {
                 patterns: _formatter.patterns,
                 buffer: q.buffer,
                 output: q.output,
-                formatterBuffer: q.formatterBuffer.bufferSegments.slice(0),
+                formatterBuffer: q.formatterBuffer,
                 lineCount: q.lineCount,
                 markerInfo: q.markerInfo.slice(0),
                 line: q.line,
@@ -606,15 +611,20 @@ class Utils {
                 depth: q.depth,
                 tokenList: q.tokenList.slice(0),
                 markerDepth: q.markerDepth,
-                blockStarted:  q.blockStarted
+                blockStarted:  q.blockStarted,
+                appendToBufferListener: q.appendToBufferListener
             };
             // clean setting
-            q.formatterBuffer.clear();// = new 
+    
+            q.appendToBufferListener = null;
             q.lineCount = 0;
             q.depth = 0;
-
+            q.line = '';
+            q.markerInfo.length = 0;
+            q.newBuffer('_subformat_buffer_');
             _formatter.info.isSubFormatting++;
             _formatter.patterns = patterns;
+
             value = _formatter.format(value);
             _formatter.info.isSubFormatting--;
             _formatter.patterns = _bck.patterns;
@@ -623,9 +633,9 @@ class Utils {
             q.line = _bck.line;
             q.pos = _bck.pos;
             q.depth = _bck.depth;
-        
-            _bck.markerInfo.forEach(a => q.markerInfo.push(a));
-            _bck.formatterBuffer.forEach(a => q.formatterBuffer.bufferSegments.push(a));
+            q.appendToBufferListener = _bck.appendToBufferListener;
+            q.restoreBuffer({state: { formatterBuffer: _bck.formatterBuffer}});
+            _bck.markerInfo.forEach(a => q.markerInfo.push(a));            
             option.popState();
 
         } else {
@@ -635,6 +645,31 @@ class Utils {
         }
         _formatter.info.captureGroup = _bckCapture;
         return value;
+    }
+
+    static TreatCapture(marker, _cap, group, tokenChains, option){
+        const { listener } = option;
+        const { CaptureRenderer } = Utils.Classes;
+        let _s = null;
+        if (Array.isArray(group) == false){
+            const indices = [];
+            indices.push([0, group.length]);
+            group = [group];
+            group.indices = indices;
+        }
+        _s = CaptureRenderer.CreateFromGroup(group, marker.name);
+        if (_s) {
+            let _g = _s.render(listener, _cap, false, tokenChains, option);
+            return _g;
+        }
+    }
+    static GetNextCapture(line, endRegex){
+        const { RegexUtils } = Utils.Classes;
+        let m = endRegex.toString();
+        m = m.substring(0, m.lastIndexOf('/')+1).slice(1,-1);
+        m = RegexUtils.UnsetCapture(m); // .replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
+        let reg = new RegExp(m);
+        return reg.exec(line);
     }
 }
 exports.Utils = Utils;

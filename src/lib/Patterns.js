@@ -21,6 +21,10 @@ class Patterns{
      */
     end;
     /**
+     * setup the value on end missing
+     */
+    endMissingValue;
+    /**
      * the name of this pattern
      */
     name;
@@ -146,10 +150,15 @@ class Patterns{
 
     /**
      * stream action type.
-     * value use only on streaming
+     * value use only on streaming default is 'next'
      * @var {?string|'parent'|'next'}
      */
     streamAction;
+
+    /**
+     * captures to attach on stream or use captures as a fallback
+     */
+    streamCaptures;
    
 
     constructor(){
@@ -207,6 +216,7 @@ class Patterns{
             beginCaptures :_capture_parser,
             endCaptures :_capture_parser,
             captures :_capture_parser,
+            streamCaptures: _capture_parser,
            transform,
            lineFeed(d, parser){
                 return typeof(d)=='boolean' ? d : false; 

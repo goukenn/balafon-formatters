@@ -49,6 +49,13 @@ class RegexUtils{
         f = s.length==0;  
         return f;
     }
+    /**
+     * unset capture definition 
+     * @param {*} m 
+     */
+    static UnsetCapture(m){
+        return m.replace(/\(\?(?:(?:=|<=|:))(.+)\)/, "$1");
+    }
 }
 
 exports.RegexUtils = RegexUtils;

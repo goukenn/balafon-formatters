@@ -54,7 +54,7 @@ _formatter.listener =
 
     return {
         renderToken(v, tokens, tokenID, engine) {
-            // console.log("render tokens", {tokens, tokenID, value:v});
+
             let lt = tokens.shift();
             let n = null;
             // if (tokenID){
