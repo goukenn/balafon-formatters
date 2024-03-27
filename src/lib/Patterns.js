@@ -167,12 +167,18 @@ class Patterns{
         this.allowMultiline = true;
         this.preserveLineFeed = false;
         var m_parent = null;
+        var m_startOnly = false;
 
         Object.defineProperty(this, 'parent', {get(){return m_parent;}, set(v){
             if ((v==null)||(v instanceof Patterns) )
                 m_parent = v;
             else 
                 throw Error('parent value not valid');
+        }});
+        Object.defineProperty(this, 'isStartOnly', {get(){
+            return m_startOnly;
+        }, set(v){
+            m_startOnly= v;
         }});
     }
     json_parse(parser, fieldname, data, refKey, refObj){ 
@@ -181,6 +187,10 @@ class Patterns{
         const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const transform = Utils.TransformPropertyCallback();
         const _regex_parser = (s)=>{
+            if (s=='(??)'){
+                q.isStartOnly = true;
+                s = '';
+            }
             return Utils.RegexParse(s, 'd'); 
         };
         const _capture_parser = (s, parser)=>{
@@ -297,7 +307,7 @@ class Patterns{
      * @return {boolean}
      */
     get isCaptureOnly(){
-        let { begin , end} = this;
+        let { begin, end } = this;
         if (begin && end){
             return this.isBeginCaptureOnly && this.isEndCaptureOnly;
         }

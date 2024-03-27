@@ -187,7 +187,7 @@ class CaptureRenderer{
                             // treat value. cap
                             if(_formatter){
                                 const op = [];
-                                rf = _formatter.treatMarkerValue(cap, rf, op, option);
+                                rf = _formatter.treatMarkerValue(cap, rf, op, option, self.matches);
 
                             }else{
                                 if (cap.transform){
@@ -227,9 +227,10 @@ class CaptureRenderer{
         }
         let c = '';
         let _keys = Object.keys(roots);
-
-        for(let j in roots){
-            if ((j==0)&&(_keys.length>1)){
+        let _Capkeys = Object.keys(captures);
+        let _root_only = ( 0 in captures) && (_Capkeys.length==1);
+        for(let j in roots){ 
+            if ( !_root_only && ((j==0)&&(_keys.length>1))){
                 continue;
             }
             let rt = roots[j];
@@ -239,6 +240,8 @@ class CaptureRenderer{
             _output += c;
             _output += treat_root(_input, rt,listener,captures,tokens);
             _begin = rt.end;
+            if (_root_only)
+                break;
         }
         if (_begin < _input.length){
             c = treat_constant(_input.substring(_begin), listener); 

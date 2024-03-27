@@ -513,7 +513,7 @@ class Formatters {
             if (endMissingValue){
                 regex = endMissingValue;
             }else{
-                if (_old.marker.end.toString() != "/$/d")
+                if (_old && _old.marker.end.toString() != "/$/d")
                     regex = Utils.ReplaceRegexGroup(Utils.RegExToString(marker.end), marker.group);
             }
             regex = regex.replace(/\\/g, ""); //remove escaped litteral
@@ -593,12 +593,16 @@ class Formatters {
      * @returns 
      */
     getMarkerCaptures(_markerInfo, end = false) {
-        const _type = _markerInfo.marker.matchType;
-        if (_type == 0) {
-            const s = end ? _markerInfo.marker.endCaptures : _markerInfo.marker.beginCaptures;
-            return { ..._markerInfo.marker.captures, ...s };
+        const {marker} = _markerInfo;
+        if (!marker){
+            return null;
         }
-        return { ..._markerInfo.marker.captures };
+        const _type = marker.matchType;
+        if (_type == 0) {
+            const s = end ? marker.endCaptures : marker.beginCaptures;
+            return { ...marker.captures, ...s };
+        }
+        return { ...marker.captures };
     }
 
 
@@ -805,14 +809,14 @@ class Formatters {
     /**
      * append constant
      * @param {*} patternInfo 
-     * @param {string} data 
+     * @param {string} value 
      * @param {FormatterOptions} option 
      * @param {bool} append_child append to child 
      * @param {FormatterOptions} option 
      */
-    _appendConstant(patternInfo, data, option, append_child = true, constant_type_marker) {
+    _appendConstant(patternInfo, value, option, append_child = true, constant_type_marker) {
         let { debug, listener } = option;
-        debug && Debug.log('--::appendConstant::--[' + data + ']');
+        debug && Debug.log('--::appendConstant::--[' + value + ']');
 
         let _inf = new PatternMatchInfo;
         _inf.use({ marker: constant_type_marker || option.constants.PrevLineFeedConstant, line: option.line });
@@ -820,10 +824,10 @@ class Formatters {
             if (append_child) {
                 patternInfo.childs.push(_inf);
             }
-            updateBuffer(data, patternInfo.mode, _inf, option);
+            updateBuffer(value, patternInfo.mode, _inf, option);
         }
         if (listener?.appendConstant) {
-            listener.appendConstant({ update: fc_update, patternInfo, data, option, _inf });
+            listener.appendConstant({ update: fc_update, patternInfo, data: value, option, _inf });
         } else {
             fc_update();
         }
@@ -988,12 +992,20 @@ class Formatters {
             return patternInfo;
         }
         // treat patterns
+        let _pos = option.pos;
         if (_start) {
             let _next_position = patternInfo.group.index + patternInfo.group.offset;
             // + | on start before handle 
+            _pos = _next_position;
+            if (patternInfo.isStartOnly){
+                _next_position++;
+            }
             option.pos = _next_position;
         }
-        _line = line.substring(option.pos);
+        _line = line.substring(_pos);
+
+
+
         // + | start pattern stream capture
         if (_start && patternInfo.isStreamCapture) {
             return this._startStreamingPattern(patternInfo, _line, _endRegex, option, null, null, null, false);
@@ -1035,7 +1047,7 @@ class Formatters {
 
             // compared index and handle child
             if ((_p == null) || (_matcher.group.index < _p.index)) {
-
+               
                 if (_matcher.isStreamCapture) {
                     // + | detect buffer empty - buffer detection 
                     return this._startStreamingPattern(_matcher, _line, _endRegex, option, _error, _old, _buffer, false);
@@ -1159,7 +1171,7 @@ class Formatters {
         // calculate next position 
         const { debug } = option;
         const { parent, mode } = _marker;
-        const _next_position = _p.index + _p[0].length;
+        const _next_position = _p.index + _p[0].length; // do not move cursor until condition meet
         let _append = option.line.substring(option.pos, _p.index);
         // let _sblock = _marker?.parent?.isBlock;
         // let _p_host = ((option.markerInfo.length > 0) ? option.markerInfo[0] : null);
@@ -1235,7 +1247,7 @@ class Formatters {
         }
         if (_marker?.parent?.newLine) {
             _marker.parent.newLine = false;
-        }
+        } 
 
         option.moveTo(_next_position);
         // +| restore backup buffer

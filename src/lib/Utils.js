@@ -370,8 +370,16 @@ class Utils {
      * @param {string} s regex string expression
      */
     static RegexInfo(s) {
-        let _option = /^\(\?(?<active>[ixm]+)(-(?<disable>[ixm]+))?\)/;
         let option = '';
+        if (s=="(??)"){
+            return {
+                s:"^.^",
+                option,
+                beginOnly:true
+            };
+        }
+
+        let _option = /^\(\?(?<active>[imx]+)(-(?<disable>[ixm]+))?\)/;
         let _potion = null;
         if (_potion = _option.exec(s)) {
             let sp = '';
@@ -562,13 +570,13 @@ class Utils {
             // passing exec to formatt new value
             let matches = cp.exec(_in);
             const _tokens = option.tokenChains;
-            if (matches){
+            const _caps = _formatter.getMarkerCaptures(_marker);
+            if (matches && _caps){
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
-                let out = g.render(_formatter.objClass.listener, _formatter.getMarkerCaptures(_marker), false, _tokens, option);            
+                let out = g.render(_formatter.objClass.listener, _caps, false, _tokens, option);            
                 return out;
-            } else {
-
-            }
+            } 
+            return check;
 
         } else {
             //treat:
