@@ -45,9 +45,23 @@ class FormatterOptions {
         end: 0    // number end position range
     };
     /**
+     * get or set the current stream option
+     */
+    stream;
+    /**
+     * store chain of new created OldBuffers
+     */
+    newOldBuffers = [];
+
+    /**
+     * activate the hold buffer list 
+     */
+    holdBufferState = false;
+    /**
      * flag for glue value : used to skip entry data for match.
      */
     glueValue = null;
+
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;
@@ -81,7 +95,8 @@ class FormatterOptions {
                 this.end = typeof (end) == 'undefined' ? start : end;
             }
         }
-        const objClass = this;
+        const option = this;
+        let m_saveCount = 0;
         // inject setting property
         for (let i in _rg) {
             if (['depth', 'line'].indexOf(i) != -1) {
@@ -103,19 +118,21 @@ class FormatterOptions {
         this.isRootFormatterBuffer = function (formatter_buffer){
             return formatter_buffer === _formatterBuffer;
         }
-        Object.defineProperty(objClass, 'isCurrentFormatterBufferIsRootBuffer', { get(){
+        Object.defineProperty(option, 'isCurrentFormatterBufferIsRootBuffer', { get(){
             return this.isRootFormatterBuffer(this.formatterBuffer); } })
-        Object.defineProperty(objClass, 'listener', { get: function () { return _listener; } })
-        Object.defineProperty(objClass, 'formatter', { get: function () { return _formatter; } }) 
-        Object.defineProperty(objClass, 'formatterBuffer', { get: function () { return _formatterBuffer; } })
-        Object.defineProperty(objClass, 'blockStarted', {
+        Object.defineProperty(option, '_saveCount', { get: function () { return m_saveCount; } })
+        Object.defineProperty(option, 'streamBuffer', { get: function () { return this.stream?.buffer; } })
+        Object.defineProperty(option, 'listener', { get: function () { return _listener; } })
+        Object.defineProperty(option, 'formatter', { get: function () { return _formatter; } }) 
+        Object.defineProperty(option, 'formatterBuffer', { get: function () { return _formatterBuffer; } })
+        Object.defineProperty(option, 'blockStarted', {
             get: function () { return _blockStarted; }, set(v) {
                 _blockStarted = v;
             }
         });
-        Object.defineProperty(objClass, 'buffer', { get: function () { return _formatterBuffer.buffer; } })
-        Object.defineProperty(objClass, 'outputBufferInfo', { get() { return _outputBufferInfo; } })
-        Object.defineProperty(objClass, 'tokenChains', {
+        Object.defineProperty(option, 'buffer', { get: function () { return _formatterBuffer.buffer; } })
+        Object.defineProperty(option, 'outputBufferInfo', { get() { return _outputBufferInfo; } })
+        Object.defineProperty(option, 'tokenChains', {
             get() {
                 const _tokens = _formatter.getTokens();
                 let r = _tokens;
@@ -125,13 +142,13 @@ class FormatterOptions {
                 return r;
             }
         });
-        Object.defineProperty(objClass, 'length', { get: function () { return this.line.length; } })
+        Object.defineProperty(option, 'length', { get: function () { return this.line.length; } })
         // Object.defineProperty(objClass, 'tabStop', { get: function () { return tabStop; } })
         // Object.defineProperty(objClass, 'lineFeed', { get: function () { return lineFeed; } })
-        Object.defineProperty(objClass, 'debug', { get: function () { return debug; } })
-        Object.defineProperty(objClass, 'markerInfo', { get: function () { return _markerInfo; } })
-        Object.defineProperty(objClass, 'constants', { get: function () { return m_constants_def; } })
-        Object.defineProperty(objClass, 'pos', {
+        Object.defineProperty(option, 'debug', { get: function () { return debug; } })
+        Object.defineProperty(option, 'markerInfo', { get: function () { return _markerInfo; } })
+        Object.defineProperty(option, 'constants', { get: function () { return m_constants_def; } })
+        Object.defineProperty(option, 'pos', {
             get: function () { return m_pos; }, set(v) { 
                 m_pos = v;
             }
@@ -140,15 +157,15 @@ class FormatterOptions {
          * append to buffer listener callback
          * @var {null|(value:string)} 
          */
-        Object.defineProperty(objClass, 'appendToBufferListener', {
+        Object.defineProperty(option, 'appendToBufferListener', {
             get: function () { return m_appendToBufferListener; }, set(v) { 
                 m_appendToBufferListener = v;
             }
         });
-        Object.defineProperty(objClass, 'output', {
+        Object.defineProperty(option, 'output', {
             get: function () { return _formatterBuffer.output; },
         });
-        Object.defineProperty(objClass, 'depth', {
+        Object.defineProperty(option, 'depth', {
             get() { return m_depth; },
             /**
              * set the depth
@@ -158,17 +175,17 @@ class FormatterOptions {
                 m_depth = v;
             }
         });
-        objClass.getLineRangeContent = function () {
+        option.getLineRangeContent = function () {
             const q = this;
             return q.line.substring(q.range.start, q.range.end);
         };
-        objClass.unshiftMarker = (o) => {
+        option.unshiftMarker = (o) => {
             _markerInfo.unshift(o);
         };
-        objClass.shiftMarker = () => {
+        option.shiftMarker = () => {
             return _markerInfo.shift();
         };
-        objClass.empty = empty;
+        option.empty = empty;
 
         function empty(l) {
             return (!l && l.length == 0)
@@ -177,15 +194,15 @@ class FormatterOptions {
             return Object.keys(q).length == 0
         }
         function pushState() {
-            let _keys = Object.keys(objClass);
+            let _keys = Object.keys(option);
             let _state = {};
             _keys.forEach(i => {
-                let t = typeof (objClass[i]);
+                let t = typeof (option[i]);
                 if (/function|object/.test(t))
                     return;
-                let _i = Object.getOwnPropertyDescriptor(objClass, i);
+                let _i = Object.getOwnPropertyDescriptor(option, i);
                 if (!_i || (_i.get && _i.set)) {
-                    _state[i] = objClass[i];
+                    _state[i] = option[i];
                 }
             })
             _states.unshift({ ..._state });
@@ -194,13 +211,13 @@ class FormatterOptions {
             let s = _states.shift();
             if (s) {
                 for (let i in s) {
-                    objClass[i] = s[i];
+                    option[i] = s[i];
                 }
             }
         }
 
-        objClass.pushState = pushState;
-        objClass.popState = popState;
+        option.pushState = pushState;
+        option.popState = popState;
         /**
          * treat how to update the current buffer before add it to listener
          * @param {string} s 
@@ -208,7 +225,7 @@ class FormatterOptions {
          * @param {*} _marker 
          * @returns new buffer value
          */
-        objClass.updateBufferValue = function (s, value, _marker) {
+        option.updateBufferValue = function (s, value, _marker) {
             // allow listener to treate buffer value
             // + | tranform before update 
             if (empty(value)) {
@@ -221,7 +238,7 @@ class FormatterOptions {
             return this.joinBuffer(s, value);
         };
 
-        objClass.joinBuffer = function (buffer, value) {
+        option.joinBuffer = function (buffer, value) {
             const { lineJoin, noSpaceJoin } = this;
             let s = buffer;
             if (lineJoin) {
@@ -264,7 +281,7 @@ class FormatterOptions {
          * @param {?boolean} treat render token with listener  
          * @param {*} _marker 
          */
-        objClass.appendToBuffer = function (value, _marker, treat = true) {
+        option.appendToBuffer = function (value, _marker, treat = true) {
             const { debug, engine } = this;
             debug && Debug.log("[append to buffer] - ={" + value + '}');
             let _buffer = value;
@@ -289,7 +306,7 @@ class FormatterOptions {
          * @param {*} matches 
          * @returns 
          */
-        objClass.treatBeginCaptures = function (patternInfo) {
+        option.treatBeginCaptures = function (patternInfo) {
             const { marker, group } = patternInfo;
             // + | do capture treatment 
             let _cap = { ...marker.captures, ...marker.beginCaptures };
@@ -305,7 +322,7 @@ class FormatterOptions {
             }
             return null; // this.treatCaptures(_cap, marker, group);
         };
-        objClass.treatEndCaptures = function (markerInfo, endMatch) {
+        option.treatEndCaptures = function (markerInfo, endMatch) {
             let _cap = { ...markerInfo.captures, ...markerInfo.endCaptures };
             if (is_emptyObj(_cap)) {
                 return endMatch[0];
@@ -354,7 +371,7 @@ class FormatterOptions {
          * @deprecated
          * @returns 
          */
-        objClass.treatCaptures = function (_cap, _marker, endMatch) {
+        option.treatCaptures = function (_cap, _marker, endMatch) {
             // let transformed = _marker.endRegex(_marker.group); 
             // use replaceWith to change the value at specied capture 
             let list = [];
@@ -390,32 +407,34 @@ class FormatterOptions {
          * move to this location
          * @param {number} newPosition 
          */
-        objClass.moveTo = function (newPosition) {
+        option.moveTo = function (newPosition) {
             this.pos = newPosition;
         }
-        objClass.restoreBuffer = function ({ state }) {
+        option.restoreBuffer = function ({ state }) {
             _formatterBuffer = state.formatterBuffer;
         };
-        objClass.newBuffer = function (id) {
+        option.newBuffer = function (id) {
             _formatterBuffer = new FormatterBuffer;
             _formatterBuffer.id = id;
         };
-        objClass.saveBuffer = function () {
+        option.saveBuffer = function () {
+            m_saveCount++;
             _bufferState.push({
                 output: this.output,
                 formatterBuffer: this.formatterBuffer
             });
             this.newBuffer('_save_buffer_');
         };
-        objClass.restoreSavedBuffer = function () {
+        option.restoreSavedBuffer = function () {
             let buffer = _bufferState.pop();
             if (buffer) {
                 this.restoreBuffer({ state: buffer });
+                m_saveCount--;
             }
         }
 
 
-        objClass.store =
+        option.store =
             /**
              * store and clear formatter buffer  
              * @param {bool} startBlock 
@@ -429,7 +448,7 @@ class FormatterOptions {
                 _formatterBuffer.clear();
             }
 
-        objClass.flush =
+        option.flush =
             /**
            * flush with what is in the buffer - and clear buffer 
            * @param {bool} clear 
@@ -451,7 +470,7 @@ class FormatterOptions {
                 }
                 return l;
             }
-        objClass.appendLine = function () {
+        option.appendLine = function () {
             const { listener } = this; const { lineFeed } = _formatter.settings;
             if (listener) {
                 return listener.appendLine(lineFeed,
@@ -465,12 +484,55 @@ class FormatterOptions {
             }
         };
     }
+
+    cleanNewOllBuffers(){
+        const option = this;
+        if (this.holdBufferState && option.newOldBuffers.length > 0){
+            // On this Process handling clean all new Buffers
+            let count = option.newOldBuffers.length;
+            while(count>0){
+                let tq = option.markerInfo.shift();
+                let q = option.newOldBuffers.pop();
+                if (tq!==q){
+                    throw new Error('invalid configuration');
+                }
+                count--;
+                let bf = option.buffer;
+                option.restoreBuffer(q);
+                if (bf.length>0){
+                    option.appendToBuffer(bf);
+                }
+            }
+        }
+    }
+    /**
+     * return shift markerInfo from list
+     * @param {*} marker 
+     * @param {bool} throwError 
+     * @returns 
+     */
+    shiftFromMarkerInfo(marker, throwError=true){
+        if (this.markerInfo.length>0){
+            if(this.markerInfo[0].marker === marker){
+                return this.markerInfo.shift();
+            }
+            if (throwError){
+                throw new Error('missing markerInfo');
+            }
+        }
+    }
     storeAndUpdateBuffer() {
         this.store();
         let _buffer = this.flush(true);
         if (_buffer.length > 0) {
             this.formatterBuffer.appendToBuffer(_buffer);
         }
+    }
+    peekFirstMarkerInfo(){
+        if (this.markerInfo.length>0){
+            return this.markerInfo[0];
+        }
+        return null;
     }
     /**
      * store current buffer to output

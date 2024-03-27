@@ -119,7 +119,7 @@ class CaptureRenderer{
      * @param {*|{debug:bool}} option 
      * @returns 
      */
-    render(listener, captures, end=false , tokens, option){ 
+    render(listener, captures, end, tokens, option){ 
         if (!captures){
             throw new Error('missing captures info');
         }

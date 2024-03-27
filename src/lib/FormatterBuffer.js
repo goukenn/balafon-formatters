@@ -5,6 +5,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * class that help to manibule buffer by segment
  */
 class FormatterBuffer{
+    static DEBUG = false;
     /**
      * set the formatter buffer identification 
      */
