@@ -296,7 +296,12 @@ class FormatterOptions {
                     const { listener, tokenChains } = this;
                     if (treat && listener?.renderToken) {
                         _shiftMarkerInfo(_marker.marker, tokenChains);
-                        _marker.name && tokenChains.unshift(_marker.name);
+                        // + | shift to token marker info 
+                        (()=>{
+                            // + | add extra to to token chains
+                            _marker.name && !_marker.isShiftenName && tokenChains.unshift(_marker.name);
+                            
+                        })()
                         const tokenID = getTokenID(_marker);
                         _buffer = listener.renderToken(_buffer, tokenChains, tokenID, engine, debug, _marker);
                     }
@@ -304,6 +309,7 @@ class FormatterOptions {
                 }
             }
             _marker.value = { source: value, value: _buffer };
+            _formatter.onAppendToBuffer(_marker, _buffer, option); // ?.formatting?.onAppendToBuffer(_marker, _buffer);
         }
         /**
          * treat begin captures
@@ -488,7 +494,8 @@ class FormatterOptions {
                 return l;
             }
         option.appendLine = function () {
-            const { listener } = this; const { lineFeed } = _formatter.settings;
+            const { listener } = this; 
+            const { lineFeed } = _formatter.settings;
             if (listener) {
                 return listener.appendLine(lineFeed,
                     this.formatterBuffer, this, {

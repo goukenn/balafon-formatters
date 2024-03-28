@@ -9,6 +9,16 @@ const CODE_STYLE_FORMATTERS = {};
  */
 class FormattingBase {
 
+    /**
+     * 
+     * @param {*} formatter 
+     * @param {PatternMatchInfo} marker 
+     * @param {*} option 
+     */
+    onAppendToBuffer(formatter, marker, value, option){
+
+        marker.mode = FM_APPEND;
+    }
     handleEndFound(formatter, marker, option, _buffer, _b) {
         if (marker.childs.length == 0) {
 
@@ -209,6 +219,7 @@ const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AN
 const { FormatterOptions } = require('../FormatterOptions');
 const { Formatters } = require('../Formatters');
 const { FormatterBuffer } = require('../FormatterBuffer');
+const { PatternMatchInfo } = require('../PatternMatchInfo');
 
 
 const Library = {

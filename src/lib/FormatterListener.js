@@ -24,9 +24,9 @@ class FormatterListener {
         option.saveBuffer();
         option.appendExtraOutput();
         option.appendExtraOutput();
-        const _cbuffer = option.flush(true, {depth:0});
+        const _cbuffer = option.flush(true);
         option.restoreSavedBuffer();
-        buffer.appendToBuffer(_cbuffer);// line_feed);
+        buffer.appendToBuffer(_cbuffer);
     }
     /**
      * call to add a new block
