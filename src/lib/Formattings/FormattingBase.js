@@ -119,6 +119,13 @@ class FormattingBase {
         }
         option.formatterBuffer.appendToBuffer(_buffer);
     }
+
+    onEndUpdateBuffer({marker, option, update, onSingleLine}){
+        const inf ={};
+        inf.flushBuffer = marker.isBlock && onSingleLine;
+        return update(inf);
+    }
+
     /**
     * treat and start block definition 
     * @param {Formatters} formatter 

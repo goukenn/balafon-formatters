@@ -12,7 +12,8 @@ const _formatter = Formatters.CreateFrom({
             "begin":"(\\{)",
             "end":"(\\})",
             "endMissingValue":"}",
-            "name":"meta.block.capture.bcss"
+            "name":"meta.block.capture.bcss",
+            "isBlock":true
         },
         "length-with-unit": {
             "name": "constant.type.length.bcss",
@@ -43,15 +44,14 @@ const _formatter = Formatters.CreateFrom({
         },
         {
             "name":"check.speudo.code",
-            "begin":"(?=(?:--)?[\\w\\-]+)",
+            "begin":"(?=\\*|(?:--|\\.|#)?[\\w\\-]+)",
             "end":"(?=(:|\\{))",
             streamAction:"next",
             patterns:[
-                {
-                    // match:"\\\\:",
-                    begin:"\\\\:",
+                {                    
+                    begin:"\\\\:|\\.|#|\\+|~|\\(|\\[",
                     end:"(?=\\{)",
-                    name:"escape.speudo.event",
+                    name:"detect.css.selector",
                     comment:"is selector by match event operator"
                 },
                 {
@@ -75,33 +75,38 @@ const _formatter = Formatters.CreateFrom({
                     ]
                 }
             }
-        },{
+        },
+        {
             "name":"meta.selector.capture.bcss",
             "match":"S:(.+)(?=\\{)",
-            "replaceWith": "$1: selector definition"
+            "replaceWith": "$1"
         },
         {
             "name":"meta.property.capture.bcss",
-            "begin":"P:(.+)(:)",    
-            "end":";",   
+            "begin":"P:([^:]+)(:)",    
+            "end":"(;|(?=\\}))", 
+            "endMissingValue":"/* missing close tag */",
             "beginCaptures":{
                 "0":{ 
                     "replaceWith": "($1)(:)",
                     "captures":{
-                        "0":{"name":"property.name.bcss"},
-                        "1":{"name":"meta.operator.seperator.bcss"}
+                        "1":{"name":"property.name.bcss",className:"css-property" },
+                        "2":{"name":"meta.operator.seperator.bcss",className:"op css-prop-separator" }
                     }
                 }
             },
+            "endCaptures":{
+                "0":{
+                    "match":":",
+                    "name":"meta.end.property.bcss",
+                    "className":"op css-end",
+                }
+            },
+            "lineFeed":true,
             patterns:[{
                 "name":"property.value.bcss",
                 "begin":"(??)",
                 "end":"(?=;)",
-                "beginCaptures":{
-                    "0":{ 
-                        "transform": "trim",
-                    }
-                },
                 "patterns":[
                     {
                         "match":"\\s+",
@@ -112,23 +117,15 @@ const _formatter = Formatters.CreateFrom({
                     }
                 ]
             }]
-            // captures:{
-            //     "1":{
-            //         name:"local.data",
-            //         className:"css-property" 
-            //     },
-            //     "2":{
-            //         name:"property.value.separator.bcss",
-            //         className:"css-prop-separator" 
-            //     }
-            // }
         }
     ]
 },  webUtils.webStyleClass);
-
+let _src;
 // const _src = `on line`;
 // const _src = `     bodycolor\\:hover{`;
-const _src = `     bodycolor-line:     12px;`; //  du jour et de la nuit`;
+// const _src = `    color:     12px; display:none ; `; //  du jour et de la nuit`;
+//_src = `    color\\:hover{margin: 12px; display:none ; }`; //  du jour et de la nuit`;
+_src = `    .color{margin: 12px; display:none ; }`; //  du jour et de la nuit`;
 const _def = {};
 // _formatter.listener = webUtils.webFormattingListener(_def);
 

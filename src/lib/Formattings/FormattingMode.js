@@ -129,7 +129,7 @@ function updateBuffer(data, mode, _marker, option){
             option.appendToBuffer(data, _marker);
         break;
         case FM_START_BLOCK:
-            // depending on the formatting mode start new bloack
+            // +| depending on the formatting mode start new block
             data = data.trimStart();
             if (data.length>0){
                 option.appendToBuffer(data, _marker);
@@ -140,4 +140,15 @@ function updateBuffer(data, mode, _marker, option){
             throw new Error('update Buffer not handled : '+mode); 
     }
 };
+
+/**
+ * 
+ * @param {*} patternInfo 
+ */
+function formattingSetupPatternForBuffer(patternInfo, option){
+    if (patternInfo.isBlock){
+        patternInfo.mode = FM_START_BLOCK;
+    }
+}
 exports.updateBuffer = updateBuffer;
+exports.formattingSetupPatternForBuffer = formattingSetupPatternForBuffer;

@@ -560,11 +560,16 @@ class Utils {
         let _rp = replace_with; // 
         let m = '';
         const { CaptureRenderer } = Utils.Classes;
+        const { listener } = option;
         if (g) {
+            // ------------------------
+            // 
+            //
             m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
             let check = m.replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
-            
+            // ------------------------
             // consider escape to check
+            //
             let cp = new RegExp(m.replace(/\\/g, '\\\\'), 'd');
             let _in = value.replace(value, check).replace(/\\\\/g,/\\0/);
             // passing exec to formatt new value
@@ -573,7 +578,7 @@ class Utils {
             const _caps = _formatter.getMarkerCaptures(_marker);
             if (matches && _caps){
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
-                let out = g.render(_formatter.objClass.listener, _caps, false, _tokens, option);            
+                let out = g.render(listener, _caps, false, _tokens, option);            
                 return out;
             } 
             return check;
@@ -678,6 +683,20 @@ class Utils {
         m = RegexUtils.UnsetCapture(m); // .replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
         let reg = new RegExp(m);
         return reg.exec(line);
+    }
+
+    static JSONInitCaptureField(q){
+        return (s, parser)=>{
+            const _info_class = parser.captureInfoClassName  || CaptureInfo;
+            let d = {}; 
+            for(let i in s){
+                let m = new _info_class(q); 
+                JSonParser._LoadData(parser, m, s[i]);  
+                d[i] = m; 
+                parser.initialize(m);  
+            } 
+            return d;
+        } 
     }
 }
 exports.Utils = Utils;
