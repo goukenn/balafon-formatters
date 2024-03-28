@@ -257,6 +257,7 @@ class Utils {
                     value: _match[0],
                     detectOn: l,
                     regex: _a.matchRegex,
+                    type: _a.matchType,
                     isFromGroupRef: _from != null
                 });
             }

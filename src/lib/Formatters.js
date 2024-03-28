@@ -109,7 +109,16 @@ class Formatters {
 
     }
 
-
+    // + | ------------------------------------------------------------------------
+    // + | raise event 
+    // + | 
+    onAppendToBuffer(_marker, _buffer, option){
+        this.formatting?.onAppendToBuffer(this, _marker, _buffer, option);
+    } 
+    onInjectToBuffer(_buffer){
+        this.formatting?.onAppendToBuffer(this, _marker, _buffer);
+    } 
+ 
     /**
      * get the line feed
      */
@@ -624,6 +633,7 @@ class Formatters {
         const { name, isShiftenName } = _marker;
         const { matchType } = _marker.marker;
 
+        //+ | add token to global token list 
         if (name && (matchType == 0) && (!isShiftenName)) {
             option.tokenList.unshift(name);
             _marker.isShiftenName = true;
@@ -709,7 +719,7 @@ class Formatters {
         }
     }
     /**
-     * onMatch handle 
+     * onMatch handle affect only on content match
      * @param {*} _marker 
      * @param {*} option 
      * @returns 
@@ -717,14 +727,16 @@ class Formatters {
     _handleMatchMarker(_marker, option) {
         option.debug && Debug.log('--:: Handle match marker :--');
         option.state = 'match';
-        let _cm_value = _marker.group[0];
-        const { mode, parent } = _marker;
+        const { mode, parent, group } = _marker;
         const _formatting = this.formatting;
+        let _cm_value = group[0];
+        let _next_position = group.index + group.offset;
 
         const _old = (option.markerInfo.length > 0) ?
             option.markerInfo[0] : null;
         // + | update cursor position
-        option.pos += _cm_value.length;
+        // option.pos += _cm_value.length;
+        option.pos = _next_position;
 
         if (_old && ((_cm_value.length == 0) || (_cm_value.trim().length == 0)
             && (!_formatting.allowEmptySpace(_old.marker.mode, option)))) {
@@ -747,15 +759,13 @@ class Formatters {
                 if (_marker.captures) {
                     _cm_value = option.treatBeginCaptures(_marker);
                 }
-
-                if (_marker.patterns?.length > 0) {
-                    const lp = Utils.GetPatternMatcherInfoFromLine(_cm_value, _marker.patterns, option, _marker);
-                    if (lp) {
-                        _cm_value = this.treatMarkerValue(lp, _cm_value, _op, option);
-                    }
-                }
-
             }
+            if (_marker.patterns?.length > 0) {
+                const lp = Utils.GetPatternMatcherInfoFromLine(_cm_value, _marker.patterns, option, _marker.parent);
+                if (lp) {
+                    _cm_value = this.treatMarkerValue(lp, _cm_value, _op, option);
+                }
+            } 
 
             // combine value
             // if (option.glueValue == _cm_value){
@@ -1180,8 +1190,7 @@ class Formatters {
         const { parent, mode } = _marker;
         const _next_position = _p.index + _p[0].length; // do not move cursor until condition meet
         let _append = option.line.substring(option.pos, _p.index);
-        // let _sblock = _marker?.parent?.isBlock;
-        // let _p_host = ((option.markerInfo.length > 0) ? option.markerInfo[0] : null);
+       
         let _saved = false;
         if (_old == null) {
             option.saveBuffer();
@@ -1272,7 +1281,7 @@ class Formatters {
         if (_saved) {
             _buffer = option.buffer;
             option.restoreSavedBuffer();
-            // option.tokenList.shift();
+
             option.appendToBuffer(_buffer, _marker);
             if (_marker.
                 isFormattingStartBlockElement || _marker.isBlock) {
