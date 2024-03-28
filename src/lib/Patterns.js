@@ -193,18 +193,18 @@ class Patterns{
             }
             return Utils.RegexParse(s, 'd'); 
         };
-        const _capture_parser = (s, parser)=>{
-            const _info_class = parser.captureInfoClassName  || CaptureInfo;
-            let d = {}; 
-            for(let i in s){
-                let m = new _info_class(q); 
-                JSonParser._LoadData(parser, m, s[i]);  
-                d[i] = m; 
-                parser.initialize(m);  
-            } 
-            return d;
-
-        } 
+        const _capture_parser = Utils.JSONInitCaptureField(q);
+        //  (s, parser)=>{
+        //     const _info_class = parser.captureInfoClassName  || CaptureInfo;
+        //     let d = {}; 
+        //     for(let i in s){
+        //         let m = new _info_class(q); 
+        //         JSonParser._LoadData(parser, m, s[i]);  
+        //         d[i] = m; 
+        //         parser.initialize(m);  
+        //     } 
+        //     return d;
+        // } 
        
         const parse = {
             patterns(n,parser, refKey, refObj){

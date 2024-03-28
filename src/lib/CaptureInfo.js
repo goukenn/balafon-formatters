@@ -38,6 +38,11 @@ class CaptureInfo{
      */
     nextTrimWhiteSpace;
 
+    /**
+     * list of capture info 
+     */
+    captures;
+
     constructor(parent){ 
 
         Object.defineProperty(this, 'parent', {get(){return parent;}})
@@ -51,6 +56,7 @@ class CaptureInfo{
         const _regex_parser = (s)=>{
             return Utils.RegexParse(s, 'd'); 
         };
+        const captures = Utils.JSONInitCaptureField(q);
         const parse = {
             patterns(n,parser, refKey, refObj){
                 let d = patterns.apply(q, [n,parser, refKey, refObj]);
@@ -69,7 +75,8 @@ class CaptureInfo{
                 JSonParser._LoadData(parser, m, n, refObj);  
                 return m;
             },
-            transform 
+            transform,
+            captures
         };
         let fc = parse[fieldname];
         if (fc){

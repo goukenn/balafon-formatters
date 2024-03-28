@@ -20,8 +20,13 @@ class FormatterListener {
      * @param {string} line_feed 
      * @param {FormatterBuffer} buffer 
      */
-    appendLine(line_feed, buffer){
-        buffer.appendToBuffer(line_feed);
+    appendLine(line_feed, buffer, option){
+        option.saveBuffer();
+        option.appendExtraOutput();
+        option.appendExtraOutput();
+        const _cbuffer = option.flush(true, {depth:0});
+        option.restoreSavedBuffer();
+        buffer.appendToBuffer(_cbuffer);// line_feed);
     }
     /**
      * call to add a new block

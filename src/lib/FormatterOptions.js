@@ -360,7 +360,7 @@ class FormatterOptions {
                 return value;
 
             };
-            debug && Debug.log('::TreatEndCapture:: #' + marker.name);
+            debug && Debug.log('--:::TreatEndCapture:::--' + marker.name);
             let _s = CaptureRenderer.CreateFromGroup(endMatch, marker.name);
             if (_s) {
                 const q = this;
@@ -491,13 +491,13 @@ class FormatterOptions {
             const { listener } = this; const { lineFeed } = _formatter.settings;
             if (listener) {
                 return listener.appendLine(lineFeed,
-                    this.formatterBuffer, {
+                    this.formatterBuffer, this, {
                     store: () => {
                         this.store();
                     }
                 });
             } else {
-                return _formatter.appendToBuffer(lineFeed);
+                return _formatter.appendToBuffer(lineFeed, this);
             }
         };
     }
