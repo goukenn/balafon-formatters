@@ -59,7 +59,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
                     }
                 }
                 break;
-            case 1:
+            case FM_APPEND:
                 // append to buffer 
                 _sbuffer = option.buffer;
                 _sbuffer = option.flush(true) + _sbuffer; // +option.buffer;
@@ -146,9 +146,7 @@ function updateBuffer(data, mode, _marker, option){
  * @param {*} patternInfo 
  */
 function formattingSetupPatternForBuffer(patternInfo, option){
-    if (patternInfo.isBlock){
-        patternInfo.mode = FM_START_BLOCK;
-    }
+ 
 }
 exports.updateBuffer = updateBuffer;
 exports.formattingSetupPatternForBuffer = formattingSetupPatternForBuffer;
