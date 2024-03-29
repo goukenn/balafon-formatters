@@ -189,7 +189,7 @@ let _src;
 // const _src = `     bodycolor\\:hover{`;
 // _src = `    color:     12px; display:none ; `; //  du jour et de la nuit`;
 //_src = `    color\\:hover{margin: 12px; display:none ; }`; //  du jour et de la nuit`;
-_src = `xx    .color   {margin    :    12px;      display: none; }`; //  du jour et de la nuit`;
+_src = `xx    .color   {margin    :    12px;      display: none; --background-color:red; }`; //  du jour et de la nuit`;
 const _def = {};
 // _formatter.listener = webUtils.webFormattingListener(_def);
 

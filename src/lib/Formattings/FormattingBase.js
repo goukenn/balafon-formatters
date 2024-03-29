@@ -15,7 +15,7 @@ class FormattingBase {
      * @param {PatternMatchInfo} marker 
      * @param {*} option 
      */
-    onAppendToBuffer(formatter, marker, value, option){
+    onAppendToBuffer(formatter, marker, value, option) {
 
         marker.mode = FM_APPEND;
     }
@@ -111,27 +111,27 @@ class FormattingBase {
                     if (mode == FM_START_LINE) {
 
                         option.saveBuffer();
-                        let _frm = option.formatterBuffer; 
+                        let _frm = option.formatterBuffer;
                         _frm.output.push('');
                         _frm.appendToBuffer(_buffer);
                         option.store();
                         _buffer = option.flush(true);
-                        option.restoreSavedBuffer(); 
+                        option.restoreSavedBuffer();
                     }
-                } else if (isBlock && !option.formatterBuffer.isEmpty){
-                    let c = option.buffer; 
-                    c = option.flush(true)+c;
-                    option.output.push(c); 
+                } else if (isBlock && !option.formatterBuffer.isEmpty) {
+                    let c = option.buffer;
+                    c = option.flush(true) + c;
+                    option.output.push(c);
                     option.output.push(_buffer);
                     _buffer = option.flush(true);
                 }
-            } 
+            }
         }
         option.formatterBuffer.appendToBuffer(_buffer);
     }
 
-    onEndUpdateBuffer({marker, option, update, onSingleLine}){
-        const inf ={};
+    onEndUpdateBuffer({ marker, option, update, onSingleLine }) {
+        const inf = {};
         inf.flushBuffer = marker.isBlock && onSingleLine;
         return update(inf);
     }
@@ -147,8 +147,8 @@ class FormattingBase {
         formatter._startBlock(option);
         if (!option.isCurrentFormatterBufferIsRootBuffer) {
             let _cf = option.flush(true);
-            if (_cf.length>0){
-                throw new Error('start block contains definition: '+_cf);
+            if (_cf.length > 0) {
+                throw new Error('start block contains definition: ' + _cf);
             }
         }
         if (option.markerInfo.length > 0) {
@@ -201,9 +201,25 @@ class FormattingBase {
             _old.marker.mode = FM_END_INSTUCTION; // append - then end instruction go to 
         }
     }
-    formatJoinFirstEntry(entryBuffer, buffer){
+    formatJoinFirstEntry(entryBuffer, buffer) {
         return [entryBuffer, buffer].join("\n");
-    } 
+    }
+    formatHandleExtraOutput(marker, _extra, option) {
+        let { mode } = marker; 
+        let r = _extra;
+        switch(mode){
+            case FM_END_INSTUCTION:
+                option.saveBuffer();
+                option.appendExtraOutput();
+                option.output.push(r);
+                r = option.flush(true);
+                option.restoreSavedBuffer();
+                mode = FM_APPEND;
+                break;
+        }
+        marker.mode = mode;
+        return r;
+    }
 }
 
 //+ |  on end append technique
