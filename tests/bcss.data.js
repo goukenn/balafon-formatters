@@ -110,6 +110,7 @@ const data = {
         "bcss-inner-data-block":{
             "begin":"(\\{)",
             "end":"(\\})",
+            "isBlock":true,
             "name":"bcss.inner.block.bcss",
             "beginCaptures":{
                 "1":{"name":"start.block.bcss", "className":"symbol start-block"},

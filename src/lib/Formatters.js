@@ -790,7 +790,7 @@ class Formatters {
                 // +| passing to handle parent group
                 if (parent.endGroup.index==group.index){
                     let _g = this._handleToEndPattern(parent, _cm_value.trim(), option);
-                    if ((_g==null) && b && (option.line.length > option.pos)){
+                    if (b && !option.formatterBuffer.isEmpty){
                         option.store();
                     } 
                     return _g;
@@ -1013,6 +1013,10 @@ class Formatters {
         if ((markerInfo.length > 0) && (_old = option.shiftFromMarkerInfo(patternInfo, false))){
             _start = false; // update the marker to handle start definition
             _buffer = this._updateOldMarker(_old, startLine, option);
+            if (option.output.length>0){
+                _old.__routput = option.output.slice(0);
+                //_buffer+= option.flush(true);
+            }
 
         } else if (patternInfo.start) {
             // + | treat begin captures and update buffer
@@ -1129,8 +1133,11 @@ class Formatters {
             if ((_p == null) || (_matcher.group.index < _p.index)) {
 
                 if (_matcher.isStreamCapture) {
-                    // + | detect buffer empty - buffer detection                     
+                    // + | detect buffer empty - buffer detection   
+                    // before startStream . 
+                    this._checkStartBlockDefinition(patternInfo, option, _old);                 
                     _old = this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
+
                     // start new stream for new 
                     return this._startStreamingPattern(_matcher, _line, _endRegex, option, _error, null, _buffer, false);
                 }
@@ -1478,15 +1485,31 @@ class Formatters {
      * @returns 
      */
     _updateOldMarker(_old, startLine, option) {
+    
+        const { debug, lineFeed, output } = option;
         let _sbuffer = '';
         // TODO : Remove line _lf
         let _lf = _old.startBlock == 1 ? option.lineFeed : '';
         let _buffer = _old.content;
         let _rbuffer = option.buffer;
+        let _extra = null;
         const { marker } = _old;
-        const { debug } = option;
+        const { mode } = marker;
         const _formatting = this.formatting;
         debug && Debug.log("--::update oldmarker::--");
+        let _clear_buffer = false;
+        if (output.length>0){ 
+            let _extra = option.flush(true);  
+            if (_extra.length>0){
+                let g = _formatting.formatHandleExtraOutput(
+                    marker, _extra, option
+                ); 
+                _buffer+= g; 
+                _rbuffer = _buffer;
+                _clear_buffer= true;
+            }
+
+        }
 
         if (_rbuffer.length == 0) {
             return _buffer;
@@ -1498,7 +1521,7 @@ class Formatters {
                 _sbuffer = this._operateOnFramebuffer(marker, option, _old);
             } else {
                 // why root 
-                _sbuffer = _formatting.formatJoinFirstEntry(_buffer, _rbuffer);
+                _sbuffer = _formatting.formatJoinFirstEntry(_buffer, _rbuffer); 
                 option.formatterBuffer.clear();
             }
             _old.content = _sbuffer;
@@ -1506,11 +1529,10 @@ class Formatters {
             _old.set();
             return _sbuffer;
 
-        } else {
-
+        } else { 
             if (startLine) {
                 if (marker.preserveLineFeed) {
-                    _buffer += option.lineFeed;
+                    _buffer += " PRESERVE -"
                 }
                 if (marker.isFormattingStartBlockElement) {
                     _sbuffer = this._operateOnFramebuffer(marker, option, _old);
@@ -1519,8 +1541,8 @@ class Formatters {
             } else {
                 if (marker.isFormattingStartBlockElement) {
                     // + | store what is in the buffer 
+                    option.output.push(_buffer);
                     _sbuffer = this._operateOnFramebuffer(marker, option, _old);
-                    _lf = '';
                 } else
 
                     // append current buffer to 
@@ -1541,6 +1563,9 @@ class Formatters {
                     }
 
             }
+        }
+        if (_clear_buffer){
+            _buffer = '';
         }
         if (_sbuffer) {
             _buffer += _lf + _sbuffer;
