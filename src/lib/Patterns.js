@@ -70,7 +70,8 @@ class Patterns{
 
 
     /**
-     * mark this match as instruction separator. by default will be use as lineFeed
+     * mark this match as instruction separator. by default will be use as lineFeed. by default the contains will be checked
+     * in match only alogrithm
      */
     isInstructionSeparator;
 
@@ -160,6 +161,10 @@ class Patterns{
      */
     streamCaptures;
    
+    /**
+     * @var {boolean} debug this field
+     */
+    debug;
 
     constructor(){
         this.patterns = [];
@@ -337,22 +342,23 @@ class Patterns{
     }
     check(l, option, parentMatcherInfo){
         let p = null;
-        if (this.begin){
-            p = this.begin.exec(l);
-        } else if (this.match){
-            p = this.match.exec(l);
+        const { begin, match , patterns} = this;
+        if (begin){
+            p = begin.exec(l);
+        } else if (match){
+            p = match.exec(l);
         } else {
             // + | use for pattern only definition list
-            if (this.patterns){
-                const cp = Utils.GetMatchInfo(this.patterns, l, option, parentMatcherInfo); 
+            if (patterns){
+                const cp = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo); 
                 if (cp){
-                    return {p: cp._match, s:cp._a, from:this, patterns: this.patterns};
+                    return {p: cp._match, s:cp._a, from:this, patterns: patterns, index: cp.index};
                 }
                 return false;
             }
             throw new Error("cannot check : "+l);
         }
-        return {p,s:this};
+        return {p,s:this, index:-1};
     }
     
     get matchRegex(){

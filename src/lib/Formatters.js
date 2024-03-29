@@ -69,6 +69,12 @@ class Formatters {
      */
     comment;
 
+    /**
+     * array to declare used token id.
+     * @var {?string[]}
+     */
+    tokens;
+
     static get GlobalEngine() {
         return sm_globalEngine;
     }
@@ -109,6 +115,17 @@ class Formatters {
 
     }
 
+    skipFormat(){
+        let _skip = true;
+        Object.defineProperty(this, 'skip_r', {
+            get(){
+                return _skip;
+            },
+            set(v){
+                _skip = v;
+            }
+        });
+    }
     // + | ------------------------------------------------------------------------
     // + | raise event 
     // + | 
@@ -210,6 +227,12 @@ class Formatters {
                 }
                 let m = JSonParser._LoadData(parser, new FormatterSetting, d);
                 return m;
+            },
+            tokens(d, parser){
+                if (Array.isArray(d)){
+                    return d;
+                }
+                return null;
             }
         };
         let fc = parse[fieldname];
@@ -307,6 +330,7 @@ class Formatters {
             PrevLineFeedConstant: new PrevLineFeedConstantPattern,
             PrevConstant: new PrevConstantPattern,
             GlobalConstant: new GlobalConstantPattern,
+            StreamLineConstant: new StreamLineConstantPattern
         };
         let objClass = new FormatterOptions(this, _formatterBuffer, _listener, m_constants_def, _rg);
         this._storeObjClass(objClass);
@@ -354,6 +378,9 @@ class Formatters {
 
 
         data.forEach((line) => {
+            if (this.skip_r){
+                return;
+            }
             const option = objClass;
             debug && Debug.log('read:[' + objClass.lineCount + "]:::" + line);
             objClass.resetRange();
@@ -409,6 +436,9 @@ class Formatters {
                 }
                 pos = objClass.pos;
                 ln = objClass.length;
+                if (this.skip_r){  
+                    return;
+                }
             }
             objClass.lineJoin = true;
             if (_matcherInfo) {
@@ -421,6 +451,10 @@ class Formatters {
                 }
             }
         });
+        if (this.skip_r){  
+           this.skip_r = false;
+           return null;
+        }
         // + | close matcher 
         if (_matcherInfo) {
             let option = objClass;
@@ -488,12 +522,8 @@ class Formatters {
         // for check get and check if _old is avaiable 
         let _old = (markerInfo.length > 0) && (markerInfo[0].marker == patternInfo) ? markerInfo[0] : null;
         ({ _p, _matcher } = this.detectPatternInfo(_line, patternInfo, option));
-        if (_p && (_matcher == null)) {
-            const { isStreamCapture, endFoundListener } = patternInfo;
-            if (isStreamCapture) {
-                return this._handleMarker(patternInfo, option);
-            }
-            return this._handleFoundEndPattern('', _line, patternInfo, _p, option, _old);
+        if (_p && (_matcher == null)) {           
+            return this._handleMarker(patternInfo, option);
         }
         return patternInfo;
     }
@@ -727,7 +757,7 @@ class Formatters {
     _handleMatchMarker(_marker, option) {
         option.debug && Debug.log('--:: Handle match marker :--');
         option.state = 'match';
-        const { mode, parent, group } = _marker;
+        const { mode, parent, group , match} = _marker;
         const _formatting = this.formatting;
         let _cm_value = group[0];
         let _next_position = group.index + group.offset;
@@ -737,19 +767,40 @@ class Formatters {
         // + | update cursor position
         // option.pos += _cm_value.length;
         option.pos = _next_position;
+        let b = false;
+        if (_marker.isInstructionSeparator) {
+            b = this.settings.isInstructionSeperator(_cm_value.trim());
+        }
 
         if (_old && ((_cm_value.length == 0) || (_cm_value.trim().length == 0)
             && (!_formatting.allowEmptySpace(_old.marker.mode, option)))) {
             //+ ignore empty string at line start or mode 
             this._onEndHandler(_marker, option);
+            let _gcm_value = Utils.GetNextCapture(group.input, match);
+            _cm_value = _gcm_value[0];
+            if (_marker.isInstructionSeparator){
+                b = this.settings.isInstructionSeperator(_cm_value.trim());
+            }
+
+            if (parent && (group.offset==0)){
+                // capture only definition .
+                if (_old && b) {
+                  _formatting.handleEndInstruction(this, _marker, _old, option);
+                } 
+                // +| passing to handle parent group
+                if (parent.endGroup.index==group.index){
+                    let _g = this._handleToEndPattern(parent, _cm_value.trim(), option);
+                    if ((_g==null) && b && (option.line.length > option.pos)){
+                        option.store();
+                    } 
+                    return _g;
+                }
+            }//
             return parent;
         }
 
         this._updateMarkerChild(_marker);
-        let b = false;
-        if (_marker.isInstructionSeparator) {
-            b = this.settings.isInstructionSeperator(_cm_value);
-        }
+       
         // + | marker is not a line feed directive or buffer is not empty
         if (b || (!_marker.lineFeed) || (option.buffer.length > 0)) {
             // treat - tranform token and tranfrom 
@@ -795,6 +846,23 @@ class Formatters {
     }
     _operateOnFramebuffer(_marker, option, _old) {
         return HandleFormatting.apply(this, [_marker, option, _old]);
+    }
+    /**
+     * handle to end 
+     */
+    _handleToEndPattern(_marker, line, option){
+        const bck = {line:option.line, pos:option.pos};
+        let _ret = null;
+
+        option.line = line;
+        option.pos = 0;
+        option.TOEND = true;
+        _ret = this._handleMarker(_marker, option); 
+        option.TOEND = false;
+        // restore:
+        option.line = bck.line;
+        option.pos = bck.pos+option.pos; 
+        return _ret;
     }
     /**
      * detected array operation
@@ -892,15 +960,13 @@ class Formatters {
             _line = _line.substring(0, _error.index);
             _nextOffset = option.pos + _error.index;
         }
-        let _sub_line = _line.substring(1);
+        let _sub_line = _line;
         let _nPatternInfo = null;
         let ret = null;
         // update old buffer before start 
         // let _baseInfo = option.peekFirstMarkerInfo(); 
         if (_old)
-            this._updateMarkerInfoOld(_old.marker, _old, _buffer, _endRegex, option);
-
-
+            this._updateMarkerInfoOld(_old.marker, _old, _buffer, _endRegex, option); 
         option.newOldBuffers.length = 0; // start old 
         _nPatternInfo = this._createStreamConstantPattern(patternInfo, '', _endRegex, option);
         if (_sub_line.length > 0) {
@@ -917,7 +983,7 @@ class Formatters {
         let _baseInfo = option.peekFirstMarkerInfo();
         if (ret && ((_baseInfo == null) || (_baseInfo.marker !== _nPatternInfo)))
             this._updateMarkerInfoOld(_nPatternInfo, null, '', _endRegex, option);
-        // + | substract streaming data to read from 
+        // + | substract streaming data to read from...
         option.line = option.line.substring(option.pos);
         option.pos = 0;
         // + | continue reading...
@@ -944,7 +1010,7 @@ class Formatters {
 
         // get _old marker to continue matching selection  
 
-        if ((markerInfo.length > 0) && (markerInfo[0].marker == patternInfo) && (_old = markerInfo.shift())) {
+        if ((markerInfo.length > 0) && (_old = option.shiftFromMarkerInfo(patternInfo, false))){
             _start = false; // update the marker to handle start definition
             _buffer = this._updateOldMarker(_old, startLine, option);
 
@@ -983,6 +1049,12 @@ class Formatters {
         _buffer = _start ? patternInfo.startOutput : _buffer;
         _endRegex = patternInfo.endRegex;
         _line = line.substring(option.pos);
+
+        if (!_start && option.TOEND){
+            _p = patternInfo.endGroup;
+            _p.index = 0;
+            return this._handleFoundEndPattern(_buffer, _line, patternInfo, _p, option, _old);
+        }
 
         if (option.EOF) {
             // ---------------------------------------------------------------
@@ -1057,8 +1129,10 @@ class Formatters {
             if ((_p == null) || (_matcher.group.index < _p.index)) {
 
                 if (_matcher.isStreamCapture) {
-                    // + | detect buffer empty - buffer detection 
-                    return this._startStreamingPattern(_matcher, _line, _endRegex, option, _error, _old, _buffer, false);
+                    // + | detect buffer empty - buffer detection                     
+                    _old = this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
+                    // start new stream for new 
+                    return this._startStreamingPattern(_matcher, _line, _endRegex, option, _error, null, _buffer, false);
                 }
                 // handle matcher 
                 return this._handleItemFoundCallback().apply(this, [
@@ -1291,7 +1365,7 @@ class Formatters {
             }
         }
         this._onEndHandler(_marker, option);
-        option.cleanNewOllBuffers();
+        option.cleanNewOldBuffers();
         return parent;
     }
 
@@ -1573,6 +1647,10 @@ class Formatters {
         // patterns : patternInfo.hostPatterns
         let _stream_buffer = new StreamConstantPattern();
         _stream_buffer.from = patternInfo;
+        // copy marker info 
+        _stream_buffer.sourceMarkerInfo = option.markerInfo.slice(0);
+        _stream_buffer.sourceTokenList = option.tokenList.slice(0);
+        if (_line && _line.length>0)
         _stream_buffer.appendToBuffer(_line);
 
 
@@ -1760,7 +1838,9 @@ class PrevLineFeedConstantPattern extends SystemConstantPattern {
 
 class GlobalConstantPattern extends SystemConstantPattern {
     name = 'system.global.line.constant';
-
+}
+class StreamLineConstantPattern extends SystemConstantPattern {
+    name = 'system.stream.line.constant';
 }
 
 class PrevConstantPattern extends SystemConstantPattern {
@@ -1777,6 +1857,15 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
     startPosition;
     started = false;
     endFoundListener;
+    /**
+     * backup source marker info
+     */
+    sourceMarkerInfo; 
+
+    /**
+     * backup stream token list
+     */
+    sourceTokenList;
     check(l, option, patternMatcherInfo) {
         return false;
     }
@@ -1795,10 +1884,12 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
         const self = this;
 
         this.appendToBuffer = function (v) {
+            console.log("--::append-to::stream:--", v);
             m_stream.appendToBuffer(v);
             return v;
         }
         this.clear = function () {
+            console.log('clear stream.');
             m_stream.clear();
         }
         Object.defineProperty(this, 'buffer', { get() { return m_stream.buffer; } });
@@ -1849,15 +1940,19 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
      * @param {*} option 
      * @param {*} _old 
      * @param {*} markerInfo stream pattern match info
+     * @param {number} next_position 
+     * @param {number} length 
+     * @param {number} _tline line to check on pattern list  
      * @returns 
      */
-    moveToNextPattern(patternInfo, option, _old, markerInfo) {
-        const { parent, hostPatterns } = patternInfo;
+    moveToNextPattern(patternInfo, option, _old, markerInfo, next_position, length, _tline) {
+        const { parent, hostPatterns, streamAction, indexOf } = patternInfo;
         const { formatter } = option;
         option.pos = 0;
-        option.storeRange(option.pos);
-        const _idx = this.indexOf;
-        const _patterns = hostPatterns ? hostPatterns.slice(_idx + 1) : [];
+        option.storeRange(option.pos); 
+        let _patterns = hostPatterns ?  
+            Utils.GetPatternsList(hostPatterns, indexOf, streamAction) : []; 
+
         if (_patterns.length > 0) {
             // + | handle matcher to line
             let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent);
@@ -1875,10 +1970,22 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                 option.tokenList.shift();
                 return g;
             }
+            // skip to next position 
+            if (parent===null){
+                // + | ------------------------------------------------------------
+                // + | skip and continue
+                let _rindex = next_position-length;
+                let _append = option.line.substring(0, _rindex);
+                option.appendToBuffer(_append, option.constants.StreamLineConstant);
+                option.line = option.line.substring(_rindex);
+                option.pos = 0;
+                return null;
+            }
+
         }
         if (parent === null) {
-            // + | just append to buffer  
-            option.appendToBuffer(option.line, option.constants.GlobalConstant);
+            // + | just append to buffer              
+            option.appendToBuffer(option.line, option.constants.StreamLineConstant);
             option.pos = option.length;
             return null;
         }
@@ -1976,7 +2083,7 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
                 option.line = q.buffer + option.line.substring(option.pos);
                 throw e;
             }
-            let _old = _markerInfo.length > 0 ? _markerInfo.shift() : null;
+            let _old = option.shiftFromMarkerInfo(markerInfo, false);
             // let _found = false;
             // options.pos++;
             if (!_bck.saved) {
@@ -2034,6 +2141,9 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
             } catch (e) {
                 // update buffer 
                 console.log("End buffer..... ", e);
+                _restoreSavedBuffer(option);
+                _formatter.skipFormat();
+                return null;
             }
             _restoreSavedBuffer(option);
             option.stream = null;
@@ -2043,6 +2153,7 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
             return r;
         };
     }
+    // class on end of file 
     stopAndExitStream(patternInfo, option, _bck, _restoreState, _old) {
         const { from, parent } = this;
         const { formatter, markerInfo } = option;
@@ -2052,6 +2163,14 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
         let bck = { line: option.line, pos: option.pos };
         _restoreState(option, _bck);
         formatter._onEndHandler(from, option);
+
+        if (bck.line.length==0){
+            option.formatterBuffer.appendToBuffer(_line);
+            this.clear();
+            return null;
+        }
+
+
         option.line = _line;
         option.pos = 0;
 
@@ -2080,49 +2199,60 @@ class StreamConstantPattern extends SpecialMeaningPatternBase {
         return (_buffer, _line, patternInfo, _p, option, _old) => {
             const { parent, streamAction } = patternInfo;
             const { formatter } = option;
+            const { endRegex } = markerInfo;
 
-            let _cline = option.line;
+            let _cline = option.line; // all line 
+            let _cpos = option.pos;
+
             let _cbuffer = q.buffer;
+            let _nextCapture = null;
+            let _start = true;
+            let _next_position = 0;
+            q.clear();
             option.pos = 0;
+            _nextCapture = Utils.GetNextCapture(_line, endRegex, option);
             option.storeRange(option.pos);
-            const _nextCapture = Utils.GetNextCapture(_line, markerInfo.endRegex);
+            if (_cbuffer.length ==0){
+                _next_position = _nextCapture.index + _nextCapture.offset;
+            } else{
+                _start = false; 
+                _next_position = 0;
+            }
+            if (!_nextCapture){
+                throw new Error('missing capture');
+            }
+        
             const _end = _nextCapture[0];
             const _sline = _line.substring(0, _nextCapture.index);
             _line = _line.substring(_nextCapture.index + _end.length);
             const _gline = _cbuffer + _sline + _end;
             const _tline = StreamConstantPattern.GetBufferedLine(formatter,
                 _gline, option, patternInfo);
-
-
-
             option.line = _tline + _line;
+            
             _restoreState(option, _bck);
             if (parent) {
                 // + | end handler before handle parent
-                _restoreBackupState(parent);
-                _formatter._onEndHandler(parent, option);
+                _restoreBackupState(parent);                
                 const _idx = patternInfo.indexOf;
                 // restart on parent by removing to handle logic
-                let _patterns = patternInfo.hostPatterns.slice(_idx + 1);
-                // if (_patterns.length > 0) {
-                if (_old) {
-                    //option.restoreBuffer(_old);
+                let _patterns = Utils.GetPatternsList(patternInfo.hostPatterns, _idx, streamAction);
+                // if (_patterns.length > 0) {               
+                if (streamAction == 'parent') {
+                    return parent; 
                 }
-                if (streamAction) {
-                    if (streamAction == 'parent') {
-                        return parent;
-                    }
-                }
-                let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent);
-
+                let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent); 
                 if (g) { // continue to cp
                     let cp = _formatter._handleMarker(g, option);
                     return cp;
                 }
+                option.pos = _next_position;
                 return parent; //_formatter._handleMarker(parent, option);
             }
             // + | put this line to buffer and skip   
-            return q.moveToNextPattern(patternInfo, option, _old, markerInfo);
+            return q.moveToNextPattern(patternInfo, option, _old, markerInfo, 
+                _next_position,
+                _end.length, _tline);
         }
     }
 }

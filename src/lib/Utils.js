@@ -155,13 +155,13 @@ class Utils {
                                 _o = new refkey_class_name(q);
                             } else {
                                 _def = parser.data.repository[_key];
-                                if (_def) { 
+                                if (_def) {
                                     _o = new class_name();
                                     parser.includes[_key] = _o;
                                     JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
                                     parser.initialize(_o);
                                     class_name.Init(_o);
-                                  
+
                                 }
                             }
                         }
@@ -199,14 +199,17 @@ class Utils {
         let _match = 0;
         let _index = -1;
         let _patterns = patterns;
-
+        let _position = -1; // selected pattern position 
+        let _count = 0;
         patterns.forEach((s) => {
             let _ts = s;
             let p = null;
-            let from =null;
+            let from = null;
+            let item_index = null;
             let _d = _ts.check(l, options, parentMatcherInfo);
             if (_d) {
                 ({ p, s, from, patterns } = _d);
+                item_index = _d.index == -1 ? _count : _d.index;
             }
             if (p && ((_index == -1) || (_index > p.index))) {
                 _index = p.index;
@@ -214,38 +217,41 @@ class Utils {
                 _match = p;
                 _from = from;
                 _patterns = patterns || _patterns;
+                _position = item_index || _count;
             }
+            _count++;
         });
-       
-        if (_match===0){
+
+        if (_match === 0) {
             return false;
         }
-        return { _a, _match ,_from, patterns: _patterns};
+        return { _a, _match, _from, patterns: _patterns, index: _position };
     }
     /**
      * 
      * @param {*} patterns 
-     * @param {*} options 
+     * @param {*} option 
      * @param {*} parentMatcherInfo 
      * @returns 
      */
-    static GetPatternMatcher(patterns, options, parentMatcherInfo = null) {
-        const { line, pos, debug, depth, lineCount } = options;
+    static GetPatternMatcher(patterns, option, parentMatcherInfo = null) {
+        const { line, pos, debug, depth, lineCount } = option;
         const { FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
         let _from = -1;
         let l = line.substring(pos);
         const { RefPatterns } = Utils.Classes;
-       
+        let index;
 
 
         // ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
-        ({ _a, _match, _from, patterns } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
+        ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo));
 
 
-        if (_a) { 
-            _match.index += pos; 
+        if (_a) {
+            _match.index += pos;
+
             if (debug) {
                 console.log('matcher-begin: ', {
                     '__name': _a.toString(),
@@ -261,9 +267,9 @@ class Utils {
                     isFromGroupRef: _from != null
                 });
             }
-            if (_a.throwError){
+            if (_a.throwError) {
                 let e = _a.throwError;
-                const msg = typeof(e)=='object' ? e.message : 'invalid match';  
+                const msg = typeof (e) == 'object' ? e.message : 'invalid match';
                 throw new FormatterPatternException(msg, _a, _match, lineCount);
             }
             // + | add property to offset 
@@ -271,20 +277,21 @@ class Utils {
             // +| treat begin captures must be at corresponding data info
             //options.treatBeginCaptures(_a, _match); 
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns);            
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
             return _info;
         }
         return _a;
     }
-    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns){
+    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1) {
         _info.use({
-            marker: _a, 
+            marker: _a,
             endRegex: _a.endRegex(_match),
             line,
             group: _match,
             parent: parentMatcherInfo,
             patterns,
-            fromGroup: _from
+            fromGroup: _from,
+            index
         });
     }
     /**
@@ -295,17 +302,17 @@ class Utils {
      * @param {*} parentMatcherInfo 
      * @returns 
      */
-    static GetPatternMatcherInfoFromLine(line, patterns, options, parentMatcherInfo){
-        const { debug, depth } = options;
-        const { RefPatterns } = Utils.Classes;
+    static GetPatternMatcherInfoFromLine(line, patterns, options, parentMatcherInfo) {
+        const { debug, depth, lineCount } = options;
+        const { RefPatterns, FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
         let pos = 0;
         let _from = null;
         ({ _a, _match, _from, patterns } = Utils.GetMatchInfo(patterns, line, options, parentMatcherInfo));
 
-        if (_a) { 
-            _match.index += pos; 
+        if (_a) {
+            _match.index += pos;
             if (debug) {
                 console.log('matcher-begin-1: ', {
                     '__name': _a.toString(),
@@ -318,12 +325,17 @@ class Utils {
                     regex: _a.matchRegex
                 });
             }
+            if (_a.throwError) {
+                let e = _a.throwError;
+                const msg = typeof (e) == 'object' ? e.message : 'invalid match';
+                throw new FormatterPatternException(msg, _a, _match, lineCount);
+            }
             // + | add property to offset 
             _match.offset = _match[0].length;
             // +| treat begin captures must be at corresponding data info
             //options.treatBeginCaptures(_a, _match); 
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns);            
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns);
             return _info;
         }
         return _a;
@@ -372,11 +384,11 @@ class Utils {
      */
     static RegexInfo(s) {
         let option = '';
-        if (s=="(??)"){
+        if (s == "(??)") {
             return {
-                s:"^.^",
+                s: "^.^",
                 option,
-                beginOnly:true
+                beginOnly: true
             };
         }
 
@@ -400,7 +412,7 @@ class Utils {
             option
         };
     }
-    static RegexParseInfo(s, flag){
+    static RegexParseInfo(s, flag) {
         let _info = Utils.RegexInfo(s);
         if (flag && ((_info.option.length == 0) || (_info.option.indexOf(flag) == -1))) {
             _info.option = flag;
@@ -409,12 +421,12 @@ class Utils {
     }
     static RegexParse(s, flag) {
         if (typeof (s) == 'string') {
-            let _info = Utils.RegexParseInfo(s,flag); 
+            let _info = Utils.RegexParseInfo(s, flag);
             return new RegExp(_info.s, _info.option);
         } else if (typeof (s) == 'object') {
-            if (s instanceof RegExp){ 
-                
-                let _info = Utils.RegexParseInfo(s.toString(), flag);  
+            if (s instanceof RegExp) {
+
+                let _info = Utils.RegexParseInfo(s.toString(), flag);
                 return new RegExp(_info.s, _info.option);
             }
             const { option, regex } = s;
@@ -476,19 +488,19 @@ class Utils {
                         v = v.toString().padStart(n, _g);
                     }
                     else if (_s == '=') {
-                        let c = Math.floor((n - v.length) / 2); 
+                        let c = Math.floor((n - v.length) / 2);
                         v = v.toString().padEnd((c % 2) == 0 ? n - c : n - c + 1, _g);
                         v = v.toString().padStart(n, _g);
                     }
                 }
                 return v;
             }
-        
-            if (_p = /^\[(?<expression>.+)\]$/.exec(s)){
+
+            if (_p = /^\[(?<expression>.+)\]$/.exec(s)) {
                 let c = Utils.GetRegexFrom(_p.groups['expression'], [v]);
-                v =  v.replace(v, c.toString().slice(1,-1));
+                v = v.replace(v, c.toString().slice(1, -1));
                 return v;
-             }
+            }
 
             v = typeof (s) == 'function' ? s(v) : _func[s](v);
         });
@@ -572,16 +584,16 @@ class Utils {
             // consider escape to check
             //
             let cp = new RegExp(m.replace(/\\/g, '\\\\'), 'd');
-            let _in = value.replace(value, check).replace(/\\\\/g,/\\0/);
+            let _in = value.replace(value, check).replace(/\\\\/g, /\\0/);
             // passing exec to formatt new value
             let matches = cp.exec(_in);
             const _tokens = option.tokenChains;
             const _caps = _formatter.getMarkerCaptures(_marker);
-            if (matches && _caps){
+            if (matches && _caps) {
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
-                let out = g.render(listener, _caps, false, _tokens, option);            
+                let out = g.render(listener, _caps, false, _tokens, option);
                 return out;
-            } 
+            }
             return check;
 
         } else {
@@ -604,7 +616,7 @@ class Utils {
      * @param {*} option - options
      * @returns 
      */
-    static TreatPatternValue(value, patterns, group, option){
+    static TreatPatternValue(value, patterns, group, option) {
         const _formatter = option.formatter;
         let _bckCapture = _formatter.info.captureGroup;
         _formatter.info.captureGroup = group;
@@ -625,11 +637,11 @@ class Utils {
                 depth: q.depth,
                 tokenList: q.tokenList.slice(0),
                 markerDepth: q.markerDepth,
-                blockStarted:  q.blockStarted,
+                blockStarted: q.blockStarted,
                 appendToBufferListener: q.appendToBufferListener
             };
             // clean setting
-    
+
             q.appendToBufferListener = null;
             q.lineCount = 0;
             q.depth = 0;
@@ -648,8 +660,8 @@ class Utils {
             q.pos = _bck.pos;
             q.depth = _bck.depth;
             q.appendToBufferListener = _bck.appendToBufferListener;
-            q.restoreBuffer({state: { formatterBuffer: _bck.formatterBuffer}});
-            _bck.markerInfo.forEach(a => q.markerInfo.push(a));            
+            q.restoreBuffer({ state: { formatterBuffer: _bck.formatterBuffer } });
+            _bck.markerInfo.forEach(a => q.markerInfo.push(a));
             option.popState();
 
         } else {
@@ -661,11 +673,11 @@ class Utils {
         return value;
     }
 
-    static TreatCapture(marker, _cap, group, tokenChains, option){
+    static TreatCapture(marker, _cap, group, tokenChains, option) {
         const { listener } = option;
         const { CaptureRenderer } = Utils.Classes;
         let _s = null;
-        if (Array.isArray(group) == false){
+        if (Array.isArray(group) == false) {
             const indices = [];
             indices.push([0, group.length]);
             group = [group];
@@ -677,27 +689,60 @@ class Utils {
             return _g;
         }
     }
-    static GetNextCapture(line, endRegex){
+    /**
+     * get next capture data
+     * @param {*} line 
+     * @param {*} endRegex 
+     * @param {*} option 
+     * @returns 
+     */
+    static GetNextCapture(line, endRegex, option) {
         const { RegexUtils } = Utils.Classes;
         let m = endRegex.toString();
-        m = m.substring(0, m.lastIndexOf('/')+1).slice(1,-1);
+        m = m.substring(0, m.lastIndexOf('/') + 1).slice(1, -1);
         m = RegexUtils.UnsetCapture(m); // .replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
         let reg = new RegExp(m);
-        return reg.exec(line);
+        let _ret = reg.exec(line);
+        if (_ret) {
+            _ret.offset = _ret[0].length;
+        }
+        return _ret;
     }
 
-    static JSONInitCaptureField(q){
-        return (s, parser)=>{
-            const _info_class = parser.captureInfoClassName  || CaptureInfo;
-            let d = {}; 
-            for(let i in s){
-                let m = new _info_class(q); 
-                JSonParser._LoadData(parser, m, s[i]);  
-                d[i] = m; 
-                parser.initialize(m);  
-            } 
+    static JSONInitCaptureField(q) {
+        return (s, parser) => {
+            const _info_class = parser.captureInfoClassName || CaptureInfo;
+            let d = {};
+            for (let i in s) {
+                let m = new _info_class(q);
+                JSonParser._LoadData(parser, m, s[i]);
+                d[i] = m;
+                parser.initialize(m);
+            }
             return d;
-        } 
+        }
+    }
+    /**
+ * 
+ * @param {*} patterns 
+ * @param {*} idx 
+ * @param {*} action 
+ * @returns 
+ */
+    static GetPatternsList(patterns, idx, action) {
+        switch (action) {
+            case 'next':
+                return patterns.slice(idx + 1);
+            case 'parent':
+                break;
+            case 'all':
+                return patterns.slice(0);
+            case 'exclude':
+                let r = patterns.slice(0);
+                delete (r[idx]);
+                return r;
+        }
+        return [];
     }
 }
 exports.Utils = Utils;

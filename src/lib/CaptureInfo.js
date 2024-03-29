@@ -43,6 +43,12 @@ class CaptureInfo{
      */
     captures;
 
+    /**
+     * format object 
+     * @var {*} 
+     */
+    format;
+
     constructor(parent){ 
 
         Object.defineProperty(this, 'parent', {get(){return parent;}})

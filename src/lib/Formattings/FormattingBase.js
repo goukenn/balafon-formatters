@@ -89,7 +89,7 @@ class FormattingBase {
                 case FM_END_BLOCK:
                     // apend 
                     // let _buffer = option.buffer; 
-                    option.lineFeedFlag = true; //'---'; 
+                    option.lineFeedFlag = true;
                     break;
             }
         }

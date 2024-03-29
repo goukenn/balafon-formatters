@@ -26,9 +26,10 @@ class FormatterMarkerInfo{
     blockStarted;
     useEntry = true;
 
-    constructor(formatter, _marker, entry, _endRegex, option){
- 
-
+    toString(){
+        return 'FormatterMarkerInfo#'+this.marker.toString();
+    }
+    constructor(formatter, _marker, entry, _endRegex, option){  
         this.startBlock = _marker.isBlock ? 1 : 0;
         this.oldBlockStart = _marker.isBlock;
         this.blockStarted = false;

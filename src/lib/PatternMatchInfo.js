@@ -99,6 +99,7 @@ class PatternMatchInfo {
         var m_bufferMode = 1; // how to operate on buffer 
         var m_patterns = null;
         var m_fromGroup = null; // store pattern group - to dected token id
+        var m_index = -1;
         /**
         * get or set the buffer mode. 0 - add a line before add go to 1 just append to buffer, 2 add a line after
         */
@@ -107,7 +108,7 @@ class PatternMatchInfo {
                 if (v != m_bufferMode) {
                     m_bufferMode = v;
                     // + | change buffermode 
-                    console.log('change mode : ', v);
+                    // console.log('change mode : ', v);
                 }
             }
         });
@@ -149,10 +150,7 @@ class PatternMatchInfo {
 
         Object.defineProperty(this, 'indexOf', {
             get() {
-                if (m_patterns && m_marker) {
-                    return m_patterns.indexOf(m_marker);
-                }
-                return -1;
+                return m_index;
             }
         });
         Object.defineProperty(this, 'hostPatterns', {
@@ -170,7 +168,7 @@ class PatternMatchInfo {
          * 
          * @param {*} marker 
          */
-        this.use = function ({ marker, endRegex, group, line, parent, patterns , fromGroup}) {
+        this.use = function ({ marker, endRegex, group, line, parent, patterns , fromGroup, index=-1}) {
             m_marker = marker;
             m_endRegex = endRegex;
             m_group = group;
@@ -181,11 +179,12 @@ class PatternMatchInfo {
             m_lineFeed = marker.lineFeed;
             m_patterns = patterns;
             m_fromGroup = fromGroup;
+            m_index = index;
 
             (function (q, pattern) {
                 const _keys = Object.keys(q);
                 const _keys_t = Object.keys(pattern);
-                ['isBlock', 'lineFeed'].forEach(s => {
+                ['isBlock', 'lineFeed', 'streamAction'].forEach(s => {
                     delete _keys_t[_keys_t.indexOf(s)];
                 });
                 _keys_t.forEach(i => {
@@ -258,6 +257,17 @@ class PatternMatchInfo {
     }
     get replaceWithCondition() {
         return this.marker?.replaceWithCondition;
+    }
+    get streamAction(){
+        const {streamAction} = this.marker;
+
+        return streamAction || 'next';
+    }
+    /**
+     * debug this marker. internal used
+     */
+    get debug(){
+        return this.marker?.debug;
     }
     toString() {
         return "[PatternMatchInfo: " + this.marker?.toString() + "]";
