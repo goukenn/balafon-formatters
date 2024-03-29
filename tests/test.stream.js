@@ -1,10 +1,9 @@
 
 const { Formatters } = require("../src/lib/Formatters");
 const webUtils = require("../src/web/Utils");
+const { data }= require('./bcss.data.js');
 
-
-
-const _formatter = Formatters.CreateFrom({
+const _bdata = data || {
     debug: true,
     scopeName: "source.bcss.test",
     repository: {
@@ -24,8 +23,19 @@ const _formatter = Formatters.CreateFrom({
             "patterns": [
                 {
                     "include": "#css-property-selector---"
+                }, 
+                // detect symbol
+                {
+                    "name":"detect.sysb",
+                    "begin":"(?=[\\w]+)", // begin stream capture
+                    "end":"(?=:|\\{)",
+                    "streamAction":"next",
+                    "patterns":[{
+                        "name":"property.select",
+                        "match":"\\w+"
+
+                    }]
                 },
-               
                 {
                     "name":"trim-space",
                     "match":"\\s+",
@@ -34,21 +44,20 @@ const _formatter = Formatters.CreateFrom({
                 {
                     "name":"end-instruct",
                     "match":"\\s*;\\s*",
-                    "replaceWith":";"
+                    "transform":"trim",
+                    "isInstructionSeparator":true,
+                    "lineFeed":true
                 },
                 {
                     "name":"property.separator",
                     "match":"\\s*:\\s*",
-                    "replaceWith":":mutationfor_mask"
+                    "transform":"trim"
                 },
                 {
                     "name":"property",
-                    "match":"\\s*[\\w]+\\s*(?=:)",
-                    "replaceWith":"---:----osa"
-                },
-                
-
-
+                    "match":"\\s*[\\w]+\\s*(?=:)", 
+                    "transform":"trim"
+                }, 
             ]
         },
         "length-with-unit": {
@@ -173,13 +182,14 @@ const _formatter = Formatters.CreateFrom({
         },
 
     ]
-}, webUtils.webStyleClass);
+};
+const _formatter = Formatters.CreateFrom(_bdata, webUtils.webStyleClass);
 let _src;
 // const _src = `on line`;
 // const _src = `     bodycolor\\:hover{`;
 // _src = `    color:     12px; display:none ; `; //  du jour et de la nuit`;
 //_src = `    color\\:hover{margin: 12px; display:none ; }`; //  du jour et de la nuit`;
-_src = `    .color{margin    :    12px; display :   none    ;}`; //  du jour et de la nuit`;
+_src = `xx    .color   {margin    :    12px;      display: none; }`; //  du jour et de la nuit`;
 const _def = {};
 // _formatter.listener = webUtils.webFormattingListener(_def);
 

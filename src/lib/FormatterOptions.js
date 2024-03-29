@@ -29,6 +29,8 @@ class FormatterOptions {
      * flag to set on en of line
      */
     EOL = false;
+
+    TOEND = false;
     /**
      * store global output result 
      */
@@ -509,7 +511,7 @@ class FormatterOptions {
         };
     }
 
-    cleanNewOllBuffers() {
+    cleanNewOldBuffers() {
         const option = this;
         if (this.holdBufferState && option.newOldBuffers.length > 0) {
             // On this Process handling clean all new Buffers
@@ -544,6 +546,7 @@ class FormatterOptions {
                 throw new Error('missing markerInfo');
             }
         }
+        return null;
     }
     storeAndUpdateBuffer() {
         this.store();
