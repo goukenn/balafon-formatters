@@ -37,7 +37,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
         let _mode = _marker.mode;
         let _sbuffer = '';
         let _buffer = option.buffer;
-        // let _content = _old.content;
+
         let _formatting = this.formatting;
         switch (_mode) {
             case FM_START:
@@ -60,15 +60,13 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 }
                 break;
             case FM_APPEND:
-                // append to buffer 
+                // + | append to buffer 
                 _sbuffer = option.buffer;
-                _sbuffer = option.flush(true) + _sbuffer; // +option.buffer;
+                _sbuffer = option.flush(true) + _sbuffer;
                 break;
-            case FM_END_INSTUCTION: // append-flush-next
-                _sbuffer = option.buffer;
-                option.output.push(_sbuffer);
-                option.appendExtraOutput();
-                _sbuffer = option.flush(true); 
+            case FM_END_INSTUCTION: 
+                // + | append-flush-next-start-new-line
+                _sbuffer = option.flush(true)+_buffer;  
                 _mode = FM_START_LINE;
                 break;
             case 4:
