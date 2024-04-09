@@ -184,10 +184,10 @@ class FormatterOptions {
             const q = this;
             return q.line.substring(q.range.start, q.range.end);
         };
-        option.unshiftMarker = (o) => {
+        option.unshiftMarker = (o) => { 
             _markerInfo.unshift(o);
         };
-        option.shiftMarker = () => {
+        option.shiftMarker = () => { 
             return _markerInfo.shift();
         };
         option.empty = empty;
@@ -435,6 +435,10 @@ class FormatterOptions {
         option.moveTo = function (newPosition) {
             this.pos = newPosition;
         }
+        /**
+         * restore buffer 
+         * @param {*} param0 
+         */
         option.restoreBuffer = function ({ state }) {
             _formatterBuffer = state.formatterBuffer;
         };
@@ -517,7 +521,7 @@ class FormatterOptions {
             // On this Process handling clean all new Buffers
             let count = option.newOldBuffers.length;
             while (count > 0) {
-                let tq = option.markerInfo.shift();
+                let tq = option.shiftMarker();
                 let q = option.newOldBuffers.pop();
                 if (tq !== q) {
                     throw new Error('invalid configuration');
@@ -530,6 +534,25 @@ class FormatterOptions {
                 }
             }
         }
+    }
+    /**
+     * shift and restore from
+     * @param {*} from 
+     * @param {*} throwError 
+     * @returns 
+     */
+    shiftAndRestoreFrom(from, throwError){
+        const option = this;
+        let _old = option.shiftFromMarkerInfo(from, throwError);
+        if (_old) {
+            // unshif and restore buffer 
+            let _rbuffer = option.buffer;
+            option.restoreBuffer(_old);
+            if (_rbuffer) {
+                option.formatterBuffer.appendToBuffer(_rbuffer);
+            }
+        }
+        return _old;
     }
     /**
      * return shift markerInfo from list
@@ -554,6 +577,15 @@ class FormatterOptions {
         if (_buffer.length > 0) {
             this.formatterBuffer.appendToBuffer(_buffer);
         }
+    }
+    getBufferContent(clear){
+        const option = this;
+        let _buffer = option.buffer;
+        let _cm = option.flush(true);
+        if (clear){
+            option.formatterBuffer.clear();
+        }
+        return _cm+_buffer;
     }
     peekFirstMarkerInfo() {
         if (this.markerInfo.length > 0) {

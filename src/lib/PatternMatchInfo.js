@@ -14,12 +14,7 @@ class PatternMatchInfo {
      * current definition block
      * @var {bool}
      */
-    isBlock;
-    /**
-     * store start line
-     */
-    startLine = 0;
-
+    isBlock;  
     /**
      * formatting start block element
      */
@@ -33,8 +28,9 @@ class PatternMatchInfo {
      * 
      */
     range = {
-        start: 0,
-        end: 0
+        startLine:0, // on start line 
+        start: 0, // position start
+        end: 0 // position end
     }
     /**
     * store marker info childs
@@ -66,23 +62,7 @@ class PatternMatchInfo {
      * @var {?boolean}
      */
      isShiftenName = false;
-
-
-    /**
-     * get or set the index of this Pattern in parent array
-     * @var {number}
-     */
-    get indexOf() {
-        if (this.marker?.parent) {
-            return this.marker.parent.patterns.indexOf(this);
-        } else {
-
-        }
-        return -1;
-    }
-
-   
-
+ 
 
     constructor() {
         var m_parent;
@@ -131,7 +111,12 @@ class PatternMatchInfo {
 
         Object.defineProperty(this, 'parent', { get() { return m_parent; } });
         Object.defineProperty(this, 'updatedProperties', { get() { return m_updatedProperties; } });
-        Object.defineProperty(this, 'isBlock', { get() { return m_isBlock; }, set(value) { m_isBlock = value; } });
+        Object.defineProperty(this, 'isBlock', { get() { return m_isBlock; }, set(value) { 
+            
+            if (value === null){
+                throw new Error('can  not store null value');
+            }
+            m_isBlock = value; } });
         Object.defineProperty(this, 'lineFeed', { get() { return m_lineFeed; } });
         Object.defineProperty(this, 'marker', { get() { return m_marker; } });
         Object.defineProperty(this, 'endRegex', { get() { return m_endRegex; } });
@@ -180,7 +165,7 @@ class PatternMatchInfo {
             m_patterns = patterns;
             m_fromGroup = fromGroup;
             m_index = index;
-
+            
             (function (q, pattern) {
                 const _keys = Object.keys(q);
                 const _keys_t = Object.keys(pattern);
@@ -259,9 +244,14 @@ class PatternMatchInfo {
         return this.marker?.replaceWithCondition;
     }
     get streamAction(){
-        const {streamAction} = this.marker;
-
+        const {streamAction} = this.marker; 
         return streamAction || 'next';
+    }
+    /**
+     * expose parker match type
+     */
+    get matchType(){
+        return this.marker.matchType;
     }
     /**
      * debug this marker. internal used

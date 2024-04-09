@@ -10,6 +10,11 @@ class FormatterSetting {
     blockOnSingleLine = true;
     noSpaceJoin = false;
     codingStyle = FormattingCodeStyles.K_R;
+    /**
+     * use source indent
+     * @var {boolean} 
+     */
+    useIndent = false;
     depth = 0;
     line = 0;
     /**

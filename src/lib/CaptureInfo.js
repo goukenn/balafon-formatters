@@ -76,7 +76,7 @@ class CaptureInfo{
             end: _regex_parser,
             match: _regex_parser,
             replaceWith: _regex_parser,
-            replaceWithCondition(n , parser, ){
+            replaceWithCondition(n, parser){
                 let m = new ReplaceWithCondition; 
                 JSonParser._LoadData(parser, m, n, refObj);  
                 return m;

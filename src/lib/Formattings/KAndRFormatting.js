@@ -25,6 +25,15 @@ class KAndRFormatting extends FormattingBase {
         }
         return ALLOW_WHITE_SPACE.indexOf(mode) != -1;
     }
+    /**
+     * 
+     * @param {*} formatter 
+     * @param {*} marker 
+     * @param {*} option 
+     * @param {*} _buffer 
+     * @param {*} _refData 
+     * @returns 
+     */
     handleEndFormattingBeforeStore(formatter, marker, option, _buffer, _refData) {
         let { _b } = _refData;
         let sb = '';

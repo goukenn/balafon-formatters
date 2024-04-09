@@ -20,9 +20,6 @@ class FormattingBase {
         marker.mode = FM_APPEND;
     }
     handleEndFound(formatter, marker, option, _buffer, _b) {
-        if (marker.childs.length == 0) {
-
-        }
         return marker.parent;
     }
     static Factory(name) {
@@ -50,7 +47,7 @@ class FormattingBase {
                 _sbuffer = option.flush(true);
             }
             else {
-                if (_old.entryBuffer.length == _old.content.trim()) {
+                if (_old.entryBuffer.length == _old.content.trim().length) {
                     option.store();
                     _sbuffer = option.flush(true);
                 } else {
@@ -151,10 +148,10 @@ class FormattingBase {
                 throw new Error('start block contains definition: ' + _cf);
             }
         }
-        if (option.markerInfo.length > 0) {
-            const _old = option.markerInfo[0];
-            _old.content = _old.content.trim();
-        }
+        // if (option.markerInfo.length > 0) {
+        //     const _old = option.markerInfo[0];
+        //     _old.content = _old.content.trim();
+        // }
         patternInfo.mode = FM_START_BLOCK;
         const { parent } = patternInfo;
         if (parent) {

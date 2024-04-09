@@ -37,7 +37,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
         let _mode = _marker.mode;
         let _sbuffer = '';
         let _buffer = option.buffer;
-        let _content = _old.content;
+        // let _content = _old.content;
         let _formatting = this.formatting;
         switch (_mode) {
             case FM_START:
@@ -88,7 +88,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 break; 
             case FM_END_BLOCK:
                 ({_sbuffer} = _formatting.handleEndBlockBuffer(_marker, _buffer, option, _old)); 
-                _mode = 2;
+                _mode = FM_START_LINE;
                 break;
             case FM_START_LINE_AND_APPEND:
                 option.store();
@@ -150,3 +150,18 @@ function formattingSetupPatternForBuffer(patternInfo, option){
 }
 exports.updateBuffer = updateBuffer;
 exports.formattingSetupPatternForBuffer = formattingSetupPatternForBuffer;
+
+
+const AC_PARENT = 'parent';
+const AC_NEXT = 'next';
+class StreamActions{
+    static get PARENT(){
+        return AC_PARENT;
+    }
+    static get NEXT(){
+        return AC_NEXT;
+    }
+}
+
+
+exports.StreamActions = StreamActions;
