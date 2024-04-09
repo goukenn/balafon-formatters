@@ -79,9 +79,10 @@ class FormatterMarkerInfo{
     } 
     /**
      * save state 
-     * @param {*} option 
+     * @param {*} option mode definition 
+     * @param {number} mode formatting mode
      */
-    saveState(option){
+    saveState(option, mode){
         // + | save buffer state 
         this.state = {
             buffer: option.formatterBuffer.buffer, // store old buffer
@@ -89,6 +90,9 @@ class FormatterMarkerInfo{
             formatterBuffer: option.formatterBuffer,
             get currentBufferContent(){
                 return this.formatterBuffer.buffer;
+            },
+            get mode(){
+                return mode;
             }
         }; 
     }

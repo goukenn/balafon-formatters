@@ -193,7 +193,7 @@ class Utils {
      * @var {*} parentMatcherInfo parent pattern for get result
      * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined, patterns}}
      */
-    static GetMatchInfo(patterns, l, options, parentMatcherInfo) {
+    static GetMatchInfo(patterns, l, option, parentMatcherInfo) {
         let _a = null;
         let _from = null;
         let _match = 0;
@@ -206,18 +206,28 @@ class Utils {
             let p = null;
             let from = null;
             let item_index = null;
-            let _d = _ts.check(l, options, parentMatcherInfo);
-            if (_d) {
-                ({ p, s, from, patterns } = _d);
-                item_index = _d.index == -1 ? _count : _d.index;
+            let skip = false;
+            if (s.startLine) {
+                if (!option.startLine) {
+                    skip = true;
+                }
+
             }
-            if (p && ((_index == -1) || (_index > p.index))) {
-                _index = p.index;
-                _a = s;
-                _match = p;
-                _from = from;
-                _patterns = patterns || _patterns;
-                _position = item_index || _count;
+
+            if (!skip) {
+                let _d = _ts.check(l, option, parentMatcherInfo);
+                if (_d) {
+                    ({ p, s, from, patterns } = _d);
+                    item_index = _d.index == -1 ? _count : _d.index;
+                }
+                if (p && ((_index == -1) || (_index > p.index))) {
+                    _index = p.index;
+                    _a = s;
+                    _match = p;
+                    _from = from;
+                    _patterns = patterns || _patterns;
+                    _position = item_index || _count;
+                }
             }
             _count++;
         });
@@ -298,18 +308,19 @@ class Utils {
      * 
      * @param {string} l 
      * @param {*} patterns 
-     * @param {*} options 
+     * @param {*} option 
      * @param {*} parentMatcherInfo 
      * @returns 
      */
-    static GetPatternMatcherInfoFromLine(line, patterns, options, parentMatcherInfo) {
-        const { debug, depth, lineCount } = options;
+    static GetPatternMatcherInfoFromLine(line, patterns, option, parentMatcherInfo) {
+        const { debug, depth, lineCount } = option;
         const { RefPatterns, FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
         let pos = 0;
         let _from = null;
-        ({ _a, _match, _from, patterns } = Utils.GetMatchInfo(patterns, line, options, parentMatcherInfo));
+        let index = -1;
+        ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, line, option, parentMatcherInfo));
 
         if (_a) {
             _match.index += pos;
@@ -322,7 +333,8 @@ class Utils {
                     isBlock: _a.isBlock,
                     isRef: _a instanceof RefPatterns,
                     value: _match[0],
-                    regex: _a.matchRegex
+                    regex: _a.matchRegex,
+                    index
                 });
             }
             if (_a.throwError) {
@@ -335,7 +347,7 @@ class Utils {
             // +| treat begin captures must be at corresponding data info
             //options.treatBeginCaptures(_a, _match); 
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns);
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
             return _info;
         }
         return _a;
@@ -711,7 +723,7 @@ class Utils {
 
     static JSONInitCaptureField(q) {
         return (s, parser) => {
-            const _info_class = parser.captureInfoClassName || CaptureInfo;
+            const _info_class = parser.captureInfoClassName || Utils.Classes.CaptureInfo;
             let d = {};
             for (let i in s) {
                 let m = new _info_class(q);

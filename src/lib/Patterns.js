@@ -160,6 +160,13 @@ class Patterns{
      * captures to attach on stream or use captures as a fallback
      */
     streamCaptures;
+
+
+    /**
+     * indicate that this pattern must be only apply on start line
+     * @var {boolean}
+     */
+    startLine=false;
    
     /**
      * @var {boolean} debug this field
