@@ -64,6 +64,11 @@ class FormatterOptions {
      */
     glueValue = null;
 
+    /**
+     * flag formatter skip start empty line flag
+     */
+    skipEmptyMatchValue = false;
+
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;

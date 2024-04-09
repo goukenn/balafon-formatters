@@ -39,6 +39,14 @@ class FormattingBase {
         throw new Error('missing code style formatters');
     }
 
+    /**
+     * handle end end block buffer
+     * @param {*} _marker 
+     * @param {*} _buffer 
+     * @param {*} option 
+     * @param {*} _old 
+     * @returns 
+     */
     handleEndBlockBuffer(_marker, _buffer, option, _old) {
         let _sbuffer = '';
         if (option.depth > 0) {
@@ -48,13 +56,9 @@ class FormattingBase {
             }
             else {
                 if (_old.entryBuffer.length == _old.content.trim().length) {
-                    option.store();
-                    _sbuffer = option.flush(true);
-                } else {
-                    _sbuffer = _buffer;
-                    // clean buffer 
-                    option.flush(true);
+                    option.store(); 
                 }
+                _sbuffer = option.flush(true)+_buffer;
             }
         } else {
             option.store();

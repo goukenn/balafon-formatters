@@ -15,14 +15,19 @@ class RegexUtils{
             let i = 1;
             let ln = l.length;
             const start_index = index;
-            while((i < ln) && (i>0)){
+            let escaped = false;
+            while((i < ln) && (i>0) && (index < ln)){
     
                 ch = l[index+1];
                 if (ch==start){
-                    i++;
+                   if (!escaped){ 
+                        i++;
+                   }
                 } else if (ch ==end){
-                    i--;
+                    if (!escaped)
+                        i--;
                 }
+                escaped = ch=="\\";
                 index++;
             }
             return l.substring(0, start_index)+l.substring(index+1);

@@ -48,15 +48,17 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 break;
             case FM_START_LINE:
                 // store then go to append
+                let _append = true;
                 if (_buffer.trim().length == 0) {
                     option.formatterBuffer.clear();
                     _buffer = '';
+                    _append =false;
                 } else {
-                    option.store();
-                    _sbuffer = option.flush(true);
-                    if (_sbuffer.length > 0) {
-                        _mode = FM_APPEND;
-                    }
+                    option.store(); 
+                }
+                _sbuffer = option.flush(true);
+                if (_append && (_sbuffer.length > 0)) {
+                    _mode = FM_APPEND;
                 }
                 break;
             case FM_APPEND:
@@ -90,7 +92,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 break;
             case FM_START_LINE_AND_APPEND:
                 option.store();
-                option.appendExtraOutput();
+                //option.appendExtraOutput();
                 _sbuffer = option.flush(true);
                 if (_sbuffer.length > 0) {
                     _mode = FM_START_LINE;
@@ -133,6 +135,14 @@ function updateBuffer(data, mode, _marker, option){
                 option.appendToBuffer(data, _marker);
                 _marker.mode = FM_APPEND;  
             }
+            break;
+        case FM_END_INSTUCTION:
+            data = data.trimStart();
+            if (data.length>0){
+                option.appendToBuffer(data, _marker);
+                _marker.mode = FM_APPEND;  
+            }
+
             break;
         default:
             throw new Error('update Buffer not handled : '+mode); 

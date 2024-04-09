@@ -103,6 +103,10 @@ class KAndRFormatting extends FormattingBase {
                 } else {
                     // + | update current buffer to handle
                     formatter.updateBuffedValueAsToken(_buffer, _marker, option, true); 
+                    if (option.depth == 0){
+                        option.skipEmptyMatchValue = true;
+                    }
+
                 }
                 break;
         }
