@@ -5,7 +5,10 @@
     },
     "patterns": [
         {
-            "include":"#core-definition"
+            "include": "#single-condition-expression"
+        },
+        {
+            "include":"#core-definition--"
         }
     ],
     "repository": {
@@ -41,6 +44,38 @@
                 },
                 {
                     "include": "#single-line-comment"
+                }
+            ]
+        },
+        "single-condition-expression":{
+            "name":"condition.expression.js",
+            "begin":"\\b(if|elseif)\\b",
+            "end":"$",
+            "patterns":[
+                { "match":"\\s+", "replaceWith":" ", "isGlue":true},
+                {"include":"#block-branket"},
+                {"include":"#branket-function-condition"},
+                {
+                    "name":"single.instruct.js",
+                    "begin":"(?=[^\\(\\{\\s])",
+                    "end":"\\s*(;)\\s*",
+                    "patterns":[
+                        {
+                            "include":"#reserved-words"
+                        },
+                        {
+                            "match": "(?=;)",
+                            "name": "operator.end.single.instruction",
+                            "lineFeed": false,
+                            "isInstructionSeparator": true
+                        }
+                    ],
+                    "endCaptures":{
+                        "0":{
+                            "match":";",
+                            "transform":"trim"
+                        }
+                    }
                 }
             ]
         },

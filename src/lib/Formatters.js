@@ -842,7 +842,14 @@ class Formatters {
                     this._onEndHandler(_marker, option);
                     return _marker.parent;
                 }
-                option.formatterBuffer.appendToBuffer(_cm_value);//, _marker);
+                // + | check to add empty space before append.
+                if (!option.skipEmptyMatchValue || (_cm_value.trim().length > 0)){
+                    option.formatterBuffer.appendToBuffer(_cm_value);
+                    if (option.skipEmptyMatchValue){
+                        option.skipEmptyMatchValue = false;
+                    }
+                }
+
             }
             if (_old && b) {
                 _formatting.handleEndInstruction(this, _marker, _old, option);
@@ -1520,14 +1527,14 @@ class Formatters {
         const { debug, lineFeed, output } = option;
         let _sbuffer = '';
         // TODO : Remove line _lf
-        let _lf = _old.startBlock == 1 ? option.lineFeed : '';
+        // let _lf = _old.startBlock == 1 ? option.lineFeed : '';
         let _buffer = _old.content;
         let _rbuffer = option.buffer;
         let _extra = null;
         const { marker } = _old;
         const { mode } = marker;
         const _formatting = this.formatting;
-        debug && Debug.log("--::update oldmarker::--"+mode);
+        debug && Debug.log("--::update oldmarker::-- mode : "+mode);
         let _clear_buffer = false;
         if (output.length>0){ 
             _extra = option.flush(true);  
@@ -1607,7 +1614,7 @@ class Formatters {
             _buffer = '';
         }
         if (_sbuffer) {
-            _buffer += _lf + _sbuffer;
+            _buffer += _sbuffer;
         }
         _old.startBlock = 0;
         _old.content = _buffer;
