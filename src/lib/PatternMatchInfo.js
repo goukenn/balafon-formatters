@@ -203,6 +203,17 @@ class PatternMatchInfo {
     get isStartOnly(){
         return this.marker?.isStartOnly;
     }
+
+    get closeParentData(){
+        let m = this.marker?.closeParent;
+        if (!m){
+            return '';
+        }
+        if ((typeof(m)=='boolean')&& m){
+            return '';
+        }
+        return m;
+    }
     /**
      * get if this match info is a stream capture
      */

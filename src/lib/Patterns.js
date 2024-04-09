@@ -110,6 +110,9 @@ class Patterns{
      */
     startLineTransform;
 
+    /**
+     * 
+     */
     beginCaptures;
 
     /**
@@ -172,6 +175,12 @@ class Patterns{
      * @var {boolean} debug this field
      */
     debug;
+
+    /**
+     * force close parent with litteral
+     * @var {null|undefined|true|string} close parent with litteral
+     */
+    closeParent;
 
     constructor(){
         this.patterns = [];
