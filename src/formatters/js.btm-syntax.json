@@ -85,7 +85,7 @@
         "end-instruction": {
             "match": "(;)",
             "name": "operator.end.instruction",
-            "lineFeed": true,
+            "lineFeed": false,
             "isInstructionSeparator": true
         },
         "string": {
