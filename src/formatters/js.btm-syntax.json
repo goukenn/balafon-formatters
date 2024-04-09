@@ -6,6 +6,8 @@
     "patterns": [
         {
             "include": "#single-condition-expression"
+        },{
+            "include": "#single-else-expression"
         },
         {
             "include":"#core-definition--"
@@ -49,7 +51,7 @@
         },
         "single-condition-expression":{
             "name":"condition.expression.js",
-            "begin":"\\b(if|elseif)\\b",
+            "begin":"\\b(if|elseif|while|switch)\\b",
             "end":"$",
             "patterns":[
                 { "match":"\\s+", "replaceWith":" ", "isGlue":true},
@@ -66,8 +68,41 @@
                         {
                             "match": "(?=;)",
                             "name": "operator.end.single.instruction",
-                            "lineFeed": false,
-                            "isInstructionSeparator": true
+                            "isInstructionSeparator": true,
+                            "isBlock":true,
+                            "closeParent":true
+                        }
+                    ],
+                    "endCaptures":{
+                        "0":{
+                            "match":";",
+                            "transform":"trim"
+                        }
+                    }
+                }
+            ]
+        },
+        "single-else-expression":{
+            "name":"else.condition.expression.js",
+            "begin":"\\b(else)\\b",
+            "end":"$",
+            "patterns":[
+                { "match":"\\s+", "replaceWith":" ", "isGlue":true},
+                {"include":"#block-branket-stop"},
+                {"include":"#branket-function-condition"},
+                {
+                    "name":"single.instruct.js",
+                    "begin":"(?=[^\\(\\{\\s])",
+                    "end":"\\s*(;)\\s*",
+                    "patterns":[
+                        {
+                            "include":"#reserved-words"
+                        },
+                        {
+                            "match": "(?=;)",
+                            "name": "operator.end.single.instruction",
+                            "isInstructionSeparator": true,
+                            "isBlock":true
                         }
                     ],
                     "endCaptures":{
@@ -89,6 +124,18 @@
             "end": "\\}",
             "name": "block",
             "isBlock": true,
+            "patterns": [
+                {
+                    "include":"#core-definition"
+                }
+            ]
+        },
+        "block-branket-stop": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "instruction.block.js",
+            "isBlock": true,
+            "closeParent":true,
             "patterns": [
                 {
                     "include":"#core-definition"

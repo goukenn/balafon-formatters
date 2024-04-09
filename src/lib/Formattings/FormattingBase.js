@@ -8,6 +8,81 @@ const CODE_STYLE_FORMATTERS = {};
  * operation to manipulate the formatter buffer on condition.
  */
 class FormattingBase {
+    updateGlobalFormatting(mode, option){
+        switch(mode){
+            case FM_START_LINE:
+                option.lineFeedFlag = true;
+                break;
+        }
+    }
+    /**
+     * depending on marker mode update old marker content new value
+     */
+    updateOldMarkerContent({ content, marker, extra, buffer, option }) {
+        let _ld = '';
+        let { mode } = marker;
+        let _hasExtra = (extra.length>0);
+        let _hasBuffer = (buffer.length > 0);
+        if (!_hasExtra && !_hasBuffer){
+            return content;
+        }
+        switch (mode) {
+            case FM_START_LINE:
+                if (buffer.trim().length>0){
+                    // udpate start line
+                    if (_hasBuffer){
+                        option.formatterBuffer.appendToBuffer(buffer);
+                        option.store();
+                    }
+                    _ld = option.flush(true);
+                    mode = FM_APPEND; 
+                }
+                break;
+            case FM_END_BLOCK:
+                if (_hasBuffer){
+                    _ld+= buffer;
+                    mode = FM_START_LINE;
+                }
+                break;
+            case FM_START_BLOCK:
+                 
+                    option.appendExtraOutput();
+                    if (_hasExtra)
+                        option.output.push(extra);
+                    if (_hasBuffer){
+                        option.formatterBuffer.appendToBuffer(buffer);
+                        option.store();
+                    }
+                    _ld = option.flush(true);
+                    mode = FM_APPEND; 
+                break;
+            case FM_END_INSTRUCTION:
+                if (_hasExtra){
+                    option.appendExtraOutput();
+                    option.output.push(extra);
+                    _ld = option.flush(true);
+                    mode = FM_START_LINE;
+                }
+                if (buffer.length > 0) {
+                    _ld += buffer;
+                    mode = FM_APPEND;
+                }
+                break;
+            case FM_APPEND:
+                if (extra.length > 0) {
+                    _ld += extra;
+                }
+                if (buffer.length > 0) {
+                    _ld += buffer;
+                }
+                break;
+            default:
+                throw new Error('mode not handle : '+mode);
+                break;
+        }
+        marker.mode = mode;
+        return content + _ld;
+    }
 
     /**
      * 
@@ -56,9 +131,9 @@ class FormattingBase {
             }
             else {
                 if (_old.entryBuffer.length == _old.content.trim().length) {
-                    option.store(); 
+                    option.store();
                 }
-                _sbuffer = option.flush(true)+_buffer;
+                _sbuffer = option.flush(true) + _buffer;
             }
         } else {
             option.store();
@@ -199,17 +274,17 @@ class FormattingBase {
             // + | change mode to 4 so that next line must on new line
             _old.marker.mode = 4;
         } else {
-            _old.marker.mode = FM_END_INSTUCTION; // append - then end instruction go to 
+            _old.marker.mode = FM_END_INSTRUCTION; // append - then end instruction go to 
         }
     }
     formatJoinFirstEntry(entryBuffer, buffer) {
         return [entryBuffer, buffer].join("\n");
     }
     formatHandleExtraOutput(marker, _extra, option) {
-        let { mode } = marker; 
+        let { mode } = marker;
         let r = _extra;
-        switch(mode){
-            case FM_END_INSTUCTION:
+        switch (mode) {
+            case FM_END_INSTRUCTION:
                 option.saveBuffer();
                 option.appendExtraOutput();
                 option.output.push(r);
@@ -232,10 +307,9 @@ exports.FormattingBase = FormattingBase
  * code style formatters
  */
 const { KAndRFormatting } = require('./KAndRFormatting');
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND, FM_END_INSTUCTION } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND, FM_END_INSTRUCTION } = require('./FormattingMode');
 const { FormatterOptions } = require('../FormatterOptions');
-const { Formatters } = require('../Formatters');
-const { FormatterBuffer } = require('../FormatterBuffer');
+const { Formatters } = require('../Formatters'); 
 const { PatternMatchInfo } = require('../PatternMatchInfo');
 
 
