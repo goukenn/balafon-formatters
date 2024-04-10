@@ -8,6 +8,11 @@ const CODE_STYLE_FORMATTERS = {};
  * operation to manipulate the formatter buffer on condition.
  */
 class FormattingBase {
+    /**
+     * 
+     * @param {*} mode 
+     * @param {*} option 
+     */
     updateGlobalFormatting(mode, option){
         switch(mode){
             case FM_START_LINE:
@@ -16,11 +21,31 @@ class FormattingBase {
         }
     }
     /**
+     * update mode on close marker 
+     * @param {*} marker 
+     */
+    closeMarker(marker){
+        if ((marker.isBlock)&&(marker.mode == FM_APPEND)){
+            marker.mode = FM_START_LINE;
+        }
+    }
+    updateMergeEndBlock({content, marker, option, extra, buffer, _hasBuffer, _hasExtra}){
+        let value = '';
+        let mode = marker.mode;
+        if (_hasBuffer){
+            value+= buffer;
+            mode = FM_START_LINE;
+        }
+        content = content.trimEnd();
+        return {value, content, mode};
+    }
+    /**
      * depending on marker mode update old marker content new value
      */
     updateOldMarkerContent({ content, marker, extra, buffer, option }) {
         let _ld = '';
         let { mode } = marker;
+        const { formatterBuffer } = option;
         let _hasExtra = (extra.length>0);
         let _hasBuffer = (buffer.length > 0);
         if (!_hasExtra && !_hasBuffer){
@@ -28,29 +53,22 @@ class FormattingBase {
         }
         switch (mode) {
             case FM_START_LINE:
-                if (buffer.trim().length>0){
-                    // udpate start line
-                    if (_hasBuffer){
-                        option.formatterBuffer.appendToBuffer(buffer);
-                        option.store();
-                    }
-                    _ld = option.flush(true);
+                _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra); 
+                if (_ld.length>0){
                     mode = FM_APPEND; 
                 }
                 break;
             case FM_END_BLOCK:
-                if (_hasBuffer){
-                    _ld+= buffer;
-                    mode = FM_START_LINE;
-                }
+                let value = '';
+                ({value, mode, content} = this.updateMergeEndBlock({content, marker, extra, buffer, option, _hasBuffer, _hasExtra}));
+                _ld = value;
                 break;
-            case FM_START_BLOCK:
-                 
+            case FM_START_BLOCK: 
                     option.appendExtraOutput();
                     if (_hasExtra)
                         option.output.push(extra);
                     if (_hasBuffer){
-                        option.formatterBuffer.appendToBuffer(buffer);
+                        formatterBuffer.appendToBuffer(buffer);
                         option.store();
                     }
                     _ld = option.flush(true);
@@ -65,7 +83,7 @@ class FormattingBase {
                 }
                 if (buffer.length > 0) {
                     _ld += buffer;
-                    mode = FM_APPEND;
+                    mode = FM_START_LINE;
                 }
                 break;
             case FM_APPEND:
@@ -76,12 +94,38 @@ class FormattingBase {
                     _ld += buffer;
                 }
                 break;
+            case FM_START_LINE_NEXT_LINE:
+                option.appendExtraOutput();
+                if (_hasBuffer){
+                    formatterBuffer.appendToBuffer(buffer);
+                    option.store();
+                } 
+                _ld = option.flush(true);
+                mode = FM_START_LINE_APPEND;
+                break;
+            case FM_START_LINE_APPEND:
+                _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra); 
+                mode = FM_APPEND;
+                break;
             default:
                 throw new Error('mode not handle : '+mode);
                 break;
         }
         marker.mode = mode;
         return content + _ld;
+    }
+    _treatOldMarkerContent(option, extraOutput, extra, buffer, _hasBuffer, _hasExtra){
+        const { formatterBuffer } = option; 
+        extraOutput && option.appendExtraOutput();
+        if (_hasExtra){
+            option.output.push(extra);
+        }
+        if (_hasBuffer){
+            formatterBuffer.appendToBuffer(buffer);
+            option.store();
+        } 
+        let _ld = option.flush(true);
+        return _ld.trim().length>0?_ld:''; 
     }
 
     /**
@@ -161,7 +205,7 @@ class FormattingBase {
         } else {
             // + | dependengin on mode.
             switch (mode) {
-                case FM_START_LINE_AND_APPEND:
+                case FM_START_LINE_NEXT_LINE:
                 case FM_END_BLOCK:
                     // apend 
                     // let _buffer = option.buffer; 
@@ -307,7 +351,7 @@ exports.FormattingBase = FormattingBase
  * code style formatters
  */
 const { KAndRFormatting } = require('./KAndRFormatting');
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND, FM_END_INSTRUCTION } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_NEXT_LINE, FM_END_INSTRUCTION , FM_START_LINE_APPEND} = require('./FormattingMode');
 const { FormatterOptions } = require('../FormatterOptions');
 const { Formatters } = require('../Formatters'); 
 const { PatternMatchInfo } = require('../PatternMatchInfo');

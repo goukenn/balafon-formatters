@@ -7,14 +7,16 @@ const FM_START_BLOCK = 5;
 const FM_END_INSTRUCTION = 3;
 const FM_END_BLOCK = 6;
 const FM_START_LINE = 2;
-const FM_START_LINE_AND_APPEND = 7; 
+const FM_START_LINE_NEXT_LINE = 7; 
+const FM_START_LINE_APPEND = 8; // start line then append 
 
 exports.FM_APPEND = FM_APPEND;
 exports.FM_START_LINE = FM_START_LINE; 
 exports.FM_START_BLOCK = FM_START_BLOCK;
 exports.FM_END_BLOCK = FM_END_BLOCK; 
-exports.FM_START_LINE_AND_APPEND = FM_START_LINE_AND_APPEND; 
+exports.FM_START_LINE_NEXT_LINE = FM_START_LINE_NEXT_LINE; 
 exports.FM_END_INSTRUCTION = FM_END_INSTRUCTION; 
+exports.FM_START_LINE_APPEND = FM_START_LINE_APPEND; 
 
 const PFM_LINE_FEED = 1;
 
@@ -29,7 +31,7 @@ exports.FormattingMode = {
     FM_END_INSTRUCTION: FM_END_INSTRUCTION,
     FM_END_BLOCK,
     FM_START_LINE,
-    FM_START_LINE_AND_APPEND 
+    FM_START_LINE_NEXT_LINE 
 };
 
 
@@ -90,7 +92,7 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 ({_sbuffer} = _formatting.handleEndBlockBuffer(_marker, _buffer, option, _old)); 
                 _mode = FM_START_LINE;
                 break;
-            case FM_START_LINE_AND_APPEND:
+            case FM_START_LINE_NEXT_LINE:
                 option.store();
                 //option.appendExtraOutput();
                 _sbuffer = option.flush(true);

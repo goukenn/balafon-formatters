@@ -10,7 +10,7 @@
             "include": "#single-else-expression"
         },
         {
-            "include":"#core-definition--"
+            "include":"#core-definition"
         }
     ],
     "repository": {
