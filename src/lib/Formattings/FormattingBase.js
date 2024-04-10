@@ -232,18 +232,20 @@ class FormattingBase {
 
                         option.saveBuffer();
                         let _frm = option.formatterBuffer;
-                        _frm.output.push('');
+                        // _frm.output.push('');
                         _frm.appendToBuffer(_buffer);
                         option.store();
                         _buffer = option.flush(true);
                         option.restoreSavedBuffer();
+                        option.output.push(_buffer);
+                        _buffer = '';
                     }
                 } else if (isBlock && !option.formatterBuffer.isEmpty) {
                     let c = option.buffer;
-                    c = option.flush(true) + c;
-                    option.output.push(c);
-                    option.output.push(_buffer);
+                    c = option.flush(true) + c; 
+                    option.output.push(c+_buffer);
                     _buffer = option.flush(true);
+                    parent.mode = FM_END_BLOCK;
                 }
             }
         }
@@ -253,7 +255,7 @@ class FormattingBase {
     onEndUpdateBuffer({ marker, option, update, onSingleLine }) {
         const inf = {};
         inf.flushBuffer = marker.isBlock && onSingleLine;
-        return update(inf);
+        return update(inf, option);
     }
 
     /**

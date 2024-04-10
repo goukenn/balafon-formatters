@@ -55,6 +55,7 @@
             "end":"$",
             "patterns":[
                 { "match":"\\s+", "replaceWith":" ", "isGlue":true},
+                { "match":"\\s*$", "comment":"skip empty line"},
                 {"include":"#block-branket"},
                 {"include":"#branket-function-condition"},
                 {
@@ -88,6 +89,7 @@
             "end":"$",
             "patterns":[
                 { "match":"\\s+", "replaceWith":" ", "isGlue":true},
+                { "match":"\\s*$", "comment":"skip empty line"},
                 {"include":"#block-branket-stop"},
                 {"include":"#branket-function-condition"},
                 {
