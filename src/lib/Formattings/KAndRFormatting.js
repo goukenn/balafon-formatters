@@ -4,7 +4,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { FormatterOptions } = require('../FormatterOptions');
 const { PatternMatchInfo } = require('../PatternMatchInfo');
 const { FormattingBase } = require('./FormattingBase')
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_AND_APPEND, FM_END_INSTRUCTION, PatternFormattingMode } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_NEXT_LINE, FM_END_INSTRUCTION, PatternFormattingMode } = require('./FormattingMode');
 
  
 
@@ -13,6 +13,23 @@ const ALLOW_WHITE_SPACE = [FM_APPEND, FM_START_LINE];
 
 class KAndRFormatting extends FormattingBase {
     mergeEndBlock = true;
+
+    updateMergeEndBlock({content, marker, option, extra, buffer, _hasBuffer, _hasExtra}){
+        if (this.mergeEndBlock){
+            return super.updateMergeEndBlock(arguments[0]);
+        }
+        let value = '';
+        let mode = marker.mode;
+        if (_hasBuffer){
+            value+= buffer;
+            mode = FM_START_LINE;
+        }
+        content = content.trimEnd();
+        option.output.push(content);
+        option.appendExtraOutput();
+        content = option.flush(true); 
+        return {value, content, mode};
+    }
     /**
      * check allow empty space 
      * @param {number} mode 
@@ -99,14 +116,13 @@ class KAndRFormatting extends FormattingBase {
         switch (formattingMode) {
             case PatternFormattingMode.PFM_LINE_FEED:
                 if (parent) {
-                    parent.mode = FM_START_LINE_AND_APPEND;
+                    parent.mode = FM_START_LINE_NEXT_LINE;
                 } else {
                     // + | update current buffer to handle
                     formatter.updateBuffedValueAsToken(_buffer, _marker, option, true); 
                     if (option.depth == 0){
                         option.skipEmptyMatchValue = true;
                     }
-
                 }
                 break;
         }
