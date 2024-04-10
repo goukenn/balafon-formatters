@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "private": true,
+  "repository": "https://cadbondje@dev.azure.com/cadbondje/balafon-formatters/_git/balafon-formatters",
   "devDependencies": {
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
