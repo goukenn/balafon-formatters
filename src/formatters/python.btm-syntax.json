@@ -1,0 +1,10 @@
+{
+    "sourceName":"python.source",
+    "settings":{
+        "useIndent":true
+    },
+    "repository":{},
+    "patterns":[
+
+    ]
+}

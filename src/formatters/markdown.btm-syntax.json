@@ -1,0 +1,10 @@
+{
+    "sourceName":"markdown.source",
+    "settings":{
+        "useIndent":true
+    },
+    "repository":{},
+    "patterns":[
+
+    ]
+}
