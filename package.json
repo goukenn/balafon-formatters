@@ -1,13 +1,13 @@
 {
   "name": "balafon-formatters",
-  "version": "1.0.3",
+  "version": "1.0.41",
   "main": "src/main.js",
   "description": "Javascript Generic Formatters",
   "author": {
     "name": "C.A.D. BONDJE DOUE",
     "email": "cbondje@igkdev.com"
   },
-  "icon": "./assets/balafon.logo.png",
+  "icon": "assets/balafon.logo.png",
   "license": "MIT",
   "private": true,
   "repository": "https://cadbondje@dev.azure.com/cadbondje/balafon-formatters/_git/balafon-formatters",
@@ -37,8 +37,11 @@
   "activationEvents": [
     "onLanguage:bview",
     "onLanguage:bcss",
-    "onLanguage:phpp",
+    "onLanguage:php",
     "onLanguage:text.html"
+  ],
+  "categories": [
+    "Formatters", "Languages"
   ],
   "contributes": {
     
