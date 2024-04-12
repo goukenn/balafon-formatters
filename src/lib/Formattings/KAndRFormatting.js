@@ -4,7 +4,10 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { FormatterOptions } = require('../FormatterOptions');
 const { PatternMatchInfo } = require('../PatternMatchInfo');
 const { FormattingBase } = require('./FormattingBase')
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_NEXT_LINE, FM_END_INSTRUCTION, PatternFormattingMode } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK,
+     FM_START_LINE_NEXT_LINE, FM_END_INSTRUCTION, 
+     FM_START_LINE_APPEND,
+     PatternFormattingMode } = require('./FormattingMode');
 
  
 
@@ -119,7 +122,7 @@ class KAndRFormatting extends FormattingBase {
                     parent.mode = FM_START_LINE_NEXT_LINE;
                 } else {
                     // + | update current buffer to handle
-                    formatter.updateBuffedValueAsToken(_buffer, _marker, option, true); 
+                    formatter.updateBuffedValueAsToken(_buffer, _marker, option); 
                     if (option.depth == 0){
                         option.skipEmptyMatchValue = true;
                     }

@@ -193,9 +193,10 @@ class FormattingBase {
      */
     handleEndOnNonBlockElement(formatter, marker_info, option) {
         // + | append with line feed if requested
-        const { parent, mode, isBlock } = marker_info;
+        const { parent, mode, isBlock, lineFeed, formattingMode } = marker_info;
+        let _lf = (formattingMode==1)||(lineFeed);
         if (parent) {
-            if (marker_info.lineFeed) {
+            if (_lf){
                 parent.mode = FM_START_LINE;
             }
             else {

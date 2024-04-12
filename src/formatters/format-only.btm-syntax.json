@@ -20,7 +20,7 @@
                     "name":"instruction.separator",
                     "match":"(;)",
                     "isInstructionSeparator":true,
-                    "lineFeed":true
+                    "formattingMode":1
                 }
             ]
         }

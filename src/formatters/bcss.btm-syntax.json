@@ -1,7 +1,6 @@
 {
     "scopeName":"source.bcss",
     "comment":"balafon .bcss formatter",
-    "debug":true,
     "repository":{
         "skip-multispace":{
             "name":"meta.join.multispace.bcss",
@@ -25,7 +24,7 @@
                     "name":"instruction.separator",
                     "match":"(;)",
                     "isInstructionSeparator":true,
-                    "lineFeed":true
+                    "formattingMode":1
                 }
             ]
         },

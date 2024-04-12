@@ -376,6 +376,11 @@ class Formatters {
         let objClass = this.objClass;
         if (!objClass) {
             objClass = this.#initDefinition(option);
+        } else{
+            if (this.info.isSubFormatting==0){
+
+                objClass.reset();
+            }
         }
         let _matcherInfo = null;
         let _formatter = this;
@@ -565,12 +570,10 @@ class Formatters {
             this.formatting.formatBufferMarker(this, _matcherInfo, option);
         }
     }
-    updateBuffedValueAsToken(_buffer, _marker, option, appendExtra = true) {
+    updateBuffedValueAsToken(_buffer, _marker, option) {
         option.formatterBuffer.clear();
         option.appendToBuffer(_buffer, _marker);
-        option.store();
-        if (appendExtra)
-            option.appendExtraOutput();
+        option.store(); 
         _buffer = option.flush(true);
         option.formatterBuffer.appendToBuffer(_buffer, _marker);
     }
@@ -1075,7 +1078,7 @@ class Formatters {
     _handleBeginEndMarker(patternInfo, option) {
         option.state = 'begin/end';
         const { debug, listener, line, markerInfo, startLine } = option;
-        const { group, parent } = patternInfo;
+        const { group, parent, lineFeed } = patternInfo;
         debug && Debug.log('--::: start begin/end handle marker 2 :::---#' + patternInfo.toString());
 
         let _endRegex = null;
@@ -1113,7 +1116,7 @@ class Formatters {
                     }
                 }
             } else {
-                if (patternInfo.lineFeed && (option.depth == 0)) {
+                if (lineFeed && (option.depth == 0)) {
                     // auto change line feed 
                     if (!option.blockStarted) {
                         option.blockStarted = true;
@@ -1632,109 +1635,6 @@ class Formatters {
         _old.startBlock = 0;
         _old.set();
         return content;
-
-        /*
-
-        // + | Update _old state buffer 
-        const { debug, lineFeed, output } = option;
-        let _sbuffer = '';
-        // TODO : Remove line _lf
-        // let _lf = _old.startBlock == 1 ? option.lineFeed : '';
-        let _buffer = _old.content;
-        let _rbuffer = option.buffer;
-        let _extra = null;
-        const { marker } = _old;
-        const { mode } = marker;
-        const _formatting = this.formatting;
-        debug && Debug.log("--::update oldmarker::-- mode : "+mode);
-        let _clear_buffer = false;
-        if (output.length>0){ 
-            // + | update from buffer output
-            _extra = option.flush(true);  
-            if (_extra.length>0){
-                let g = _formatting.formatHandleExtraOutput(
-                    marker, _extra, option
-                ); 
-                _buffer+= g; 
-                _rbuffer = _buffer;
-                _clear_buffer= true;
-            }
-        }
-        if (_rbuffer.length == 0) {
-            return _buffer;
-        }
-
-        if (_old.isNew) {
-            if (marker.isFormattingStartBlockElement) {
-                option.output.push(_buffer);
-                _sbuffer = this._operateOnFramebuffer(marker, option, _old);
-            } else {
-                // why root 
-                if (_clear_buffer) _buffer = '';
-                _sbuffer = _formatting.formatJoinFirstEntry(_buffer, _rbuffer); 
-
-                if (mode==6){
-                    // option.formatterBuffer.clear();
-                    // option.output.push(_sbuffer);
-                    // option.appendExtraOutput();
-                    // _sbuffer = option.flush(true);// +"--::KOKO::--";
-                    marker.mode = 2;
-                }
-                option.formatterBuffer.clear();
-            }
-            _old.content = _sbuffer;
-            _old.startBlock = 0;
-            _old.set();
-            return _sbuffer;
-
-        } else { 
-            if (startLine) {
-                if (marker.preserveLineFeed) {
-                    _buffer += "- PRESERVE -"
-                }
-                if (marker.isFormattingStartBlockElement) {
-                    _sbuffer = this._operateOnFramebuffer(marker, option, _old);
-                    _lf = '';
-                }
-            } else {
-                if (marker.isFormattingStartBlockElement) {
-                    // + | store what is in the buffer 
-                    option.output.push(_buffer);
-                    _clear_buffer = true;
-                    _sbuffer = this._operateOnFramebuffer(marker, option, _old);
-                } else
-
-                    // append current buffer to 
-                    if (marker.isBlock && !_old.blockStarted && !marker.isBlockStarted) {
-                        _sbuffer = this._updateMarkerInfoBlock(_old, option);
-                        _lf = '';
-                    }
-                    else {
-                        if ((option.output.length > 0) || _old.startBlock) {
-                            option.store(_old.startBlock);
-                            _sbuffer = option.flush(true);
-                            _lf = '';
-
-                        } else {
-                            (_buffer.trim().length>0) && option.output.push(_buffer);
-                            _sbuffer = _formatting.handleBufferingNextToSbuffer(marker, option);
-                            _old.useEntry = false;
-                        }
-                    }
-
-            }
-        }
-        if (_clear_buffer){
-            _buffer = '';
-        }
-        if (_sbuffer) {
-            _buffer += _sbuffer;
-        }
-        _old.startBlock = 0;
-        _old.content = _buffer;
-        _old.set();
-        return _buffer;
-        */
     }
 
     _handleSameGroup2(_marker, _matcher, _p, _old, _buffer, option, _endRegex) {

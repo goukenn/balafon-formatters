@@ -169,7 +169,7 @@
         "end-instruction": {
             "match": "(;)",
             "name": "operator.end.instruction",
-            "lineFeed": false,
+            "formattingMode": 1,
             "isInstructionSeparator": true
         },
         "string": {
