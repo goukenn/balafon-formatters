@@ -1,6 +1,7 @@
 {
     "scopeName":"source.bcss",
-    "comment":"bcss formatter",
+    "comment":"balafon .bcss formatter",
+    "debug":true,
     "repository":{
         "skip-multispace":{
             "name":"meta.join.multispace.bcss",
@@ -39,9 +40,53 @@
             "patterns":[
                 {"include":"#global-block"}
             ]
+        },
+        "describ-comment": {
+            "name": "comment.describ.comment.bcss",
+            "begin": "^\\s*#\\s+",
+            "end": "$",
+            "patterns": [
+                {
+                    "match":"(?=\\s*\\n\\s*)",
+                    "name":"match.line.feed.bcss",
+                    "closeParent":{
+                        "value":"$",
+                        "type":"error.info",
+                        "className":"m-status-class",
+                        "tokenID":"single-line"
+                    }
+                },
+                {
+                    "match": "([\\w\\-]+)(\\s+[\\w\\-]+)+",
+                    "captures": {
+                        "1": {
+                            "name": "directive.name.bcss",
+                            "className": "describ-name"
+                        },
+                        "2": {
+                            "name": "directive.value.bcss",
+                            "className": "describ-value",
+                            "patterns": [
+                                {
+                                    "include": "#value-definition"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "tokenID": "describ-comment",
+            "className": "comment",
+            "formattingMode": 1
         }
     },
     "patterns":[ 
+        {
+            "include": "#single-line-comment"
+        },
+        {
+            "include": "#describ-comment"
+        },
         {"include":"#skip-multispace"},
         {"include":"#global-block"},
         {"include":"#media-directive"}

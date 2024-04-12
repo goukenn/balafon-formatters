@@ -1,6 +1,7 @@
 "use stricts";
 Object.defineProperty(exports, '__esModule', { value: true });
 
+const { FormatterCloseParentInfo } = require("../lib/FormatterCloseParentInfo");
 const _utils = require("../lib/Utils")
  
 
@@ -30,6 +31,13 @@ function getClass(tokenID){
     return tokenID.toLowerCase();
 }
 
+class ExtraFormatterCloseParentInfo extends FormatterCloseParentInfo{
+    className;
+    tokenID
+    getClass(){
+        return getClass(this.tokenID);
+    }
+}
 class ExtraPattern extends Patterns{
     className;
     _initRef(a){
@@ -47,7 +55,8 @@ class ExtraCapture extends CaptureInfo{
 }
 const webStyleClass = {
     patternClassName: ExtraPattern,
-    captureInfoClassName: ExtraCapture
+    captureInfoClassName: ExtraCapture,
+    closeParentInfoClassName: ExtraFormatterCloseParentInfo
 };
 
 /**
@@ -57,7 +66,17 @@ const webStyleClass = {
  */
 function webFormattingListener(_def) {
     _def._maxLineCount = 0;
-    _def.globalClassMap = {};
+    // + | define global map
+    _def.globalClassMap = {
+        'comment':1,
+        'constant':1,
+        'line':1,
+        'number':1,
+        'operator':1,
+        'reserver-word':1,
+        'string':1,
+        'symbol':1
+    };
     return function () {
         let blocks = [];
         let sbuffer = false;
@@ -94,7 +113,8 @@ function webFormattingListener(_def) {
                     marker.className.split(' ').forEach(a=>{
                        if(a.trim().length==0)return;
                         _map[a]=1;
-                        _def.globalClassMap[tokenID] = 1;
+                        if (!(a in _def.globalClassMap))
+                            _def.globalClassMap[a] = 2;
                     });
                 }
                 if (/^symbol\./.test(lt)) {
