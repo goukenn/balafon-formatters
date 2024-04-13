@@ -69,6 +69,14 @@ class FormatterOptions {
      */
     skipEmptyMatchValue = false;
 
+    /**
+     * .ctr
+     * @param {*} _formatter 
+     * @param {*} _formatterBuffer 
+     * @param {*} _listener 
+     * @param {*} m_constants_def 
+     * @param {*} _rg 
+     */
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;
@@ -316,7 +324,7 @@ class FormatterOptions {
                 }
             }
             _marker.value = { source: value, value: _buffer };
-            _formatter.onAppendToBuffer(_marker, _buffer, option); // ?.formatting?.onAppendToBuffer(_marker, _buffer);
+            _formatter.onAppendToBuffer(_marker, _buffer, option);
         }
         /**
          * treat begin captures
@@ -520,6 +528,18 @@ class FormatterOptions {
         };
     }
 
+    /**
+     * reset flags definition
+     */
+    reset(){
+        this.lineJoin = 
+        this.skipEmptyMatchValue = 
+        this.holdBufferState = 
+        this.EOF=
+        this.EOL=
+        false;
+        this.glueValue = null;
+    }
     cleanNewOldBuffers() {
         const option = this;
         if (this.holdBufferState && option.newOldBuffers.length > 0) {

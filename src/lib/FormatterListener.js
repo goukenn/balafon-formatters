@@ -23,7 +23,6 @@ class FormatterListener {
     appendLine(line_feed, buffer, option){
         option.saveBuffer();
         option.appendExtraOutput();
-        option.appendExtraOutput();
         const _cbuffer = option.flush(true);
         option.restoreSavedBuffer();
         buffer.appendToBuffer(_cbuffer);

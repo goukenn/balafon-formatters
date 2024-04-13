@@ -1,7 +1,7 @@
 {
   "name": "balafon-formatters",
-  "version": "1.0.41",
-  "main": "src/main.js",
+  "version": "1.0.5",
+  "main": "./src/extension",
   "description": "Javascript Generic Formatters",
   "author": {
     "name": "C.A.D. BONDJE DOUE",
@@ -32,19 +32,33 @@
     "vsce-publish":"vsce publish --yarn"
   },
   "engines": {
-    "vscode": "^1.86.0"
+    "vscode": "^1.88.0"
   },
   "activationEvents": [
-    "onLanguage:bview",
-    "onLanguage:bcss",
-    "onLanguage:php",
-    "onLanguage:text.html"
+    "onLanguage:bcss"
   ],
   "categories": [
-    "Formatters", "Languages"
+    "Programming Languages",
+    "Formatters"
   ],
   "contributes": {
-    
+    "languages": [
+      {
+        "id": "bcss", 
+        "extensions": [
+          ".bcss"
+        ],
+        "aliases": [
+          "Balafon bcss","Bcss"
+        ]
+      },
+      {
+        "id":"source.bview",
+        "extensions": [
+          ".bview"
+        ]
+      }
+    ]
   },
   "publisher": "CADBONDJEDOUE"
 }

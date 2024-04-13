@@ -170,6 +170,7 @@ class CaptureRenderer{
                         _out+= treat_constant(nv.substring(offset), listener);
                         rf = _out;
                     }
+                    let _treat_pattern = false;
                     if (id in captures){
                         cap = captures[id];
                         if (cap.name){
@@ -194,12 +195,18 @@ class CaptureRenderer{
                                     rf = Utils.StringValueTransform(rf, cap.transform); 
                                 }  
                             }  
-                            if (cap.patterns){
-                                rf = Utils.TreatPatternValue(rf, cap.patterns, self.matches, option);
+                            if (cap.patterns?.length>0){
+                                const _bckTokens = option.tokenList.slice(0);
+                                option.tokenList = tokens.slice(0, tokens.length-1);
+                                rf = Utils.TreatPatternValue(rf, cap.patterns, 
+                                    self.matches, option);
+                                _treat_pattern = true;
+
+                                option.tokenList = _bckTokens;
                             }
                         }
                     } 
-                    if (listener){
+                    if (listener && !_treat_pattern){
                         rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap); 
                     }
                     if (q.parent){

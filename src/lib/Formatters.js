@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', { value: true });
 
+const { NativeRegExp } = require('./NativeRegExp');
+const { FormatterCloseParentInfo } = require('./FormatterCloseParentInfo');
 const { Utils } = require("./Utils");
 const { Patterns } = require("./Patterns");
 const { RefPatterns } = require("./RefPatterns");
@@ -36,7 +38,8 @@ Utils.Classes = {
     Debug,
     RegexUtils,
     BlockInfo,
-    FormatterPatternException
+    FormatterPatternException,
+    FormatterCloseParentInfo
 };
 
 let sm_globalEngine;
@@ -146,10 +149,6 @@ class Formatters {
     onAppendToBuffer(_marker, _buffer, option) {
         this.formatting?.onAppendToBuffer(this, _marker, _buffer, option);
     }
-    onInjectToBuffer(_buffer) {
-        this.formatting?.onAppendToBuffer(this, _marker, _buffer);
-    }
-
     /**
      * get the line feed
      */
@@ -277,6 +276,7 @@ class Formatters {
     static CreateFrom(data, pattern_class_name) {
         const _names = {};
         let _registryExpression = null;
+        NativeRegExp.Save();
         const formatter = Utils.JSonParseData(Formatters, data, {
             initialize(m) {
                 if (((m instanceof Patterns) || (m instanceof CaptureInfo)) && (m.name)) {
@@ -313,7 +313,8 @@ class Formatters {
         }
 
         Object.defineProperty(formatter, 'formatting', { get() { return formatter.settings.getCodingStyleFormatting(); } });
-
+        Object.defineProperty(formatter, 'registryClassName', { get() { return pattern_class_name; } });
+        NativeRegExp.Restore();
         return formatter;
     }
     static CreateDefaultOption() {
@@ -357,6 +358,8 @@ class Formatters {
      * @returns 
      */
     format(data, option) {
+        NativeRegExp.Save();
+
         if (!Array.isArray(data)) {
             if (typeof (data) == 'string') {
                 data = [data];
@@ -369,13 +372,17 @@ class Formatters {
         let objClass = this.objClass;
         if (!objClass) {
             objClass = this.#initDefinition(option);
+        } else {
+            if (this.info.isSubFormatting == 0) {
+
+                objClass.reset();
+            }
         }
         let _matcherInfo = null;
         let _formatter = this;
         let _trimStart = true;
         // let pos = 0;
         const { debug, lineFeed } = objClass;
-        const _formatting = this.formatting;
         const { tabStop, useIndent } = this.settings;
 
         if (!this.info?.isSubFormatting) {
@@ -388,141 +395,142 @@ class Formatters {
         // + | ------------------------------------------------------------
         // + | START : FORMATTER LOGIC
         // + | ------------------------------------------------------------
-        const v_rTokenList = objClass.tokenList.slice(0);
-
-
-        data.forEach((line) => {
-            if (this.skip_r) {
-                return;
-            }
-            const option = objClass;
-            debug && Debug.log('read:[' + objClass.lineCount + "]:::" + line);
-            objClass.resetRange();
-            objClass.line = line;
-            objClass.pos = 0;
-            objClass.continue = false;
-            objClass.lineCount++;
-            objClass.markerDepth = 0;
-
-            if (_matcherInfo) {
-                if (!_matcherInfo.marker.allowMultiline) {
-                    throw new Error(`marker '${_matcherInfo.name}' do not allow multi line definition.`);
-                }
-                objClass.continue = _matcherInfo.marker.newLineContinueState; // true;
-                objClass.lineJoin = false;
-                objClass.startLine = true;
-                _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
-
-            } else {
-                objClass.line = _trimStart && !useIndent ? objClass.line.trimStart() : objClass.line;
-                _trimStart = true;
-            }
-            if (line.length <= 0) {
-                return;
-            }
-            //objClass.startLine = false;
-            let ln = objClass.length;
-            let pos = objClass.pos;
-            _formatter._updateLineFeed(objClass);
-
-            while (pos < ln) {
-                objClass.continue = false;
-                objClass.markerDepth = 0;
-                if (_matcherInfo) {
-                    objClass.continue = true;
-                    objClass.storeRange(objClass.pos);
-                    _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
-                } else {
-                    _matcherInfo = Utils.GetPatternMatcher(this.patterns, objClass);
-                    if (_matcherInfo) {
-                        this._updateLineFeed(objClass);
-                        objClass.storeRange(pos, _matcherInfo.index);
-                        _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
-                    } else {
-                        objClass.markerDepth = 0;
-                        let p = objClass.line.substring(objClass.pos).trimEnd();
-                        if (objClass.lineFeedFlag) {
-                            p = _trimStart && !useIndent ? p.trimStart() : p;
-                        }
-                        if (p.length > 0) {
-                            this._updateLineFeed(objClass);
-                            objClass.appendToBuffer(p, objClass.constants.GlobalConstant);
-                        }
-                        objClass.pos = ln;
-                    }
-                }
-                pos = objClass.pos;
-                ln = objClass.length;
-                objClass.startLine = false;
+        const _output = (() => {
+            data.forEach((line) => {
                 if (this.skip_r) {
                     return;
                 }
-            }
-            objClass.lineJoin = true;
-            if (_matcherInfo) {
-                if (ln >= pos) {
-                    objClass.EOL = true;
-                    _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
-                    objClass.EOL = false;
+                const option = objClass;
+                debug && Debug.log('read:[' + objClass.lineCount + "]:::" + line);
+                objClass.resetRange();
+                objClass.line = line;
+                objClass.pos = 0;
+                objClass.continue = false;
+                objClass.lineCount++;
+                objClass.markerDepth = 0;
+                objClass.startLine = true;
+
+                if (_matcherInfo) {
+                    if (!_matcherInfo.marker.allowMultiline) {
+                        throw new Error(`marker '${_matcherInfo.name}' do not allow multi line definition.`);
+                    }
+                    objClass.continue = _matcherInfo.marker.newLineContinueState; // true;
+                    objClass.lineJoin = false;
+                    objClass.startLine = true;
+                    _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
+
                 } else {
-                    this._updateMarkerFormatting(_matcherInfo, objClass);
+                    objClass.line = _trimStart && !useIndent ? objClass.line.trimStart() : objClass.line;
+                    _trimStart = true;
                 }
+                if (line.length <= 0) {
+                    return;
+                }
+                let ln = objClass.length;
+                let pos = objClass.pos;
+                _formatter._updateLineFeed(objClass);
+                while (pos < ln) {
+                    objClass.continue = false;
+                    objClass.markerDepth = 0;
+                    if (_matcherInfo) {
+                        objClass.continue = true;
+                        objClass.storeRange(objClass.pos);
+                        _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
+                    } else {
+                        _matcherInfo = Utils.GetPatternMatcher(this.patterns, objClass);
+                        if (_matcherInfo) {
+                            this._updateLineFeed(objClass);
+                            objClass.storeRange(pos, _matcherInfo.index);
+                            _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
+                        } else {
+                            objClass.markerDepth = 0;
+                            let p = objClass.line.substring(objClass.pos).trimEnd();
+                            if (objClass.lineFeedFlag) {
+                                p = _trimStart && !useIndent ? p.trimStart() : p;
+                            }
+                            if (p.length > 0) {
+                                this._updateLineFeed(objClass);
+                                objClass.appendToBuffer(p, objClass.constants.GlobalConstant);
+                            }
+                            objClass.pos = ln;
+                        }
+                    }
+                    pos = objClass.pos;
+                    ln = objClass.length;
+                    objClass.startLine = false;
+                    if (this.skip_r) {
+                        return;
+                    }
+                }
+                objClass.lineJoin = true;
+                if (_matcherInfo) {
+                    if (ln >= pos) {
+                        objClass.EOL = true;
+                        _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
+                        objClass.EOL = false;
+                    } else {
+                        this._updateMarkerFormatting(_matcherInfo, objClass);
+                    }
+                }
+            });
+            if (this.skip_r) {
+                this.skip_r = false;
+                return null;
             }
-        });
-        if (this.skip_r) {
-            this.skip_r = false;
-            return null;
-        }
-        // + | close matcher 
-        if (_matcherInfo) {
-            let option = objClass;
-            option.EOF = true;
-            option.line = '';
-            option.pos = 0;
-            while (_matcherInfo) { // close matcher - handle 
-                _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
-            }
-            option.EOF = false;
-        }
-
-        debug && Debug.log('...end...');
-        if ((objClass.markerInfo.length > 0) && (this.info.isSubFormatting == 0)) {
-            const _formatting = this.formatting;
-            // missing close marker info 
-            while (objClass.markerInfo.length > 0) {
-                let _old = objClass.shiftMarker();
-                this._handleLastExpectedBlock(_old, objClass, _formatting);
+            // + | close matcher 
+            if (_matcherInfo) {
+                debug && Debug.log('...EOF...' + _matcherInfo.toString());
+                let option = objClass;
+                option.EOF = true;
+                option.line = '';
+                option.pos = 0;
+                while (_matcherInfo) { // close matcher - handle 
+                    _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
+                }
+                option.EOF = false;
             }
 
-        } else {
-            objClass.markerInfo.length = 0;
-        }
-        objClass.store();
-        let _output = "";
+            debug && Debug.log('...end...');
+            if ((objClass.markerInfo.length > 0) && (this.info.isSubFormatting == 0)) {
+                const _formatting = this.formatting;
+                // missing close marker info 
+                while (objClass.markerInfo.length > 0) {
+                    let _old = objClass.shiftMarker();
+                    this._handleLastExpectedBlock(_old, objClass, _formatting);
+                }
 
-        if (!this.info?.isSubFormatting && (objClass.tokenList.length > 0)) {
-            throw new Error('token list have childs');
-        }
-        if (!this.info?.isSubFormatting && this.listener) {
-            // * call end listener 
-            const { listener } = this.objClass;
-            const { endContent, endOutput, treatOutput } = listener;
-            if (treatOutput) {
-                _output = listener.treatOutput({ output: objClass.output, lineFeed, tabStop, option: this.objClass });
+            } else {
+                objClass.markerInfo.length = 0;
+            }
+            objClass.store();
+            let _output = "";
+
+            if (!this.info?.isSubFormatting && (objClass.tokenList.length > 0)) {
+                throw new Error('token list have childs');
+            }
+            if (!this.info?.isSubFormatting && this.listener) {
+                // * call end listener 
+                const { listener } = this.objClass;
+                const { endContent, endOutput, treatOutput } = listener;
+                if (treatOutput) {
+                    _output = listener.treatOutput({ output: objClass.output, lineFeed, tabStop, option: this.objClass });
+                } else {
+                    _output = objClass.output.join(lineFeed).trimEnd();
+                }
+                if (endOutput) {
+                    _output += listener.endOutput({ lineFeed });
+                }
+                if (endContent) {
+                    _output += listener.endContent();
+                }
             } else {
                 _output = objClass.output.join(lineFeed).trimEnd();
             }
-            if (endOutput) {
-                _output += listener.endOutput({ lineFeed });
-            }
-            if (endContent) {
-                _output += listener.endContent();
-            }
-        } else {
-            _output = objClass.output.join(lineFeed).trimEnd();
-        }
-        // + | clear buffer list  
-        this.objClass.formatterBuffer.clearAll();
+            // + | clear buffer list  
+            this.objClass.formatterBuffer.clearAll();
+            return _output;
+        })();
+        NativeRegExp.Restore();
         return _output;
     }
     _updateLineFeed(option) {
@@ -539,31 +547,41 @@ class Formatters {
      * @param {*} option 
      */
     _handleCheckCloseMarker(patternInfo, option) {
-        const { debug, markerInfo } = option;
-        debug && Debug.log("---::check close marker::---");
+        const { debug } = option;
+        debug && Debug.log("---::check close marker::---" + patternInfo.toString());
         let _p = null;
         let _matcher = null;
         let _line = option.line.substring(option.pos);
         // for check get and check if _old is avaiable 
-        let _old = (markerInfo.length > 0) && (markerInfo[0].marker == patternInfo) ? markerInfo[0] : null;
+        // let _old = (markerInfo.length > 0) && (markerInfo[0].marker == patternInfo) ? markerInfo[0] : null;
         ({ _p, _matcher } = this.detectPatternInfo(_line, patternInfo, option));
         if (_p && (_matcher == null)) {
             return this._handleMarker(patternInfo, option);
         }
+        if (_p && _matcher) {
+            if (_matcher.group.index == _p.index) {
+                // + | same group end - 
+                return this._handleSameGroupMatch(_matcher, option);
+            }
+        }
         return patternInfo;
+    }
+    _handleSameGroupMatch(_matcher, option) {
+        this._checkStartBlockDefinition(_matcher, option);
+        let _ref = this._handleMarker(_matcher, option);
+        return _ref;
     }
     _updateMarkerFormatting(_matcherInfo, option) {
         // | update formatting 
+        const { formatting } = this;
         if (_matcherInfo.formattingMode && !_matcherInfo.isBlock) {
-            this.formatting.formatBufferMarker(this, _matcherInfo, option);
+            formatting.formatBufferMarker(this, _matcherInfo, option);
         }
     }
-    updateBuffedValueAsToken(_buffer, _marker, option, appendExtra = true) {
+    updateBuffedValueAsToken(_buffer, _marker, option) {
         option.formatterBuffer.clear();
         option.appendToBuffer(_buffer, _marker);
         option.store();
-        if (appendExtra)
-            option.appendExtraOutput();
         _buffer = option.flush(true);
         option.formatterBuffer.appendToBuffer(_buffer, _marker);
     }
@@ -710,7 +728,7 @@ class Formatters {
         }
         let ret = handle.apply(this, [_marker, option]);
         if (ret === null) {
-            // update global mode formatting
+            // + update global mode formatting
             this.formatting.updateGlobalFormatting(_marker.mode, option);
         }
         return ret;
@@ -793,128 +811,7 @@ class Formatters {
         }
         return _cm_value;
     }
-    /**
-     * onMatch handle affect only on content match
-     * @param {*} _marker 
-     * @param {*} option 
-     * @returns 
-     */
-    _handleMatchMarker(_marker, option) {
-        option.debug && Debug.log('--::: Handle match marker :::--');
-        option.state = 'match';
-        const { mode, parent, group, match } = _marker;
-        const _formatting = this.formatting;
-        let _cm_value = group[0];
-        let _next_position = group.index + group.offset;
 
-        const _old = (option.markerInfo.length > 0) ?
-            option.markerInfo[0] : null;
-        // + | update cursor position
-        // option.pos += _cm_value.length;
-        option.pos = _next_position;
-        const _op = [];
-        _cm_value = this._treatMatchValue(_cm_value, _marker, option, _op);
-
-        if (option.startLine && (_cm_value.trim().length == 0)) {
-            // + skip  
-            this._onEndHandler(_marker, option);
-            if (_marker.isBlock && parent) {
-                // + | close block 
-                parent = this._closeBlockEntry(option, _marker, parent, _marker.closeParentData);
-            }
-            return parent;
-        }
-
-
-
-
-        let b = false;
-        if (_marker.isInstructionSeparator) {
-            b = this.settings.isInstructionSeperator(_cm_value.trim());
-        }
-
-        this._updateMarkerChild(_marker);
-
-        if (_old && ((_cm_value.length == 0) || (_cm_value.trim().length == 0)
-            && (!_formatting.allowEmptySpace(_old.marker.mode, option)))) {
-            //+ ignore empty string at line start or mode 
-            this._onEndHandler(_marker, option);
-            let _gcm_value = Utils.GetNextCapture(group.input, match);
-            _cm_value = _gcm_value[0];
-            if (_marker.isInstructionSeparator) {
-                b = this.settings.isInstructionSeperator(_cm_value.trim());
-            }
-
-            if (parent && (group.offset == 0)) {
-                // + | match capture only definition
-                if (_old && b) {
-                    _formatting.handleEndInstruction(this, _marker, _old, option);
-                }
-                // + | passing to handle parent group
-                if (parent.endGroup.index == group.index) {
-                    let _g = this._handleToEndPattern(parent, _cm_value.trim(), option);
-                    if (b && !option.formatterBuffer.isEmpty) {
-                        option.store();
-                        if (_marker.isBlock) {
-                            // + | close block 
-                            _g = this._closeBlockEntry(option, _marker, _g, _marker.closeParentData);
-                        }
-                    }
-                    return _g;
-                }
-            }//
-            return parent;
-        }
-
-
-
-        // + | marker is not a line feed directive or buffer is not empty
-        if (b || (!_marker.lineFeed) || (option.buffer.length > 0)) {
-            // treat - tranform token and tranfrom 
-            // const _op = [];
-            // _cm_value = this.treatMarkerValue(_marker, _cm_value, _op, option, this._getMatchGroup(group));
-            // if (_op.indexOf('replaceWith') == -1) {
-            //     if (_marker.captures) {
-            //         _cm_value = option.treatBeginCaptures(_marker);
-            //     }
-            // }
-            // if (_marker.patterns?.length > 0) {
-            //     const lp = Utils.GetPatternMatcherInfoFromLine(_cm_value, _marker.patterns, option, _marker.parent);
-            //     if (lp) {
-            //         _cm_value = this.treatMarkerValue(lp, _cm_value, _op, option);
-            //     }
-            // } 
-
-
-
-            if (_op.indexOf('replaceWith') == -1) {
-                option.appendToBuffer(_cm_value, _marker);
-            } else {
-                if ((option.glueValue == _cm_value)) {
-                    this._onEndHandler(_marker, option);
-                    return _marker.parent;
-                }
-                // + | check to add empty space before append.
-                if (!option.skipEmptyMatchValue || (_cm_value.trim().length > 0)) {
-                    option.formatterBuffer.appendToBuffer(_cm_value);
-                    if (option.skipEmptyMatchValue) {
-                        option.skipEmptyMatchValue = false;
-                    }
-                }
-
-            }
-            if (_old && b) {
-                _formatting.handleEndInstruction(this, _marker, _old, option);
-            }
-            if (_marker.isGlueValue) {
-                option.glueValue = _cm_value;
-            } else {
-                option.glueValue = null;
-            }
-        }
-        this._onEndHandler(_marker, option);
-        return parent;
-    }
     _getMatchGroup(group) {
         const _formatter = this;
         return (_formatter.info.isSubFormatting > 0) ?
@@ -1076,6 +973,165 @@ class Formatters {
         // + | continue reading...
         return this._handleMarker(_nPatternInfo, option);
     }
+
+    //------------------------------------------
+    //#region handle pattern property 
+    _handleInstructionSeperatorProperty(_marker, option, _e) {
+        const _cm_value = _e.value;
+        if (_marker.isInstructionSeparator) {
+            let b = this.settings.isInstructionSeperator(_cm_value.trim());
+            _e.isInstructionSeparator = b;
+        }
+    }
+    //#endregion
+    //------------------------------------------
+
+
+    //-------------------------------------------
+    //#region MATCH AND BEGIN/END START HANDLER 
+
+
+    /**
+     * onMatch handle affect only on content match
+     * @param {*} _marker 
+     * @param {*} option 
+     * @returns 
+     */
+    _handleMatchMarker(_marker, option) {
+        option.debug && Debug.log('--::: Handle match marker :::--' + _marker.toString());
+        option.state = 'match';
+        const { parent, group, match, closeParentData } = _marker;
+        const _formatting = this.formatting;
+        let _cm_value = group[0];
+        let _next_position = group.index + group.offset;
+
+        const _old = (option.markerInfo.length > 0) ?
+            option.markerInfo[0] : null;
+        // + | update cursor position
+        // option.pos += _cm_value.length;
+        option.pos = _next_position;
+        const _op = [];
+        _cm_value = this._treatMatchValue(_cm_value, _marker, option, _op);
+
+        let _skip_value = (option.startLine && (_cm_value.trim().length == 0)) ||
+            (_cm_value == '');
+
+        // + | inject loging 
+        let _e_args = { handle: false, value: _cm_value, 'state': 'match', udpateChild: true };
+        let _chains_match = [
+            [this, this._handleInstructionSeperatorProperty],
+            [this, this._handleCloseParentProperty, { closeParentData }]
+        ];
+        while (_chains_match.length > 0) {
+            let _handle = _chains_match.shift();
+            let _fc = null;
+            let _target = null;
+            let _cparent = null;
+            let _extra_args = null;
+
+            if (Array.isArray(_handle)) {
+                _fc = _handle[1];
+                _target = _handle[0];
+                _extra_args = (2 in _handle) ? _handle[2] : null;
+            }
+            if (_fc) {
+                _cparent = _fc.apply(_target, [_marker, option, _e_args, _extra_args]);
+                if (_e_args.handle) {
+                    if (_e_args.udpateChild) {
+                        this._updateMarkerChild(_marker);
+                    }
+                    this._onEndHandler(_marker, option);
+                    return _cparent;
+                }
+            }
+        }
+
+
+
+        // if (option.startLine && (_cm_value.trim().length == 0)) {
+        if (_skip_value) {
+            // + skip 
+            this._onEndHandler(_marker, option);
+            if (_marker.isBlock && parent) {
+                // + | close block - consider as a block definition 
+                return this._closeBlockEntry(option, _marker, parent, closeParentData);
+            }
+            return parent;
+        }
+
+        let b = false;
+        if (_marker.isInstructionSeparator) {
+            b = this.settings.isInstructionSeperator(_cm_value.trim());
+        }
+
+        this._updateMarkerChild(_marker);
+
+        if (_old && ((_cm_value.length == 0) || (_cm_value.trim().length == 0)
+            && (!_formatting.allowEmptySpace(_old.marker.mode, option)))) {
+            //+ ignore empty string at line start or mode 
+            this._onEndHandler(_marker, option);
+            let _gcm_value = Utils.GetNextCapture(group.input, match);
+            _cm_value = _gcm_value[0];
+            if (_marker.isInstructionSeparator) {
+                b = this.settings.isInstructionSeperator(_cm_value.trim());
+            }
+
+            if (parent && (group.offset == 0)) {
+                // + | match capture only definition
+                if (_old && b) {
+                    _formatting.handleEndInstruction(this, _marker, _old, option);
+                }
+                // + | passing to handle parent group
+                if (parent.endGroup.index == group.index) {
+                    let _g = this._handleToEndPattern(parent, _cm_value.trim(), option);
+                    if (b && !option.formatterBuffer.isEmpty) {
+                        option.store();
+                        if (_marker.isBlock) {
+                            // + | close block 
+                            _g = this._closeBlockEntry(option, _marker, _g, _marker.closeParentData);
+                        }
+                    }
+                    return _g;
+                }
+                if (_marker.closeParent) {
+                    return this._closeMarker(_marker, parent, option, _marker.closeParentData);
+                }
+            }//
+            return parent;
+        }
+        // + | marker is not a line feed directive or buffer is not empty - end instruction directive
+        if (b || (!_marker.lineFeed) || (option.buffer.length > 0) || (_cm_value.length > 0)) {
+            if (_op.indexOf('replaceWith') == -1) {
+                option.appendToBuffer(_cm_value, _marker);
+            } else {
+                if ((option.glueValue == _cm_value)) {
+                    this._onEndHandler(_marker, option);
+                    return _marker.parent;
+                }
+                // + | check to add empty space before append.
+                if (!option.skipEmptyMatchValue || (_cm_value.trim().length > 0)) {
+                    option.formatterBuffer.appendToBuffer(_cm_value);
+                    if (option.skipEmptyMatchValue) {
+                        option.skipEmptyMatchValue = false;
+                    }
+                }
+
+            }
+            if (_old && b) {
+                _formatting.handleEndInstruction(this, _marker, _old, option);
+            }
+            if (_marker.isGlueValue) {
+                option.glueValue = _cm_value;
+            } else {
+                option.glueValue = null;
+            }
+        }
+        this._onEndHandler(_marker, option);
+        if (_marker.closeParent) {
+            return this._closeMarker(_marker, parent, option, _marker.closeParentData);
+        }
+        return parent;
+    }
     /**
      * handle marker info 
      * @param {PatternMatchInfo} patternInfo 
@@ -1084,8 +1140,8 @@ class Formatters {
      */
     _handleBeginEndMarker(patternInfo, option) {
         option.state = 'begin/end';
-        const { debug, listener, line, markerInfo, startLine } = option;
-        const { group, parent } = patternInfo;
+        const { debug, line, markerInfo, startLine } = option;
+        const { parent, lineFeed } = patternInfo;
         debug && Debug.log('--::: start begin/end handle marker 2 :::---#' + patternInfo.toString());
 
         let _endRegex = null;
@@ -1098,7 +1154,6 @@ class Formatters {
         // get _old marker to continue matching selection  
 
         if ((markerInfo.length > 0) && (_old = option.shiftFromMarkerInfo(patternInfo, false))) {
-
             _start = false; // update the marker to handle start definition
             _buffer = this._updateOldMarker(_old, startLine, option);
         } else if (patternInfo.start) {
@@ -1123,7 +1178,7 @@ class Formatters {
                     }
                 }
             } else {
-                if (patternInfo.lineFeed && (option.depth == 0)) {
+                if (lineFeed && (option.depth == 0)) {
                     // auto change line feed 
                     if (!option.blockStarted) {
                         option.blockStarted = true;
@@ -1251,12 +1306,18 @@ class Formatters {
 
                     return patternInfo;
                 }
+
                 return this._handleSameGroup2(patternInfo, _matcher, _p, _old, _buffer, option, _endRegex);
             }
             // priority to current marker 
             return this._handleFoundEndPattern(_buffer, _line, patternInfo, _p, option, _old);
         }
     }
+
+
+    //#endregion
+    //-------------------------------------------
+
     /**
      * detect logical pattern info
      * @param {string} _line 
@@ -1330,23 +1391,20 @@ class Formatters {
      * @private
      * @returns 
      */
-    _updateBuffer(_marker, option, { _append, _buffer, flushBuffer }) {
+    _updateBuffer(_marker, option, { _append, _buffer }) {
         const q = this;
         const { parent } = _marker;
         const { formatting } = q;
         if (_buffer.length > 0) {
             // + | direct append to buffer
             option.formatterBuffer.appendToBuffer(_buffer);
-            if (!_marker.isStreamCapture && _marker.isBlock && flushBuffer) {
-                option.appendLine();
-            }
             _buffer = '';
         }
         if ((_append.trim().length > 0)) {
             // + | append constant marker definition 
             if (_marker.isFormattingStartBlockElement && !_marker.newLine) {
                 _marker.newLine = true;
-            } 
+            }
             if (parent?.isAutoBlockElement) {
                 let r = option.buffer;
                 option.formatterBuffer.clear();
@@ -1359,36 +1417,97 @@ class Formatters {
                 r = option.flush(true);
                 option.formatterBuffer.appendToBuffer(r);
             }
-            else 
+            else
                 q._appendConstant(_marker, _append, option);
             _append = '';
         }
         return { _append, _buffer };
     }
     /**
+     * use to handle close parent
+     * @param {*} _marker 
+     * @param {*} option 
+     * @param {{handle:bool}} arg 
+     */
+    _handleCloseParentProperty(_marker, option, arg = { handle: false }, _extra) {
+        const { debug } = option;
+        let _handle = false;
+        let _data = _extra?.closeParentData;
+        if (_data == undefined) {
+            return;
+        }
+        debug && Debug.log('---:::CLOSE PARENT PROPERTY:::---'+_marker);
+        arg.udpateChild = this._requestUpdateChild(_marker, arg.state);
+        let _gparent = _marker.parent;
+        let _g = this._closeBlockEntry(option, _marker, _gparent, _data);
+        _handle = true;
+
+        arg.handle = _handle;
+        return _g;
+    }
+    _requestUpdateChild(_marker, state) {
+        if (state == 'match') {
+            return (_marker.group[0].length > 0);
+        }
+        return true;
+    }
+    /**
      * close block entry
      * @param {*} option 
      */
     _closeBlockEntry(option, _marker, _g, data = '') {
+        option.store();
+        //const _buffer = option.flush(true);
         option.depth = Math.max(--option.depth, 0);
-        return this._closeMarker(_marker, _g, option, data);
+        //option.formatterBuffer.appendToBuffer(_buffer);
+        if (_marker && _g) {
+            let _r = this._closeMarker(_marker, _g, option, data);
+            this.formatting.updateEmptySkipMatchedValueFormatting(_r, option);
+            return _r;
+        }
     }
     _closeMarker(_marker, _g, option, data = '') {
-
+        const { debug } = option;
+        debug && Debug.log(":::CLOSEMARKER:::"+_marker);
         if (_marker?.isBlock) {
             this.formatting.closeMarker(_marker);
             _marker.isBlock = false;
         }
         if (_g) // move to parent 
         {
-            _g = this._handleToEndPattern(_g, data, option);
+            let _value = data;
+            let _type = null;
+            if (typeof (data) == 'object') {
+                _value = data.value;
+                _type = data.type;
+            }
+
+            if (_g.endGroup[0] != _value) {
+                let p = _g.endRegex.exec(_value) || ((d) => {
+                    d.indices = [[0, d[0].length]];
+                    d.index = 0;
+                    return d;
+                })([_value]);
+
+                p.index += option.pos;
+                _g.endGroup = p;
+            }
+
+            _g = this._handleToEndPattern(_g, _value, option);
+            let _buffer = option.buffer;
+            if (_type) {
+                _buffer = option.flush(true) + _buffer;
+                option.appendToBuffer(_buffer, new TypeMarkerInfoPattern(_type, { parser: this.registryClassName, data }));
+            } else {
+                option.store();
+            }
         }
         return _g;
     }
     _handleFoundEndPattern(_buffer, _line, _marker, _p, option, _old) {
         // calculate next position 
         const { debug } = option;
-        const { parent, mode } = _marker;
+        const { parent } = _marker;
         const _next_position = _p.index + _p[0].length; // do not move cursor until condition meet
         let _append = option.line.substring(option.pos, _p.index);
 
@@ -1402,7 +1521,6 @@ class Formatters {
         const q = this;
         const _formatting = q.formatting;
         debug && Debug.log(`--::END: handleFoundEndPattern ::--#${_marker.name}`);
-        const _onSingleLine = (_old == null) || (_old.startBlock.line == option.lineCount);
 
         // + | update parent host - check update properties for end 
         this._updateMarkerChild(_marker, option);
@@ -1411,7 +1529,6 @@ class Formatters {
         ({ _append, _buffer } = _formatting.onEndUpdateBuffer({
             marker: _marker,
             option,
-            onSingleLine: _onSingleLine,
             _buffer,
             update(info) {
                 return q._updateBuffer(_marker, option, { _append, _buffer, ...(info || {}) });
@@ -1430,13 +1547,12 @@ class Formatters {
             if (_marker.isFormattingStartBlockElement) {
                 ({ _b } = _formatting.handleEndFormattingBeforeStore(q, _marker, option, _buffer, { _b }));
                 _buffer = option.getBufferContent(true);
-                // option.buffer;
-                // option.flush(true);
                 option.output.push(_buffer);
             } else {
                 _formatting.handleEndFormattingOnNonStartBlockElement(q, _marker, option);
             }
             _buffer = '';
+            // + | just reduce block depth
             this._closeBlockEntry(option);
         } else {
             _formatting.handleEndOnNonBlockElement(this, _marker, option);
@@ -1447,6 +1563,8 @@ class Formatters {
             option.appendToBuffer(_b, _marker, false);
             _b = '';
         }
+
+        // + | update format and update mode
         this._updateMarkerFormatting(_marker, option);
 
 
@@ -1630,119 +1748,23 @@ class Formatters {
         _old.startBlock = 0;
         _old.set();
         return content;
-
-        /*
-
-        // + | Update _old state buffer 
-        const { debug, lineFeed, output } = option;
-        let _sbuffer = '';
-        // TODO : Remove line _lf
-        // let _lf = _old.startBlock == 1 ? option.lineFeed : '';
-        let _buffer = _old.content;
-        let _rbuffer = option.buffer;
-        let _extra = null;
-        const { marker } = _old;
-        const { mode } = marker;
-        const _formatting = this.formatting;
-        debug && Debug.log("--::update oldmarker::-- mode : "+mode);
-        let _clear_buffer = false;
-        if (output.length>0){ 
-            // + | update from buffer output
-            _extra = option.flush(true);  
-            if (_extra.length>0){
-                let g = _formatting.formatHandleExtraOutput(
-                    marker, _extra, option
-                ); 
-                _buffer+= g; 
-                _rbuffer = _buffer;
-                _clear_buffer= true;
-            }
-        }
-        if (_rbuffer.length == 0) {
-            return _buffer;
-        }
-
-        if (_old.isNew) {
-            if (marker.isFormattingStartBlockElement) {
-                option.output.push(_buffer);
-                _sbuffer = this._operateOnFramebuffer(marker, option, _old);
-            } else {
-                // why root 
-                if (_clear_buffer) _buffer = '';
-                _sbuffer = _formatting.formatJoinFirstEntry(_buffer, _rbuffer); 
-
-                if (mode==6){
-                    // option.formatterBuffer.clear();
-                    // option.output.push(_sbuffer);
-                    // option.appendExtraOutput();
-                    // _sbuffer = option.flush(true);// +"--::KOKO::--";
-                    marker.mode = 2;
-                }
-                option.formatterBuffer.clear();
-            }
-            _old.content = _sbuffer;
-            _old.startBlock = 0;
-            _old.set();
-            return _sbuffer;
-
-        } else { 
-            if (startLine) {
-                if (marker.preserveLineFeed) {
-                    _buffer += "- PRESERVE -"
-                }
-                if (marker.isFormattingStartBlockElement) {
-                    _sbuffer = this._operateOnFramebuffer(marker, option, _old);
-                    _lf = '';
-                }
-            } else {
-                if (marker.isFormattingStartBlockElement) {
-                    // + | store what is in the buffer 
-                    option.output.push(_buffer);
-                    _clear_buffer = true;
-                    _sbuffer = this._operateOnFramebuffer(marker, option, _old);
-                } else
-
-                    // append current buffer to 
-                    if (marker.isBlock && !_old.blockStarted && !marker.isBlockStarted) {
-                        _sbuffer = this._updateMarkerInfoBlock(_old, option);
-                        _lf = '';
-                    }
-                    else {
-                        if ((option.output.length > 0) || _old.startBlock) {
-                            option.store(_old.startBlock);
-                            _sbuffer = option.flush(true);
-                            _lf = '';
-
-                        } else {
-                            (_buffer.trim().length>0) && option.output.push(_buffer);
-                            _sbuffer = _formatting.handleBufferingNextToSbuffer(marker, option);
-                            _old.useEntry = false;
-                        }
-                    }
-
-            }
-        }
-        if (_clear_buffer){
-            _buffer = '';
-        }
-        if (_sbuffer) {
-            _buffer += _sbuffer;
-        }
-        _old.startBlock = 0;
-        _old.content = _buffer;
-        _old.set();
-        return _buffer;
-        */
     }
 
     _handleSameGroup2(_marker, _matcher, _p, _old, _buffer, option, _endRegex) {
+        const { formatting } = this;
+        this._checkStartBlockDefinition(_matcher, option, _old);
+
         if (_matcher.group[0].length == 0) {
             // matcher is empty and must past to end group
-            if (_endRegex.test(_buffer)) {
-                return this._handleFoundEndPattern(_buffer, option.line, _marker, _p, option, _old);
+            // just invoke the matcher before send to parent 
+            if ((option.markerInfo.length == 0) || (option.markerInfo[0] !== _marker)) {
+                this._updateMarkerInfoOld(_marker, _old, _buffer, _endRegex, option);
             }
+            let _q = this._handleMarker(_matcher, option);
+
+            0 && 1;
+            return _q;
         }
-        this._checkStartBlockDefinition(_matcher, option, _old);
         // + | update parent markerin of before handle marker 
         if ((option.markerInfo.length == 0) || (option.markerInfo[0] !== _marker)) {
             this._updateMarkerInfoOld(_marker, _old, _buffer, _endRegex, option);
@@ -1797,21 +1819,20 @@ class Formatters {
         }
     }
 
-    _getMatchList() {
-        const _list = [];
+    // _getMatchList() {
+    //     const _list = []; 
+    //     return _list;
+    // }
+    // _renderMatchList(_list, option) {
+    //     const { listener } = option;
 
-        return _list;
-    }
-    _renderMatchList(_list, option) {
-        const { listener } = option;
-
-        _list.forEach((o) => {
-            listener.append(o.value, o.marker);
-            if (o.marker.lineFeed) {
-                listener.store();
-            }
-        });
-    }
+    //     _list.forEach((o) => {
+    //         listener.append(o.value, o.marker);
+    //         if (o.marker.lineFeed) {
+    //             listener.store();
+    //         }
+    //     });
+    // }
 
     /**
      * 
@@ -1883,7 +1904,7 @@ class Formatters {
                 option.storeRange(option.pos);
             }
             this._checkStartBlockDefinition(patternInfo, option);
-
+            this._checkStartBlockDefinition(_matcher, option);
             return this._handleMarker(_matcher, option);
 
             // this._updateMarkerInfoOld(patternInfo, _old, _buffer, _endRegex, option);
@@ -2029,7 +2050,7 @@ class PrevLineFeedConstantPattern extends SystemConstantPattern {
      * @returns {bool}
      */
     shiftIdConstant() {
-        return true;
+        return false;
     }
 }
 
@@ -2048,445 +2069,36 @@ class NameOnlyConstantPattern extends SpecialMeaningPatternBase {
         return 3;
     }
 }
+class TypeMarkerInfoPattern extends SpecialMeaningPatternBase {
+    get matchType() {
+        return 5;
+    }
+    constructor(type, { parser, data }) {
+        super();
+        if (typeof (type) == 'string') {
+            type = type.replace('.', '-');
+            this.tokenID = data?.tokenID || type;
+            this.name = data?.name || type;
+        }
+        if (data) {
+            // get extra key definition and append to parent
+            const keys = Object.keys(data);
+            const _mkeys = Object.keys(this);
 
-// class StreamConstantPattern extends SpecialMeaningPatternBase {
-//     name = 'system.stream.constant.pattern';
-//     startPosition;
-//     started = false;
-//     endFoundListener;
-//     /**
-//      * backup source marker info
-//      */
-//     sourceMarkerInfo; 
+            ['type', 'value'].forEach(i => {
+                const idx = keys.indexOf(i);
+                if (idx !== -1)
+                    delete (keys[idx]);
+            });
 
-//     /**
-//      * backup stream token list
-//      */
-//     sourceTokenList;
-//     check(l, option, patternMatcherInfo) {
-//         return false;
-//     }
-//     start(){
-
-//     }
-//     /**
-//      * false to handle constant before matching on stream
-//      */
-//     get newLineContinueState() {
-//         return false;
-//     }
-//     constructor() {
-//         super();
-//         var m_stream = new FormatterBuffer();
-//         var m_from;
-//         let m_saved = { saved: false, started: false };
-//         m_stream.id = '__stream__';
-//         const self = this;
-
-//         this.appendToBuffer = function (v) {
-//             m_stream.appendToBuffer(v);
-//             return v;
-//         }
-//         this.clear = function () {
-//             m_stream.clear();
-//         }
-//         Object.defineProperty(this, 'buffer', { get() { return m_stream.buffer; } });
-//         Object.defineProperty(this, 'saved', { get() { return m_saved; } });
-//         Object.defineProperty(this, 'begin', { get() { return m_from?.begin; } });
-//         Object.defineProperty(this, 'end', { get() { return m_from?.end; } });
-
-//         Object.defineProperty(this, 'from', {
-//             get() {
-//                 return m_from;
-//             },
-//             set(v) {
-//                 m_from = v;
-//             }
-//         });
-//         Object.defineProperty(this, 'patterns', {
-//             get() {
-//                 return m_from.patterns;
-//             },
-//             set(v) {
-//                 throw new Error('failed to set patterns not allowed');
-//             }
-//         });
-//     }
-//     get throwErrorOnEndSyntax() {
-//         return true;
-//     }
-//     get matchType() {
-//         return 4;
-//     }
-//     get isEndCaptureOnly() {
-//         return this.from.isEndCaptureOnly;
-//     }
-//     get isBeginCaptureOnly() {
-//         return this.from.isBeginCaptureOnly;
-//     }
-//     get patterns() {
-//         return this.from.patterns;
-//     }
-//     get indexOf() {
-//         return this.from?.indexOf;
-//     }
-//     /**
-//      * 
-//      * @param {*} patternInfo from host
-//      * @param {*} option 
-//      * @param {*} _old 
-//      * @param {*} markerInfo stream pattern match info
-//      * @param {number} next_position 
-//      * @param {number} length 
-//      * @param {number} _tline line to check on pattern list  
-//      * @returns 
-//      */
-//     moveToNextPattern(patternInfo, option, _old, markerInfo, next_position, length, _tline) {
-//         const { parent, hostPatterns, streamAction, indexOf } = patternInfo;
-//         const { formatter } = option;
-//         option.pos = 0;
-//         option.storeRange(option.pos); 
-//         let _patterns = hostPatterns ?  
-//             Utils.GetPatternsList(hostPatterns, indexOf, streamAction) : []; 
-
-//         if (_patterns.length > 0) {
-//             // + | handle matcher to line
-//             let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent);
-//             if (_old) {
-//                 if (_old?.marker == markerInfo) {
-//                     option.restoreBuffer(_old);
-//                 }
-//             }
-//             if (g) {
-//                 // + | exit from - top pattern Info 
-//                 _old = //option.shiftFromMarkerInfo(patternInfo);
-//                 option.shiftAndRestoreFrom(patternInfo, false);
-//                 return g;
-//             }
-//             // skip to next position 
-//             if (parent===null){
-//                 // + | ------------------------------------------------------------
-//                 // + | skip and continue
-//                 let _rindex = next_position-length;
-//                 let _append = option.line.substring(0, _rindex);
-//                 option.appendToBuffer(_append, option.constants.StreamLineConstant);
-//                 option.line = option.line.substring(_rindex);
-//                 option.pos = 0;
-//                 return null;
-//             }
-
-//         }
-//         if (parent === null) {
-//             // + | just append to buffer              
-//             option.appendToBuffer(option.line, option.constants.StreamLineConstant);
-//             option.pos = option.length;
-//             return null;
-//         }
-//         return parent;
-//         // throw new Error('Stream Not implement With no parent');
-//     }
-//     static GetBufferedLine(formatter, _src_line, option, patternInfo) {
-//         const op = [];
-//         const _group = [_src_line];
-//         let _line = formatter.treatMarkerValue(patternInfo, _src_line, op, option, _group);
-//         const _captures = patternInfo.streamCaptures || patternInfo.captures;
-//         if (_captures) {
-//             _line = Utils.TreatCapture(patternInfo, _captures, _line, [], option);
-//         }
-//         return _line;
-//     }
-//     /**
-//      * stream and transform
-//      * @param {*} formatter 
-//      * @param {string} _line 
-//      * @param {array} op 
-//      * @param {*} option 
-//      */
-//     treatAndTransform(formatter, _line, option, op) {
-//         return formatter.treatMarkerValue(patternInfo, _line, op, option);
-//     }
-//     /**
-//      * 
-//      * @returns 
-//      */
-//     handleMarkerListener(option) {
-//         const q = this;
-//         let _restored = false;
-//         let _topStreamRemoved = false;
-//         function _restoreSavedBuffer(option) {
-//             let _nbuffer = option.buffer;
-//             if (!_restored && (_nbuffer.length > 0)) {
-//                 q.appendToBuffer(_nbuffer);
-//             }
-//         }
-//         function _restoreState(option, _bck) {
-//             if (_restored) {
-//                 return;
-//             }
-//             _restoreSavedBuffer(option);
-//             option.appendToBufferListener = _bck.option.listener;
-//             _restored = true;
-//         };
-//         function _restoreBackupState(parent) {
-//             /**
-//              * restore backup state mode 
-//              */
-//             parent.mode = _bck.parentMode;
-//         }
-//         const _bck = q.saved;
-//         if (!q.started) {
-//             // save backup mode 
-//             q.started = true;
-//             const { parent } = q.from;
-//             if (parent) {
-//                 _bck.parent = parent;
-//                 //backup parent definition 
-//                 _bck.parentMode = parent.mode;
-//             }
-//         } else {
-//             if (_bck.parent) {
-//                 _bck.parent.mode = FormattingMode.FM_APPEND; // just append mode 
-//             }
-//         }
-
-//         return function (markerInfo, option) {
-
-//             // + | start definition stream 
-
-//             option.stream = q;
-
-//             const _formatter = this;
-//             let _next_position = option.pos;
-//             let _buffer = q.buffer;
-//             const { from } = q;
-//             const _line = option.line.substring(option.pos);
-//             let _p, _matcher;
-//             const _markerInfo = option.markerInfo;
-//             try {
-//                 if (!_bck.started) {
-//                     // + | ------------------------------------------------------------------------
-//                     // + |  move cursor in order to detect only children with pattern because buffered stream have no capture defined
-//                     // + | 
-
-//                     _bck.started = true;
-//                     //option.pos++;
-//                 }
-//                 ({ _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, option, false, markerInfo));
-//             } catch (e) {
-//                 // invalid stream tag selection 
-//                 const cp = _markerInfo.shift();
-//                 if (_bck.saved) {
-//                     _restoreState(option, _bck);
-//                 }
-//                 option.line = q.buffer + option.line.substring(option.pos);
-//                 throw e;
-//             }
-//             // + | REMOVE TOP STREAM MARKER 
-//             let _old = option.shiftAndRestoreFrom(markerInfo, false);
-//             if (_old){
-//                 _topStreamRemoved = true;
-//                 // + | here muste get the definition for the parent - to update if required
-//                 _old = option.shiftFromMarkerInfo(from, true);                
-//             }
-//             // let _found = false;
-//             // options.pos++;
-//             if (!_bck.saved) {
-//                 _bck.option = {
-//                     listener: option.appendToBufferListener
-//                 };
-//                 // + | Set add to buffer listener : data
-//                 option.appendToBufferListener = (v, _marker, treat, option) => {
-//                     _buffer = option.buffer;
-//                     if (_buffer.length > 0) {
-//                         q.appendToBuffer(_buffer);
-//                         option.formatterBuffer.clear();
-//                     }
-//                     if (v.length>0)
-//                         q.appendToBuffer(v);
-//                     return v;
-//                 };
-//                 _bck.saved = true;
-//             }
-
-//             option.storeRange(option.pos);
-//             // FormatterBuffer.DEBUG = true;            
-//             let r = null;
-//             const endFound = StreamConstantPattern.HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState);
-//             q.endFoundListener = (_buffer, _line, patternInfo, _p, option, _old) => {
-//                 const g = endFound(_buffer, _line, patternInfo, _p, option, _old);
-//                 _restoreSavedBuffer(option);
-//                 return g;
-//             };
-
-//             if (option.EOF && (_p == null) && (_matcher == null)) {
-//                 return q.stopAndExitStream(markerInfo, option, _bck, _restoreState, _old);
-//             }
-//             if (option.TOEND){
-//                 //return q.stopAndExitStream(markerInfo, option, _bck, _restoreState, _old);
-
-//                 let _ret =  endFound.apply(option.formatter, [_buffer, _line, markerInfo, _p, option, _old]);
-
-//                 return _ret;
-//             }
-
-
-//             try {
-//                 if ((_old==null) && (_buffer.length>0)){
-//                     // + | just start stream buffer 
-//                     _buffer = '';
-//                 }
-//                 r = _formatter.handleMatchLogic({
-//                     _p,
-//                     _old,
-//                     _matcher,
-//                     _line,
-//                     patternInfo: from,
-//                     option: option,
-//                     _buffer,
-//                     endFound,
-//                     handleConstant(patternInfo, _line, option) {
-//                         if (_line.trim().length > 0) {
-//                             option.appendToBuffer(_line, patternInfo);
-//                         }
-//                         option.pos += _line.length;
-//                         if (_old) {
-//                             option.unshiftMarker(_old);
-//                             return _old.marker;
-//                         }
-//                         return markerInfo;// q.from;
-//                     }
-//                 });
-//             } catch (e) {
-//                 // update buffer 
-//                 console.log("End buffer..... ", e);
-//                 _restoreSavedBuffer(option);
-//                 _formatter.skipFormat();
-//                 return null;
-//             }
-//             _restoreSavedBuffer(option);
-//             option.stream = null;
-//             if (r && !(r instanceof PatternMatchInfo)) {
-//                 throw new Error("pattern not valid");
-//             }
-//             return r;
-//         };
-//     }
-//     // class on end of file 
-//     stopAndExitStream(patternInfo, option, _bck, _restoreState, _old) {
-//         const { from, parent } = this;
-//         const { formatter, markerInfo } = option;
-
-//         const _line = this.buffer;
-//         let ret = null;
-//         let bck = { line: option.line, pos: option.pos };
-//         _restoreState(option, _bck);
-//         formatter._onEndHandler(from, option);
-
-//         if (bck.line.length==0){
-//             option.formatterBuffer.appendToBuffer(_line);
-//             this.clear();
-//             return null;
-//         }
-
-
-//         option.line = _line;
-//         option.pos = 0;
-
-//         if (parent != null) {
-//             throw new Error("not implement exit parent.");
-//         } else {
-//             ret = this.moveToNextPattern(patternInfo, option, _old, from);
-//         }
-//         option.line = bck.line;
-//         option.pos = bck.pos; 
-//         option.shiftAndRestoreFrom(from); 
-//         return ret;
-//     }
-//     /**
-//      * END STREAM
-//      * @param {*} q 
-//      * @param {*} markerInfo 
-//      * @param {*} _bck 
-//      * @param {*} _formatter 
-//      * @param {*} _restoreState 
-//      * @param {*} _restoreBackupState 
-//      * @returns 
-//      */
-//     static HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState) {
-//         return (_buffer, _line, patternInfo, _p, option, _old) => {
-//             const { parent, streamAction } = patternInfo;
-//             const { formatter } = option;
-//             const { endRegex } = markerInfo;
-
-//             let _cline = option.line; // all line 
-//             let _cpos = option.pos;
-
-//             let _cbuffer = q.buffer;
-//             let _nextCapture = null;
-//             let _next_position = 0;
-
-//             // end streaming...
-//             console.log('end stream : ', _cbuffer);
-
-//             option.pos = 0;
-//             _nextCapture = Utils.GetNextCapture(_line, endRegex, option);
-//             option.storeRange(option.pos);
-//             _next_position = _nextCapture.index + _nextCapture.offset;
-//             if (!_nextCapture){
-//                 throw new Error('missing capture');
-//             }
-
-//             const _end = _nextCapture[0];
-//             const _sline = _line.substring(0, _nextCapture.index);
-//             _line = _line.substring(_nextCapture.index + _end.length);
-//             const _gline = _cbuffer + _sline + _end;
-//             const _tline = StreamConstantPattern.GetBufferedLine(formatter,
-//                 _gline, option, patternInfo);
-//             option.line = _tline + _line;
-//            // q.clear();
-
-//             _restoreState(option, _bck);
-
-//             // + | move buffer to parrent 
-//             _buffer = option.getBufferContent(true);
-//             _old && option.restoreBuffer(_old);
-//             if (_buffer.length > 0)
-//                 option.formatterBuffer.appendToBuffer(_buffer);
-
-//             // + | unset marker option 
-//             formatter._onEndHandler(patternInfo, option);
-//             if (parent) {
-//                 // + | end handler before handle parent
-//                 _restoreBackupState(parent);                
-//                 const _idx = patternInfo.indexOf;
-//                 if (_idx === -1){
-//                     throw new Error('missing component. use index not valid');
-//                 }
-//                 // restart on parent by removing to handle logic
-//                 let _patterns = Utils.GetPatternsList(patternInfo.hostPatterns, _idx, streamAction);
-//                 // if (_patterns.length > 0) {               
-//                 if (streamAction == 'parent') {
-//                     return parent; 
-//                 }
-//                 let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent); 
-//                 if (g) { // continue to cp
-//                     let cp = _formatter._handleMarker(g, option);
-//                     // let _rb = option.getBufferContent(true);
-//                     // if(_rb){
-//                     //     q.appendToBuffer(_rb);
-//                     // }
-//                     return cp;
-//                 }
-//                 option.pos = _next_position;
-//                 return parent; //_formatter._handleMarker(parent, option);
-//             }
-//             // + | put this line to buffer and skip   
-//             return q.moveToNextPattern(patternInfo, option, _old, markerInfo, 
-//                 _next_position,
-//                 _end.length, _tline);
-//         }
-//     }
-// }
+            const _diff = keys.filter((a) => _mkeys.indexOf(a) === -1);
+            const q = this;
+            _diff.forEach((o) => {
+                Object.defineProperty(q, o, { get() { return data[o]; } });
+            });
+        }
+    }
+}
 
 exports.Formatters = Formatters;
 exports.Utils = Utils;

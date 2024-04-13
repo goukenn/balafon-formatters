@@ -96,7 +96,7 @@ class Utils {
      * @param {*} class_name 
      * @param {*} data 
      * @param {*} registry 
-     * @param {null|undefined|{patternClassName: undefined|class, captureInfoClassName:undefined|class}} registry 
+     * @param {null|undefined|{patternClassName: undefined|class, captureInfoClassName:undefined|class, closeParentInfoClassName: undefined|class}} registry 
      * @returns 
      */
     static JSonParseData(class_name, data, registry, pattern_class_name) {
@@ -104,12 +104,13 @@ class Utils {
         parser.source = class_name;
         parser.data = data;
         parser.includes = {};
+        // + | init parser definitions
         if (typeof (pattern_class_name) == 'object') {
-            const { patternClassName, captureInfoClassName } = pattern_class_name;
+            const { patternClassName, captureInfoClassName, closeParentInfoClassName } = pattern_class_name;
             parser.patternClassName = patternClassName;
             parser.captureInfoClassName = captureInfoClassName;
-        } else {
-
+            parser.closeParentInfoClassName = closeParentInfoClassName;
+        } else { 
             parser.patternClassName = pattern_class_name;
         }
         if (registry) {
@@ -269,6 +270,7 @@ class Utils {
                         _match.index, depth,
                     hasParent: _a.parent != null,
                     isBlock: _a.isBlock,
+                    comment: _a.comment,
                     isRef: _a instanceof RefPatterns,
                     value: _match[0],
                     detectOn: l,

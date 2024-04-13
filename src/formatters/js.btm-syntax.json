@@ -1,5 +1,5 @@
 {
-    "scopeName": "scope.litteralString",
+    "scopeName": "scope.js",
     "settings": {
         "instructionSeparator": ";"
     },
@@ -55,33 +55,39 @@
             "end":"$",
             "patterns":[
                 { "match":"\\s+", "replaceWith":" ", "isGlue":true},
-                { "match":"\\s*$", "comment":"skip empty line"},
+                { "match":"\\s*$", "comment":"skip empty line", "replaceWith":"", "name":"meta.skip.extra.line.js"},
                 {"include":"#block-branket"},
                 {"include":"#branket-function-condition"},
-                {
-                    "name":"single.instruct.js",
-                    "begin":"(?=[^\\(\\{\\s])",
-                    "end":"\\s*(;)\\s*",
-                    "patterns":[
-                        {
-                            "include":"#reserved-words"
-                        },
-                        {
-                            "match": "(?=;)",
-                            "name": "operator.end.single.instruction",
-                            "isInstructionSeparator": true,
-                            "isBlock":true,
-                            "closeParent":true
-                        }
-                    ],
-                    "endCaptures":{
-                        "0":{
-                            "match":";",
-                            "transform":"trim"
-                        }
-                    }
-                }
+                {"include":"#block-single-line-instruction"}               
             ]
+        },
+        "block-single-line-instruction": {
+            "name":"single.instruct.js",
+            "begin":"(?=[^\\(\\{\\s])",
+            "end":"\\s*(;)\\s*|$",
+            "comment":"start detect single expression",
+            "patterns":[
+                {
+                    "include":"#reserved-words"
+                },                
+                {
+                    "include":"#block-end-single-instruction"
+                }
+            ],
+            "endCaptures":{
+                "0":{
+                    "match":"\\s*(;)\\s*",
+                    "transform":"trim"
+                }
+            },
+            "isBlock":true,
+            "closeParent":true,
+            "formattingMode":2
+        },
+        "block-end-single-instruction":{
+            "match": "(?=\\s*(;)\\s*|$)",
+            "name": "operator.end.single.instruction",
+            "closeParent":";"
         },
         "single-else-expression":{
             "name":"else.condition.expression.js",
@@ -92,28 +98,7 @@
                 { "match":"\\s*$", "comment":"skip empty line"},
                 {"include":"#block-branket-stop"},
                 {"include":"#branket-function-condition"},
-                {
-                    "name":"single.instruct.js",
-                    "begin":"(?=[^\\(\\{\\s])",
-                    "end":"\\s*(;)\\s*",
-                    "patterns":[
-                        {
-                            "include":"#reserved-words"
-                        },
-                        {
-                            "match": "(?=;)",
-                            "name": "operator.end.single.instruction",
-                            "isInstructionSeparator": true,
-                            "isBlock":true
-                        }
-                    ],
-                    "endCaptures":{
-                        "0":{
-                            "match":";",
-                            "transform":"trim"
-                        }
-                    }
-                }
+                {"include":"#block-single-line-instruction"} 
             ]
         },
         "reserved-words": {
@@ -169,7 +154,7 @@
         "end-instruction": {
             "match": "(;)",
             "name": "operator.end.instruction",
-            "lineFeed": false,
+            "formattingMode": 1,
             "isInstructionSeparator": true
         },
         "string": {

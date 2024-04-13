@@ -4,7 +4,10 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { FormatterOptions } = require('../FormatterOptions');
 const { PatternMatchInfo } = require('../PatternMatchInfo');
 const { FormattingBase } = require('./FormattingBase')
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_NEXT_LINE, FM_END_INSTRUCTION, PatternFormattingMode } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK,
+     FM_START_LINE_NEXT_LINE, FM_END_INSTRUCTION, 
+     FM_START_LINE_APPEND,
+     PatternFormattingMode } = require('./FormattingMode');
 
  
 
@@ -58,7 +61,9 @@ class KAndRFormatting extends FormattingBase {
         const { formatterBuffer } = option;
 
         if (this.mergeEndBlock){
-            _bbuffer = _bbuffer.trim();
+            // + | remove last empty items.
+            _bbuffer = _bbuffer.trimEnd();
+            //_bbuffer = _bbuffer.trim();
         } 
         if (marker.childs.length == 0) { 
             sb = _bbuffer + _b.trimStart();
@@ -70,7 +75,7 @@ class KAndRFormatting extends FormattingBase {
             _b = '';
         } else {
             option.formatterBuffer.clear();
-            option.formatterBuffer.appendToBuffer(_bbuffer.trimEnd());
+            option.formatterBuffer.appendToBuffer(_bbuffer);
 
             if (this.mergeEndBlock) {
                 if ((marker.mode == FM_END_BLOCK) && (marker.childs.length == 1)) {
@@ -91,6 +96,12 @@ class KAndRFormatting extends FormattingBase {
         if (marker.parent) {
             marker.parent.mode = FM_END_BLOCK;
         }
+        if (_b && (marker.formattingMode == PatternFormattingMode.PFM_LINE_JOIN_END)){
+            option.formatterBuffer.appendToBuffer(_b.trimEnd());
+            _b = '';
+        }
+
+
         _refData._b = _b;
         return _refData;
     }
@@ -119,7 +130,7 @@ class KAndRFormatting extends FormattingBase {
                     parent.mode = FM_START_LINE_NEXT_LINE;
                 } else {
                     // + | update current buffer to handle
-                    formatter.updateBuffedValueAsToken(_buffer, _marker, option, true); 
+                    formatter.updateBuffedValueAsToken(_buffer, _marker, option); 
                     if (option.depth == 0){
                         option.skipEmptyMatchValue = true;
                     }

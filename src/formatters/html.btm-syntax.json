@@ -78,7 +78,6 @@
                 {
                     "match": "(?:\\>)",
                     "name": "start.html.end.block.html",
-                    "lineFeed": false,
                     "updateParentProps": {
                         "isBlock": true
                     }
@@ -87,7 +86,7 @@
                     "match": "(\\/\\>)",
                     "name": "start.empty.html.block.html",
                     "tokenID": "endtag.block",
-                    "lineFeed": true,
+                    "formattingMode": 1,
                     "updateParentProps": {
                         "isBlock": true
                     }
@@ -118,7 +117,7 @@
         "empty-tag": {
             "begin": "\\<([\\w]+)\\s*\\/\\>",
             "end": "(?:>)",
-            "lineFeed": true,
+            "formattingMode": 1,
             "tokenID": "empty.tag",
             "name": "empty.tag.definition.html",
             "updateParentProps":{
@@ -137,14 +136,14 @@
             "end": "--\\>",
             "tokenID": "comment",
             "name": "comment.html",
-            "lineFeed": true
+            "formattingMode": 1
         },
         "doctype": {
             "begin": "\\<!DOCTYPE",
             "end": "\\>",
             "tokenID": "doctype",
             "name": "constant.doctype.html",
-            "lineFeed": true,
+            "formattingMode": 1,
             "patterns": [
                 {
                     "include": "#string"
@@ -159,7 +158,7 @@
             "end": "\\?>",
             "tokenID": "processor",
             "name": "constant.processor.html",
-            "lineFeed": true,
+            "formattingMode": 1,
             "patterns": [
                 {
                     "include": "#string"
@@ -315,7 +314,7 @@
                     "include":"#inner-html"
                 }
             ],
-            "lineFeed":true,
+            "formattingMode": 1,
             "updateParentProps":{
                 "isBlock":true
             }

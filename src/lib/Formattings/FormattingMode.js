@@ -18,10 +18,21 @@ exports.FM_START_LINE_NEXT_LINE = FM_START_LINE_NEXT_LINE;
 exports.FM_END_INSTRUCTION = FM_END_INSTRUCTION; 
 exports.FM_START_LINE_APPEND = FM_START_LINE_APPEND; 
 
+/**
+ * configured formatting mode 
+ */
+//require line feed on pattern
 const PFM_LINE_FEED = 1;
+//require join for single pattern
+const PFM_LINE_JOIN_END = 2; 
 
 exports.PatternFormattingMode = {
-    PFM_LINE_FEED
+    get PFM_LINE_FEED(){
+        return PFM_LINE_FEED;
+    },
+    get PFM_LINE_JOIN_END(){
+        return PFM_LINE_JOIN_END;
+    }
 };
 
 
@@ -94,7 +105,6 @@ exports.HandleFormatting = function(_marker, option, _old) {
                 break;
             case FM_START_LINE_NEXT_LINE:
                 option.store();
-                //option.appendExtraOutput();
                 _sbuffer = option.flush(true);
                 if (_sbuffer.length > 0) {
                     _mode = FM_START_LINE;
@@ -125,7 +135,7 @@ function updateBuffer(data, mode, _marker, option){
                 option.formatterBuffer.clear();
             }
             option.appendToBuffer(data, _marker); 
-            _marker.mode = FM_APPEND;
+            mode = FM_APPEND;
             break;
         case FM_APPEND:
             option.appendToBuffer(data, _marker);
@@ -135,20 +145,29 @@ function updateBuffer(data, mode, _marker, option){
             data = data.trimStart();
             if (data.length>0){
                 option.appendToBuffer(data, _marker);
-                _marker.mode = FM_APPEND;  
+                mode = FM_APPEND;  
             }
             break;
         case FM_END_INSTRUCTION:
             data = data.trimStart();
             if (data.length>0){
                 option.appendToBuffer(data, _marker);
-                _marker.mode = FM_APPEND;  
-            }
-
+                mode = FM_APPEND;  
+            } 
+            break;
+        case FM_START_LINE_APPEND:
+            // TODO : update buffer not handled
+            data = data.trimStart();
+            if (data.length>0){
+                option.appendToBuffer(data, _marker);
+                option.store();
+                mode = FM_APPEND;  
+            } 
             break;
         default:
             throw new Error('update Buffer not handled : '+mode); 
     }
+    _marker.mode = mode;
 };
 
 /**

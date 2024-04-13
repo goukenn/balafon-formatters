@@ -117,7 +117,9 @@ class PatternMatchInfo {
                 throw new Error('can  not store null value');
             }
             m_isBlock = value; } });
-        Object.defineProperty(this, 'lineFeed', { get() { return m_lineFeed; } });
+        Object.defineProperty(this, 'lineFeed', { get() { 
+            return m_lineFeed; 
+        } });
         Object.defineProperty(this, 'marker', { get() { return m_marker; } });
         Object.defineProperty(this, 'endRegex', { get() { return m_endRegex; } });
         Object.defineProperty(this, 'group', { get() { return m_group; } });
@@ -161,7 +163,7 @@ class PatternMatchInfo {
             m_parent = parent;
             // setup configurable properties
             m_isBlock = marker.isBlock;
-            m_lineFeed = marker.lineFeed;
+            m_lineFeed = marker.lineFeed || (marker.formattingMode == 1);
             m_patterns = patterns;
             m_fromGroup = fromGroup;
             m_index = index;
@@ -206,11 +208,12 @@ class PatternMatchInfo {
 
     get closeParentData(){
         let m = this.marker?.closeParent;
-        if (!m){
-            return '';
+        let _type = typeof(m);
+        if (_type=='string'){
+            return m;
         }
-        if ((typeof(m)=='boolean')&& m){
-            return '';
+        if (_type=='boolean'){
+            return !m? undefined : '';
         }
         return m;
     }

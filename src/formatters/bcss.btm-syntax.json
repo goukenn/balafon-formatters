@@ -1,49 +1,433 @@
 {
-    "scopeName":"source.bcss",
-    "comment":"bcss formatter",
-    "repository":{
-        "skip-multispace":{
-            "name":"meta.join.multispace.bcss",
-            "match":"\\s+",
-            "replaceWith":" "
+    "scopeName": "source.bcss",
+    "comment": "balafon .bcss formatter",
+    "repository": {
+        "skip-multispace": {
+            "name": "meta.join.multispace.bcss",
+            "match": "\\s+",
+            "replaceWith": " "
         },
-        "global-block":{
-            "begin":"(\\{)",
-            "end":"(\\})",
-            "isBlock":true,
-            "name":"meta.global.block.bcss",
-            "patterns":[
-                {"match":"\\s*\\b([\\w]+)\\b\\s*",
-                "transform":["trim", "[$0]"]},
-
-                {"match":"\\s*(:)\\s*",
-                "transform":["trim", "[$0]"]},
-                {"include":"#skip-multispace"},
-                {"include":"#global-block"},
+        "global-block": {
+            "begin": "(\\{)",
+            "end": "(\\})",
+            "isBlock": true,
+            "name": "meta.global.block.bcss",
+            "comment": "block for css style definition",
+            "patterns": [
                 {
-                    "name":"instruction.separator",
-                    "match":"(;)",
-                    "isInstructionSeparator":true,
-                    "lineFeed":true
+                    "match": "\\s*\\b([\\w]+)\\b\\s*",
+                    "transform": [
+                        "trim",
+                        "[$0]"
+                    ]
+                },
+                {
+                    "match": "\\s*(:)\\s*",
+                    "transform": [
+                        "trim",
+                        "[$0]"
+                    ]
+                },
+                {
+                    "include": "#single-comment"
+                },
+                {
+                    "include": "#skip-multispace"
+                },
+                {
+                    "include": "#global-block"
+                },
+                {
+                    "name": "instruction.separator",
+                    "match": "(;)",
+                    "isInstructionSeparator": true,
+                    "formattingMode": 1
                 }
             ]
         },
-        "media-directive":{
-            "name":"meta.media.directive.bcss",
-            "begin":"\\s*(@\\b(?:def|(x(x)?)?(sm|lg)(-screen)?|root))\\b",
-            "end":"(?=\\{|\\}|;|@|\\S)",
-            "endOnBlockClosed":true,
-            "beginCaptures":{
-                "1":{"className":"directive"}
+        "media-directive": {
+            "name": "meta.media.directive.bcss",
+            "begin": "\\s*(@\\b(?:def|(x(x)?)?(sm|lg)(-screen)?|root))\\b",
+            "end": "(?=\\{|\\}|;|@|\\S)",
+            "endOnBlockClosed": true,
+            "beginCaptures": {
+                "1": {
+                    "className": "directive"
+                }
             },
-            "patterns":[
-                {"include":"#global-block"}
+            "patterns": [
+                {
+                    "include": "#global-block"
+                }
             ]
+        },
+        "describ-comment": {
+            "name": "comment.describ.comment.bcss",
+            "begin": "^\\s*#\\s+",
+            "end": "$",
+            "patterns": [
+                {
+                    "match": "(?=\\s*\\n\\s*|$)",
+                    "name": "match.line.feed.bcss",
+                    "closeParent": {
+                        "value": "$",
+                        "type": "error.info",
+                        "className": "m-status-class",
+                        "tokenID": "single-line"
+                    }
+                },
+                {
+                    "match": "([\\w\\-]+)(\\s+[\\w\\-]+)+",
+                    "name":"meta.directive.comment.value.bcss",
+                    "captures": {
+                        "1": {
+                            "name": "directive.name.bcss",
+                            "className": "describ-name"
+                        },
+                        "2": {
+                            "name": "directive.value.bcss",
+                            "className": "describ-value",
+                            "transform":["trim","[ $0]"],
+                            "patterns": [
+                                {
+                                    "include": "#value-definition"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+            "tokenID": "describ-comment",
+            "className": "comment",
+            "formattingMode": 1
+        },
+        "single-comment": {
+            "match": "\\/\\/(.)+$",
+            "name": "meta.constant.comment.bcss",
+            "formattingMode": 1
+        },
+        "value-definition": {
+            "name": "value.definition.bcss",
+            "patterns": [
+                {
+                    "name": "operator.property.separator.bcss",
+                    "match": ","
+                },
+                {
+                    "include": "#system-block-definition"
+                },
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#web-litteral-var"
+                },
+                {
+                    "include": "#web-known-colors"
+                },
+                {
+                    "include": "#hex-colors"
+                },
+                {
+                    "include": "#time-constant-unit"
+                },
+                {
+                    "include": "#angle-with-unit"
+                },
+                {
+                    "include": "#frequency-with-unit"
+                },
+                {
+                    "include": "#length-with-unit"
+                },
+                {
+                    "include": "#function-handler-patterns"
+                },
+                {
+                    "include": "#meaning-words"
+                }
+            ]
+        },
+        "meaning-words": {
+            "tokenID":"meaning",
+            "className":"words",
+            "comment":"patterns only groups for meanings words",
+            "name":"constant.meaning.word.bcss",
+            "patterns": [
+                {
+                    "include": "#meaning-a"
+                },
+                {
+                    "include": "#meaning-b"
+                },
+                {
+                    "include": "#meaning-c"
+                },
+                {
+                    "include": "#meaning-d"
+                },
+                {
+                    "include": "#meaning-e"
+                },
+                {
+                    "include": "#meaning-f"
+                },
+                {
+                    "include": "#meaning-g"
+                },
+                {
+                    "include": "#meaning-h"
+                },
+                {
+                    "include": "#meaning-i"
+                },
+                {
+                    "include": "#meaning-j"
+                },
+                {
+                    "include": "#meaning-k"
+                },
+                {
+                    "include": "#meaning-l"
+                },
+                {
+                    "include": "#meaning-m"
+                },
+                {
+                    "include": "#meaning-n"
+                },
+                {
+                    "include": "#meaning-o"
+                },
+                {
+                    "include": "#meaning-p"
+                },
+                {
+                    "include": "#meaning-q"
+                },
+                {
+                    "include": "#meaning-r"
+                },
+                {
+                    "include": "#meaning-s"
+                },
+                {
+                    "include": "#meaning-t"
+                },
+                {
+                    "include": "#meaning-u"
+                },
+                {
+                    "include": "#meaning-v"
+                },
+                {
+                    "include": "#meaning-w"
+                },
+                {
+                    "include": "#meaning-x"
+                },
+                {
+                    "include": "#meaning-y"
+                },
+                {
+                    "include": "#meaning-z"
+                },
+                {
+                    "include": "#meaning-property"
+                }
+            ]
+        },
+        "meaning-property": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(static|sans-serif|serif|monospace|emoji|math|cursive|float|auto|relative|absolute|flex|inline-block|inherit|initial|current(c|C)olor)\\b"
+        },
+        "meaning-a": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(auto|alphabetic|additive)\\b"
+        },
+        "meaning-b": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(block|both)\\b"
+        },
+        "meaning-c": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(checkbox|cyclic)\\b"
+        },
+        "meaning-e": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(ease(-(in|out|inout))?)\\b"
+        },
+        "meaning-f": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(fixed|false)\\b"
+        },
+        "meaning-i": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(initial|inherit|inline(-(start|end))?)\\b"
+        },
+        "meaning-l": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(left)\\b"
+        },
+        "meaning-v": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(v(isible))\\b"
+        },
+        "meaning-n": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(none|numeric)\\b"
+        },
+        "meaning-r": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(revert(-layer)?|right)\\b"
+        },
+        "meaning-s": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(symbols|symbolic)\\b"
+        },
+        "meaning-t": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(top|true)\\b"
+        },
+        "meaning-u": {
+            "name": "constant.css.meaning.word.bcss",
+            "match": "\\b(unset)\\b"
+        },
+        "function-handler-patterns": {
+            "patterns": [
+                {
+                    "begin": "\\b(calc)\\b\\s*\\(",
+                    "end": "\\)",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "native.css.function.name.calc"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#calc-constant"
+                        },
+                        {
+                            "include": "#css-operators"
+                        },
+                        {
+                            "include": "#value-definition"
+                        }
+                    ]
+                },
+                {
+                    "begin": "\\b(url)\\b\\s*\\(",
+                    "end": "\\)",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "native.css.function.name.url"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#string"
+                        },
+                        {
+                            "include": "#url-params"
+                        }
+                    ]
+                },
+                {
+                    "begin": "\\b(format)\\b\\s*\\(",
+                    "end": "\\)",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "native.css.function.name.url"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#string"
+                        }
+                    ]
+                },
+                {
+                    "include": "#native-css-function"
+                }
+            ]
+        },
+        "time-constant-unit": {
+            "name": "constant.type.time.bcss",
+            "match": "(-|\\+)?((\\d+)?\\.)?\\d+((m)?s)"
+        },
+        "length-with-unit": {
+            "name": "constant.type.length.bcss",
+            "match": "(-)?(((\\d+)?\\.)?\\d+(Q|fr|dpi|dpcm|dppx|x|cm|mm|em|rem|in|pt|ex|ch|cap|ic|lh|r(cap|ch|em|ex|ic|lh)|(d|l|s)?(vh|vw)|vb|vi|vmin|vmax|cq(b|h|i|max|min|w)|%)|\\d+px|\\d+(\\.\\d+)?)",
+            "tokenID":"length"
+        },
+        "angle-with-unit": {
+            "name": "constant.type.angle.bcss",
+            "match": "(-)?(((\\d+)?\\.)?\\d+(deg|rad|grad|turn))"
+        },
+        "frequency-with-unit": {
+            "name": "constant.type.frequency.bcss",
+            "match": "(-)?(((\\d+)?\\.)?\\d+((k)?Hz))"
+        },
+        "url-params": {
+            "patterns": [
+                {
+                    "include": "string"
+                },
+                {
+                    "name": "constant.url.bcss",
+                    "match": "(?i)(((ftp|http(s)|[a-z]+)?:(\\/{,2}))|(\\.)|\\s*)[^\\s\\/\\)]+(\\/[^\\s\\/\\)]+)*(\\/)?"
+                }
+            ]
+        },
+        "selection-tag-definition-o": {
+            "comment": "sect css expression tags",
+            "name": "constant.selection.tag.bcss",
+            "begin": "((\\>|\\+|~|,)\\s*)?(\\.|\\#)?[\\-\\w]+(\\[.*\\])*(:{1,2}[\\-a-z][a-z0-9\\-]*)*(\\{)?",
+            "end": "}",
+            "beginCaptures": {},
+            "endCaptures": {},
+            "patterns": [],
+            "isBlock": true
+        },
+        "calc-constant": {
+            "name": "constant.css.calc.bcss",
+            "match": "(?i)\\b(NaN|pi|e)\\b"
+        },
+        "css-operators": {
+            "match": "\\s*(\\+|/|-|%|\\*)\\s*",
+            "captures": {
+                "1": {
+                    "name": "punctuation.operator.bcss"
+                }
+            }
+        },
+        "hex-colors": {
+            "match": "\\s*(#([0-9a-f]{8}|[\\da-f]{6}|[\\da-f]{4}|[\\da-f]{3}))\\s*",
+            "captures": {
+                "1": {
+                    "name": "constant.type.hex.color.bcss"
+                }
+            }
         }
     },
-    "patterns":[ 
-        {"include":"#skip-multispace"},
-        {"include":"#global-block"},
-        {"include":"#media-directive"}
+    "patterns": [
+        {
+            "include": "#single-line-comment"
+        },
+        {
+            "include": "#describ-comment"
+        },
+        {
+            "include": "#single-comment"
+        },
+        {
+            "include": "#skip-multispace"
+        },
+        {
+            "include": "#global-block"
+        },
+        {
+            "include": "#media-directive"
+        }
     ]
 }

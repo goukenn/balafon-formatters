@@ -214,20 +214,27 @@ class Patterns{
             }
             return Utils.RegexParse(s, 'd'); 
         };
-        const _capture_parser = Utils.JSONInitCaptureField(q);
-        //  (s, parser)=>{
-        //     const _info_class = parser.captureInfoClassName  || CaptureInfo;
-        //     let d = {}; 
-        //     for(let i in s){
-        //         let m = new _info_class(q); 
-        //         JSonParser._LoadData(parser, m, s[i]);  
-        //         d[i] = m; 
-        //         parser.initialize(m);  
-        //     } 
-        //     return d;
-        // } 
+        const _capture_parser = Utils.JSONInitCaptureField(q); 
        
         const parse = {
+            closeParent(n,parser){
+                const _type = typeof(n);
+                const { FormatterCloseParentInfo } = Utils.Classes;
+                const _gcl = parser.closeParentInfoClassName || FormatterCloseParentInfo;
+                if (_type=='object'){
+
+                    let m = new _gcl; 
+                    JSonParser._LoadData(parser, m, n);
+                    return m;
+                }
+                if (_type=='boolean'){
+                    return n;
+                }
+                if (_type=='string'){
+                    return n;
+                }
+                throw new Error('invalid closeParentType');
+            },
             patterns(n,parser, refKey, refObj){
                 let d = patterns.apply(q, [n,parser, refKey, refObj]);
                 d.forEach((s)=>{
