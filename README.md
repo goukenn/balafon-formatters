@@ -32,7 +32,7 @@ settings
 - `tranform` selection by invoking some string functio
     - padding with symbol
         - = with the value
-        - # end with
+        - \# end with
         - ^ start with
     - replace with expression argument is $0 will be the place holder
         - "[ $0 ]"
