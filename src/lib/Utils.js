@@ -1,6 +1,5 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const { match } = require("assert");
 const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 
@@ -271,6 +270,7 @@ class Utils {
                         _match.index, depth,
                     hasParent: _a.parent != null,
                     isBlock: _a.isBlock,
+                    comment: _a.comment,
                     isRef: _a instanceof RefPatterns,
                     value: _match[0],
                     detectOn: l,

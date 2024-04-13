@@ -9,7 +9,7 @@
         <script type="module" language="javascript">
             "use strict;";
         // use as global object . configured with webpack module
-        import * as lib from './dist/bformatter/1.0.1/bformatter.mjs'; 
+        import * as lib from './dist/bformatter/1.0.5/bformatter.mjs'; 
         // const syntax = await fetch('./src/formatters/js.btm-syntaxes.json').then(o=>{ 
         //     return o.json();
         // });  
@@ -96,22 +96,23 @@
         let _listener_data = null;
         let _def = {}; 
         _formatter.debug = false;
-        _formatter.listener = WebCodeHighlight(_def);
+        // _formatter.listener = WebCodeHighlight(_def);
         let { _maxLineCount} = _def;
         
         let data = _formatter.format([
             // "var info = \"du jour\";",
-            'if (true) { ',
-            '// comment zone',
-            'var x = 109;',
-            'var y = 229;',
-            'var z = 9;',
-            'var tt = 9;',
-            'var tt = 9;',
-            'let _tt = 9.0;',
-            'const tt = .9;',
-            'const _ref_fc = function((a,b)=>{ return "ok"; }){ return 8; }',
-            'return "ok data";}', 
+            // 'if (true) { ',
+            // '// comment zone',
+            // 'var x = 109;',
+            // 'var y = 229;',
+            // 'var z = 9;',
+            // 'var tt = 9;',
+            // 'var tt = 9;',
+            // 'let _tt = 9.0;',
+            // 'const tt = .9;',
+            // 'const _ref_fc = function((a,b)=>{ return "ok"; }){ return 8; }',
+            'const _ref_fc = { return 8; }',
+            // 'return "ok data";}', 
             //" else return x; "
         ]);
         data = data+"</div>";
@@ -165,7 +166,7 @@
             g.listener = Web.Utils.webFormattingListener(_def);
             let data = g.format(src.split("\n"));
              
-            t.innerHTML = data;          
+            t.innerHTML = "result: \n"+ data;          
             Web.Utils.InitLine(t, _def._maxLineCount);  
         }
 

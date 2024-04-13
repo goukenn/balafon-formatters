@@ -21,11 +21,17 @@ exports.FM_START_LINE_APPEND = FM_START_LINE_APPEND;
 /**
  * configured formatting mode 
  */
+//require line feed on pattern
 const PFM_LINE_FEED = 1;
+//require join for single pattern
+const PFM_LINE_JOIN_END = 2; 
 
 exports.PatternFormattingMode = {
     get PFM_LINE_FEED(){
         return PFM_LINE_FEED;
+    },
+    get PFM_LINE_JOIN_END(){
+        return PFM_LINE_JOIN_END;
     }
 };
 

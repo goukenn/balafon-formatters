@@ -324,7 +324,7 @@ class FormatterOptions {
                 }
             }
             _marker.value = { source: value, value: _buffer };
-            _formatter.onAppendToBuffer(_marker, _buffer, option); // ?.formatting?.onAppendToBuffer(_marker, _buffer);
+            _formatter.onAppendToBuffer(_marker, _buffer, option);
         }
         /**
          * treat begin captures
@@ -538,6 +538,7 @@ class FormatterOptions {
         this.EOF=
         this.EOL=
         false;
+        this.glueValue = null;
     }
     cleanNewOldBuffers() {
         const option = this;

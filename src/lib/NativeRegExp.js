@@ -4,15 +4,15 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const globalRegExp = RegExp;
 const NATIVE_EXEC = (() => {
     const _fn = globalRegExp.prototype.exec;
-    if (_fn == 'function exec() { [native code] }')
+    if (_fn.toString().indexOf('[native code]') !== -1)
         return _fn;
-    throw new Error('missing native Regex.exec');
+    throw new Error('missing native RegExp.exec');
 })();
 const NATIVE_TEST = (() => {
     const _fn = globalRegExp.prototype.test;
-    if (_fn == 'function test() { [native code] }')
+    if (_fn.toString().indexOf('[native code]') !== -1)
         return _fn;
-    throw new Error('missing native Regex.test');
+    throw new Error('missing native RegExp.test');
 })();
 /**
  * implement native RegExp because some extension override required function

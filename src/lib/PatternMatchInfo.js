@@ -208,11 +208,12 @@ class PatternMatchInfo {
 
     get closeParentData(){
         let m = this.marker?.closeParent;
-        if (!m){
-            return '';
+        let _type = typeof(m);
+        if (_type=='string'){
+            return m;
         }
-        if ((typeof(m)=='boolean')&& m){
-            return '';
+        if (_type=='boolean'){
+            return !m? undefined : '';
         }
         return m;
     }

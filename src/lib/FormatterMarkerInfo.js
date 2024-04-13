@@ -65,7 +65,7 @@ class FormatterMarkerInfo{
                 },
                 set(v) {
                     if (v != _content) {
-                        option.debug && Debug.log("---::store content ::---\n" + v)
+                        option.debug && Debug.log("---::store content ::---\n[value::'" + v+"']")
                         _content = v;
                     }
                 }
