@@ -43,7 +43,13 @@
                     "isInstructionSeparator": true,
                     "formattingMode": 1
                 }
-            ]
+            ],
+            "beginCaptures":{
+                "1":{"name":"meta.branket.start"}
+            },
+            "endCaptures":{
+                "1":{"name":"meta.branket.start"}
+            }
         },
         "media-directive": {
             "name": "meta.media.directive.bcss",
@@ -103,7 +109,8 @@
         },
         "single-comment": {
             "match": "\\/\\/(.)+$",
-            "name": "meta.constant.comment.bcss",
+            "name": "comment.single-line-comment.bcss",
+            "lineFeed":true,
             "formattingMode": 1
         },
         "value-definition": {

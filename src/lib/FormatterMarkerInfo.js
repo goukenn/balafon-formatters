@@ -25,6 +25,11 @@ class FormatterMarkerInfo{
     oldBlockStart;
     blockStarted;
     useEntry = true;
+    /**
+     * store marker update mode
+     * @var {number}
+     */
+    currentMode;
 
     toString(){
         return 'FormatterMarkerInfo#'+this.marker.toString();
@@ -33,6 +38,7 @@ class FormatterMarkerInfo{
         this.startBlock = _marker.isBlock ? 1 : 0;
         this.oldBlockStart = _marker.isBlock;
         this.blockStarted = false;
+        this.currentMode = _marker.mode;
         
 
         Object.defineProperty(this, 'formatter', {get(){return formatter;}}); 

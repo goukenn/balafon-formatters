@@ -8,7 +8,6 @@ function formatAllDocument(document, format){
     );
     const _formatter = Formatters.Load(format);
     if (_formatter){
-        _formatter.debug = true;
         let _res = _formatter.format(_text);
         return vscode.TextEdit.replace(_range, _res);
     }

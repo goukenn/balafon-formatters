@@ -69,6 +69,13 @@ class FormatterOptions {
      */
     skipEmptyMatchValue = false;
 
+
+    /**
+     * store next formatting on mode - 
+     * @var {number}
+     */
+    nextFormattingMode;
+
     /**
      * .ctr
      * @param {*} _formatter 

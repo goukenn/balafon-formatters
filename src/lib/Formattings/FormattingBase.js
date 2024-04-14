@@ -49,15 +49,18 @@ class FormattingBase {
     /**
      * depending on marker mode update old marker content new value
      */
-    updateOldMarkerContent({ content, marker, extra, buffer, option }) {
+    updateOldMarkerContent({ content, marker, extra, buffer, option , mode}) {
         let _ld = '';
-        let { mode } = marker;
+        //let { mode } = marker;
+        mode = mode == undefined ? FM_APPEND : mode;
+        const _props = arguments[0];
         const { formatterBuffer } = option;
         let _hasExtra = (extra.length > 0);
         let _hasBuffer = (buffer.length > 0);
         if (!_hasExtra && !_hasBuffer) {
             return content;
         }
+        let _change_mode = mode == marker.mode;
         switch (mode) {
             case FM_START_LINE:
                 _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra);
@@ -118,7 +121,11 @@ class FormattingBase {
                 throw new Error('mode not handle : ' + mode);
                 break;
         }
-        marker.mode = mode;
+        if (_change_mode){
+            marker.mode =  mode;
+        }
+        _props.mode = marker.mode;
+        
         return content + _ld;
     }
     _treatOldMarkerContent(option, extraOutput, extra, buffer, _hasBuffer, _hasExtra) {
