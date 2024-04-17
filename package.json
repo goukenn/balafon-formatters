@@ -58,6 +58,13 @@
           ".bview"
         ]
       }
+    ],
+    "grammars": [
+      {
+        "language": "bcss",
+        "scopeName": "source.bcss",
+        "path": "./src/formatters/bcss.btm-syntax.json"
+      }
     ]
   },
   "publisher": "CADBONDJEDOUE"

@@ -1,5 +1,16 @@
 const vscode = require('vscode');
-const { Formatters } = require('./formatter')
+const { bformatter } = require('../dist/bformatter/1.0.6/bformatter.cjs');
+const { TransformEngine } = require('./lib/TransformEngine');
+const { Formatters , Version } = bformatter;
+
+class VSCodeTransformEngine extends TransformEngine{
+
+}
+
+
+TransformEngine.Register('vscode', VSCodeTransformEngine);
+
+
 function formatAllDocument(document, format){
     const _text = document.getText();
     const _range = new vscode.Range(
@@ -8,8 +19,7 @@ function formatAllDocument(document, format){
     );
     const _formatter = Formatters.Load(format);
     if (_formatter){
-        _formatter.debug = true;
-        let _res = _formatter.format(_text);
+        let _res = _formatter.format(_text.split("\n"));
         return vscode.TextEdit.replace(_range, _res);
     }
 }
@@ -23,12 +33,12 @@ function activate(context){
     context.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider(
         "bcss",{
             provideDocumentFormattingEdits(document,options,token){
-                console.log("update all document");
                 return [formatAllDocument(document,"bcss",options, token)];
             }
         }
     ));
-    console.log('activate extension....OK');
+    console.log('activate balafon bformatter ['+Version+']');
+    
 }
 /**
  * 
@@ -41,4 +51,4 @@ function deactivate(){
 module.exports = {
     activate,
     deactivate
-} 
+}

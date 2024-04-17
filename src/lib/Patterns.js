@@ -342,6 +342,16 @@ class Patterns{
         return false;
     }
     /**
+     * is match capture only
+     */
+    get isMatchCaptureOnly(){
+        let s = this.match;
+        if (s){
+            return RegexUtils.IsCapturedOnlyRegex(s);
+        }
+        return !1;
+    }
+    /**
      * new line continue state
      */
     get newLineContinueState(){
@@ -386,16 +396,7 @@ class Patterns{
     
     get matchRegex(){
         return this.matchType == 0? this.begin : this.match;
-    }
-    // TODO : remove data 
-    get index(){
-        return this.m_match?.index;
-    }
-    get group(){
-        return this.m_match;
-    } 
-  
-     
+    }  
     /**
      * calculate end regex
      * @param {*} p 

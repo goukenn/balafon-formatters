@@ -67,7 +67,13 @@ class FormatterOptions {
     /**
      * flag formatter skip start empty line flag
      */
-    skipEmptyMatchValue = false;
+    skipEmptyMatchValue = false; 
+
+    /**
+     * next mode
+     * @var {number}
+     */
+    nextMode;
 
     /**
      * .ctr
@@ -299,7 +305,7 @@ class FormatterOptions {
          * @param {?boolean} treat render token with listener  
          * @param {*} _marker 
          */
-        option.appendToBuffer = function (value, _marker, treat = true) {
+        option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
             const { debug, engine } = this;
             debug && Debug.log("[append to buffer] - ={" + value + '}');
             let _buffer = value;
@@ -324,8 +330,10 @@ class FormatterOptions {
                 }
             }
             _marker.value = { source: value, value: _buffer };
+            if (raise)
             _formatter.onAppendToBuffer(_marker, _buffer, option);
         }
+
         /**
          * treat begin captures
          * @param {*} _marker 
@@ -537,8 +545,14 @@ class FormatterOptions {
         this.holdBufferState = 
         this.EOF=
         this.EOL=
+        this.startLine=
+        this.lineFeedFlag=
         false;
         this.glueValue = null;
+        this.lineCount = 0;
+        this.markerDepth = 0;
+        this.nextMode = 1;
+
     }
     cleanNewOldBuffers() {
         const option = this;
