@@ -3,6 +3,7 @@ Object.defineProperty(exports, '__esModule', {value:true});
 
 const FM_START = 0;
 const FM_APPEND = 1;
+const FM_APPEND_BLOCK = 9;
 const FM_START_BLOCK = 5;
 const FM_END_INSTRUCTION = 3;
 const FM_END_BLOCK = 6;
@@ -17,6 +18,7 @@ exports.FM_END_BLOCK = FM_END_BLOCK;
 exports.FM_START_LINE_NEXT_LINE = FM_START_LINE_NEXT_LINE; 
 exports.FM_END_INSTRUCTION = FM_END_INSTRUCTION; 
 exports.FM_START_LINE_APPEND = FM_START_LINE_APPEND; 
+exports.FM_APPEND_BLOCK = FM_APPEND_BLOCK; 
 
 /**
  * configured formatting mode 
@@ -39,10 +41,11 @@ exports.PatternFormattingMode = {
 exports.FormattingMode = {
     FM_APPEND,
     FM_START_BLOCK,
-    FM_END_INSTRUCTION: FM_END_INSTRUCTION,
+    FM_END_INSTRUCTION,
     FM_END_BLOCK,
     FM_START_LINE,
-    FM_START_LINE_NEXT_LINE 
+    FM_START_LINE_NEXT_LINE ,
+    FM_APPEND_BLOCK,
 };
 
 
@@ -148,10 +151,15 @@ function updateBuffer(data, mode, _marker, option){
                 mode = FM_APPEND;  
             }
             break;
-        case FM_END_INSTRUCTION:
+        case FM_END_INSTRUCTION: // update buffer after end instruction
             data = data.trimStart();
             if (data.length>0){
+                option.lineFeedFlag && option.appendExtraOutput();
                 option.appendToBuffer(data, _marker);
+                if (option.output.length>0){
+                    option.store();
+                    option.formatterBuffer.appendToBuffer(option.flush(true));
+                }
                 mode = FM_APPEND;  
             } 
             break;

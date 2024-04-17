@@ -54,9 +54,9 @@
             "begin":"\\b(if|elseif|while|switch)\\b",
             "end":"$",
             "patterns":[
-                { "match":"\\s+", "replaceWith":" ", "isGlue":true},
+                { "match":"\\s+", "replaceWith":"", "isGlue":true, "comment":"remove space before data"},
                 { "match":"\\s*$", "comment":"skip empty line", "replaceWith":"", "name":"meta.skip.extra.line.js"},
-                {"include":"#block-branket"},
+                {"include":"#block-branket-stop"},
                 {"include":"#branket-function-condition"},
                 {"include":"#block-single-line-instruction"}               
             ]
@@ -94,8 +94,8 @@
             "begin":"\\b(else)\\b",
             "end":"$",
             "patterns":[
+                { "match":"\\s*$", "comment":"skip empty line", "replaceWith":""},
                 { "match":"\\s+", "replaceWith":" ", "isGlue":true},
-                { "match":"\\s*$", "comment":"skip empty line"},
                 {"include":"#block-branket-stop"},
                 {"include":"#branket-function-condition"},
                 {"include":"#block-single-line-instruction"} 
@@ -211,7 +211,7 @@
         "multi-line-comment": {
             "begin": "\\/\\*",
             "end": "\\*/",
-            "name": "constant.comment.multiline",
+            "name": "comment.multiline.js",
             "tokenID": "comment",
             "formattingMode": 1
         },

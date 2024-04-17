@@ -84,7 +84,8 @@ class PatternMatchInfo {
         * get or set the buffer mode. 0 - add a line before add go to 1 just append to buffer, 2 add a line after
         */
         Object.defineProperty(this, 'mode', {
-            get() { return m_bufferMode; }, set(v) {
+            get() { return m_bufferMode; }, 
+            set(v) {
                 if (v != m_bufferMode) {
                     m_bufferMode = v;
                     // + | change buffermode 
@@ -188,6 +189,9 @@ class PatternMatchInfo {
                 });
             })(this, m_marker);
         };
+    }
+    get isMatchCaptureOnly(){
+        return this.marker?.isMatchCaptureOnly;
     }
     //
     get isEndCaptureOnly() {

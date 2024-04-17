@@ -4,6 +4,7 @@ const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 
 class Utils {
+    static TestScope;
     /**
      * define properties
      * @param {*} target 
@@ -275,7 +276,7 @@ class Utils {
                     value: _match[0],
                     detectOn: l,
                     regex: _a.matchRegex,
-                    type: _a.matchType,
+                    type: _a.matchType==0?"begin/end":"match",
                     isFromGroupRef: _from != null
                 });
             }
