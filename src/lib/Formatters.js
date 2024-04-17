@@ -1410,7 +1410,9 @@ class Formatters {
     _updatePatternPrevConstant(_marker, option, _prev, offset, append_child = true) {
         _prev = _prev || option.getLineRangeContent();
         if (_prev.length > 0) {
-            this._appendConstant(_marker, _prev, option, append_child);
+            if (!option.startLine || (_prev.trim().length>0)){
+                this._appendConstant(_marker, _prev, option, append_child);
+            }
             option.pos += (offset || _prev.length);
         }
     }

@@ -14,18 +14,34 @@
             "name": "meta.global.block.bcss",
             "comment": "block for css style definition",
             "patterns": [
+                {"include":"#global-css-properties"},
                 {
-                    "match": "\\s*\\b([\\w]+)\\b\\s*",
+                    "match":"background-color",
+                    "throwError":"not allowed in block"
+                },
+                {
+                    "match": "\\b([\\w]+)\\b\\s*",
+                    "name":"word",
                     "transform": [
                         "trim",
                         "[$0]"
                     ]
                 },
+                { "include":"#string"},
                 {
-                    "match": "\\s*(:)\\s*",
-                    "transform": [
-                        "trim",
-                        "[$0]"
+                    "begin": "\\s*(:)\\s*",
+                    "end": "(?=;|})",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.property.definition.bcss",
+                            "transform": [
+                                "trim",
+                                "[$0 ]"
+                            ]
+                        }
+                    },
+                    "patterns":[
+                        { "include":"#css-value-definition"}
                     ]
                 },
                 {
@@ -44,11 +60,15 @@
                     "formattingMode": 1
                 }
             ],
-            "beginCaptures":{
-                "1":{"name":"meta.branket.start"}
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.branket.start.bcss"
+                }
             },
-            "endCaptures":{
-                "1":{"name":"meta.branket.start"}
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.branket.end.bcss"
+                }
             }
         },
         "media-directive": {
@@ -84,7 +104,7 @@
                 },
                 {
                     "match": "([\\w\\-]+)(\\s+[\\w\\-]+)+",
-                    "name":"meta.directive.comment.value.bcss",
+                    "name": "meta.directive.comment.value.bcss",
                     "captures": {
                         "1": {
                             "name": "directive.name.bcss",
@@ -93,7 +113,10 @@
                         "2": {
                             "name": "directive.value.bcss",
                             "className": "describ-value",
-                            "transform":["trim","[ $0]"],
+                            "transform": [
+                                "trim",
+                                "[ $0]"
+                            ],
                             "patterns": [
                                 {
                                     "include": "#value-definition"
@@ -110,10 +133,10 @@
         "single-comment": {
             "match": "\\/\\/(.)+$",
             "name": "comment.single-line-comment.bcss",
-            "lineFeed":true,
+            "lineFeed": true,
             "formattingMode": 1
         },
-        "value-definition": {
+        "css-value-definition": {
             "name": "value.definition.bcss",
             "patterns": [
                 {
@@ -156,10 +179,10 @@
             ]
         },
         "meaning-words": {
-            "tokenID":"meaning",
-            "className":"words",
-            "comment":"patterns only groups for meanings words",
-            "name":"constant.meaning.word.bcss",
+            "tokenID": "meaning",
+            "className": "words",
+            "comment": "patterns only groups for meanings words",
+            "name": "constant.meaning.word.bcss",
             "patterns": [
                 {
                     "include": "#meaning-a"
@@ -365,7 +388,7 @@
         "length-with-unit": {
             "name": "constant.type.length.bcss",
             "match": "(-)?(((\\d+)?\\.)?\\d+(Q|fr|dpi|dpcm|dppx|x|cm|mm|em|rem|in|pt|ex|ch|cap|ic|lh|r(cap|ch|em|ex|ic|lh)|(d|l|s)?(vh|vw)|vb|vi|vmin|vmax|cq(b|h|i|max|min|w)|%)|\\d+px|\\d+(\\.\\d+)?)",
-            "tokenID":"length"
+            "tokenID": "length"
         },
         "angle-with-unit": {
             "name": "constant.type.angle.bcss",
@@ -378,7 +401,7 @@
         "url-params": {
             "patterns": [
                 {
-                    "include": "string"
+                    "include": "#string"
                 },
                 {
                     "name": "constant.url.bcss",
@@ -415,7 +438,284 @@
                     "name": "constant.type.hex.color.bcss"
                 }
             }
+        },
+        "string":{
+            "patterns": [
+                {
+                    "include": "#single-quote-string"
+                },
+                {
+                    "include": "#double-quote-string"
+                }
+            ]
+        },
+        "single-quote-string": {
+            "name": "string.single.quoted.bcss",
+            "begin": "'",
+            "end": "'",
+            "patterns": [
+                {
+                    "name": "string.escaped.bcss",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "double-quote-string": {
+            "name": "string.double.quoted.bcss",
+            "begin": "\"",
+            "end": "\"",
+            "patterns": [
+                {
+                    "name": "string.escaped.bcss",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "global-css-properties": {
+            "patterns": [
+                {
+                    "include": "#css-properties-moz"
+                },
+                {
+                    "include": "#css-properties-webkit"
+                },
+                {
+                    "include": "#css-properties-a"
+                },
+                {
+                    "include": "#css-properties-b"
+                },
+                {
+                    "include": "#css-properties-c"
+                },
+                {
+                    "include": "#css-properties-d"
+                },
+                {
+                    "include": "#css-properties-e"
+                },
+                {
+                    "include": "#css-properties-f"
+                },
+                {
+                    "include": "#css-properties-g"
+                },
+                {
+                    "include": "#css-properties-h"
+                },
+                {
+                    "include": "#css-properties-i"
+                },
+                {
+                    "include": "#css-properties-j"
+                },
+                {
+                    "include": "#css-properties-l"
+                },
+                {
+                    "include": "#css-properties-m"
+                },
+                {
+                    "include": "#css-properties-moz"
+                },
+                {
+                    "include": "#css-properties-o"
+                },
+                {
+                    "include": "#css-properties-p"
+                },
+                {
+                    "include": "#css-properties-q"
+                },
+                {
+                    "include": "#css-properties-r"
+                },
+                {
+                    "include": "#css-properties-s"
+                },
+                {
+                    "include": "#css-properties-t"
+                },
+                {
+                    "include": "#css-properties-u"
+                },
+                {
+                    "include": "#css-properties-v"
+                },
+                {
+                    "include": "#css-properties-w"
+                },
+                {
+                    "include": "#css-properties-webkit"
+                },
+                {
+                    "include": "#css-properties-x"
+                },
+                {
+                    "include": "#css-properties-y"
+                },
+                {
+                    "include": "#css-properties-z"
+                }
+            ]
+        },
+        "css-properties-moz": {
+            "match": "(-)?moz-\\b(animation(-(delay|direction|duration|fill-mode|iteration-count|name|play-state|timing-function))?|appearance|backface-visibility|border(-(end|end-color|end-style|end-width|image|start|start-color|start-style|start-width))?|box(-(align|direction|flex|ordinal-group|orient|pack|sizing))?|float-edge|font(-(feature-settings|language-override))?|force-broken-image-icon|hyphens|margin(-(end|start))?|orient|osx-font-smoothing|padding(-(end|start))?|perspective-origin|tab-size|text-size-adjust|transform(-(origin|style))?|transition(-(delay|duration|property|timing-function))?|user(-(input|modify|select))?|window-dragging)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-webkit": {
+            "match": "(-)?webkit-\\b(align(-(content|content|items|items|self|self))?|animation|animation(-(delay|delay|direction|direction|duration|duration|fill-mode|fill-mode|iteration-count|iteration-count|name|name|play-state|play-state|timing-function|timing-function))?|appearance|appearance|backface(-(visibility|visibility))?|background(-(clip|clip|origin|origin|size|size))?|border(-(bottom-left-radius|bottom-left-radius|bottom-right-radius|bottom-right-radius|image|image|radius|radius|top-left-radius|top-left-radius|top-right-radius|top-right-radius))?|box(-(align|align|direction|direction|flex|flex|ordinal-group|ordinal-group|orient|orient|pack|pack|shadow|shadow|sizing|sizing))?|clip(-(path|path))?|filter|filter|flex|flex(-(basis|basis|direction|direction|flow|flow|grow|grow|shrink|shrink|wrap|wrap))?|justify(-(content|content))?|line(-(clamp|clamp))?|mask|mask(-(clip|clip|composite|composite|image|image|origin|origin|position|position|position-x|position-x|position-y|position-y|repeat|repeat|size|size))?|order|order|perspective|perspective(-(origin|origin))?|text(-(fill-color|fill-color|security|security|size-adjust|size-adjust|stroke|stroke|stroke-color|stroke-color|stroke-width|stroke-width))?|transform|transform(-(origin|origin|style|style))?|transition|transition(-(delay|delay|duration|duration|property|property|timing-function|timing-function))?|user(-(select|select))?)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-a": {
+            "match": "\\b(accent-color|all|animation-composition|aspect-ratio)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-b": {
+            "match": "\\b(backdrop-filter|background(-(attachment|blend-mode|color|image|position|position-x|position-y|repeat))?|baseline-source|block-size|border(-(block|block-color|block-end|block-end-color|block-end-style|block-end-width|block-start|block-start-color|block-start-style|block-start-width|block-style|block-width|bottom|bottom-color|bottom-style|bottom-width|collapse|color|end-end-radius|end-start-radius|image-outset|image-repeat|image-slice|image-source|image-width|inline|inline-color|inline-end|inline-end-color|inline-end-style|inline-end-width|inline-start|inline-start-color|inline-start-style|inline-start-width|inline-style|inline-width|left|left-color|left-style|left-width|right|right-color|right-style|right-width|spacing|start-end-radius|start-start-radius|style|top|top-color|top-style|top-width|width))?|bottom|box-decoration-break|break(-(after|before|inside))?)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-c": {
+            "match": "\\b(caption-side|caret-color|clear|clip-rule|color(-(adjust|interpolation|interpolation-filters|scheme))?|column(-(count|fill|gap|rule|rule-color|rule-style|rule-width|span|width))?|columns|contain(-(intrinsic-block-size|intrinsic-height|intrinsic-inline-size|intrinsic-size|intrinsic-width))?|container(-(name|type))?|content|counter(-(increment|reset|set))?|css-float|cursor|cx|cy)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-d": {
+            "match": "\\b(d|direction|display|dominant-baseline)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-e": {
+            "match": "\\b(empty-cells)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-f": {
+            "match": "\\b(fill(-(opacity|rule))?|float|flood(-(color|opacity))?|font(-(family|kerning|optical-sizing|palette|size|size-adjust|stretch|style|synthesis|synthesis-position|synthesis-small-caps|synthesis-style|synthesis-weight|variant|variant-alternates|variant-caps|variant-east-asian|variant-ligatures|variant-numeric|variant-position|variation-settings|weight))?|forced-color-adjust)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-g": {
+            "match": "\\b(gap|grid(-(area|auto-columns|auto-flow|auto-rows|column|column-end|column-gap|column-start|gap|row|row-end|row-gap|row-start|template|template-areas|template-columns|template-rows))?)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-h": {
+            "match": "\\b(height|hyphenate-character)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-i": {
+            "match": "\\b(image(-(orientation|rendering))?|ime-mode|inline-size|inset(-(block|block-end|block-start|inline|inline-end|inline-start))?|isolation)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-j": {
+            "match": "\\b(justify(-(items|self))?)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-l": {
+            "match": "\\b(left|letter-spacing|lighting-color|line(-(break|height))?|list(-(style|style-image|style-position|style-type))?)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-m": {
+            "match": "\\b(margin(-(block|block-end|block-start|bottom|inline|inline-end|inline-start|left|right|top))?|marker(-(end|mid|start))?|mask(-(mode|type))?|math(-(depth|style))?|max(-(block-size|height|inline-size|width))?|min(-(block-size|height|inline-size|width))?|mix-blend-mode)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-o": {
+            "match": "\\b(object(-(fit|position))?|offset(-(anchor|distance|path|position|rotate))?|opacity|outline(-(color|offset|style|width))?|overflow(-(anchor|block|clip-margin|inline|wrap|x|y))?|overscroll(-(behavior|behavior-block|behavior-inline|behavior-x|behavior-y))?)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-p": {
+            "match": "\\b(padding(-(block|block-end|block-start|bottom|inline|inline-end|inline-start|left|right|top))?|page(-(break-after|break-before|break-inside))?|paint-order|place(-(content|items|self))?|pointer-events|position|print-color-adjust)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-q": {
+            "match": "\\b(quotes)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-r": {
+            "match": "\\b(r|resize|right|rotate|row-gap|ruby(-(align|position))?|rx|ry)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-s": {
+            "match": "\\b(scale|scroll(-(behavior|margin|margin-block|margin-block-end|margin-block-start|margin-bottom|margin-inline|margin-inline-end|margin-inline-start|margin-left|margin-right|margin-top|padding|padding-block|padding-block-end|padding-block-start|padding-bottom|padding-inline|padding-inline-end|padding-inline-start|padding-left|padding-right|padding-top|snap-align|snap-stop|snap-type))?|scrollbar(-(color|gutter|width))?|shape(-(image-threshold|margin|outside|rendering))?|stop(-(color|opacity))?|stroke(-(dasharray|dashoffset|linecap|linejoin|miterlimit|opacity|width))?)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-t": {
+            "match": "\\b(table-layout|text(-(align|align-last|anchor|combine-upright|decoration|decoration-color|decoration-line|decoration-skip-ink|decoration-style|decoration-thickness|emphasis|emphasis-color|emphasis-position|emphasis-style|indent|justify|orientation|overflow|rendering|shadow|transform|underline-offset|underline-position|wrap|wrap-mode|wrap-style))?|top|touch-action|transform-box|translate)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-u": {
+            "match": "\\b(unicode-bidi)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-v": {
+            "match": "\\b(vector-effect|vertical-align|visibility)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-w": {
+            "match": "\\b(white(-(space|space-collapse))?|width|will-change|word(-(break|spacing|wrap))?|writing-mode)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-x": {
+            "match": "\\b(x)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-y": {
+            "match": "\\b(y)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
+        },
+        "css-properties-z": {
+            "match": "\\b(z-index)\\b",
+            "name": "property.bcss",
+            "tokenID": "property",
+            "className": "property"
         }
+    
     },
     "patterns": [
         {
@@ -437,4 +737,5 @@
             "include": "#media-directive"
         }
     ]
+    
 }

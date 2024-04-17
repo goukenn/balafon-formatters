@@ -39,7 +39,7 @@
   ],
   "categories": [
     "Programming Languages",
-    "Formatters"
+    "Formatters", "Themes", "Other"
   ],
   "contributes": {
     "languages": [
@@ -64,6 +64,18 @@
         "language": "bcss",
         "scopeName": "source.bcss",
         "path": "./src/formatters/bcss.btm-syntax.json"
+      }
+    ],
+    "colors": [
+      {
+        "id": "bcss.property",
+        "description": "css-property-color",
+        "defaults": {
+          "dark": "#FF0000",
+          "light": "#FF00FF",
+          "highContrast": "#010203",
+          "highContrastLight": "#feedc3"
+        }
       }
     ]
   },
