@@ -1,7 +1,14 @@
 const vscode = require('vscode');
-const { bformatter } = require('../dist/bformatter/1.0.6/bformatter.cjs')
+const { bformatter } = require('../dist/bformatter/1.0.6/bformatter.cjs');
+const { TransformEngine } = require('./lib/TransformEngine');
 const { Formatters , Version } = bformatter;
 
+class VSCodeTransformEngine extends TransformEngine{
+
+}
+
+
+TransformEngine.Register('vscode', VSCodeTransformEngine);
 
 
 function formatAllDocument(document, format){

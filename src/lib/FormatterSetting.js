@@ -48,8 +48,7 @@ class FormatterSetting {
                     return data;
                 }
                 throw new Error(fieldname + ' not supported');
-            case 'transformEngine':
-                // TODO: load tranform engine class
+            case 'transformEngine': 
                 let engine = null;
                 if (data instanceof TransformEngine){
                     engine = data;
@@ -60,8 +59,7 @@ class FormatterSetting {
                     const {id, engine} = data;
                     // init transform engine 
                     engine = TransformEngine.CreateEngine(data);
-                }
-                this.transformEngine
+                } 
                 return engine;
         }
         return data;

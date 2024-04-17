@@ -936,7 +936,9 @@ class Formatters {
         this._initUpdatedisBlockStartInformation(_marker, option);
         _old.useEntry = false;
         _old.startBlock = 0;
-        _old.content = _buffer;
+        _old.content = _buffer; 
+        this.formatting.startBlock(_old);
+        option.nextMode = _old.currentMode;
         return _buffer;
     }
     /**
@@ -1505,7 +1507,8 @@ class Formatters {
      * @param {*} option 
      */
     _closeBlockEntry(option, _marker, _g, data = '') {
-        option.store();
+        if (option.depth>0)
+            option.store();
         //const _buffer = option.flush(true);
         option.depth = Math.max(--option.depth, 0);
         //option.formatterBuffer.appendToBuffer(_buffer);

@@ -8,7 +8,10 @@ const CODE_STYLE_FORMATTERS = {};
  * operation to manipulate the formatter buffer on condition.
  */
 class FormattingBase {
-
+    startBlock({currentMode}, _marker, _option){
+        currentMode = FM_START_LINE;
+        arguments[0].currentMode = currentMode;
+    }
     /**
      * update buffer prev content constant
      * @param {*} data 
@@ -214,8 +217,11 @@ class FormattingBase {
                 mode = _append_next_mode; //FM_START_LINE;
                 break;
             case FM_APPEND:
-                if (extra.length > 0) {
-                    _ld += extra;
+                if (_hasExtra) {
+                    option.appendExtraOutput();
+                    option.output.push(extra);
+                    extra = option.flush(true);
+                    _ld = extra;
                 }
                 if (buffer.length > 0) {
                     _ld += buffer;
@@ -396,8 +402,8 @@ class FormattingBase {
                     if (mode == FM_START_LINE) {
 
                         option.saveBuffer();
-                        let _frm = option.formatterBuffer;
-                        // _frm.output.push('');
+                        let _frm = option.formatterBuffer; 
+                        //option.appendExtraOutput();
                         _frm.appendToBuffer(_buffer);
                         option.store();
                         _buffer = option.flush(true);
