@@ -3,6 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 const { FormattingCodeStyles } = require('./FormattingCodeStyles');
 const { FormattingBase } = require('./Formattings/FormattingBase');
+const { TransformEngine } = require('./TransformEngine');
 
 class FormatterSetting {
     tabStop = "\t";
@@ -27,7 +28,7 @@ class FormatterSetting {
     useCurrentFormatterInstance = true;
 
     /**
-     * setup engine used to transform tokenID or captured expression
+     * setup engine used to transform tokenID or captured expression - setting
      * @var {?TransformEngine}
      */
     transformEngine
@@ -49,7 +50,19 @@ class FormatterSetting {
                 throw new Error(fieldname + ' not supported');
             case 'transformEngine':
                 // TODO: load tranform engine class
-                return null;
+                let engine = null;
+                if (data instanceof TransformEngine){
+                    engine = data;
+                }
+                if (typeof(data) == 'string'){
+                    engine = TransformEngine.CreateEngine(data);
+                } else {
+                    const {id, engine} = data;
+                    // init transform engine 
+                    engine = TransformEngine.CreateEngine(data);
+                }
+                this.transformEngine
+                return engine;
         }
         return data;
     }

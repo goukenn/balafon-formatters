@@ -396,16 +396,7 @@ class Patterns{
     
     get matchRegex(){
         return this.matchType == 0? this.begin : this.match;
-    }
-    // TODO : remove data 
-    get index(){
-        return this.m_match?.index;
-    }
-    get group(){
-        return this.m_match;
-    } 
-  
-     
+    }  
     /**
      * calculate end regex
      * @param {*} p 

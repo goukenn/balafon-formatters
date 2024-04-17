@@ -16,7 +16,7 @@ const { CaptureRenderer } = require("./CaptureRenderer");
 const { FormatterBuffer } = require("./FormatterBuffer");
 const { FormatterOptions } = require("./FormatterOptions");
 const { FormattingCodeStyles } = require("./FormattingCodeStyles");
-const { HandleFormatting, updateBuffer, FormattingMode, formattingSetupPatternForBuffer } = require("./Formattings/FormattingMode");
+const { HandleFormatting, FormattingMode, formattingSetupPatternForBuffer } = require("./Formattings/FormattingMode");
 const { FormatterMarkerInfo } = require("./FormatterMarkerInfo");
 const { RegexUtils } = require("./RegexUtils");
 const { BlockInfo } = require("./BlockInfo");
@@ -894,9 +894,8 @@ class Formatters {
         let _inf = new PatternMatchInfo;
         _inf.use({ marker: constant_type_marker || option.constants.PrevLineFeedConstant, line: option.line, index: -2 });
         formattingSetupPatternForBuffer(patternInfo, option);
-        const fc_update = () => {
-            updateBuffer(value, patternInfo.mode, _inf, option);
-            // this.formatting.updateBufferConstant(value, patternInfo.mode, _inf, option);
+        const fc_update = () => { 
+            this.formatting.updateBufferConstant(value, patternInfo.mode, _inf, option);
         }
         if (append_child) {
             patternInfo.childs.push(_inf);
@@ -1795,8 +1794,7 @@ class Formatters {
      * @param {*} option 
      * @returns 
      */
-    _updateOldMarkerContent(_old, option) {
-        // TODO: update old marker and return the merged content from stored data
+    _updateOldMarkerContent(_old, option) { 
         let { content, marker, currentMode } = _old;
         const _formatting = this.formatting;
         const buffer = option.buffer;

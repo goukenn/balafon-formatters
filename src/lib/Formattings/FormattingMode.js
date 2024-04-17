@@ -118,74 +118,14 @@ exports.HandleFormatting = function(_marker, option, _old) {
         _marker.mode = _mode;
         return _sbuffer;
 };
-
-/**
- * use to update the current buffer depending on the formatting mode
- * @param {string} data 
- * @param {number} mode 
- * @param {*} _marker 
- * @param {*} option 
- */
-function updateBuffer(data, mode, _marker, option){
-    // just append data to buffer depenting on case 
-    switch(mode){
-        case FM_START_LINE:
-        case FM_END_BLOCK:
-            data = data.trimStart();
-            let _buffer = option.buffer;
-            if (_buffer.length > 0) {
-                option.output.push(_buffer); // append line 
-                option.formatterBuffer.clear();
-            }
-            option.appendToBuffer(data, _marker); 
-            mode = FM_APPEND;
-            break;
-        case FM_APPEND:
-            option.appendToBuffer(data, _marker);
-        break;
-        case FM_START_BLOCK:
-            // +| depending on the formatting mode start new block
-            data = data.trimStart();
-            if (data.length>0){
-                option.appendToBuffer(data, _marker);
-                mode = FM_APPEND;  
-            }
-            break;
-        case FM_END_INSTRUCTION: // update buffer after end instruction
-            data = data.trimStart();
-            if (data.length>0){
-                option.lineFeedFlag && option.appendExtraOutput();
-                option.appendToBuffer(data, _marker);
-                if (option.output.length>0){
-                    option.store();
-                    option.formatterBuffer.appendToBuffer(option.flush(true));
-                }
-                mode = FM_APPEND;  
-            } 
-            break;
-        case FM_START_LINE_APPEND:
-            // TODO : update buffer not handled
-            data = data.trimStart();
-            if (data.length>0){
-                option.appendToBuffer(data, _marker);
-                option.store();
-                mode = FM_APPEND;  
-            } 
-            break;
-        default:
-            throw new Error('update Buffer not handled : '+mode); 
-    }
-    _marker.mode = mode;
-};
-
+ 
 /**
  * 
  * @param {*} patternInfo 
  */
 function formattingSetupPatternForBuffer(patternInfo, option){
  
-}
-exports.updateBuffer = updateBuffer;
+} 
 exports.formattingSetupPatternForBuffer = formattingSetupPatternForBuffer;
 
 
