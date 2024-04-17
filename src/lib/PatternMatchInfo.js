@@ -126,7 +126,11 @@ class PatternMatchInfo {
         Object.defineProperty(this, 'group', { get() { return m_group; } });
         Object.defineProperty(this, 'line', { get() { return m_line; } });
         Object.defineProperty(this, 'startOutput', {
-            get() { return m_startOutput || m_group[0]; }, set(v) {
+            get() { 
+                if((m_startOutput==null)||(m_startOutput==undefined))
+                    return m_group[0];
+                return m_startOutput; }, 
+            set(v) {
                 m_startOutput = v;
             }
         });
