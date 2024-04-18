@@ -95,7 +95,7 @@
                 {
                     "match": "(?=\\s*\\n\\s*|$)", 
                     "closeParent": {
-                        "value": "\\n",
+                        "value": "\n",
                         "type": "error.info",
                         "className": "m-status-class",
                         "tokenID": "single-line"
@@ -125,6 +125,11 @@
                     }
                 }
             ],
+            "endCaptures":{
+                "0":{
+                    "transform":"trim"
+                }
+            },
             "tokenID": "describ-comment",
             "className": "comment",
             "formattingMode": 1

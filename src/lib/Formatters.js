@@ -1520,7 +1520,7 @@ class Formatters {
         //option.formatterBuffer.appendToBuffer(_buffer);
         if (_marker && _parent) {
             let _r = this._closeMarker(_marker, _parent, option, data);
-            formatting.updateEmptySkipMatchedValueFormatting(_r, option, _marker);
+            formatting.updateEmptySkipMatchedValueFormatting(_r, option, {mode:_marker.mode, formattingMode: _parent.formattingMode});
             return _r;
         }
     }
