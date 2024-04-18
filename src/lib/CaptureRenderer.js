@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', {value:true});
 
+const { FormatterOptions } = require('./FormatterOptions');
+const { FormatterSyntaxException } = require('./FormatterSyntaxException');
 const { Utils } = require('./Utils');
 class CaptureRenderer{
     matches;
@@ -173,6 +175,13 @@ class CaptureRenderer{
                     let _treat_pattern = false;
                     if (id in captures){
                         cap = captures[id];
+                        if (cap.throwError){
+                            //+ | use match to handle throw error
+                            let e_obj = CaptureRenderer.CheckError(cap.throwError, rf, option); 
+                            if (e_obj){
+                                throw e_obj;
+                            }
+                        } 
                         if (cap.name){
                             tokens.unshift(cap.name);
                         }
@@ -255,6 +264,31 @@ class CaptureRenderer{
             _output += c;
         } 
         return _output;
+    }
+    /**
+     * 
+     * @param {*} error 
+     * @param {string} rf 
+     * @param {FormatterOptions} option 
+     * @returns 
+     */
+    static CheckError(error, rf, option){
+        let e_obj = null;
+        let message = null , match = null;
+        let _error = true;
+        if (typeof(error) == 'object'){
+            ({message, match} = error);
+        } else{
+            message = error;
+        }
+        if (match){
+            const regex = typeof(match)=='string'? new RegExp(match) : match;
+            _error = regex.test(rf);
+        }  
+        if (_error){ 
+            e_obj= new FormatterSyntaxException(message, option);
+        }
+        return e_obj;
     }
 }
 exports.CaptureRenderer = CaptureRenderer;

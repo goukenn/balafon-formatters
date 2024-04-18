@@ -290,7 +290,7 @@ class Utils {
             // + | add property to offset 
             _match.offset = _match[0].length;
             // +| treat begin captures must be at corresponding data info
-            //options.treatBeginCaptures(_a, _match); 
+        
             let _info = new PatternMatchInfo;
             Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
             return _info;
@@ -349,8 +349,8 @@ class Utils {
             }
             // + | add property to offset 
             _match.offset = _match[0].length;
-            // +| treat begin captures must be at corresponding data info
-            //options.treatBeginCaptures(_a, _match); 
+            // +| treat begin captures must be at corresponding data info 
+         
             let _info = new PatternMatchInfo;
             Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
             return _info;

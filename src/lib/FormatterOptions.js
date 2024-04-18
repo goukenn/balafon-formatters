@@ -373,7 +373,7 @@ class FormatterOptions {
             if (is_emptyObj(_cap)) {
                 return endMatch[0];
             }
-            const { marker, group } = markerInfo;
+            const { marker } = markerInfo;
             const { debug } = this;
             const q = this;
             const fc_handle_end = function (value, cap, id, listener, option) {
@@ -390,9 +390,16 @@ class FormatterOptions {
 
             };
             debug && Debug.log('--:::TreatEndCapture:::--' + marker.name);
-            let _s = CaptureRenderer.CreateFromGroup(endMatch, marker.name);
-            if (_s) {
-                const q = this;
+            let def = endMatch;
+            if ((endMatch[0].length==0) && (_cap)&&(endMatch.input.length>0)){
+             
+                const p = Utils.GetNextCapture(endMatch.input, markerInfo.endRegex);
+                p.index = endMatch.index; 
+                p.indices = [[0, p[0].length]];
+                def = p;
+            } 
+            let _s = CaptureRenderer.CreateFromGroup(def, marker.name);
+            if (_s) { 
                 let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
                     this
                 );

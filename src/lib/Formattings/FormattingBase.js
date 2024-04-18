@@ -116,11 +116,15 @@ class FormattingBase {
                 break;
         }
     }
-    updateEmptySkipMatchedValueFormatting(parent, option) {
+    updateEmptySkipMatchedValueFormatting(parent, option, {mode, formattingMode}) {
         if (parent) {
             parent.mode = FM_START_LINE;
         } else {
-            this.updateGlobalFormatting(FM_START_LINE, option);
+            let _gformatting = FM_APPEND;
+            if (formattingMode== PatternFormattingMode.PFM_LINE_FEED ){
+                _gformatting = FM_START_LINE;
+            } 
+            this.updateGlobalFormatting( _gformatting, option);
         }
     }
     /**
@@ -528,7 +532,8 @@ exports.FormattingBase = FormattingBase
  * code style formatters
  */
 const { KAndRFormatting } = require('./KAndRFormatting');
-const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_NEXT_LINE, FM_APPEND_BLOCK, FM_END_INSTRUCTION, FM_START_LINE_APPEND } = require('./FormattingMode');
+const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_NEXT_LINE, FM_APPEND_BLOCK, FM_END_INSTRUCTION, FM_START_LINE_APPEND 
+, PatternFormattingMode} = require('./FormattingMode');
 const { FormatterOptions } = require('../FormatterOptions');
 const { Formatters } = require('../Formatters');
 const { PatternMatchInfo } = require('../PatternMatchInfo');

@@ -1506,17 +1506,21 @@ class Formatters {
     }
     /**
      * close block entry
-     * @param {*} option 
+     * @param {FormatterOptions} option 
+     * @param {PatternMatchInfo} _marker current marker 
+     * @param {PatternMatchInfo} _parent parent
+     * @param {string} data data used to close  
      */
-    _closeBlockEntry(option, _marker, _g, data = '') {
+    _closeBlockEntry(option, _marker, _parent, data = '') {
+        const { formatting } = this;
         if (option.depth>0)
             option.store();
         //const _buffer = option.flush(true);
         option.depth = Math.max(--option.depth, 0);
         //option.formatterBuffer.appendToBuffer(_buffer);
-        if (_marker && _g) {
-            let _r = this._closeMarker(_marker, _g, option, data);
-            this.formatting.updateEmptySkipMatchedValueFormatting(_r, option);
+        if (_marker && _parent) {
+            let _r = this._closeMarker(_marker, _parent, option, data);
+            formatting.updateEmptySkipMatchedValueFormatting(_r, option, _marker);
             return _r;
         }
     }

@@ -90,13 +90,12 @@
         "describ-comment": {
             "name": "comment.describ.comment.bcss",
             "begin": "^\\s*#\\s+",
-            "end": "$",
+            "end": "\\n|$",
             "patterns": [
                 {
-                    "match": "(?=\\s*\\n\\s*|$)",
-                    "name": "match.line.feed.bcss",
+                    "match": "(?=\\s*\\n\\s*|$)", 
                     "closeParent": {
-                        "value": "$",
+                        "value": "\\n",
                         "type": "error.info",
                         "className": "m-status-class",
                         "tokenID": "single-line"
