@@ -30,16 +30,37 @@ function formatAllDocument(document, format){
  */
 function activate(context){
     // vscode.Document
-    // register formatters
-    context.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider(
-        "bcss",{
-            provideDocumentFormattingEdits(document,options,token){
-                return [formatAllDocument(document,"bcss",options, token)];
+    // + register language formatters 
+    ["bcss","bview","phtml","bjs","pcss"].forEach((a)=>{
+        context.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider(
+            a,{
+                provideDocumentFormattingEdits(document,options,token){
+                    return [formatAllDocument(document, a,options, token)];
+                }
             }
-        }
-    ));
-    console.log('activate balafon bformatter ['+Version+']');
-    
+        ));
+    });
+    // + get workspace configuration 
+    // let config = vscode.workspace.getConfiguration("editor.tokenColorCustomizations");
+    // let { textMateRules } = config;
+    // if (!textMateRules){
+    //     textMateRules = {};
+    //     config.textMateRules = textMateRules;
+    // }
+    // textMateRules.push({
+    //     "scope":["property.bcss"],
+    //     "settings":{
+    //         "foreground":"#CCCCC"
+    //     }
+    // });
+
+    // textMateRules.push({
+    //     "scope":["word"],
+    //     "settings":{
+    //         "foreground":"#0000FF"
+    //     }
+    // });
+    // console.log("init configuration ", JSON.stringify(config.textMateRules));
 }
 /**
  * 

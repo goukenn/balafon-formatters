@@ -2,6 +2,8 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 exports.FormattingBase = void (0);
+const {Debug} = require("../Debug");
+
 
 const CODE_STYLE_FORMATTERS = {};
 /**
@@ -152,6 +154,7 @@ class FormattingBase {
      */
     updateOldMarkerContent({ content, marker, extra, buffer, option, mode }) {
         let _ld = '';
+        const { debug } = option;
         //let { mode } = marker;
         mode = mode == undefined ? FM_APPEND : mode;
         const _props = arguments[0];
@@ -165,12 +168,13 @@ class FormattingBase {
         // let _change_mode = _undef || (mode == marker.mode);
         let _append_next_mode = _undef ? FM_APPEND : marker.mode;
 
+        debug && (()=>{Debug.log("--::update old buffer::--"); console.log({buffer, extra, mode});})();
 
         switch (mode) {
             case FM_START_LINE:
                 _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra);
                 if (_ld.length > 0) {
-                    mode = FM_APPEND;
+                    mode = _append_next_mode;
                 }
                 break;
             case FM_END_BLOCK:

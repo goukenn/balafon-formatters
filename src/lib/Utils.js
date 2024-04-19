@@ -477,7 +477,7 @@ class Utils {
              * @returns 
              */
             rtrim(v) {
-                return v.trimStart();
+                return v.trimEnd();
             }
             , /**
             * 
@@ -485,7 +485,7 @@ class Utils {
             * @returns 
             */
             ltrim(v) {
-                return v.trimEnd();
+                return v.trimStart();
             }
         };
         transform.forEach((s) => {

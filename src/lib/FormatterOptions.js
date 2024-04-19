@@ -73,7 +73,7 @@ class FormatterOptions {
      * next mode
      * @var {number}
      */
-    nextMode;
+    nextMode = 1;
 
     /**
      * .ctr

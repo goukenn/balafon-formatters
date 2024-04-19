@@ -1,0 +1,7 @@
+{
+    "scopeName":"source.phtml",
+    "name":"phtml",
+    "patterns":[
+        {"include":"text.html.php"}
+    ]
+}

@@ -1,6 +1,7 @@
 {
     "scopeName": "source.bcss",
     "comment": "balafon .bcss formatter",
+    "$schema": "https://igkdev.com/schemas/btm-syntax.json",
     "repository": {
         "skip-multispace": {
             "name": "meta.join.multispace.bcss",
@@ -14,20 +15,20 @@
             "name": "meta.global.block.bcss",
             "comment": "block for css style definition",
             "patterns": [
-                {"include":"#global-css-properties"},
                 {
-                    "match":"background-color",
-                    "throwError":"not allowed in block"
+                    "include": "#selector-detection"
                 },
                 {
                     "match": "\\b([\\w]+)\\b\\s*",
-                    "name":"word",
+                    "name": "word",
                     "transform": [
                         "trim",
                         "[$0]"
                     ]
                 },
-                { "include":"#string"},
+                {
+                    "include": "#string"
+                },
                 {
                     "begin": "\\s*(:)\\s*",
                     "end": "(?=;|})",
@@ -40,8 +41,10 @@
                             ]
                         }
                     },
-                    "patterns":[
-                        { "include":"#css-value-definition"}
+                    "patterns": [
+                        {
+                            "include": "#css-value-definition"
+                        }
                     ]
                 },
                 {
@@ -54,10 +57,7 @@
                     "include": "#global-block"
                 },
                 {
-                    "name": "instruction.separator",
-                    "match": "(;)",
-                    "isInstructionSeparator": true,
-                    "formattingMode": 1
+                    "include": "#end-instruction"
                 }
             ],
             "beginCaptures": {
@@ -71,9 +71,15 @@
                 }
             }
         },
+        "end-instruction": {
+            "name": "instruction.separator",
+            "match": "(;)",
+            "isInstructionSeparator": true,
+            "formattingMode": 1
+        },
         "media-directive": {
             "name": "meta.media.directive.bcss",
-            "begin": "\\s*(@\\b(?:def|(x(x)?)?(sm|lg)(-screen)?|root))\\b",
+            "begin": "\\s*(@\\b(?:def|(x(x)?)?(sm|lg)(-screen)?))\\b",
             "end": "(?=\\{|\\}|;|@|\\S)",
             "endOnBlockClosed": true,
             "beginCaptures": {
@@ -87,13 +93,163 @@
                 }
             ]
         },
+        "css-value-defs": {
+            "begin": "\\s*(:)\\s*",
+            "end": "(?=;|})",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.property.definition.bcss",
+                    "transform": [
+                        "trim",
+                        "[$0 ]"
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#css-value-definition"
+                },
+                {
+                    "match": "(?=;)",
+                    "formattingMode": 1
+                }
+            ]
+        },
+        "root-directive": {
+            "begin": "\\s*(@\\b(?:root))\\b",
+            "end": "(?=\\{|\\}|;|@|\\S)",
+            "name": "root.directive.bcss",
+            "endOnBlockClosed": true,
+            "className": "directive",
+            "patterns": [
+                {
+                    "include": "#property-only-definition-block"
+                },
+                {
+                    "match": "\\s+",
+                    "replaceWith": ""
+                }
+            ]
+        },
+        "property-only-definition-block": {
+            "begin": "(\\{)",
+            "end": "(\\})",
+            "name": "property-only-block",
+            "isBlock": true,
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.branket.start.bcss"
+                }
+            },
+            "endCaptures": {
+                "1": {
+                    "name": "punctuation.branket.end.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#custom-property-name-def"
+                },
+                {
+                    "include": "#css-value-defs"
+                },
+                {
+                    "include": "#end-instruction"
+                }
+            ]
+        },
+        "custom-property-name-def": {
+            "match": "(\\-\\-)?[\\w]+([\\w\\-]+)?\\b",
+            "name": "property.bcss"
+        },
+        "color-directive": {
+            "begin": "\\s*(@\\b(?:colors))\\b",
+            "end": "(?=\\{|\\}|;)",
+            "name": "color.directive.bcss",
+            "className":"directive",
+            "beginCaptures":{
+                "1":{"name":"directive"}
+            },
+            "patterns": [
+                {
+                    "match": "\\s+",
+                    "replaceWith": " -  ",
+                    "isGlueValue":true
+                },
+                {
+                    "match": "\\b(light|dark)\\b",
+                    "name": "constant.directive.theme.bcss"
+                },
+                {
+                    "begin": "(\\{)",
+                    "end": "(\\})",
+                    "isBlock": true, 
+                    "beginCaptures": {
+                        "1": {
+                            "name": "punctuation.branket.start.bcss"
+                        }
+                    },
+                    "endCaptures": {
+                        "1": {
+                            "name": "punctuation.branket.end.bcss"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#custom-property-name-def"
+                        },
+                        {
+                            "include": "#css-color-value-defs"
+                        },
+                        {
+                            "include": "#end-instruction"
+                        }
+                    ]
+                }
+            ]
+        },
+        "#css-color-value-defs": {
+            "begin": "\\s*(:)\\s*",
+            "end": "(?=;|})",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.property.definition.bcss",
+                    "transform": [
+                        "trim",
+                        "[$0 ]"
+                    ]
+                }
+            },
+            "formattingMode": 1,
+            "patterns": [
+                {
+                    "include": "#hex-color-type"
+                }
+            ]
+        },
+        "hex-color-type": {
+            "patterns": [
+                {
+                    "include": "#web-known-colors"
+                },
+                {
+                    "include": "#hex-colors"
+                }
+            ]
+        },
+        "web-known-colors":{
+            "name": "constant.color.web.bcss",
+            "className":"color",
+            "tokenID":"webcolor",
+            "match": "\\b(aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|currentcolor|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|transparent|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\\b"
+        },
         "describ-comment": {
             "name": "comment.describ.comment.bcss",
             "begin": "^\\s*#\\s+",
             "end": "\\n|$",
             "patterns": [
                 {
-                    "match": "(?=\\s*\\n\\s*|$)", 
+                    "match": "(?=\\s*\\n\\s*|$)",
                     "closeParent": {
                         "value": "\n",
                         "type": "error.info",
@@ -125,9 +281,9 @@
                     }
                 }
             ],
-            "endCaptures":{
-                "0":{
-                    "transform":"trim"
+            "endCaptures": {
+                "0": {
+                    "transform": "trim"
                 }
             },
             "tokenID": "describ-comment",
@@ -138,7 +294,8 @@
             "match": "\\/\\/(.)+$",
             "name": "comment.single-line-comment.bcss",
             "lineFeed": true,
-            "formattingMode": 1
+            "formattingMode": 1,
+            "transform":"rtrim"
         },
         "css-value-definition": {
             "name": "value.definition.bcss",
@@ -436,14 +593,14 @@
             }
         },
         "hex-colors": {
-            "match": "\\s*(#([0-9a-f]{8}|[\\da-f]{6}|[\\da-f]{4}|[\\da-f]{3}))\\s*",
+            "match": "(?i)\\s*(#([0-9a-f]{8}|[\\da-f]{6}|[\\da-f]{4}|[\\da-f]{3}))\\s*",
             "captures": {
                 "1": {
                     "name": "constant.type.hex.color.bcss"
                 }
             }
         },
-        "string":{
+        "string": {
             "patterns": [
                 {
                     "include": "#single-quote-string"
@@ -718,8 +875,502 @@
             "name": "property.bcss",
             "tokenID": "property",
             "className": "property"
+        },
+        "selector-detection": {
+            "patterns": [
+                {
+                    "include": "#global-css-properties"
+                },
+                {
+                    "begin": "\\*|(#|\\.|\\-\\-)?[\\w]+(?:[\\w\\-]+)?\\b",
+                    "end": "(?={|:)",
+                    "name": "meta.selector.start.bcss",
+                    "patterns": [
+                        {
+                            "match": "\\s*(>|\\+|~)\\s*",
+                            "transform": [
+                                "trim",
+                                "[ $0 ]"
+                            ]
+                        },
+                        {
+                            "match": "\\\\:[\\w\\-]+",
+                            "name": "event.property.bcss"
+                        },
+                        {
+                            "include": "#speudo-classes"
+                        },
+                        {
+                            "startLine": true,
+                            "match": "\\s*(\\*|(\\.|#)?\\w+)",
+                            "transform": [
+                                "trim",
+                                "[ $0]"
+                            ]
+                        },
+                        {
+                            "startLine": true,
+                            "begin": "\\s*(?=\\[)",
+                            "end": "",
+                            "beginCaptures": {
+                                "0": {
+                                    "transform": "trim"
+                                }
+                            },
+                            "patterns": [
+                                {
+                                    "include": "#array-attributes"
+                                }
+                            ]
+                        },
+                        {
+                            "match": "\\w+"
+                        },
+                        {
+                            "match": "(\\s+)(?=:)",
+                            "closeParent": {
+                                "type": "property",
+                                "value": ":",
+                                "formattingMode": 0
+                            }
+                        },
+                        {
+                            "match": "(?=\\{)",
+                            "closeParent": {
+                                "value": "{",
+                                "type": "selector"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "begin": "\\s*:\\s*",
+                    "end": "(;|(?=\\}))",
+                    "endMissingValue": ";",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.property.value.bcss",
+                            "transform": [
+                                "trim",
+                                "[$0 ]"
+                            ]
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "include": "#css-value-definition"
+                        }
+                    ],
+                    "formattingMode": 1
+                }
+            ]
+        },
+        "bcss-root-directives": {
+            "patterns": [
+                {
+                    "include": "#media-directive"
+                },
+                {
+                    "include": "#root-directive"
+                },
+                {
+                    "include": "#color-directive"
+                },
+                {
+                    "include": "#css-rules"
+                }
+            ]
+        }, 
+        "page-rule": {
+            "begin": "\\s*@\\b(page)\\b",
+            "end": "$",
+            "name": "meta.global.directive.bcss",
+            "patterns": [
+                {
+                    "name": "constant.selector.bcss",
+                    "match": ":\\b(first|left|right)\\b"
+                },
+                {
+                    "include": "#block-capture"
+                }
+            ]
+        },
+        "list-rule": {
+            "begin": "\\s*@\\b(list)\\b",
+            "end": "$",
+            "name": "meta.global.directive.bcss",
+            "patterns": [
+                {
+                    "begin": "\\[",
+                    "end": "\\]",
+                    "name": "constant.list.array.bcss",
+                    "patterns": [
+                        {
+                            "include": "#value-definition"
+                        },
+                        {
+                            "match": ",",
+                            "name": "punctuation.separator.bcss"
+                        }
+                    ]
+                },
+                {
+                    "include": "#list-block-capture"
+                }
+            ]
+        },
+        "list-block-capture": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "meta.block.capture.bcss",
+            "endCaptures": {
+                "0": {
+                    "name": "meta.block.end.capture.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#list-selector-class"
+                },
+                {
+                    "include": "#inside-block"
+                }
+            ],
+            "isBlock": true
+        },
+        "list-selector-class": {
+            "match": "\\s*\\.[\\w\\-%]+(\\\\%[\\w\\-%]+)*",
+            "name": "native.css.type.class.bcss"
+        },
+        "supports-rule": {
+            "begin": "\\s*(@\\b(supports)\\b)",
+            "end": "$",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "name": "operator.property.separator.bcss",
+                    "match": "\\s*\\b(and|or)\\b\\s*"
+                },
+                {
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "patterns": [
+                        {
+                            "name": "constant.property.name.bcss",
+                            "match": "[\\w\\-]+"
+                        },
+                        {
+                            "begin": "\\s*(:)\\s*",
+                            "end": "(?=\\))",
+                            "beginCaptures": {
+                                "1": {
+                                    "name": "property.css.punctuation.bcss"
+                                }
+                            },
+                            "patterns": [
+                                {
+                                    "include": "#value-definition"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "include": "#block-capture"
+                }
+            ]
+        },
+        "keyframes-rule": {
+            "begin": "\\s*(@\\b(keyframes))\\b",
+            "end": "$",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.keyframes.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "name": "constant.keyframe.name.bcss",
+                    "match": "\\b([\\w\\-_]+)\\b"
+                },
+                {
+                    "include": "#block-capture-keyframes"
+                }
+            ]
+        },
+        "font-face-rule": {
+            "begin": "\\s*(@\\b(font-face))\\b",
+            "end": "$",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.fontface.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#block-capture"
+                }
+            ]
+        },
+        "color-profile-rule": {
+            "begin": "\\s*(@\\b(color-profile))\\b",
+            "end": "$",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.color.profile.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "match": "\\b([\\w\\-]+)",
+                    "name": "constant.property.name.bcss"
+                },
+                {
+                    "include": "#block-capture"
+                }
+            ]
+        },
+        "container-rule": {
+            "begin": "\\s*(@\\b(container))\\b",
+            "end": "$",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.container.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#inside-block-conditional"
+                },
+                {
+                    "include": "#condition-block"
+                },
+                {
+                    "match": "\\b([\\w\\-]+)\\b\\s*",
+                    "captures": {
+                        "1": {
+                            "name": "constant.property.name.container.bcss"
+                        }
+                    }
+                },
+                {
+                    "include": "#block-capture"
+                }
+            ]
+        },
+        "media-rule": {
+            "begin": "\\s*(@\\b(media))\\b",
+            "end": "$",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.media.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#inside-block-conditional"
+                },
+                {
+                    "include": "#media-constant-operator"
+                },
+                {
+                    "include": "#condition-operator-litteral"
+                },
+                {
+                    "include": "#condition-block"
+                },
+                {
+                    "include": "#block-capture"
+                }
+            ]
+        },
+        "charset-rule": {
+            "begin": "\\s*(@\\b(charset))\\b",
+            "end": "$|;",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.charset.bcss"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "match": ";",
+                    "name": "property.css.punctuation.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#string"
+                }
+            ]
+        },
+        "document-rule": {
+            "begin": "\\s*(@\\b(document))\\b",
+            "end": "$|;",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.charset.bcss"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "match": ";",
+                    "name": "property.css.punctuation.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "match": ","
+                },
+                {
+                    "begin": "\\b(url(-prefix)?|domain|regexp)\\b",
+                    "end": "(?=,|{)",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "native.css.function.name.bcss"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "begin": "\\(",
+                            "end": "\\)",
+                            "patterns": [
+                                {
+                                    "include": "#string"
+                                },
+                                {
+                                    "include": "#url-params"
+                                }
+                            ]
+                        },
+                        {
+                            "include": "#block-capture"
+                        }
+                    ]
+                },
+                {
+                    "include": "#block-capture"
+                }
+            ]
+        },
+        "namespace-rule": {
+            "begin": "\\s*(@\\b(namespace))\\b",
+            "end": "$|;",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.charset.bcss"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "match": ";",
+                    "name": "property.css.punctuation.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#string"
+                }
+            ]
+        },
+        "counter-style-rule": {
+            "begin": "\\s*(@\\b(counter-style))\\b",
+            "end": "$",
+            "beginCaptures": {
+                "1": {
+                    "name": "meta.global.directive.counter.style.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#css-name"
+                },
+                {
+                    "include": "#counter-style-block-capture"
+                }
+            ]
+        },
+        "counter-style-block-capture": {
+            "patterns": [
+                {
+                    "begin": "\\{",
+                    "end": "\\}",
+                    "name": "meta.block.counter.style.block.bcss",
+                    "patterns": [
+                        {
+                            "begin": "\\b(system|speak-as|pad|range|suffix|prefix|negative|additive-symbols|symbol)\\b",
+                            "end": ";|$|(?=\\})",
+                            "beginCaptures": {
+                                "1": {
+                                    "name": "constant.counter.style.property.bcss"
+                                }
+                            },
+                            "patterns": [
+                                {
+                                    "include": "#match-value-definition"
+                                }
+                            ]
+                        },
+                        {
+                            "include": "#property-definition"
+                        }
+                    ]
+                }
+            ]
+        }, 
+        "css-rules": {
+            "patterns": [
+                {
+                    "include": "#page-rule"
+                },
+                {
+                    "include": "#list-rule"
+                },
+                {
+                    "include": "#list-block-capture"
+                },
+                {
+                    "include": "#list-selector-class"
+                },
+                {
+                    "include": "#supports-rule"
+                },
+                {
+                    "include": "#keyframes-rule"
+                },
+                {
+                    "include": "#font-face-rule"
+                },
+                {
+                    "include": "#color-profile-rule"
+                },
+                {
+                    "include": "#container-rule"
+                },
+                {
+                    "include": "#media-rule"
+                },
+                {
+                    "include": "#charset-rule"
+                },
+                {
+                    "include": "#document-rule"
+                },
+                {
+                    "include": "#namespace-rule"
+                },
+                {
+                    "include": "#counter-style-rule"
+                },
+                {
+                    "include": "#counter-style-block-capture"
+                }
+            ]
         }
-    
     },
     "patterns": [
         {
@@ -738,8 +1389,7 @@
             "include": "#global-block"
         },
         {
-            "include": "#media-directive"
+            "include": "#bcss-root-directives"
         }
     ]
-    
 }

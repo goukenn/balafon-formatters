@@ -26,34 +26,81 @@
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   },
-  "scripts": {  
-    "build":"webpack",
-    "test":"mocha ./tests/utest.js",
-    "vsce-publish":"vsce publish --yarn"
+  "scripts": {
+    "build": "webpack",
+    "test": "mocha ./tests/utest.js",
+    "vsce-publish": "vsce publish --yarn"
   },
   "engines": {
     "vscode": "^1.88.0"
   },
   "activationEvents": [
-    "onLanguage:bcss"
+    "onLanguage:phtml"
   ],
   "categories": [
     "Programming Languages",
-    "Formatters", "Themes", "Other"
+    "Formatters",
+    "Themes",
+    "Other"
   ],
   "contributes": {
     "languages": [
       {
-        "id": "bcss", 
+        "id": "bview",
+        "extensions": [
+          ".bview"
+        ],
+        "aliases": [
+          "Balafon bview",
+          "bview"
+        ],
+        "configuration": "./languages/bview.language.json"
+      },
+      {
+        "id": "phtml",
+        "extensions": [
+          ".phtml"
+        ],
+        "aliases": [
+          "Balafon phtml",
+          "phtml"
+        ]
+      },
+      {
+        "id": "bcss",
         "extensions": [
           ".bcss"
         ],
         "aliases": [
-          "Balafon bcss","Bcss"
-        ]
+          "Balafon bcss",
+          "Bcss"
+        ],
+        "configuration": "./languages/bcss.language.json"
       },
       {
-        "id":"source.bview",
+        "id": "bjs",
+        "extensions": [
+          ".bjs"
+        ],
+        "aliases": [
+          "Balafon javascript module",
+          "bjs"
+        ],
+        "configuration": "./languages/bjs.language.json"
+      },
+      {
+        "id": "pcss",
+        "extensions": [
+          ".pcss"
+        ],
+        "aliases": [
+          "Balafon php styles",
+          "pcss"
+        ],
+        "configuration": "./languages/pcss.language.json"
+      },
+      {
+        "id": "source.bview",
         "extensions": [
           ".bview"
         ]
@@ -64,6 +111,39 @@
         "language": "bcss",
         "scopeName": "source.bcss",
         "path": "./src/formatters/bcss.btm-syntax.json"
+      },
+      {
+        "language": "bview",
+        "scopeName": "source.bview",
+        "path": "./src/formatters/bview.btm-syntax.json"
+      },
+      {
+        "language": "pcss",
+        "scopeName": "source.pcss",
+        "path": "./src/formatters/pcss.btm-syntax.json",
+        "embeddedLanguages":{
+          "meta.embedded.php":"php"
+        }
+      },
+      {
+        "language": "phtml",
+        "scopeName": "source.phtml",
+        "path": "./src/formatters/phtml.btm-syntax.json"
+      },
+      {
+        "language": "bjs",
+        "scopeName": "source.bjs",
+        "path": "./src/formatters/bjs.btm-syntax.json"
+      },
+      {
+        "language": "pcss",
+        "scopeName": "source.pcss",
+        "path": "./src/formatters/pcss.btm-syntax.json"
+      },
+      {
+        "injectTo": ["source.php", "text.html.php"],
+        "scopeName": "source.inline.bcss",
+        "path": "./src/formatters/bcss.inline.btm-syntax.json"
       }
     ],
     "colors": [
@@ -77,7 +157,124 @@
           "highContrastLight": "#feedc3"
         }
       }
-    ]
+    ],
+    "configuration": [
+      {
+        "title": "balafon",
+        "properties": {
+          "balafon.workspaceFolder": {
+            "title": "workspace",
+            "type": "string",
+            "default": null,
+            "description": "setup balafon running workspace"
+          },
+          "balafon.defaultAuthor": {
+            "title": "author",
+            "type": "string",
+            "default": null,
+            "description": "set default project author name"
+          }
+        }
+      },
+      {
+        "title": "mysql",
+        "properties": {
+          "balafon.mysql.dbServer": {
+            "default": "0.0.0.0",
+            "type": "string"
+          },
+          "balafon.mysql.dbPort": {
+            "default": "3306",
+            "type": "string"
+          },
+          "balafon.mysql.dbName": {
+            "default": "igkdev.db",
+            "type": "string"
+          },
+          "balafon.mysql.dbUser": {
+            "default": "root",
+            "type": "string"
+          },
+          "balafon.mysql.dbPassword": {
+            "default": "",
+            "type": "string"
+          }
+        }
+      }
+    ],
+    "configurationDefaults": {
+      "balafon.defaultAuthor": "C.A.D BONDJE DOUE",
+      "editor.tokenColorCustomizations": {
+        "textMateRules": [
+          {
+            "scope": [
+              "word"
+            ],
+            "settings": {
+              "foreground": "#fff019"
+            }
+          },
+          {
+            "scope": [
+              "meta.media", "directive"
+            ],
+            "settings": {
+              "foreground": "#ff00ea"
+            }
+          },
+          {
+            "scope": [
+              "constant.directive"
+            ],
+            "settings": {
+              "foreground": "#00aaff"
+            }
+          },
+          {
+            "scope": [
+              "property",
+              "source.bcss"
+            ],
+            "settings": {
+              "foreground": "#5a86ce"
+            }
+          },
+          {
+            "scope": [
+              "constant",
+              "source.bcss"
+            ],
+            "settings": {
+              "foreground": "#a9b7a4"
+            }
+          },
+          {
+            "scope": [
+              "punctuation.branket"
+            ],
+            "settings": {
+              "foreground": "#d4871c"
+            }
+          },
+          {
+            "scope": [
+              "directive.name"
+            ],
+            "settings": {
+              "foreground": "#FF0000"
+            }
+          },
+          {
+            "scope": [
+              "directive.value"
+            ],
+            "settings": {
+              "foreground": "#0059ff"
+            }
+          }
+        ]
+      }
+    }
   },
   "publisher": "CADBONDJEDOUE"
 }

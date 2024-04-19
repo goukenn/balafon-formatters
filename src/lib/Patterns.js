@@ -20,6 +20,17 @@ class Patterns{
      * end match
      */
     end;
+
+    /**
+     * use for begin/while . to implement
+     * @var {string|Regex}
+     */
+    while;
+
+    /**
+     * while captures definitions
+     */
+    whileCaptures;
     /**
      * setup the value on end missing
      */
@@ -170,6 +181,11 @@ class Patterns{
      * @var {boolean}
      */
     startLine=false;
+
+    /**
+     * @var {number}
+     */
+    applyEndPatternLast;
    
     /**
      * @var {boolean} debug this field

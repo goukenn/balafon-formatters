@@ -59,6 +59,13 @@ class Formatters {
      * @var {?string}
      */
     scopeName;
+
+    /**
+     * selector definition to implements
+     * @var {?string}
+     * "L:source.language"
+     */
+    injectionSelector;
     /**
     * @var {?bool}
     */
@@ -78,6 +85,18 @@ class Formatters {
      * @var {?string[]}
      */
     tokens;
+
+    foldingStartMarker;
+
+    foldingStopMarker;
+
+    fileTypes;
+
+    uuid;
+
+    firstLineMatch;
+
+
 
     /**
      * set global engine
@@ -1832,8 +1851,6 @@ class Formatters {
                 this._updateMarkerOldContentOrSwapBuffer(_marker, _old, _buffer, _endRegex, option);
             }
             let _q = this._handleMarker(_matcher, option);
-
-            0 && 1;
             return _q;
         }
         // + | update parent markerin of before handle marker 
@@ -1962,12 +1979,15 @@ class Formatters {
      */
     _handleItemFoundCallback() {
         return function (_matcher, patternInfo, _old, _buffer, _endRegex, option) {
-            const { debug, nextMode } = option;
+            const { debug } = option;
+            let { nextMode } = option;
             if (_old == null) {
                 this._registerTokenName(patternInfo, option);
             }
             // handle matcher   
             let _newOld = this._updateMarkerOldContentOrSwapBuffer(patternInfo, _old, _buffer, _endRegex, option);
+            nextMode = _newOld.currentMode;
+
             // update previous matcher info
             option.storeRange(option.pos, _matcher.group.index);
             if (option.range.start != option.range.end) {
