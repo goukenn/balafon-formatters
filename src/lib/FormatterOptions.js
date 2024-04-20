@@ -15,9 +15,25 @@ const { Debug } = require("./Debug");
  * @property blockStart flags to indicate block is started on document . need to reset on format focument
  */
 class FormatterOptions {
+    /**
+     * operate line
+     * @var {string}
+     */
     line = '';
+    /**
+     * store default source line
+     * @var {string}
+     */
+    sourceLine = '';
+    /**
+     * position on operate line 
+     */
     pos = 0;
+    /**
+     * current line cursor
+     */
     lineCount = 0;
+    
     continue = false;
     lineJoin = false;
     markerDepth = 0; // store handleMarker stack

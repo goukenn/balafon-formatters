@@ -174,7 +174,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                     _bck.started = true;
                     //option.pos++;
                 }
-                ({ _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, option, false, markerInfo));
+                ({ _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, option, markerInfo));
             } catch (e) {
                 // invalid stream tag selection 
                 const cp = _markerInfo.shift();

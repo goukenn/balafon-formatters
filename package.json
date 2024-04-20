@@ -204,75 +204,7 @@
     ],
     "configurationDefaults": {
       "balafon.defaultAuthor": "C.A.D BONDJE DOUE",
-      "editor.tokenColorCustomizations": {
-        "textMateRules": [
-          {
-            "scope": [
-              "word"
-            ],
-            "settings": {
-              "foreground": "#fff019"
-            }
-          },
-          {
-            "scope": [
-              "meta.media", "directive"
-            ],
-            "settings": {
-              "foreground": "#ff00ea"
-            }
-          },
-          {
-            "scope": [
-              "constant.directive"
-            ],
-            "settings": {
-              "foreground": "#00aaff"
-            }
-          },
-          {
-            "scope": [
-              "property",
-              "source.bcss"
-            ],
-            "settings": {
-              "foreground": "#5a86ce"
-            }
-          },
-          {
-            "scope": [
-              "constant",
-              "source.bcss"
-            ],
-            "settings": {
-              "foreground": "#a9b7a4"
-            }
-          },
-          {
-            "scope": [
-              "punctuation.branket"
-            ],
-            "settings": {
-              "foreground": "#d4871c"
-            }
-          },
-          {
-            "scope": [
-              "directive.name"
-            ],
-            "settings": {
-              "foreground": "#FF0000"
-            }
-          },
-          {
-            "scope": [
-              "directive.value"
-            ],
-            "settings": {
-              "foreground": "#0059ff"
-            }
-          }
-        ]
+      "editor.tokenColorCustomizations": { 
       }
     }
   },

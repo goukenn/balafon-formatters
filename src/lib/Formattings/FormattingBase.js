@@ -185,7 +185,7 @@ class FormattingBase {
                 option.formatterBuffer.appendToBuffer(value);
                 option.store();
                 value = option.flush(true);
-                _ld = value;
+                _ld = value; 
                 break;
             case FM_START_BLOCK: // every block start with extra output
                 option.appendExtraOutput();
@@ -238,14 +238,11 @@ class FormattingBase {
                 break;
             case FM_APPEND_BLOCK:
                 ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra));
-                //mode = FM_START_LINE;
-                option.startLine = true;
                 break;
             default:
                 throw new Error('mode not handle : ' + mode);
                 break;
         }
-
         mode = _append_next_mode;
         marker.mode = mode;
         this._updateGlobalMarkerOptionDefinition(marker, option); 
@@ -421,7 +418,8 @@ class FormattingBase {
             if (_next_old.currentMode == FM_APPEND) { 
                 // change mode to append item
                 _next_old.currentMode = FM_APPEND_BLOCK; 
-                option.nextMode = FM_START_LINE;
+                option.nextMode = _next_old.marker.mode 
+                = FM_START_LINE;
             }
         }
     }

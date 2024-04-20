@@ -1,8 +1,12 @@
 const vscode = require('vscode');
+// for release 
 const { bformatter } = require('../dist/bformatter/1.0.7/bformatter.cjs');
 const { TransformEngine } = require('./lib/TransformEngine');
-const { Formatters , Version } = bformatter;
+// const { Formatters , Version } = bformatter;
 
+// for debug
+const { Formatters } = require("./formatter");
+const Version = 'debug.0.0.1';
  
 class VSCodeTransformEngine extends TransformEngine{
 

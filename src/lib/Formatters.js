@@ -426,6 +426,7 @@ class Formatters {
                 debug && Debug.log('read:[' + objClass.lineCount + "]:::" + line);
                 objClass.resetRange();
                 objClass.line = line;
+                objClass.sourceLine = line; // source line 
                 objClass.pos = 0;
                 objClass.continue = false;
                 objClass.lineCount++;
@@ -438,7 +439,6 @@ class Formatters {
                     }
                     objClass.continue = _matcherInfo.marker.newLineContinueState; // true;
                     objClass.lineJoin = false;
-                    // objClass.startLine = true;
                     _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
 
                 } else {
@@ -1301,18 +1301,16 @@ class Formatters {
             option.pos = _next_position;
         }
         _line = line.substring(_pos);
-
-
-
         // + | start pattern stream capture
         if (_start && patternInfo.isStreamCapture) {
             return this._startStreamingPattern(patternInfo, _line, _endRegex, option, null, null, null, false);
         }
-
         // + | DETECT core match
-        ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option, _start));
+        ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option));
 
-
+        if (_error){
+            throw new Error(_error);
+        }
         if (_matcher == null) {
             // no child matcher found
             if (_p == null) {
@@ -1392,12 +1390,12 @@ class Formatters {
      * detect logical pattern info
      * @param {string} _line 
      * @param {PatternMatchInfo} patternInfo 
-     * @param {FormatterOption} option 
-     * @param {bool} start true to handle exception 
+     * @param {FormatterOptions} option 
      * @param {PatternMatchInfo} parentMatcherInfo to handle parent result for pattern
+     * @param {bool} throwError re throw error in detection 
      * @returns 
      */
-    detectPatternInfo(_line, patternInfo, option, start, parentMatcherInfo) {
+    detectPatternInfo(_line, patternInfo, option, parentMatcherInfo, throwError=true) {
         let _matcher = null;
         let _p = null; // end matcher 
         let _endRegex = patternInfo.endRegex;
@@ -1409,7 +1407,7 @@ class Formatters {
                     Utils.GetPatternMatcher(patternInfo.patterns, option, parentMatcherInfo) : null;
         }
         catch (e) {
-            if (!start) {
+            if (throwError) {
                 throw e;
             }
             _error = {
@@ -1419,7 +1417,6 @@ class Formatters {
         }
         // + | fix to end regex
         _p = _endRegex.exec(_line);
-
         if (_p) {
             _p.index += option.pos;
         }
@@ -1810,7 +1807,7 @@ class Formatters {
      * @param {string|RegExp} _endRegex 
      */
     _backupMarkerSwapBuffer(option, _marker, entry, _endRegex) {
-        option.debug && Debug.log('backup and swap buffer.');
+        option.debug && Debug.log('backup and swap buffer.['+entry+']');
         if (option.appendToBufferListener) {
             option.appendToBufferListener(entry, _marker, false, option);
             entry = '';
@@ -1822,8 +1819,14 @@ class Formatters {
         _inf.saveState(option, _marker.mode);
         // + | create a new buffer 
         option.newBuffer(option.markerInfo.length);
+        // + | update option mode with current mode
+        option.nextMode = _inf.currentMode;
+        // + | remove start line flag
+        option.startLine = false;
+        // + | 
+        option.skipEmptyMatchValue = false;
 
-
+        this.formatting.updateStartFormatting(option.nextMode, option);
         return _inf;
     }
     /**
