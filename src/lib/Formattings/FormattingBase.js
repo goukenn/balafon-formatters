@@ -77,7 +77,6 @@ class FormattingBase {
     updataMarkerGlobalOption({ mode, lineFeedFlag, startLine, formattingMode }, option) {
         const e = arguments[0];
         switch (mode) {
-            case FM_END_BLOCK:
             case FM_START_LINE_NEXT_LINE:
             case FM_END_BLOCK:
             case FM_START_LINE:
@@ -168,20 +167,19 @@ class FormattingBase {
         // let _change_mode = _undef || (mode == marker.mode);
         let _append_next_mode = _undef ? FM_APPEND : marker.mode;
 
-        debug && (()=>{Debug.log("--::update old buffer::--"); console.log({buffer, extra, mode});})();
+        debug && (()=>{Debug.log("--::update old buffer::--"); console.log({content, buffer, extra, mode});})();
 
         switch (mode) {
             case FM_START_LINE:
                 _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra);
-                if (_ld.length > 0) {
-                    mode = _append_next_mode;
+                if (_ld.length <= 0) { 
+                    _append_next_mode = FM_START_LINE;
                 }
                 break;
             case FM_END_BLOCK:
                 // after end block
                 // start line 
                 option.appendExtraOutput();
-
                 let value = '';
                 ({ value, mode, content } = this.updateMergeEndBlock({ content, marker, extra, buffer, option, _hasBuffer, _hasExtra }));
                 option.formatterBuffer.appendToBuffer(value);
@@ -198,16 +196,8 @@ class FormattingBase {
                     option.store();
                 }
                 _ld = option.flush(true);
-                mode = _append_next_mode;
                 break;
             case FM_END_INSTRUCTION: // after end instruction 
-                // if (option.lineFeedFlag && !_hasExtra) {
-                //     option.appendExtraOutput();
-                //     option.formatterBuffer.appendToBuffer(buffer.trim());
-                //     option.store();
-                //     _ld = option.flush(true);
-                // }
-                // else {
                 if (_hasExtra) {
                     option.appendExtraOutput();
                     option.output.push(extra);
@@ -221,8 +211,6 @@ class FormattingBase {
                     option.store();
                     _ld += option.flush(true);
                 }
-                // }
-                mode = _append_next_mode; //FM_START_LINE;
                 break;
             case FM_APPEND:
                 if (_hasExtra) {
@@ -234,7 +222,6 @@ class FormattingBase {
                 if (buffer.length > 0) {
                     _ld += buffer;
                 }
-                mode = _append_next_mode;
                 break;
             case FM_START_LINE_NEXT_LINE:
                 option.appendExtraOutput();
@@ -247,23 +234,21 @@ class FormattingBase {
                 break;
             case FM_START_LINE_APPEND:
                 _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra);
-                mode = FM_APPEND;
+                _append_next_mode = FM_APPEND;
                 break;
             case FM_APPEND_BLOCK:
                 ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra));
-                mode = FM_START_LINE;
+                //mode = FM_START_LINE;
                 option.startLine = true;
-                //marker.mode = FM_START_LINE;
                 break;
             default:
                 throw new Error('mode not handle : ' + mode);
                 break;
         }
-        //if (_change_mode) {
-        marker.mode = mode;
-        //} 
-        this._updateGlobalMarkerOptionDefinition(marker, option);
 
+        mode = _append_next_mode;
+        marker.mode = mode;
+        this._updateGlobalMarkerOptionDefinition(marker, option); 
         _props.mode = marker.mode;
         return content + _ld;
     }
@@ -436,6 +421,7 @@ class FormattingBase {
             if (_next_old.currentMode == FM_APPEND) { 
                 // change mode to append item
                 _next_old.currentMode = FM_APPEND_BLOCK; 
+                option.nextMode = FM_START_LINE;
             }
         }
     }

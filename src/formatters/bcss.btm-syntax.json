@@ -912,6 +912,7 @@
                             "startLine": true,
                             "begin": "\\s*(?=\\[)",
                             "end": "",
+                            "name":"start.array.in.begin.bcss",
                             "beginCaptures": {
                                 "0": {
                                     "transform": "trim"
@@ -964,6 +965,12 @@
                     "formattingMode": 1
                 }
             ]
+        },
+        "array-attributes":{
+            "begin":"\\[",
+            "end":"\\]",
+            "name":"attribute.definition.bcss",
+            "closeParent":true
         },
         "bcss-root-directives": {
             "patterns": [

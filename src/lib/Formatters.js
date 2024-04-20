@@ -1648,6 +1648,7 @@ class Formatters {
         if (_close_block) {
             option.store();
             _buffer = option.flush(true);
+           
             option.formatterBuffer.appendToBuffer(_buffer);
         }
         if (_old != null) {
