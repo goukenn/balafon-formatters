@@ -939,7 +939,7 @@
                             "match": "(?=\\{)",
                             "closeParent": {
                                 "value": "{",
-                                "type": "selector"
+                                "type": "selector-closing"
                             }
                         }
                     ]
@@ -969,8 +969,29 @@
         "array-attributes":{
             "begin":"\\[",
             "end":"\\]",
-            "name":"attribute.definition.bcss",
-            "closeParent":true
+            "name":"array.block.bcss"
+        },
+        "speudo-func-attributes":{
+            "begin":"\\(",
+            "end":"\\)",
+            "name":"func.block.bcss"
+        },
+        "speudo-classes":{
+            "name":"speudo-class", 
+            "end":" |$|(?=\\{|:|\\+|~|,|>)",
+            "begin":"(\\s+)?((?:\\:)?:)(active|any-link|autofill|blank|checked|current|default|defined|dir|disabled|empty|enabled|first|first-child|first-of-type|focus|focus-visible|focus-within|fullscreen|future|has|host|host|host-context|hover|indeterminate|in-range|invalid|is|lang|last-child|last-of-type|left|link|local-link|modal|not|nth-child|nth-last-child|nth-last-of-type|nth-of-type|only-child|only-of-type|optional|out-of-range|past|paused|picture-in-picture|placeholder-shown|playing|read-only|read-write|required|right|root|scope|state|target|target-within|user-invalid|valid|visited|where)\\b"
+            ,
+            "beginCaptures":{
+                "1":{
+                    "match":"\\s+",
+                    "replaceWith":" ",
+                    "throwError":"invalid speudo-class syntax"
+                }
+            },
+            "patterns":[
+                {"begin":"\\(", "end":"\\)"},
+                {"include":"#speudo-classes"}
+            ]
         },
         "bcss-root-directives": {
             "patterns": [

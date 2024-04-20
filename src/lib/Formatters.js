@@ -1508,10 +1508,18 @@ class Formatters {
         if (_data == undefined) {
             return;
         }
+        let _g = null;
         debug && Debug.log('---:::CLOSE PARENT PROPERTY:::---' + _marker);
         arg.udpateChild = this._requestUpdateChild(_marker, arg.state);
         let _gparent = _marker.parent;
-        let _g = this._closeBlockEntry(option, _marker, _gparent, _data);
+        if (_gparent){
+            if (_gparent.isBlock){
+                _g = this._closeBlockEntry(option, _marker, _gparent, _data);
+            }else{
+                _g = this._closeMarkerAndUpdate(_marker, _gparent, option, _data);
+            }
+        }
+        
         _handle = true;
 
         arg.handle = _handle;
@@ -1534,15 +1542,17 @@ class Formatters {
         const { formatting } = this;
         if (option.depth>0)
             option.store();
-        //const _buffer = option.flush(true);
         option.depth = Math.max(--option.depth, 0);
-        //option.formatterBuffer.appendToBuffer(_buffer);
         if (_marker && _parent) {
-            let _r = this._closeMarker(_marker, _parent, option, data);
-            formatting.updateEmptySkipMatchedValueFormatting(_r, option, {mode:_marker.mode, formattingMode: _parent.formattingMode});
-            return _r;
+            return this._closeMarkerAndUpdate(_marker, _parent, option, data);
         }
     }
+    _closeMarkerAndUpdate(_marker, _parent, option, data){
+        const { formatting } = this;
+      let _r = this._closeMarker(_marker, _parent, option, data);
+      formatting.updateEmptySkipMatchedValueFormatting(_r, option, {mode:_marker.mode, formattingMode: _parent.formattingMode});
+      return _r;
+  }
     _closeMarker(_marker, _g, option, data = '') {
         const { debug } = option;
         debug && Debug.log(":::CLOSEMARKER:::" + _marker);

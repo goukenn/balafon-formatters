@@ -445,10 +445,6 @@ class FormattingBase {
                 throw new Error('start block contains definition: ' + _cf);
             }
         }
-        // if (option.markerInfo.length > 0) {
-        //     const _old = option.markerInfo[0];
-        //     _old.content = _old.content.trim();
-        // }
         patternInfo.mode = FM_START_BLOCK;
         const { parent } = patternInfo;
         if (parent) {
