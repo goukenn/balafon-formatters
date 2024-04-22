@@ -40,7 +40,6 @@ function formatAllDocument(document, format){
     );
     const _formatter = GetFormatter(format); 
     if (_formatter){
-        console.log("format : "+format);
         let _res = _formatter.format(_text.split("\n"));
         return vscode.TextEdit.replace(_range, _res);
     }

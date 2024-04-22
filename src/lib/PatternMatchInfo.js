@@ -172,6 +172,7 @@ class PatternMatchInfo {
             m_patterns = patterns;
             m_fromGroup = fromGroup;
             m_index = index;
+ 
             
             (function (q, pattern) {
                 const _keys = Object.keys(q);

@@ -1406,6 +1406,7 @@ class Formatters {
         let _matcher = null;
         let _p = null; // end matcher 
         let _endRegex = patternInfo.endRegex;
+        
         let _error = null;
         parentMatcherInfo = parentMatcherInfo || patternInfo;
         try {
@@ -1423,11 +1424,15 @@ class Formatters {
             }
         }
         // + | fix to end regex
-        _p = _endRegex.exec(_line);
-        if (_p) {
-            _p.index += option.pos;
+        if(_endRegex){
+            _p = _endRegex.exec(_line);
+            if (_p) {
+                _p.index += option.pos;
+            }
+            patternInfo.endGroup = _p;
+        } else {
+            console.log("not found");
         }
-        patternInfo.endGroup = _p;
         return { _p, _matcher, _error };
     }
     _updatePatternPrevConstant(_marker, option, _prev, offset, append_child = true) {

@@ -97,15 +97,87 @@
                 }
             },
             "endCaptures": {
-                "0":{
-                    "name":"tag.block.end.bview"
+                "0": {
+                    "name": "tag.block.end.bview"
                 }
             },
             "patterns": [
+                { "include":"#group-function-call"},
+
+                {
+                    "begin": "(?=\\'|\")",
+                    "end": ";|-|$",
+                    "patterns": [
+                        {
+                            "include": "#string"
+                        },
+                        {
+                            "match":"\\s*(\\+)\\s+",
+                            "name":"keyword.operator.concat.bview"
+                        },
+                        {
+                            "include": "#inner-variable"
+                        }
+                    ],
+                    "formattingMode": 1
+                },
+                {
+                    "include": "#selector-definition"
+                },
                 {
                     "include": "#section-patterns"
+                },
+                {
+                    "match": "\\s*(\\+)\\s*",
+                    "name": "concation.oeprator.bview",
+                    "transform": [
+                        "trim",
+                        "[ $0 ]"
+                    ]
+                },
+                {
+                    "include": "#inner-variable"
+                }
+
+             
+            ]
+        },
+        "inner-variable":{
+            "begin": "(?i)(\\$($)?[a-z_][a-z_0-9]*)",
+            "end": "$|\\)|(?=\\+|%|\\/|\\*|'|\"|-)",
+            "name": "variable.name",
+            "comment": "detect litteral variable to apply to node",
+            "patterns": [
+                {
+                    "comment": "php operator",
+                    "match": "->",
+                    "name": "keyword.operator.object.ref.operator.bview"
+                },
+                {
+                    "begin": "\\[",
+                    "end": "\\]",
+                    "formattingMode": 1
+                },
+                {
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "formattingMode": 1
+                },
+                {
+                    "match": "($)?[a-z_][a-z_0-9]*",
+                    "name": "subinvocation.bview"
+                },
+                {
+                    "match": ";|\\s*$",
+                    "formattingMode": 1
                 }
             ]
+            
+        },
+        "group-function-call":{
+            "begin":"\\(",
+            "end":"\\)",
+            "formattingMode": 1
         },
         "section-patterns": {
             "patterns": [
@@ -173,10 +245,13 @@
         "tag-glue": {
             "match": "\\s*(\\>)\\s*",
             "comment": "append tag",
-            "transform": ["trim", "[ $0 ]"],
+            "transform": [
+                "trim",
+                "[ $0 ]"
+            ],
             "isGlueValue": " ",
             "captures": {
-                "1":{
+                "1": {
                     "name": "constant.character.operator.append.tagname.bview"
                 }
             }
@@ -222,18 +297,23 @@
         },
         "tag-attrib": {
             "comment": "tagname attribute definition-only one per tagname definition",
-            "begin": "\\[",
-            "end": "\\]",
+            "begin": "\\[\\s*",
+            "end": "\\s*\\]",
             "name": "meta.tagname.attribute.bview",
             "contentName": "tagname.attributes.definition.bview",
             "beginCaptures": {
                 "0": {
-                    "name": "brank.array.start.bview"
+                    "name": "brank.array.start.bview",
+                    "transform": "trim"
                 }
             },
             "endCaptures": {
                 "0": {
-                    "name": "brank.array.end.bview"
+                    "name": "brank.array.end.bview",
+                    "transform": [
+                        "trim",
+                        "[$0]"
+                    ]
                 }
             },
             "patterns": [
@@ -243,8 +323,10 @@
                 {
                     "comment": "skip mutiple value",
                     "match": "\\s+",
-                    "replaceWith": " ",
-                    "isGlueValue": " "
+                    "transform": [
+                        "trim",
+                        "[ ]"
+                    ]
                 },
                 {
                     "name": "tagname.attribute.active.inline.bview",
@@ -252,14 +334,20 @@
                 },
                 {
                     "name": "meta.attribute.parameter.bview",
-                    "begin": "(?i)([a-z_-]([a-z0-9_-]+)?)(\\s*(:)\\s*)?",
-                    "end": "(?=(,|\\]))",
+                    "begin": "(?i)([a-z_](?:[a-z0-9_\\-]+)?)(\\s*(?::)\\s*)?",
+                    "end": "(?=(,|\\s*\\]))",
                     "beginCaptures": {
                         "1": {
-                            "name": "meta.attribute.parameter.name.bview"
+                            "name": "entity.other.attribute-name.attribute.parameter.name.bview"
                         },
-                        "4": {
-                            "name": "meta.punctuation.array.separator.bview"
+                        "2": {
+                            "name": "storage.punctuation.array.separator.bview",
+                            "patterns": [
+                                {
+                                    "match": "(.)+",
+                                    "transform": "trim"
+                                }
+                            ]
                         }
                     },
                     "contentName": "meta.attribute.parameter.value.bview",
@@ -362,7 +450,10 @@
         "attribute-expression-separator": {
             "name": "punctuation.attribute.array.separator.bview",
             "match": "\\s*,\\s*",
-            "transform": ["trim", "[$0 ]"]
+            "transform": [
+                "trim",
+                "[$0 ]"
+            ]
         },
         "tag-append-single": {
             "begin": "\\s*\\+ ",
@@ -384,15 +475,18 @@
                     "name": "punctuation.start.content.expression.bview",
                     "patterns": [
                         {
-                            "match":"(.)+",
-                            "transform": ["trim", "[$0 ]"]
+                            "match": "(.)+",
+                            "transform": [
+                                "trim",
+                                "[$0 ]"
+                            ]
                         }
                     ]
                 }
             },
             "patterns": [
                 {
-                    "match":"\\s+",
+                    "match": "\\s+",
                     "transform": "trim"
                 },
                 {
@@ -543,6 +637,7 @@
         "mark-html": {
             "begin": "\\bhtml\\s*\\(",
             "end": "\\)",
+            "isBlock": true,
             "endCaptures": {
                 "0": {
                     "name": "func.name.end.bview"
@@ -560,9 +655,52 @@
                 }
             ]
         },
+        "mark-bcss": {
+            "begin": "\\bbcss\\b\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "name": "highlight.bcss.bview",
+            "patterns": [
+                {
+                    "include": "source.bcss"
+                }
+            ]
+        },
+        "mark-bjs": {
+            "begin": "\\bbjs\\b\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "name": "highlight.balafonjs.bview",
+            "patterns": [
+                {
+                    "include": "source.js"
+                }
+            ]
+        },
         "mark-css": {
             "begin": "\\bcss\\s*\\(",
             "end": "\\)",
+            "isBlock": true,
             "endCaptures": {
                 "0": {
                     "name": "func.name.end.bview"
@@ -584,6 +722,7 @@
             "name": "highlight.gql.bview",
             "begin": "gql\\s*\\(",
             "end": "\\)",
+            "isBlock": true,
             "endCaptures": {
                 "0": {
                     "name": "func.name.end.bview"
@@ -604,6 +743,7 @@
             "name": "highlight.jsx.bview",
             "begin": "\\bjsx\\s*\\(",
             "end": "\\)",
+            "isBlock": true,
             "endCaptures": {
                 "0": {
                     "name": "func.name.end.bview"
@@ -624,6 +764,7 @@
             "name": "highlight.tsx.bview",
             "begin": "tsx\\s*\\(",
             "end": "\\)",
+            "isBlock": true,
             "endCaptures": {
                 "0": {
                     "name": "func.name.end.bview"
@@ -643,6 +784,7 @@
         "mark-vue": {
             "name": "highlight.vue.bview",
             "comment": "mark vue content SFC",
+            "isBlock": true,
             "begin": "vue\\s*\\(",
             "end": "\\)",
             "endCaptures": {
@@ -665,6 +807,7 @@
             "name": "highlight.js.bview",
             "begin": "js\\s*\\(",
             "end": "\\)\\s*",
+            "isBlock": true,
             "endCaptures": {
                 "0": {
                     "name": "func.name.end.bview"
@@ -702,6 +845,27 @@
                 }
             ]
         },
+        "mark-xml": {
+            "name": "highlight.xml",
+            "begin": "\\bxml\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "text.xml"
+                }
+            ]
+        },
         "mark-fn-support": {
             "comment": "mark function call support",
             "name": "mark.function.support.bview",
@@ -713,10 +877,16 @@
                     "include": "#mark-css"
                 },
                 {
+                    "include": "#mark-bcss"
+                },
+                {
                     "include": "#mark-svg"
                 },
                 {
                     "include": "#mark-js"
+                },
+                {
+                    "include": "#mark-bjs"
                 },
                 {
                     "include": "#mark-tsx"
@@ -728,8 +898,12 @@
                     "include": "#mark-vue"
                 },
                 {
+                    "include": "#mark-xml"
+                },
+                {
                     "begin": "\\b(local)\\b\\s*\\(",
                     "end": "\\)",
+                    "isBlock": true,
                     "beginCaptures": {
                         "1": {
                             "name": "support.function.func.name.bview"
