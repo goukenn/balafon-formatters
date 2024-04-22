@@ -98,16 +98,21 @@ class FormattingBase {
     }
     /**
      * 
-     * @param {*} mode 
+     * @param {number} mode 
      * @param {*} option 
      */
-    updateGlobalFormatting(mode, option) {
+    updateGlobalFormatting(mode, { lineFeedFlag }) {
+        // after mode update global mode options
+        const option = arguments[1];
+
         switch (mode) {
             case FM_START_LINE:
             case FM_START_BLOCK:
-                option.lineFeedFlag = true;
+            case FM_END_BLOCK:
+                lineFeedFlag = true;
                 break;
         }
+        option.lineFeedFlag = lineFeedFlag;
     }
     updateStartFormatting(mode, option) {
         switch (mode) {
@@ -151,7 +156,7 @@ class FormattingBase {
      * depending on marker mode update old marker content new value
      * update from buffer content. 
      */
-    updateOldMarkerContent({ content, marker, extra, buffer, option, mode }) {
+    updateOldMarkerContent({ content, marker, extra, buffer, option, mode , isEntryContent}) {
         let _ld = '';
         const { debug } = option;
         //let { mode } = marker;
@@ -237,7 +242,7 @@ class FormattingBase {
                 _append_next_mode = FM_APPEND;
                 break;
             case FM_APPEND_BLOCK:
-                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra));
+                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent));
                 break;
             default:
                 throw new Error('mode not handle : ' + mode);

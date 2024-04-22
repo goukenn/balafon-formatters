@@ -428,7 +428,21 @@ class Patterns{
                 flag = s.substring(idx+1);
                 s = s.substring(0, idx+1);
             }
-            return Utils.GetRegexFrom(s, p, flag); 
+            return Utils.GetRegexFrom(s, p, flag, 'end'); 
+        }
+        return null;
+    }
+    endWhile(p){
+        if (this.matchType==2){ 
+            let s = this.while.toString();
+            let idx = s.lastIndexOf('/');
+            let flag = '';
+            if (idx<(s.length-1)){
+                //remove options
+                flag = s.substring(idx+1);
+                s = s.substring(0, idx+1);
+            }
+            return Utils.GetRegexFrom(s, p, flag, 'while'); 
         }
         return null;
     }

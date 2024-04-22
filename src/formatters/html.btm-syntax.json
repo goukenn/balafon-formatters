@@ -11,7 +11,7 @@
         },
         "string": {
             "begin": "(\"|')",
-            "end": "\\$1",
+            "end": "\\1",
             "name": "string.definition",
             "allowMultiline": false,
             "tokenID": "string",
@@ -24,7 +24,7 @@
         },
         "string-named": {
             "begin": "(\"|')",
-            "end": "\\$1",
+            "end": "\\1",
             "name": "string.definition.with.name",
             "allowMultiline": false,
             "tokenID": "string",
@@ -55,7 +55,7 @@
         },
         "tag-definition": {
             "begin": "\\<(\\b[\\w]+\\b)",
-            "end": "(\\/|\\<\\/$1\\s*)?\\>",
+            "end": "(\\/|\\<\\/\\1\\s*)?\\>",
             "name": "tag.definition.html",
             "tokenID": "tagname",
             "isBlock": false, 
@@ -225,7 +225,7 @@
         },
         "global-html-tag": {
             "begin": "(\\<)\\b([\\w][\\w:\\-]*)\\b",
-            "end": "(?:\\s*\\/\\>|\\<\\/$2\\s*>)",
+            "end": "(?:\\s*\\/\\>|\\<\\/\\2\\s*>)",
             "name": "global.html.tag.html", 
             "beginCaptures":{
                 "1":{"name":"symbol.start.tag.html"},

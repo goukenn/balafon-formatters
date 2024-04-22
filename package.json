@@ -47,6 +47,16 @@
   "contributes": {
     "languages": [
       {
+        "id":"demodata",
+        "extensions": [
+          ".demodata"
+        ],
+        "aliases": [
+          "demo data handling",
+          "demodata"
+        ]
+      },
+      {
         "id": "bview",
         "extensions": [
           ".bview"
@@ -124,6 +134,11 @@
         "language": "phtml",
         "scopeName": "source.phtml",
         "path": "./src/formatters/phtml.btm-syntax.json"
+      },
+      {
+        "language": "demodata",
+        "scopeName": "source.demodata",
+        "path": "./src/formatters/demo.btm-syntax.json"
       },
       {
         "language": "bjs",

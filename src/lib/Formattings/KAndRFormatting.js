@@ -105,7 +105,7 @@ class KAndRFormatting extends FormattingBase {
         _refData._b = _b;
         return _refData;
     }
-    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra) {
+    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent) {
         let _ld = '';
         if (extra.length > 0) {
             _ld += extra;
@@ -113,7 +113,7 @@ class KAndRFormatting extends FormattingBase {
         if (buffer.length > 0) {
             _ld += buffer;
         }
-        content = content.trimEnd();
+        content = !isEntryContent ? content.trimEnd() : content;
         if (!this.mergeEndBlock){
             option.appendExtraOutput();
             option.formatterBuffer.appendToBuffer(_ld.trimStart());

@@ -111,7 +111,7 @@ class Utils {
             parser.patternClassName = patternClassName;
             parser.captureInfoClassName = captureInfoClassName;
             parser.closeParentInfoClassName = closeParentInfoClassName;
-        } else { 
+        } else {
             parser.patternClassName = pattern_class_name;
         }
         if (registry) {
@@ -145,7 +145,7 @@ class Utils {
                     if (include[0] == '#') {
                         _key = include.substring(1);
                         // + | LOAD INCLUDE PROPERTY
-                        
+
                         // if (_key in parser.includes){
                         //     _o = new refkey_class_name(parser.includes[_key]);
                         // }
@@ -278,7 +278,7 @@ class Utils {
                     value: _match[0],
                     detectOn: l,
                     regex: _a.matchRegex,
-                    type: _a.matchType==0?"begin/end":"match",
+                    type: _a.matchType == 0 ? "begin/end" : "match",
                     isFromGroupRef: _from != null
                 });
             }
@@ -290,7 +290,7 @@ class Utils {
             // + | add property to offset 
             _match.offset = _match[0].length;
             // +| treat begin captures must be at corresponding data info
-        
+
             let _info = new PatternMatchInfo;
             Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
             return _info;
@@ -350,7 +350,7 @@ class Utils {
             // + | add property to offset 
             _match.offset = _match[0].length;
             // +| treat begin captures must be at corresponding data info 
-         
+
             let _info = new PatternMatchInfo;
             Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
             return _info;
@@ -363,17 +363,26 @@ class Utils {
      * @param {*} p group match
      * @returns 
      */
-    static GetRegexFrom(s, p, flag) {
-
-        s = s.replace(/[^\\]?\$([\d]+)/, (a, m) => {
-            if (a[0] == "\\") return a;
-            if (a[0] != '$')
-                return a[0] + p[m];
+    static GetRegexFrom(s, p, flag, op) {
+        if ((op == 'end') || (op=='while'))
+        {
+            
+            s = s.replace(/\\([\d]+)/g, (a, m) => {
+          
             return p[m];
         });
+
+        }
+        else {
+
+            s = s.replace(/[^\\]?\$([\d]+)/g, (a, m) => {
+                if (a[0] == "\\") return a;
+                if (a[0] != '$')
+                    return a[0] + p[m];
+                return p[m];
+            });
+        }
         s = /^\/.+\/$/.test(s) ? s.substring(1).slice(0, -1) : s;
-
-
         return new RegExp(s, flag || '');
     }
 
