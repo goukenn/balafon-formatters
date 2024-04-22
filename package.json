@@ -29,7 +29,8 @@
   "scripts": {
     "build": "webpack",
     "test": "mocha ./tests/utest.js",
-    "vsce-publish": "vsce publish --yarn"
+    "vsce-publish": "vsce publish --yarn",
+    "bcss-build": "bcss build"
   },
   "engines": {
     "vscode": "^1.88.0"
@@ -98,24 +99,18 @@
           "pcss"
         ],
         "configuration": "./languages/pcss.language.json"
-      },
-      {
-        "id": "source.bview",
-        "extensions": [
-          ".bview"
-        ]
       }
     ],
     "grammars": [
       {
-        "language": "bcss",
-        "scopeName": "source.bcss",
-        "path": "./src/formatters/bcss.btm-syntax.json"
-      },
-      {
         "language": "bview",
         "scopeName": "source.bview",
         "path": "./src/formatters/bview.btm-syntax.json"
+      },
+      {
+        "language": "bcss",
+        "scopeName": "source.bcss",
+        "path": "./src/formatters/bcss.btm-syntax.json"
       },
       {
         "language": "pcss",
@@ -203,9 +198,7 @@
       }
     ],
     "configurationDefaults": {
-      "balafon.defaultAuthor": "C.A.D BONDJE DOUE",
-      "editor.tokenColorCustomizations": { 
-      }
+      "balafon.defaultAuthor": "C.A.D BONDJE DOUE"
     }
   },
   "publisher": "CADBONDJEDOUE"

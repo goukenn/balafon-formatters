@@ -1,8 +1,6 @@
 {
- 
     "$schema": "/Volumes/Data/Dev/PHP/balafon_site_dev/src/application/Projects/Schemas/Data/schemas/btm-syntax.json",
     "settings": {
-        "endMatchLogic": "backward"
-    },
-    "name": ""
+        "endMatchLogic": "before"
+    }
 }

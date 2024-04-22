@@ -14,7 +14,18 @@ class VSCodeTransformEngine extends TransformEngine{
 
 
 TransformEngine.Register('vscode', VSCodeTransformEngine);
-
+const sm_FORMATTERS = {};
+function GetFormatter(format){
+    if (format in sm_FORMATTERS){
+        return sm_FORMATTERS[format];
+    }
+    const _formatter = Formatters.Load(format);
+    if (!_formatter){
+        throw new Error("formatter is missing["+format+"]");
+    }
+    sm_FORMATTERS[format] = _formatter;
+    return _formatter;
+} 
 
 function formatAllDocument(document, format){
     const _text = document.getText();
@@ -22,11 +33,12 @@ function formatAllDocument(document, format){
         document.lineAt(0).range.start,
         document.lineAt(document.lineCount-1).range.end
     );
-    const _formatter = Formatters.Load(format);
+    const _formatter = GetFormatter(format); // Formatters.Load(format);
     if (_formatter){
         let _res = _formatter.format(_text.split("\n"));
         return vscode.TextEdit.replace(_range, _res);
     }
+    console.log("no formatter....");
 }
 /**
  * 
