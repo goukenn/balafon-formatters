@@ -618,7 +618,7 @@ class FormatterOptions {
     }
     /**
      * return shift markerInfo from list
-     * @param {*} marker 
+     * @param {PatternMatchInfo} marker 
      * @param {bool} throwError 
      * @returns 
      */
