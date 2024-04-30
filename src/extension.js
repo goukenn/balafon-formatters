@@ -41,7 +41,9 @@ function formatAllDocument(document, format){
     const _formatter = GetFormatter(format); 
     if (_formatter){
         let _res = _formatter.format(_text.split("\n"));
-        return vscode.TextEdit.replace(_range, _res);
+        if (_res){
+            return vscode.TextEdit.replace(_range, _res);``
+        }
     }
 }
 /**
@@ -51,7 +53,9 @@ function formatAllDocument(document, format){
 function activate(context){
     // vscode.Document
     // + register language formatters 
-    ["bcss","bview","phtml","bjs","pcss"].forEach((a)=>{
+    console.log("activate extensions");
+    ["bcss","bview","phtml","bjs","pcss", "demodata", "bhtml"].forEach((a)=>{
+        console.log("register language formatter : "+a);
         context.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider(
             a,{
                 provideDocumentFormattingEdits(document,options,token){

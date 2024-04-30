@@ -69,8 +69,17 @@ FEATURES
 
 "(??)" = start here move position ++; if no pattern until end found
 
-## RELEASES
+### capture - block
+for block only start element begin with (?:.) - end with non capture so that buffering will join
+element
 
+### join item on start line 
+`joinWith`[?string]: indicate how to join buffer on start line - directive.
+
+
+## RELEASES
+- 1.0.7
+    - 
 - 1.0.4
     - update extension information
 - 1.0.3

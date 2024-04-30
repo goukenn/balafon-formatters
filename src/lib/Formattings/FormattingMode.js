@@ -27,6 +27,12 @@ exports.FM_APPEND_BLOCK = FM_APPEND_BLOCK;
 const PFM_LINE_FEED = 1;
 //require join for single pattern
 const PFM_LINE_JOIN_END = 2; 
+// join line formatting mode 
+const PFM_LINE_JOIN = 3;
+
+// enable streaming buffer
+const PFM_STREAMING = 4;
+
 
 exports.PatternFormattingMode = {
     get PFM_LINE_FEED(){
@@ -34,6 +40,12 @@ exports.PatternFormattingMode = {
     },
     get PFM_LINE_JOIN_END(){
         return PFM_LINE_JOIN_END;
+    },
+    get PFM_LINE_JOIN(){
+        return PFM_LINE_JOIN;
+    },
+    get PFM_STREAMING(){
+        return PFM_STREAMING;
     }
 };
 

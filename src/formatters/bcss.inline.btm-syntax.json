@@ -1,6 +1,6 @@
 {
     "injectionSelector":"L:text.html.php",
-    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "$schema": "https://igkdev.com/schemas/btm-syntax.json",
     "scopeName":"source.inline.bcss",
     "patterns":[ 
         {

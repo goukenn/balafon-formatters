@@ -7,6 +7,7 @@ const { SpecialMeaningPatternBase } = require('./Formatters');
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
 const { FormattingMode } = require("./Formattings/FormattingMode");
+const { Debug } = require("./Debug");
 
 const FORMATTER_ID = '_formatter_buffer_';
 /**
@@ -16,6 +17,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
     name = 'system.formatter.stream.buffer';
     formatterBuffer;
     from;
+    initialMode = 1;
     startPosition;
     started = false;
     endFoundListener;
@@ -66,6 +68,9 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
     }
     get isEndCaptureOnly() {
         return this.from.isEndCaptureOnly;
+    }
+    get isWhileCaptureOnly() {
+        return this.from.isWhileCaptureOnly;
     }
     get isBeginCaptureOnly() {
         return this.from.isBeginCaptureOnly;
@@ -153,11 +158,10 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         }
 
         return function (markerInfo, option) {
-
-            // + | start definition stream 
-
+            // + | -----------------------------------------
+            // + | handle streaming buffer
             option.stream = q;
-
+            const { debug } = option;
             const _formatter = this;
             let _next_position = option.pos;
             let _buffer = q.buffer;
@@ -165,6 +169,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             const _line = option.line.substring(option.pos);
             let _p, _matcher;
             const _markerInfo = option.markerInfo;
+            debug && Debug.log("::- HANDLE STREAMING -::");
             try {
                 if (!_bck.started) {
                     // + | ------------------------------------------------------------------------
@@ -188,11 +193,9 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             let _old = option.shiftAndRestoreFrom(markerInfo, false);
             if (_old) {
                 _topStreamRemoved = true;
-                // + | here muste get the definition for the parent - to update if required
-                _old = option.shiftFromMarkerInfo(from, true);
             }
-            // let _found = false;
-            // options.pos++;
+            // + | here must get the definition for the parent - to update if required
+            _old = (_markerInfo.length > 0) ? option.shiftFromMarkerInfo(from, false) : null;
             if (!_bck.saved) {
                 _bck.option = {
                     listener: option.appendToBufferListener
@@ -212,7 +215,6 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             }
 
             option.storeRange(option.pos);
-            // FormatterBuffer.DEBUG = true;            
             let r = null;
             const endFound = FormatterStreamBuffer.HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState);
             q.endFoundListener = (_buffer, _line, patternInfo, _p, option, _old) => {
@@ -274,7 +276,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             return r;
         };
     }
-  
+
 
     moveToNextPattern(patternInfo, option, _old, markerInfo, next_position, length, _tline) {
         const { parent, hostPatterns, streamAction, indexOf } = patternInfo;
@@ -318,27 +320,26 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             return null;
         }
         return parent;
-    } 
+    }
     static HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState) {
         return (_buffer, _line, patternInfo, _p, option, _old) => {
             const { parent, streamAction } = patternInfo;
             const { formatter } = option;
             const { endRegex } = markerInfo;
-
+            // + backup line 
             let _cline = option.line; // all line 
             let _cpos = option.pos;
 
             let _cbuffer = q.buffer;
             let _nextCapture = null;
-            let _next_position = 0;  
+            let _next_position = 0;
             option.pos = 0;
             _nextCapture = Utils.GetNextCapture(_line, endRegex, option);
             option.storeRange(option.pos);
             _next_position = _nextCapture.index + _nextCapture.offset;
             if (!_nextCapture) {
                 throw new Error('missing capture');
-            }
-
+            } 
             const _end = _nextCapture[0];
             const _sline = _line.substring(0, _nextCapture.index);
             _line = _line.substring(_nextCapture.index + _end.length);
@@ -346,8 +347,6 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             const _tline = FormatterStreamBuffer.GetBufferedLine(formatter,
                 _gline, option, patternInfo);
             option.line = _tline + _line;
-            // q.clear();
-
             _restoreState(option, _bck);
 
             // + | move buffer to parrent 
@@ -355,7 +354,6 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             _old && option.restoreBuffer(_old);
             if (_buffer.length > 0)
                 option.formatterBuffer.appendToBuffer(_buffer);
-
             // + | unset marker option 
             formatter._onEndHandler(patternInfo, option);
             if (parent) {
@@ -365,23 +363,30 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                 if (_idx === -1) {
                     throw new Error('missing component. use index not valid');
                 }
+                // + | depend on streamAction passing to content to next|parent 
+                // + | next: mean to child process
+                // + | parent: to parent buffer 
+
                 // restart on parent by removing to handle logic
-                let _patterns = Utils.GetPatternsList(patternInfo.hostPatterns, _idx, streamAction);
-                // if (_patterns.length > 0) {               
-                if (streamAction == 'parent') {
-                    return parent;
-                }
-                let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent);
-                if (g) { // continue to cp
-                    let cp = _formatter._handleMarker(g, option);
-                    // let _rb = option.getBufferContent(true);
-                    // if(_rb){
-                    //     q.appendToBuffer(_rb);
-                    // }
-                    return cp;
-                }
-                option.pos = _next_position;
-                return parent; //_formatter._handleMarker(parent, option);
+                // let _patterns = Utils.GetPatternsList(patternInfo.hostPatterns, _idx, streamAction);
+                // if (streamAction == 'parent') {
+                //     return parent;
+                // }
+                // let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent);
+                // if (g) { // continue to cp
+                //     let cp = _formatter._handleMarker(g, option); 
+                //     return cp;
+                // }
+                // move cursor 
+                _cpos = _tline.length - _next_position;
+                let _gbuffer = _tline.substring(0, _cpos);
+                ({ _gbuffer, _cpos } = option.treatAndFormat(q, _gbuffer));
+                // update stored definition and move cursor to next
+                option.pos = _cpos;
+                option.storeRange(option.pos);
+                option.appendToBuffer(_gbuffer, option.constants.StreamBufferConstant);
+                //option.nextMode = 1;
+                return parent;
             }
             // + | put this line to buffer and skip   
             return q.moveToNextPattern(patternInfo, option, _old, markerInfo,
@@ -407,19 +412,13 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         }
         return _line;
     }
+
     /**
      * 
      * @param {*} option 
      */
     start(option) {
-        // init and start buffering
-        this._onStart();
-    }
-    _onStart() {
-
-    }
-    _onEnd() {
-
+        this.initialMode = option.nextMode;
     }
 }
 

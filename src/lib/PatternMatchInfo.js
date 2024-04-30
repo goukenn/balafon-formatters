@@ -202,6 +202,9 @@ class PatternMatchInfo {
     get isEndCaptureOnly() {
         return this.marker?.isEndCaptureOnly;
     }
+    get isWhileCaptureOnly() {
+        return this.marker?.isWhileCaptureOnly;
+    }
     get isBeginCaptureOnly() {
         return this.marker?.isBeginCaptureOnly;
     }

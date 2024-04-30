@@ -143,8 +143,8 @@
             ]
         },
         "inner-variable":{
-            "begin": "(?i)(\\$($)?[a-z_][a-z_0-9]*)",
-            "end": "$|\\)|(?=\\+|%|\\/|\\*|'|\"|-)",
+            "begin": "(?i)(\\$(\\$)?[a-z_][a-z_0-9]*)",
+            "end": "$|\\)|(?=\\+|%|\\/|\\*|'|\"|\\}|\\{|\\))",
             "name": "variable.name",
             "comment": "detect litteral variable to apply to node",
             "patterns": [
@@ -164,11 +164,11 @@
                     "formattingMode": 1
                 },
                 {
-                    "match": "($)?[a-z_][a-z_0-9]*",
+                    "match": "(\\$)?[a-z_][a-z_0-9]*",
                     "name": "subinvocation.bview"
                 },
                 {
-                    "match": ";|\\s*$",
+                    "match": ";| |\\s*$",
                     "formattingMode": 1
                 }
             ]
@@ -247,7 +247,7 @@
             "comment": "append tag",
             "transform": [
                 "trim",
-                "[ $0 ]"
+                "[ $0 - ]"
             ],
             "isGlueValue": " ",
             "captures": {

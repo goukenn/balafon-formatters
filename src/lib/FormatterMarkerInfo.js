@@ -31,6 +31,17 @@ class FormatterMarkerInfo{
      */
     currentMode;
 
+    /**
+     * use to capture entry 
+     * @var {?string}
+     */
+    captureEntry;
+
+    /**
+     * store context join with
+     */
+    joinWith;
+
     toString(){
         return 'FormatterMarkerInfo#'+this.marker.toString();
     }

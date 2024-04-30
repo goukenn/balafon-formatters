@@ -52,9 +52,10 @@
           ".demodata"
         ],
         "aliases": [
-          "demo data handling",
+          "DemoData",
           "demodata"
-        ]
+        ],
+        "configuration": "./languages/bview.language-configuration.json"
       },
       {
         "id": "bview",
@@ -65,7 +66,7 @@
           "Balafon bview",
           "bview"
         ],
-        "configuration": "./languages/bview.language.json"
+        "configuration": "./languages/bview.language-configuration.json"
       },
       {
         "id": "phtml",
@@ -86,7 +87,7 @@
           "Balafon bcss",
           "Bcss"
         ],
-        "configuration": "./languages/bcss.language.json"
+        "configuration": "./languages/bcss.language-configuration.json"
       },
       {
         "id": "bjs",
@@ -97,7 +98,7 @@
           "Balafon javascript module",
           "bjs"
         ],
-        "configuration": "./languages/bjs.language.json"
+        "configuration": "./languages/bjs.language-configuration.json"
       },
       {
         "id": "pcss",
@@ -108,7 +109,18 @@
           "Balafon php styles",
           "pcss"
         ],
-        "configuration": "./languages/pcss.language.json"
+        "configuration": "./languages/pcss.language-configuration.json"
+      },
+      {
+        "id":"bhtml",
+        "extensions":[
+          ".bhtml"
+        ],
+        "aliases":[
+          "Balafon html",
+          "bhtml"
+        ],
+        "configuration":"./languages/bhtml.language-configuration.json"
       }
     ],
     "grammars": [
@@ -136,9 +148,17 @@
         "path": "./src/formatters/phtml.btm-syntax.json"
       },
       {
+        "language":"bhtml",
+        "scopeName": "source.bhtml",
+        "path":"./src/formatters/bhtml.btm-syntax.json",
+        "embeddedLanguages": {
+          "source.php":"php"
+        }
+      },
+      {
         "language": "demodata",
         "scopeName": "source.demodata",
-        "path": "./src/formatters/demo.btm-syntax.json"
+        "path": "./src/formatters/demodata.btm-syntax.json"
       },
       {
         "language": "bjs",

@@ -2,6 +2,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
+const { FormatterResourceLoadingPattern } = require("./FormatterResourceLoadingPattern");
 
 class Utils {
     static TestScope;
@@ -143,18 +144,12 @@ class Utils {
                 let _o = null, _key = null, _def = null;
                 if (include) {
                     if (include[0] == '#') {
+                        // + | LOAD INCLUDE PROPERTY . #include
                         _key = include.substring(1);
-                        // + | LOAD INCLUDE PROPERTY
-
-                        // if (_key in parser.includes){
-                        //     _o = new refkey_class_name(parser.includes[_key]);
-                        // }
-                        // else 
                         if (_key in parser.includes) {
                             _o = new refkey_class_name(parser.includes[_key]);
                         }
                         else {
-
                             if (refKey && (refKey == _key) && refObj) {
                                 _o = new refkey_class_name(q);
                             } else {
@@ -169,6 +164,10 @@ class Utils {
                                 }
                             }
                         }
+                    } else {
+                        // TODO: load engine source formatter - or not
+                        // _o = new FormatterResourceLoadingPattern(include);
+                        console.log("loading source , ", include);
                     }
                 }
                 else if (_extends) {
@@ -182,8 +181,7 @@ class Utils {
                 }
                 if (_o) {
                     _out.push(_o);
-                }
-
+                } 
             });
             return _out;
         }
@@ -387,8 +385,8 @@ class Utils {
     }
 
 
-    static ReplaceRegexGroup(s, group) {
-        let gp = Utils.GetRegexFrom(s, group);
+    static ReplaceRegexGroup(s, group, op) {
+        let gp = Utils.GetRegexFrom(s, group, null,op);
         gp = gp.toString().substring(1).slice(0, -1).replace(/\\\//g, "/");
         s = s.replace(s, gp);
         return s;
@@ -647,7 +645,6 @@ class Utils {
         let _bckCapture = _formatter.info.captureGroup;
         _formatter.info.captureGroup = group;
         const q = option;
-        // debug && Debug.log('---::::treatEndCaptures::::--- contains patterns');
         if (_formatter.settings.useCurrentFormatterInstance) {
             option.pushState();
             // backup setting
@@ -726,7 +723,7 @@ class Utils {
         const { RegexUtils } = Utils.Classes;
         let m = endRegex.toString();
         m = m.substring(0, m.lastIndexOf('/') + 1).slice(1, -1);
-        m = RegexUtils.UnsetCapture(m); // .replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
+        m = RegexUtils.UnsetCapture(m);
         let reg = new RegExp(m);
         let _ret = reg.exec(line);
         if (_ret) {

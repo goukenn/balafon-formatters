@@ -68,7 +68,7 @@ class Patterns{
     isBlock;
 
     /**
-     * get or set condition expression to set if this element is a bloc.
+     * get or set condition expression to set if this element is a block.
      * @var {?string}
      */
     emptyBlockCondition;
@@ -148,7 +148,25 @@ class Patterns{
     transform;
 
     /**
-     * formatting mode
+     * match transform after tranform definition
+     * @var {null|undefined|RegExp|string}
+     */
+    transformMatch;
+
+    /**
+     * capture use for captures treatment
+     * @var  {null|undefined|captures}
+     */
+    transformCaptures;
+
+    /**
+     * formatting mode after begin of (begin/end) selection
+     * @var {?number}
+     */
+    beginFormattingMode;
+
+    /**
+     * formatting mode - after rendering the element
      */
     formattingMode = 0;
 
@@ -156,6 +174,12 @@ class Patterns{
      * a glue value - to merge on 
      */
     isGlueValue;
+
+    /**
+     * same value with
+     * @var {?string} join 
+     */
+    joinWith;
 
     /**
      * throw error on matching
@@ -169,6 +193,12 @@ class Patterns{
      * @var {?string|'parent'|'next'}
      */
     streamAction;
+
+    /**
+     * stream formatter
+     * @var {{format(buffer: string):string}|(buffer:string):string}
+     */
+    streamFormatter;
 
     /**
      * captures to attach on stream or use captures as a fallback
@@ -262,6 +292,7 @@ class Patterns{
             end: _regex_parser,
             match: _regex_parser,
             replaceWith: _regex_parser,
+            transformMatch: _regex_parser,
             replaceWithCondition(n , parser, ){
                 let m = new ReplaceWithCondition; 
                 JSonParser._LoadData(parser, m, n, refObj);  
@@ -271,6 +302,7 @@ class Patterns{
             endCaptures :_capture_parser,
             captures :_capture_parser,
             streamCaptures: _capture_parser,
+            transformCaptures: _capture_parser,
            transform,
            lineFeed(d, parser){
                 return typeof(d)=='boolean' ? d : false; 

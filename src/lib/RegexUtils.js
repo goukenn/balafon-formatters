@@ -7,6 +7,11 @@ const START_HERE = "(??)";
  * regex utility class 
  */
 class RegexUtils{
+    /**
+     * remove capture brancket
+     * @param {string} str 
+     * @returns 
+     */
     static RemoveCapture(str){
         let l = str;
         let p = 0;
@@ -28,6 +33,10 @@ class RegexUtils{
                         i--;
                 }
                 escaped = ch=="\\";
+                index++;
+            }
+            //+ | fix: remove repeating brank symbol
+            if ((index+1<ln)&&(/[\\?\\*]/.test( l[index+1]))){
                 index++;
             }
             return l.substring(0, start_index)+l.substring(index+1);
@@ -61,7 +70,38 @@ class RegexUtils{
      * @param {*} m 
      */
     static UnsetCapture(m){
-        return m.replace(/\(\?(?:(?:=|<=|:))(.+)\)/, "$1");
+        const _regex = /\(\?(:|<|=)/;
+        let p = null;
+        let s = '';
+        let ch = null;
+        while( p = _regex.exec(m)){
+            s = m.substring(0, p.index);
+            // + | remove branket dans leave content 
+            let i = 1;
+            let g = m.substring(p.index + p[0].length);
+            let ln = g.length;
+            let pos = 0;
+            while(pos<ln){
+                ch = g[pos];
+                if (ch==')'){
+                    i--;
+                    if (i==0){
+                        if ((pos+1<ln) && /\?|\*/.test(g[pos+1])){
+                            pos++;
+                        }
+                        let end = g.substring(0, pos)+g.substring(pos+1);
+                        s+= end;
+                        break;
+                    }
+                }
+                else if (ch=='(') {
+                    i++;
+                }
+                pos++;
+            } 
+            m = s;
+        } 
+        return m;
     }
 }
 

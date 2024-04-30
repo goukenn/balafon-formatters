@@ -58,18 +58,25 @@ class KAndRFormatting extends FormattingBase {
         let { _b } = _refData;
         let sb = '';
         let _bbuffer = option.buffer;
-        const { formatterBuffer } = option;
+        const { formatterBuffer, lineFeedFlag } = option;
 
         if (this.mergeEndBlock) {
             // + | remove last empty items.
-            _bbuffer = _bbuffer.trimEnd();
-            //_bbuffer = _bbuffer.trim();
+            _bbuffer = _bbuffer.trimEnd(); 
         }
         if (marker.childs.length == 0) {
-            sb = _bbuffer + _b.trimStart();
-            formatterBuffer.clear();
-            //option.output.push(sb);
-
+            sb = _bbuffer;
+            if (lineFeedFlag){
+                option.lineFeedFlag = false;
+                const buffer = option.saveBuffer();
+                option.appendExtraOutput();
+                option.output.push(_b.trimStart());                
+                sb += option.flush(true);
+                option.restoreSavedBuffer();
+            }else{
+                sb += _b.trimStart();
+            }
+            formatterBuffer.clear();  
             formatterBuffer.appendToBuffer(sb);
             formatterBuffer.clearOutput();
             _b = '';
@@ -93,9 +100,13 @@ class KAndRFormatting extends FormattingBase {
                 }
             }
         }
+        let _c_mode =  (marker.childs == 0)
+            ? FM_APPEND : FM_END_BLOCK;
+    
         // + | update marker mode to pass to parent
-        marker.mode = FM_END_BLOCK;
-        option.startLine = true;
+        // marker.mode = _c_mode;
+        option.nextMode = _c_mode;
+        option.startLine = (_c_mode== FM_END_BLOCK);
         if (_b && (marker.formattingMode == PatternFormattingMode.PFM_LINE_JOIN_END)) {
             option.formatterBuffer.appendToBuffer(_b.trimEnd());
             _b = '';

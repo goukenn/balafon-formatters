@@ -114,6 +114,12 @@ class FormattingBase {
         }
         option.lineFeedFlag = lineFeedFlag;
     }
+    /**
+     * retrieve append mode
+     */
+    get appendMode(){
+        return FM_APPEND;
+    }
     updateStartFormatting(mode, option) {
         switch (mode) {
             case FM_START_LINE:
@@ -121,6 +127,7 @@ class FormattingBase {
                 option.startLine = true;
                 break;
         }
+       
     }
     updateEmptySkipMatchedValueFormatting(parent, option, {mode, formattingMode}) {
         if (parent) {
@@ -156,27 +163,39 @@ class FormattingBase {
      * depending on marker mode update old marker content new value
      * update from buffer content. 
      */
-    updateOldMarkerContent({ content, marker, extra, buffer, option, mode , isEntryContent}) {
+    updateOldMarkerContent({ content, marker, extra, buffer, option, mode , isEntryContent,startBlock}) {
         let _ld = '';
-        const { debug } = option;
-        //let { mode } = marker;
+        const { debug, joinWith } = option;
         mode = mode == undefined ? FM_APPEND : mode;
         const _props = arguments[0];
         const { formatterBuffer } = option;
+       
         let _hasExtra = (extra.length > 0);
         let _hasBuffer = (buffer.length > 0);
         if (!_hasExtra && !_hasBuffer) {
             return content;
         }
+       
         const _undef = typeof (marker.mode) == 'undefined';
         // let _change_mode = _undef || (mode == marker.mode);
         let _append_next_mode = _undef ? FM_APPEND : marker.mode;
 
-        debug && (()=>{Debug.log("--::update old buffer::--"); console.log({content, buffer, extra, mode});})();
+        debug && (()=>{Debug.log("--::update old buffer::--"); 
+        console.log({content, buffer, extra, mode});})();
+
+        // + | check to update the marker content before  
+        // if (marker.isBlock && !marker.isBlockStarted)
+        // {
+        //     this.startBlockDefinition( option.formatter, marker, option);
+        // }
 
         switch (mode) {
             case FM_START_LINE:
-                _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra);
+                if (joinWith){
+                    _ld = buffer;
+                }else{
+                    _ld = this._treatOldMarkerContent(option, true, extra, buffer, _hasBuffer, _hasExtra);
+                }
                 if (_ld.length <= 0) { 
                     _append_next_mode = FM_START_LINE;
                 }
@@ -204,11 +223,12 @@ class FormattingBase {
                 break;
             case FM_END_INSTRUCTION: // after end instruction 
                 if (_hasExtra) {
-                    option.appendExtraOutput();
+                    // option.appendExtraOutput();
                     option.output.push(extra);
                     _ld = option.flush(true);
+                    _hasExtra = false;
                 }
-                if (buffer.length > 0) {
+                if (_hasBuffer) {
                     if (!_hasExtra) {
                         option.appendExtraOutput();
                     }
@@ -360,7 +380,7 @@ class FormattingBase {
     handleEndOnNonBlockElement(formatter, marker_info, option) {
         // + | append with line feed if requested
         const { parent, mode, lineFeed, formattingMode } = marker_info;
-        let _lf = (formattingMode == 1) || (lineFeed);
+        let _lf = (formattingMode == PatternFormattingMode.PFM_LINE_FEED) || (lineFeed);
         if (parent) {
             if (_lf) {
                 parent.mode = FM_START_LINE;
@@ -390,6 +410,7 @@ class FormattingBase {
      */
     updateEndBlockAfterRestoringBuffer(formatter, _marker, _buffer, _old, option) {
         const { parent, isBlock } = _marker;
+        let _mark_buffer = false;
         if (parent) {
             const { mode, childs, isAutoBlockElement } = parent;
             if (isAutoBlockElement) {
@@ -413,19 +434,31 @@ class FormattingBase {
                     _buffer = option.flush(true);
                     parent.mode = FM_END_BLOCK;
                 }
+            } else {
+                _mark_buffer = true;
             }
         }
-        option.formatterBuffer.appendToBuffer(_buffer);
-
-        if (isBlock && (option.markerInfo.length > 0)) {
+        const _next_old = (option.markerInfo.length > 0) ? option.markerInfo[0] : null;
+        if (!_mark_buffer)
+            option.formatterBuffer.appendToBuffer(_buffer);
+        else {
+            if (_next_old && _next_old.joinWith){
+                formatter.appendJoinToBuffer(_next_old.joinWith, option);
+                _next_old.joinWith = null;
+            }
+            option.appendToBuffer(_buffer, _marker);
+        }
+            if (isBlock && _next_old) {
             // + | update marker definition depending of the formatter
-            const _next_old = option.markerInfo[0];
             if (_next_old.currentMode == FM_APPEND) { 
                 // change mode to append item
                 _next_old.currentMode = FM_APPEND_BLOCK; 
                 option.nextMode = _next_old.marker.mode 
                 = FM_START_LINE;
             }
+        }
+        if (_next_old){
+
         }
     }
 
@@ -487,8 +520,7 @@ class FormattingBase {
     }
     onEndInstruction(marker, option) {
         // instruction        
-        marker.mode = FM_END_INSTRUCTION;
-        option.nextMode = FM_END_INSTRUCTION;
+        marker.mode = FM_END_INSTRUCTION; 
         this._updateGlobalMarkerOptionDefinition(marker, option);
     }
     formatJoinFirstEntry(entryBuffer, buffer) {
@@ -522,7 +554,8 @@ exports.FormattingBase = FormattingBase
  */
 const { KAndRFormatting } = require('./KAndRFormatting');
 const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK, FM_START_LINE_NEXT_LINE, FM_APPEND_BLOCK, FM_END_INSTRUCTION, FM_START_LINE_APPEND 
-, PatternFormattingMode} = require('./FormattingMode');
+, PatternFormattingMode,
+FormattingMode} = require('./FormattingMode');
 const { FormatterOptions } = require('../FormatterOptions');
 const { Formatters } = require('../Formatters');
 const { PatternMatchInfo } = require('../PatternMatchInfo');

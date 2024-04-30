@@ -36,7 +36,15 @@ class FormatterOptions {
     
     continue = false;
     lineJoin = false;
+    skipTreatEnd = false;
+    skipTreatWhile = false;
     markerDepth = 0; // store handleMarker stack
+
+    /**
+     * join with flag string
+     * @var {?string}
+     */
+    joinWith;
     /**
      * flag to call on end of file
      */
@@ -356,11 +364,11 @@ class FormatterOptions {
          * @param {*} matches 
          * @returns 
          */
-        option.treatBeginCaptures = function (patternInfo) {
+        option.treatBeginCaptures = function (patternInfo, _captures) {
             const { marker, group } = patternInfo;
             const { formatter } = this;
             // + | do capture treatment 
-            let _cap = { ...marker.captures, ...marker.beginCaptures };
+            let _cap = _captures || { ...marker.captures, ...marker.beginCaptures };
             if (is_emptyObj(_cap)) {
                 return;
             }
@@ -405,32 +413,34 @@ class FormatterOptions {
                 return value;
 
             };
-            debug && Debug.log('--:::TreatEndCapture:::--' + marker.name);
+            debug && Debug.log('--:::TreatEndCapture:::--' + marker);
             let def = endMatch;
-            if ((endMatch[0].length==0) && (_cap)&&(endMatch.input.length>0)){
+            // if ((endMatch[0].length==0) && (_cap)&&(endMatch.input.length>0)){
              
-                const p = Utils.GetNextCapture(endMatch.input, markerInfo.endRegex);
-                p.index = endMatch.index; 
-                p.indices = [[0, p[0].length]];
-                def = p;
-            } 
+            //     const p = Utils.GetNextCapture(endMatch.input, markerInfo.endRegex, this);
+            //     p.index = endMatch.index; 
+            //     p.indices = [[0, p[0].length]];
+            //     def = p;
+            // } 
             let _s = CaptureRenderer.CreateFromGroup(def, marker.name);
             if (_s) { 
+                
                 let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
-                    this
+                    q
                 );
                 markerInfo.endOutput = _g;
                 return _g;
             }
             return null; //this.treatCaptures(_cap, marker, endMatch);
         }
-        function getRenderOption(q) {
-            return {
-                debug: q.debug,
-                engine: q.engine,
-                formatter: _formatter
-            };
-        }
+      
+        // function getRenderOption(q) {
+        //     return {
+        //         debug: q.debug,
+        //         engine: q.engine,
+        //         formatter: _formatter
+        //     };
+        // }
 
         /**
          * deprecated use only renderer to treat value 
@@ -560,6 +570,26 @@ class FormatterOptions {
     }
 
     /**
+     * 
+     * @param {PatternMatchInfo} sourcePattern 
+     * @param {string} buffer 
+     * @returns {_gbuffer:string, _cpos:number}
+     */
+    treatAndFormat(sourcePattern, buffer){
+        let _cpos = buffer.length;
+        const _s = sourcePattern.streamFormatter;
+        if (_s){
+            if (typeof(_s)=='function'){
+                buffer = formatter(buffer);
+            } else if ((typeof(_s) == 'object') && _s.format){
+                buffer = _s.format(buffer);
+            } 
+            // update the new line
+            this.line = buffer + option.line.substring(_cpos);
+        }
+        return {_gbuffer: buffer, _cpos: buffer.length};
+    }
+    /**
      * reset flags definition
      */
     reset(){
@@ -569,12 +599,16 @@ class FormatterOptions {
         this.EOF=
         this.EOL=
         this.startLine=
-        this.lineFeedFlag=
+        this.lineFeedFlag =
+        this.skipTreatEnd = 
+        this.skipTreatWhile = 
         false;
-        this.glueValue = null;
         this.lineCount = 0;
         this.markerDepth = 0;
         this.nextMode = 1;
+        
+        this.glueValue = null;
+        this.joinWith = null;
 
     }
     cleanNewOldBuffers() {

@@ -1,5 +1,6 @@
 {
-    "scopeName": "scope.js",
+    "scopeName": "source.js",
+    "$schema": "https://igkdev.com/schemas/btm-syntax.json",
     "settings": {
         "instructionSeparator": ";"
     },
