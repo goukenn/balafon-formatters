@@ -268,11 +268,11 @@
                     "name": "meta.directive.comment.value.bcss",
                     "captures": {
                         "1": {
-                            "name": "directive.name.bcss",
+                            "name": "entity.name.type.directive.name.bcss directive.name.bcss",
                             "className": "describ-name"
                         },
                         "2": {
-                            "name": "directive.value.bcss",
+                            "name": "entity.name.function.directive.value.bcss directive.value.bcss",
                             "className": "describ-value",
                             "transform": [
                                 "trim",
