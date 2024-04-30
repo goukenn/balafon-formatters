@@ -1751,7 +1751,7 @@
         },
         "bcss-inline-directive":{
             "begin":"(@\\b(?:apply|import))\\b",
-            "end":";|$|(?=})",
+            "end":";|(?=\\})",
             "name":"inline.directive.bcss", 
             "endMissingValue":"",
             "beginCaptures":{
@@ -1768,11 +1768,12 @@
             },
             "formattingMode":1,
             "patterns": [
+                
                 {
-                    "match":"\\s+",
+                    "match":"\\s+|$",
                     "isGlueValue": " ",
                     "replaceWith": " "
-                }  ,
+                },               
                 {
                     "include": "#bcss-directive-uri-definition"
                 }

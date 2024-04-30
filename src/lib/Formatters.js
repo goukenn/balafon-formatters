@@ -849,7 +849,7 @@ class Formatters {
                 markerInfo.isShiftenName = false;
             } else
                 throw new Error('missing marker name');
-        }
+        } 
     }
     _treatMatchValue(_cm_value, _marker, option, _op, group) {
         group = group || _marker.group;
@@ -1251,7 +1251,9 @@ class Formatters {
         _cm_value = this._treatMatchValue(_cm_value, _marker, option, _op);
 
         // + skip empty value
-        let _skip_value = (option.startLine && (_cm_value.trim().length == 0)) ||
+        let _skip_value = (option.startLine && 
+            (option.glueValue==_marker.isGlueValue) &&
+            (_cm_value.trim().length == 0)) ||
             (_cm_value == '');
 
         // + | inject loging 
@@ -1829,6 +1831,8 @@ class Formatters {
             }
         }
         this._onEndHandler(_marker, option);
+
+        option.glueValue = null;
         option.cleanNewOldBuffers();
         // + |
         // + | to update join

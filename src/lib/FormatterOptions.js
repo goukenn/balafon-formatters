@@ -392,8 +392,8 @@ class FormatterOptions {
             }
             return null; // this.treatCaptures(_cap, marker, group);
         };
-        option.treatEndCaptures = function (markerInfo, endMatch) {
-            let _cap = { ...markerInfo.captures, ...markerInfo.endCaptures };
+        option.treatEndCaptures = function (markerInfo, endMatch, captures) {
+            let _cap = captures || { ...markerInfo.captures, ...markerInfo.endCaptures };
             if (is_emptyObj(_cap)) {
                 return endMatch[0];
             }
