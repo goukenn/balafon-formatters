@@ -10,6 +10,7 @@ const FM_END_BLOCK = 6;
 const FM_START_LINE = 2;
 const FM_START_LINE_NEXT_LINE = 7; 
 const FM_START_LINE_APPEND = 8; // start line then append 
+const FM_APPEND_TO_NEXT = 10;
 
 exports.FM_APPEND = FM_APPEND;
 exports.FM_START_LINE = FM_START_LINE; 
@@ -19,19 +20,22 @@ exports.FM_START_LINE_NEXT_LINE = FM_START_LINE_NEXT_LINE;
 exports.FM_END_INSTRUCTION = FM_END_INSTRUCTION; 
 exports.FM_START_LINE_APPEND = FM_START_LINE_APPEND; 
 exports.FM_APPEND_BLOCK = FM_APPEND_BLOCK; 
+exports.FM_APPEND_TO_NEXT = FM_APPEND_TO_NEXT; 
 
 /**
  * configured formatting mode 
  */
-//require line feed on pattern
+// format as single line feed
 const PFM_LINE_FEED = 1;
-//require join for single pattern
+// require join for single pattern
 const PFM_LINE_JOIN_END = 2; 
 // join line formatting mode 
 const PFM_LINE_JOIN = 3;
 
 // enable streaming buffer
 const PFM_STREAMING = 4;
+
+const PFM_APPEND_THEN_LINE_FEED = 5;
 
 
 exports.PatternFormattingMode = {
@@ -46,6 +50,9 @@ exports.PatternFormattingMode = {
     },
     get PFM_STREAMING(){
         return PFM_STREAMING;
+    },
+    get PFM_APPEND_THEN_LINE_FEED(){
+        return PFM_APPEND_THEN_LINE_FEED;
     }
 };
 

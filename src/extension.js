@@ -50,20 +50,23 @@ function formatAllDocument(document, format){
  * 
  * @param {vscode.ExtensionContext} context 
  */
-function activate(context){
-    // vscode.Document
-    // + register language formatters 
-    console.log("activate extensions");
-    ["bcss","bview","phtml","bjs","pcss", "demodata", "bhtml"].forEach((a)=>{
-        console.log("register language formatter : "+a);
-        context.subscriptions.push(vscode.languages.registerDocumentFormattingEditProvider(
+function activate(context){    
+    // + | register language formatters     
+    const languageFormatter = new Map();
+    ["bcss","bview","phtml","bjs","pcss", "demodata", "bhtml"].forEach((a)=>{;
+        let p = vscode.languages.registerDocumentFormattingEditProvider(
             a,{
                 provideDocumentFormattingEdits(document,options,token){
                     return [formatAllDocument(document, a,options, token)];
                 }
             }
-        ));
+        );
+        context.subscriptions.push(p);
+        languageFormatter.set(a, p);
     });
+    // + | register extension command
+
+
     // + get workspace configuration 
     // let config = vscode.workspace.getConfiguration("editor.tokenColorCustomizations");
     // let { textMateRules } = config;

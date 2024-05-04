@@ -233,7 +233,11 @@
       }
     ],
     "configurationDefaults": {
-      "balafon.defaultAuthor": "C.A.D BONDJE DOUE"
+      "balafon.defaultAuthor": "C.A.D BONDJE DOUE",
+      "html.format.enable":true,
+      "javascript.format.enable": true,
+      "typescript.format.enable": true,
+      "json.format.enable": true
     }
   },
   "publisher": "CADBONDJEDOUE"

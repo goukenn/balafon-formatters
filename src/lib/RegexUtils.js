@@ -62,6 +62,8 @@ class RegexUtils{
         if (s==null){
             return false;
         }
+        s = s.split('|').join('').trim();
+
         f = s.length==0;  
         return f;
     }

@@ -160,7 +160,7 @@ class PatternMatchInfo {
          * 
          * @param {*} marker 
          */
-        this.use = function ({ marker, endRegex, group, line, parent, patterns , fromGroup, index=-1}) {
+        this.use = function ({ marker, endRegex, group, line, parent, patterns, formatting, fromGroup, index=-1}) {
             m_marker = marker;
             m_endRegex = endRegex;
             m_group = group;
@@ -168,7 +168,7 @@ class PatternMatchInfo {
             m_parent = parent;
             // setup configurable properties
             m_isBlock = marker.isBlock;
-            m_lineFeed = marker.lineFeed || (marker.formattingMode == 1);
+            m_lineFeed = marker.lineFeed || formatting.isLineFeed(marker.formattingMode); 
             m_patterns = patterns;
             m_fromGroup = fromGroup;
             m_index = index;

@@ -17,6 +17,23 @@ const ALLOW_WHITE_SPACE = [FM_APPEND, FM_START_LINE];
 class KAndRFormatting extends FormattingBase {
     mergeEndBlock = true;
 
+    /**
+     * join stream buffer
+     * @param {number} mode 
+     * @param {string} buffer 
+     * @param {string} append 
+     * @returns 
+     */
+    joinStreamBuffer(mode, buffer, append){
+        switch(mode){
+            case FM_START_BLOCK:
+                buffer = buffer.trimEnd()+append;
+                return buffer;
+            
+        }
+        return super.joinStreamBuffer(mode, buffer, append);
+    }
+
     updateMergeEndBlock({ content, marker, option, extra, buffer, _hasBuffer, _hasExtra }) {
         if (this.mergeEndBlock) {
             return super.updateMergeEndBlock(arguments[0]);
@@ -74,7 +91,7 @@ class KAndRFormatting extends FormattingBase {
                 sb += option.flush(true);
                 option.restoreSavedBuffer();
             }else{
-                sb += _b.trimStart();
+                sb += _b.trimStart(); 
             }
             formatterBuffer.clear();  
             formatterBuffer.appendToBuffer(sb);
@@ -106,13 +123,11 @@ class KAndRFormatting extends FormattingBase {
         // + | update marker mode to pass to parent
         // marker.mode = _c_mode;
         option.nextMode = _c_mode;
-        option.startLine = (_c_mode== FM_END_BLOCK);
+        option.startLine = this.isStartLine(_c_mode);
         if (_b && (marker.formattingMode == PatternFormattingMode.PFM_LINE_JOIN_END)) {
             option.formatterBuffer.appendToBuffer(_b.trimEnd());
             _b = '';
-        }
-
-
+        } 
         _refData._b = _b;
         return _refData;
     }

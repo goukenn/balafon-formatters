@@ -290,12 +290,12 @@ class Utils {
             // +| treat begin captures must be at corresponding data info
 
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index, option.formatter.formatting);
             return _info;
         }
         return _a;
     }
-    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1) {
+    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1, formatting) {
         _info.use({
             marker: _a,
             endRegex: _a.endRegex(_match),
@@ -304,7 +304,8 @@ class Utils {
             parent: parentMatcherInfo,
             patterns,
             fromGroup: _from,
-            index
+            index,
+            formatting
         });
     }
     /**
@@ -316,13 +317,14 @@ class Utils {
      * @returns 
      */
     static GetPatternMatcherInfoFromLine(line, patterns, option, parentMatcherInfo) {
-        const { debug, depth, lineCount } = option;
+        const { debug, depth, lineCount, formatter } = option;
         const { RefPatterns, FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
         let pos = 0;
         let _from = null;
         let index = -1;
+        const { formatting } = formatter;
         ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, line, option, parentMatcherInfo));
 
         if (_a) {
@@ -350,7 +352,7 @@ class Utils {
             // +| treat begin captures must be at corresponding data info 
 
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index, formatting);
             return _info;
         }
         return _a;
@@ -714,8 +716,8 @@ class Utils {
     }
     /**
      * get next capture data
-     * @param {*} line 
-     * @param {*} endRegex 
+     * @param {string} line 
+     * @param {string} endRegex 
      * @param {*} option 
      * @returns 
      */

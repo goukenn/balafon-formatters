@@ -3,7 +3,7 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { FormatterBuffer } = require('./FormatterBuffer');
-const { SpecialMeaningPatternBase } = require('./Formatters');
+const { SpecialMeaningPatternBase, Patterns } = require('./Formatters');
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
 const { FormattingMode } = require("./Formattings/FormattingMode");
@@ -20,6 +20,8 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
     initialMode = 1;
     startPosition;
     started = false;
+    closed = false;
+    marked = false;
     endFoundListener;
     /**
   * backup source marker info
@@ -29,6 +31,8 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
      * backup stream token list
      */
     sourceTokenList;
+
+
 
     get matchType() {
         return 4;
@@ -40,7 +44,15 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         let m_saved = { saved: false, started: false };
         const self = this;
 
-        this.appendToBuffer = function (v) {
+        this.appendToBuffer = function (v, def) {
+            if (def) {
+                const {_marker, formatting} = def;
+                if (_marker && formatting && (_marker.mode != 1) ){
+                    let _buffer = this.formatterBuffer.buffer;
+                    v = formatting.joinStreamBuffer(_marker.mode, _buffer, v);
+                    this.formatterBuffer.clear();
+                }
+            }
             this.formatterBuffer.appendToBuffer(v);
             return v;
         }
@@ -51,6 +63,8 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         Object.defineProperty(this, 'buffer', { get() { return this.formatterBuffer.buffer; } });
         Object.defineProperty(this, 'begin', { get() { return this.from?.begin; } });
         Object.defineProperty(this, 'end', { get() { return this.from?.end; } });
+        Object.defineProperty(this, 'comment', { get() { return this.from?.comment; } });
+        Object.defineProperty(this, 'index', { get() { return this.from?.index; } });
         Object.defineProperty(this, 'patterns', {
             get() {
                 return this.from?.patterns;
@@ -59,6 +73,22 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                 throw new Error('failed to set patterns not allowed');
             }
         });
+
+        // Object.defineProperty(this, 'comment', {get:function(){
+        //     return "Hello";
+        // }});
+        const q = this;
+        Object.keys(FormatterStreamBuffer.prototype).forEach(a => {
+            if (/(from)/.test(a))
+                return;
+            Object.defineProperty(q, a, {
+                get: function () {
+                    // console.log("this from ", q.from?.marker.comment);
+                    return q.from ? q.from[i] : undefined;
+                }
+            });
+        });
+
     }
     get newLineContinueState() {
         return false;
@@ -76,10 +106,17 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         return this.from.isBeginCaptureOnly;
     }
     get patterns() {
-        return this.from.patterns;
+        return this.from?.patterns;
     }
     get indexOf() {
         return this.from?.indexOf;
+    }
+    get endRegex() {
+        return this.from?.endRegex;
+    }
+
+    get marker() {
+        return this.from?.marker;
     }
 
     // class on end of file 
@@ -125,6 +162,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             let _nbuffer = option.buffer;
             if (!_restored && (_nbuffer.length > 0)) {
                 q.appendToBuffer(_nbuffer);
+                //option.formatterBuffer.clear();
             }
         }
         function _restoreState(option, _bck) {
@@ -202,13 +240,22 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                 };
                 // + | Set add to buffer listener : data
                 option.appendToBufferListener = (v, _marker, treat, option) => {
-                    _buffer = option.buffer;
+                    let _buffer = option.buffer;
+                    const { formatting } = option.formatter;
+                    const _def = {_marker, formatting} ;
+                    if (treat && !q.from.formatter){
+                        v = option.treatValueBeforeStoreToBuffer(_marker, v);
+                    }
+
+
                     if (_buffer.length > 0) {
-                        q.appendToBuffer(_buffer);
+                        if (_buffer != option.glueValue){
+                        q.appendToBuffer(_buffer, _def);
                         option.formatterBuffer.clear();
+                        }
                     }
                     if (v.length > 0)
-                        q.appendToBuffer(v);
+                        q.appendToBuffer(v, _def);
                     return v;
                 };
                 _bck.saved = true;
@@ -240,6 +287,12 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                     // + | just start stream buffer 
                     _buffer = '';
                 }
+                if (!q.marked) {
+                    const _stream_old = _formatter._updateMarkerOldContentOrSwapBuffer(markerInfo, null, '', null, option);
+                    q.marked = true;
+                    _stream_old.endFound = endFound;
+                }
+
                 r = _formatter.handleMatchLogic({
                     _p,
                     _old,
@@ -261,6 +314,11 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                         return markerInfo;// q.from;
                     }
                 });
+
+                if (q.closed && q.marked) {
+                    option.shiftAndRestoreFrom(markerInfo, false);
+                }
+
             } catch (e) {
                 // update buffer 
                 console.log("End buffer..... ", e);
@@ -273,6 +331,12 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             if (r && !(r instanceof PatternMatchInfo)) {
                 throw new Error("pattern not valid");
             }
+            if (!q.closed) {
+                if (r === q.from) {
+                    return markerInfo;
+                }
+            }
+
             return r;
         };
     }
@@ -326,6 +390,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             const { parent, streamAction } = patternInfo;
             const { formatter } = option;
             const { endRegex } = markerInfo;
+            q.closed = true;
             // + backup line 
             let _cline = option.line; // all line 
             let _cpos = option.pos;
@@ -339,7 +404,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             _next_position = _nextCapture.index + _nextCapture.offset;
             if (!_nextCapture) {
                 throw new Error('missing capture');
-            } 
+            }
             const _end = _nextCapture[0];
             const _sline = _line.substring(0, _nextCapture.index);
             _line = _line.substring(_nextCapture.index + _end.length);
@@ -385,6 +450,12 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                 option.pos = _cpos;
                 option.storeRange(option.pos);
                 option.appendToBuffer(_gbuffer, option.constants.StreamBufferConstant);
+
+                // passing children to parent
+                if (parent && (patternInfo.childs.length > 0)) {
+                    patternInfo.childs.forEach(a => parent.childs.push(a));
+                }
+
                 //option.nextMode = 1;
                 return parent;
             }
@@ -421,6 +492,5 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         this.initialMode = option.nextMode;
     }
 }
-
 
 exports.FormatterStreamBuffer = FormatterStreamBuffer;

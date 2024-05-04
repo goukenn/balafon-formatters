@@ -94,6 +94,16 @@ class FormatterOptions {
     skipEmptyMatchValue = false; 
 
     /**
+     * flag to skip update start line logic
+     */
+    skipUpdateStartLine = false;
+
+    /**
+     * on stream buffer handler skip marker flag
+     */
+    skipMarkerFlag = false;
+
+    /**
      * next mode
      * @var {number}
      */
@@ -330,7 +340,7 @@ class FormatterOptions {
          * @param {*} _marker 
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
-            const { debug, engine } = this;
+            const { debug } = this;
             debug && Debug.log("[append to buffer] - ={" + value + '}');
             let _buffer = value;
             if (value.length > 0) {
@@ -338,18 +348,9 @@ class FormatterOptions {
                     value = m_appendToBufferListener(value, _marker, treat, this);
                 }
                 else {
-                    const { listener, tokenChains } = this;
-                    if (treat && listener?.renderToken) {
-                        _shiftMarkerInfo(_marker.marker, tokenChains);
-                        // + | shift to token marker info 
-                        (()=>{
-                            // + | add extra to to token chains
-                            _marker.name && !_marker.isShiftenName && tokenChains.unshift(_marker.name);
-                            
-                        })()
-                        const tokenID = getTokenID(_marker);
-                        _buffer = listener.renderToken(_buffer, tokenChains, tokenID, engine, debug, _marker);
-                    }
+                    if (treat){
+                        _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
+                    } 
                     this.formatterBuffer.appendToBuffer(_buffer);
                 }
             }
@@ -357,7 +358,21 @@ class FormatterOptions {
             if (raise)
             _formatter.onAppendToBuffer(_marker, _buffer, option);
         }
-
+        option.treatValueBeforeStoreToBuffer = function (_marker, _buffer){
+            const { listener, tokenChains, engine } = this;
+            if (listener?.renderToken) {
+                _shiftMarkerInfo(_marker.marker, tokenChains);
+                // + | shift to token marker info 
+                (()=>{
+                    // + | add extra to to token chains
+                    _marker.name && !_marker.isShiftenName && tokenChains.unshift(_marker.name);
+                    
+                })()
+                const tokenID = getTokenID(_marker);
+                _buffer = listener.renderToken(_buffer, tokenChains, tokenID, engine, debug, _marker);
+            }
+            return _buffer;
+        }
         /**
          * treat begin captures
          * @param {*} _marker 
@@ -609,7 +624,6 @@ class FormatterOptions {
         
         this.glueValue = null;
         this.joinWith = null;
-
     }
     cleanNewOldBuffers() {
         const option = this;
@@ -662,7 +676,7 @@ class FormatterOptions {
                 return this.markerInfo.shift();
             }
             if (throwError) {
-                throw new Error('missing markerInfo');
+                throw new Error('missing markerInfo [shift Marker Info] ');
             }
         }
         return null;
