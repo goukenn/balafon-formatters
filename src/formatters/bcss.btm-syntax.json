@@ -1728,7 +1728,8 @@
                 {
                     "begin": "\\:",
                     "end": ";|\\{|\\}",
-                    "name": "invalid.data"
+                    "name": "invalid.data",
+                    "isInstructionSeparator":true
                 }
             ]
         },

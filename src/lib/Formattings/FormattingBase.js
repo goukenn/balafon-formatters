@@ -360,13 +360,19 @@ class FormattingBase {
      */
     onAppendToBuffer(formatter, marker, value, option) {
         let { mode } = marker;
+        const { debug } = option;
         if (option.markerInfo.length > 0) {
             const _old = option.markerInfo[0];
-            // + | change current mode accorgin to formatting
+            debug && Debug.log("onAppend to buffer - value={"+value+"}");
+            // + | change current mode according to formatting rule
             if (marker.formattingMode == PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED) {
+               
                 if (this.canChangeNextFormatting(_old.currentMode)){
+                    if (option.startLine && (option.line.trimStart().indexOf(value)==0)){
+                        _old.currentMode = FM_START_LINE;
+                    } else
                     _old.currentMode = FM_APPEND_TO_NEXT;
-                }
+                } 
             } 
         }
         if (marker.lineFeed) {
