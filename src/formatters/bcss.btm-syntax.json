@@ -1038,7 +1038,7 @@
         "bcss-inline-operator-selector": {
             "patterns": [
                 {
-                    "match": "\\s*(>|\\+|~|,)\\s*(?=\\*|[a-z#\\.])?",
+                    "match": "\\s*(>|\\+|~|,)\\s*(?=\\*|[a-z#\\.])",
                     "transform": [
                         "trim",
                         "[ $0]"
@@ -1050,7 +1050,15 @@
                         }
                     }
                 }
-                
+                ,
+                {  
+                    "match": "\\s*(>|\\+|~|,)\\s*",
+                    "comment":"glue with white space",
+                    "transform": [
+                        "trim",
+                        "[ $0]"
+                    ]
+                }
             ]
         },
         "css-event-property": {
@@ -2160,12 +2168,8 @@
                 },
                 {
                     "include":"#end-instruction"
-                },
-                {
-                    "match":"\\+",
-                    "name":"start.operator.ins.bcss",
-                    "throwError":"1operator"
                 }
+                
 
             ]
         }
