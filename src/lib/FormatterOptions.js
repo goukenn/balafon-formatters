@@ -110,6 +110,11 @@ class FormatterOptions {
     nextMode = 1;
 
     /**
+     * last rendered token 
+     */
+    lastToken;
+
+    /**
      * .ctr
      * @param {*} _formatter 
      * @param {*} _formatterBuffer 
@@ -369,7 +374,7 @@ class FormatterOptions {
                     
                 })()
                 const tokenID = getTokenID(_marker);
-                _buffer = listener.renderToken(_buffer, tokenChains, tokenID, engine, debug, _marker);
+                _buffer = listener.renderToken(_buffer, tokenChains, tokenID, engine, debug, _marker, option);
             }
             return _buffer;
         }
@@ -423,7 +428,7 @@ class FormatterOptions {
                     // treat buffer marker 
                     const op = [];
                     value = _formatter.treatMarkerValue(cap, value, op);
-                    value = listener.renderToken(value, tokens, tokenID, engine, debug, cap);
+                    value = listener.renderToken(value, tokens, tokenID, engine, debug, cap,q);
                 }
                 return value;
 

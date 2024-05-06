@@ -347,6 +347,7 @@ class FormattingBase {
     canChangeNextFormatting(mode){
         switch(mode){
             case FM_END_INSTRUCTION:
+            case FM_END_BLOCK:
                 return true;
             
         }
@@ -373,6 +374,7 @@ class FormattingBase {
                     } else
                     _old.currentMode = FM_APPEND_TO_NEXT;
                 } 
+                
             } 
         }
         if (marker.lineFeed) {

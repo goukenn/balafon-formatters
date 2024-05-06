@@ -216,7 +216,7 @@ class CaptureRenderer{
                         }
                     } 
                     if (listener && !_treat_pattern){
-                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap); 
+                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option); 
                     }
                     if (q.parent){
                         // update parent value.
@@ -236,7 +236,7 @@ class CaptureRenderer{
         let treat_constant = function(c, listener){
             if (c.length>0){
                 if (listener){
-                    c = listener.renderToken(c, ['constant.definition']);
+                    c = listener.renderToken(c, ['constant.definition'], 'constant', engine, debug, null, option);
                 }
             }
             return c;

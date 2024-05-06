@@ -21,6 +21,7 @@ const { FormatterMarkerInfo } = require("./FormatterMarkerInfo");
 const { RegexUtils } = require("./RegexUtils");
 const { BlockInfo } = require("./BlockInfo");
 const { FormatterPatternException } = require("./FormatterPatternException");
+const { FormatterToken } = require("./FormatterToken");
 
 
 // + | --------------------------------------------------------
@@ -39,7 +40,8 @@ Utils.Classes = {
     RegexUtils,
     BlockInfo,
     FormatterPatternException,
-    FormatterCloseParentInfo
+    FormatterCloseParentInfo,
+    FormatterToken
 };
 
 let sm_globalEngine;
@@ -873,29 +875,54 @@ class Formatters {
                 throw new Error('missing marker name');
         } 
     }
-    _treatMatchValue(_cm_value, _marker, option, _op, group) {
+    /**
+     * 
+     * @param {*} _cm_value 
+     * @param {*} _marker 
+     * @param {*} option 
+     * @param {*} _op 
+     * @param {*} group 
+     * @param {boolean} group match treatment
+     * @returns 
+     */
+    _treatMatchValue(_cm_value, _marker, option, _op, group, treat=true) {
         group = group || _marker.group;
         _cm_value = this.treatMarkerValue(_marker, _cm_value, _op, option, this._getMatchGroup(group));
-        let _captures = _marker.captures;
-        if (_op.indexOf('transform') != -1) {
-            // transform 
-            if (_cm_value.length > 0) {
-                const _tmatch = _marker.transformMatch || _marker.match;
-                // + passing transformed to data
-                const _group = _tmatch.exec(_cm_value);
-                _captures = _marker.transformCaptures || _captures;
-                if (_group) {
-                    // copy groups
-                    _group.index = _marker.group.index;
-                    _marker.group.length = 0;
-                    _marker.group.indices = _group.indices;
-                    _group.forEach(a => _marker.group.push(a));
-                } else {
-                    throw new Error("failed transform error match error. use transform capture to handle")
-                }
+        if (treat){ 
+            _cm_value = this._treatMatchResult(_cm_value, _op, _marker, option);
+        }
+        return _cm_value;
+    }
+    /**
+     * treat transform capture
+     * @param {*} _cm_value 
+     * @param {*} _marker 
+     * @param {*} _captures 
+     * @returns 
+     */
+    _treatTransform(_cm_value ,_marker, _captures ){
+        if (_cm_value.length > 0) {
+            const _tmatch = _marker.transformMatch || _marker.match;
+            // + passing transformed to data
+            const _group = _tmatch.exec(_cm_value);
+            _captures = _marker.transformCaptures || _captures;
+            if (_group) {
+                // copy groups
+                _group.index = _marker.group.index;
+                _marker.group.length = 0;
+                _marker.group.indices = _group.indices;
+                _group.forEach(a => _marker.group.push(a));
+            } else {
+                throw new Error("failed transform error match error. use transform capture to handle")
             }
         }
-
+        return {_captures};
+    }
+    _treatMatchResult(_cm_value, _op, _marker, option){
+        let _captures = _marker.captures;
+        if (_op.indexOf('transform') != -1) { 
+            ({_captures} = this._treatTransform(_cm_value, _marker, _captures));           
+        } 
         if (_op.indexOf('replaceWith') == -1) {
             if (_captures) {
                 _cm_value = option.treatBeginCaptures(_marker, _captures);
@@ -1307,6 +1334,7 @@ class Formatters {
         // + | update cursor position
         option.pos = _next_position;
         const _op = [];
+        // + | treat match value
         _cm_value = this._treatMatchValue(_cm_value, _marker, option, _op);
 
         // + skip empty value
@@ -1405,9 +1433,20 @@ class Formatters {
             _start = false; // update the marker to handle start definition
             _buffer = this._updateOldMarkerContent(_old, option);
         } else if (patternInfo.start) {
-
+            // + | if (transform treat  )
+            let _captures = null;
+            if (patternInfo.transform){
+                // treat match value before 
+                let _cm_value = patternInfo.group[0];
+                let _op = [];
+                _cm_value = this._treatMatchValue(_cm_value, patternInfo, option, _op, null, false);
+                if (_op.indexOf('transform')!= -1){
+                    _captures = patternInfo.transformCaptures || null;
+                    this._treatTransform(_cm_value, patternInfo, _captures);                    
+                }
+            }
             // + | treat begin captures and update buffer
-            option.treatBeginCaptures(patternInfo);
+            option.treatBeginCaptures(patternInfo, _captures);
             patternInfo.start = false;
             if (patternInfo.isBlock) {
                 // - on base start width K_R coding style 
@@ -1768,7 +1807,7 @@ class Formatters {
         // calculate next position 
         const { debug } = option;
         const { parent } = _marker;
-        const _next_position = _p.index + _p[0].length; // do not move cursor until condition meet
+        let _next_position = _p.index + _p[0].length; // do not move cursor until condition meet
         let _append = option.line.substring(option.pos, _p.index);
         let _checkParentInfo = null;
         let _endCaptureCallback = null;
@@ -1782,10 +1821,11 @@ class Formatters {
                     parent,
                     buffer: _buffer,
                     _line,
-                    pos: option.pos,
+                    pos: _next_position,
                     line: option.line
                 };
                 _endCaptureCallback = this._closeNonCaptureBlock;
+                //_next_position = option.pos;
             }
         }
 
@@ -1958,40 +1998,52 @@ class Formatters {
         let treat = false;
         let _buffer = '';
         let _parentNextMode = option.nextMode;
+        let _end_non_capture= (p,tp)=>{
+            let _endFound = this._handleFoundEndPattern;
+            tp = tp || [''];
+            if (p.from && (option.markerInfo.length>0)){                    
+                let _pc_parent = p.from.parent;  
+                _old = option.shiftFromMarkerInfo(p.from, true);  
+                _old = option.shiftFromMarkerInfo(p, true);                
+                _endFound = _old.endFound || _endFound;
+                p = p.from;
+            }else{
+                _old = option.shiftFromMarkerInfo(p, true);
+            }
+            _buffer = _old ? this._updateOldMarkerContent(_old, option) : '';
+
+            // let _cline = _line.substring(tp.index);
+            // + | clear line input to update end buffer formatter
+            option.line = ''; // _cline;
+            option.pos = 0; // _cline.length;
+            tp.input = '';
+            option.skipTreatEnd = true;
+            p.endGroup = tp;
+            p = _endFound.apply(this, [_buffer, _line, p, tp, option, _old]);
+            option.skipTreatEnd = false;
+            if (p) {
+                // + | update nextMode Option
+                p.mode = _parentNextMode;
+            }
+            return p;
+        };
         // + | loop thru end captured data to close 
         while (info.parent && info.parent.isEndCaptureOnly) {
             p = info.parent; 
             let tp = p.endRegex.exec(_line);
             if (tp){  
-                let _endFound = this._handleFoundEndPattern;
-                if (p.from && (option.markerInfo.length>0)){                    
-                    let _pc_parent = p.from.parent;  
-                    _old = option.shiftFromMarkerInfo(p.from, true);  
-                    _old = option.shiftFromMarkerInfo(p, true);                
-                    _endFound = _old.endFound || _endFound;
-                    p = p.from;
-                }else{
-                    _old = option.shiftFromMarkerInfo(p, true);
-                }
-                _buffer = _old ? this._updateOldMarkerContent(_old, option) : '';
-
-                // let _cline = _line.substring(tp.index);
-                // + | clear line input to update end buffer formatter
-                option.line = ''; // _cline;
-                option.pos = 0; // _cline.length;
-                tp.input = '';
-                option.skipTreatEnd = true;
-                p.endGroup = tp;
-                p = _endFound.apply(this, [_buffer, _line, p, tp, option, _old]);
-                option.skipTreatEnd = false;
-                if (p) {
-                    // + | update nextMode Option
-                    p.mode = _parentNextMode;
-                }
+                p = _end_non_capture(p, tp);
                 treat = true;
             } else {
                 if (treat) { 
-                    throw new Error('end treatment - missmatch pattern: ' + p.toString());
+                    if (option.EOF){
+                        p = _end_non_capture(p,null);                        
+                        info.parent = p;
+                        break;
+                    }else{
+                        break; // return p;
+                        throw new Error('end treatment - missmatch pattern: ' + p.toString());
+                    }
                 }
                 p = null;
             }

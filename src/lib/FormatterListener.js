@@ -82,9 +82,14 @@ class FormatterListener {
      * @param {*} marker parent marker  
      * @returns {string}
      */
-    renderToken(value, tokens, tokenID, engine, debug, marker){
-
-        debug && Debug.log("render token", 0, {tokens,tokenID, value});
+    renderToken(value, tokens, tokenID, engine, debug, marker, option){
+        const { FormatterToken } = Utils.Classes;
+        const rt = new FormatterToken();
+        rt.tokens = tokens;
+        rt.tokenID = tokenID;
+        rt.value =  value;
+        option.lastToken = rt;
+        debug && Debug.log("render token", JSON.parse(JSON.stringify(rt)));
         if (engine){
             return engine.renderToken(value, tokens, tokenID, marker);
         } 

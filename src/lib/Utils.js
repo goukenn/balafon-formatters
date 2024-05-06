@@ -282,7 +282,8 @@ class Utils {
             }
             if (_a.throwError) {
                 let e = _a.throwError;
-                const msg = typeof (e) == 'object' ? e.message : 'invalid match';
+                let msg = typeof (e) == 'object' ? e.message : 'invalid match';
+                msg = msg.replace("%value%", "'"+_match[0]+"'");
                 throw new FormatterPatternException(msg, _a, _match, lineCount);
             }
             // + | add property to offset 

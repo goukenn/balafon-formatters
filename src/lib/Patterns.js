@@ -9,6 +9,10 @@ const { BlockInfo } = require('./BlockInfo');
 const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
 class Patterns {
     /**
+     * @var {undefined|null|string|{message:string, code: number}} lint error 
+     */
+    lintError;
+    /**
      * 
      */
     match;
@@ -148,7 +152,7 @@ class Patterns {
     transform;
 
     /**
-     * match transform after tranform definition
+     * match to apply after tranform definition
      * @var {null|undefined|RegExp|string}
      */
     transformMatch;
@@ -304,7 +308,19 @@ class Patterns {
             match: _regex_parser,
             replaceWith: _regex_parser,
             transformMatch: _regex_parser,
-            replaceWithCondition(n, parser,) {
+            lintError: function(n, parser){
+                const _t = typeof(n);
+                let _rt = {message:null,code:null};
+                if (_t =='string'){
+                    _rt.message = _t;
+                } else if (n){
+                    const {code, message} = n;
+                    _rt.message = message;
+                    _rt.code = code;
+                }
+                return _rt;
+            },
+            replaceWithCondition(n, parser) {
                 let m = new ReplaceWithCondition;
                 JSonParser._LoadData(parser, m, n, refObj);
                 return m;

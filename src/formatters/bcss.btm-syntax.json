@@ -282,11 +282,51 @@
                 },
                 {
                     "include": "#hex-colors"
+                },
+                {
+                    "include": "#function-colors"
+                }
+            ]
+        },
+        "function-colors": {
+            "begin": "\\b(rgb(a)?|hsl)\\b",
+            "end": "(?<=\\))",
+            "beginCaptures": {
+                "1": {
+                    "name": "entity.name.function.color-function.bcss color.function.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "patterns": [
+                        {
+                            "match": "\\s*,\\s*",
+                            "transform": [
+                                "trim",
+                                "[$0 ]"
+                            ]
+                        },
+                        {
+                            "match": "\\s+",
+                            "transform": [
+                                "trim"
+                            ]
+                        },
+                        {
+                            "match": "(?:\\.)?\\d+(\\.(\\d+)?)?",
+                            "name": "entity.name.type.constant",
+                            "transform": [
+                                "trim"
+                            ]
+                        }
+                    ]
                 }
             ]
         },
         "web-known-colors": {
-            "name": "constant.color.web.bcss",
+            "name": "constant.character.escape.web-color.bcss constant.color.web.bcss",
             "className": "color",
             "tokenID": "webcolor",
             "match": "\\b(aliceblue|antiquewhite|aqua|aquamarine|azure|beige|bisque|black|blanchedalmond|blue|blueviolet|brown|burlywood|cadetblue|chartreuse|chocolate|coral|cornflowerblue|cornsilk|crimson|currentcolor|cyan|darkblue|darkcyan|darkgoldenrod|darkgray|darkgreen|darkgrey|darkkhaki|darkmagenta|darkolivegreen|darkorange|darkorchid|darkred|darksalmon|darkseagreen|darkslateblue|darkslategray|darkslategrey|darkturquoise|darkviolet|deeppink|deepskyblue|dimgray|dimgrey|dodgerblue|firebrick|floralwhite|forestgreen|fuchsia|gainsboro|ghostwhite|gold|goldenrod|gray|green|greenyellow|grey|honeydew|hotpink|indianred|indigo|ivory|khaki|lavender|lavenderblush|lawngreen|lemonchiffon|lightblue|lightcoral|lightcyan|lightgoldenrodyellow|lightgray|lightgreen|lightgrey|lightpink|lightsalmon|lightseagreen|lightskyblue|lightslategray|lightslategrey|lightsteelblue|lightyellow|lime|limegreen|linen|magenta|maroon|mediumaquamarine|mediumblue|mediumorchid|mediumpurple|mediumseagreen|mediumslateblue|mediumspringgreen|mediumturquoise|mediumvioletred|midnightblue|mintcream|mistyrose|moccasin|navajowhite|navy|oldlace|olive|olivedrab|orange|orangered|orchid|palegoldenrod|palegreen|paleturquoise|palevioletred|papayawhip|peachpuff|peru|pink|plum|powderblue|purple|red|rosybrown|royalblue|saddlebrown|salmon|sandybrown|seagreen|seashell|sienna|silver|skyblue|slateblue|slategray|slategrey|snow|springgreen|steelblue|tan|teal|thistle|tomato|transparent|turquoise|violet|wheat|white|whitesmoke|yellow|yellowgreen)\\b"
@@ -344,6 +384,47 @@
             "formattingMode": 5,
             "transform": "rtrim"
         },
+        "web-litteral-var": {
+            "match": "\\s*(-)+[\\w\\-]+",
+            "name": "constant.type.litteral.var.bcss"
+        },
+        "native-css-function": {
+            "name": "native.css.function.bcss",
+            "begin": "\\b(clamp|calc|format|min|max|minmax|toggle|round|mod|rem|(a)?(cos|sin|tan(2)?)|pow|sqrt|hypot|log|exp|abs|sign|rgb|hsl|(ok)?(lch|lab)|color(-mix)?|device-cmyk|light-dark|attr|env|url|var|view|scroll|linear|steps|cubic-bezier|rotate|scale|translate|translate(X(Y(Z)?)?))\\b\\s*(\\()?",
+            "end": "\\)",
+            "beginCaptures": {
+                "1": {
+                    "name": "entity.name.function.native.function.bcss native.css.function.bcss"
+                }
+            },
+            "patterns": [
+                {
+                    "match": "\\s*(,)\\s*",
+                    "name": "punctuation.separator.bcss",
+                    "transform": "trim"
+                },
+                {
+                    "match": "\\s+(/|\\+|-|%|\\*)\\s+",
+                    "name": "operator.property.separator.bcss",
+                    "transform": [
+                        "trim",
+                        "[ $0 ]"
+                    ]
+                },
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#length-with-unit"
+                },
+                {
+                    "include": "#meaning-words"
+                },
+                {
+                    "include": "#css-name"
+                }
+            ]
+        },
         "css-value-definition": {
             "name": "value.definition.bcss",
             "patterns": [
@@ -361,10 +442,7 @@
                     "include": "#web-litteral-var"
                 },
                 {
-                    "include": "#web-known-colors"
-                },
-                {
-                    "include": "#hex-colors"
+                    "include": "#hex-color-type"
                 },
                 {
                     "include": "#time-constant-unit"
@@ -627,6 +705,34 @@
             "patterns": [],
             "isBlock": true
         },
+        "bcss-multi-line-comment": {
+            "begin": "/\\*",
+            "end": "\\*/",
+            "name": "comment.block",
+            "formattingMode": 5,
+            "patterns": [
+                {
+                    "match": "(?=\\$)",
+                    "formattingMode": 1
+                },
+                {
+                    "begin": "^\\s*\\*\\s",
+                    "end": "$",
+                    "name": "block.definition",
+                    "patterns": [
+                        {
+                            "begin": "(@\\b([a-z]+)\\b)",
+                            "end": "(?=$)",
+                            "beginCaptures": {
+                                "1": {
+                                    "name": "variable.language.document.block"
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        },
         "calc-constant": {
             "name": "constant.css.calc.bcss",
             "match": "(?i)\\b(NaN|pi|e)\\b"
@@ -643,7 +749,7 @@
             "match": "(?i)\\s*(#([0-9a-f]{8}|[\\da-f]{6}|[\\da-f]{4}|[\\da-f]{3}))\\s*",
             "captures": {
                 "1": {
-                    "name": "constant.type.hex.color.bcss"
+                    "name": "constant.character.escape.hex-color.bcss constant.type.hex.color.bcss"
                 }
             }
         },
@@ -926,9 +1032,6 @@
         "selector-detection": {
             "patterns": [
                 {
-                    "include": "#global-css-properties"
-                },
-                {
                     "include": "#meta-properties-selector"
                 },
                 {
@@ -961,9 +1064,6 @@
             "beginCaptures": {
                 "0": {
                     "patterns": [
-                        {
-                            "include": "#global-css-properties"
-                        },
                         {
                             "include": "#class-id-selector"
                         }
@@ -1049,11 +1149,10 @@
                             "name": "keyword.operator.punctuation.operator.bcss operator.join.bcss"
                         }
                     }
-                }
-                ,
-                {  
+                },
+                {
                     "match": "\\s*(>|\\+|~|,)\\s*",
-                    "comment":"glue with white space",
+                    "comment": "glue with white space",
                     "transform": [
                         "trim",
                         "[ $0]"
@@ -1087,7 +1186,6 @@
                 }
             }
         },
-        
         "array-attributes": {
             "begin": "\\[",
             "end": "\\]",
@@ -1139,10 +1237,19 @@
             "end": "\\)",
             "name": "func.block.bcss"
         },
+        "check-speudo-classes": {
+            "begin": "((?:\\:)?:)(active|any-link|autofill|blank|checked|current|default|defined|dir|disabled|empty|enabled|first|first-child|first-of-type|focus|focus-visible|focus-within|fullscreen|future|has|host|host|host-context|hover|indeterminate|in-range|invalid|is|lang|last-child|last-of-type|left|link|local-link|modal|not|nth-child|nth-last-child|nth-last-of-type|nth-of-type|only-child|only-of-type|optional|out-of-range|past|paused|picture-in-picture|placeholder-shown|playing|read-only|read-write|required|right|root|scope|state|target|target-within|user-invalid|valid|visited|where)\\b",
+            "end": "(?=:)",
+            "patterns": [
+                {
+                    "include": "#speudo-classes"
+                }
+            ]
+        },
         "speudo-classes": {
             "name": "keyword.control.speudo.class.bcss",
-            "end": "\\s*(?=\\s[\\w\\*\\+~])|\\s+($)?|(?=\\+|:|~|,)",
             "begin": "((?:\\:)?:)(active|any-link|autofill|blank|checked|current|default|defined|dir|disabled|empty|enabled|first|first-child|first-of-type|focus|focus-visible|focus-within|fullscreen|future|has|host|host|host-context|hover|indeterminate|in-range|invalid|is|lang|last-child|last-of-type|left|link|local-link|modal|not|nth-child|nth-last-child|nth-last-of-type|nth-of-type|only-child|only-of-type|optional|out-of-range|past|paused|picture-in-picture|placeholder-shown|playing|read-only|read-write|required|right|root|scope|state|target|target-within|user-invalid|valid|visited|where)\\b",
+            "end": "\\s*(?=\\s[\\w\\*\\+~])|\\s+($)?|(?=\\+|:|~|,)",
             "endCaptures": {
                 "0": {
                     "patterns": [
@@ -1600,6 +1707,9 @@
                     "include": "#single-comment"
                 },
                 {
+                    "include": "#bcss-multi-line-comment"
+                },
+                {
                     "include": "#skip-multispace"
                 },
                 {
@@ -1695,9 +1805,6 @@
                 "0": {
                     "patterns": [
                         {
-                            "include": "#global-css-properties"
-                        },
-                        {
                             "match": ".+",
                             "name": "custom.properties"
                         }
@@ -1727,9 +1834,8 @@
                 },
                 {
                     "begin": "\\:",
-                    "end": ";|\\{|\\}",
-                    "name": "invalid.data",
-                    "isInstructionSeparator":true
+                    "end": "(?=;)",
+                    "name": "invalid.data.marker.bcss"
                 }
             ]
         },
@@ -1772,7 +1878,22 @@
             "comment": "block for css style definition",
             "patterns": [
                 {
-                    "include": "#bcss-media-block-properties"
+                    "include": "#single-comment"
+                },
+                {
+                    "include": "#bcss-multi-line-comment"
+                },
+                {
+                    "include": "#bcss-inline-directive"
+                }, 
+                {
+                    "match": "\\\\(.+)?$",
+                    "comment":"detect last trailing backslash to indentify as invalid syntax",
+                    "name": "invalid.properties",
+                    "lintError":"invalid syntax"
+                },
+                {
+                    "include": "#bcss-root-media"
                 }
             ],
             "beginCaptures": {
@@ -1781,7 +1902,7 @@
                 }
             },
             "endCaptures": {
-                "1": {
+                "0": {
                     "name": "keyword.operator.punctuation.branket.end.bcss"
                 }
             }
@@ -1822,23 +1943,10 @@
                     ]
                 },
                 {
-                    "begin": "(?=\\.|#)",
-                    "end": "(?<=\\}|\\{)",
-                    "name": "start-sub",
-                    "patterns": [
-                        {
-                            "include": "#bcss-selector-def"
-                        },
-                        {
-                            "include": "#bcss-selection-definition"
-                        }
-                    ]
+                    "include": "#bcss-start-sub-property"
                 },
                 {
                     "include": "#css-value-defs"
-                },
-                {
-                    "include": "#global-css-properties"
                 },
                 {
                     "begin": "(?=-+[a-zA-Z][a-zA-Z0-9\\-_]*)",
@@ -1854,12 +1962,25 @@
                             "include": "#bcss-custom-property"
                         }
                     ]
-                }, 
+                },
                 {
                     "include": "#bcss-selector-def"
                 },
                 {
                     "include": "#end-instruction"
+                }
+            ]
+        },
+        "bcss-start-sub-property": {
+            "begin": "(?=\\.|#)",
+            "end": "(?=\\}|\\{)",
+            "name": "start-sub",
+            "patterns": [
+                {
+                    "include": "#bcss-selector-def"
+                },
+                {
+                    "include": "#bcss-selection-definition"
                 }
             ]
         },
@@ -1890,6 +2011,7 @@
                 {
                     "begin": "(?=(?:\\.|#)?[a-zA-Z][a-zA-Z0-9_]*)",
                     "end": "(?=\\s|:|\\+|>|~|$)",
+                    "comment": "start real selector definition",
                     "patterns": [
                         {
                             "comment": "expected selection on tag or class identifier",
@@ -1939,17 +2061,36 @@
                             "include": "#bcss-invalid-selector-trailing"
                         }
                     ]
+                },
+                {
+                    "begin": "(?:\\.|#)",
+                    "end": "(?=\\s|:|\\+|>|~|$)",
+                    "comment": "match single tag symbol to invalidate data",
+                    "beginCaptures": {
+                        "0": {
+                            "patterns": [
+                                {
+                                    "match": "\\.",
+                                    "name": "entity.name.function.class.bcss class.bcss"
+                                },
+                                {
+                                    "match": "#",
+                                    "name": "entity.name.type.identifier.bcss identifier.bcss"
+                                }
+                            ]
+                        }
+                    }
                 }
             ]
         },
         "bcss-id-class-selector-match": {
             "patterns": [
                 {
-                    "match": "\\.([a-zA-Z][a-zA-Z0-9_\\-]*(?:\\\\.[a-zA-Z][a-zA-Z0-9_\\-]*)*)",
+                    "match": "\\.([a-zA-Z][a-zA-Z0-9_\\-]*(?:\\\\.[a-zA-Z][a-zA-Z0-9_\\-]*)*)?",
                     "name": "entity.name.function.class.bcss class.bcss"
                 },
                 {
-                    "match": "\\#([a-zA-Z][a-zA-Z0-9_\\-]*(?:\\\\.[a-zA-Z][a-zA-Z0-9_\\-]*)*)",
+                    "match": "\\#([a-zA-Z][a-zA-Z0-9_\\-]*(?:\\\\.[a-zA-Z][a-zA-Z0-9_\\-]*)*)?",
                     "name": "entity.name.type.identifier.bcss identifier.bcss"
                 },
                 {
@@ -1978,7 +2119,8 @@
         },
         "bcss-class-or-id-selector": {
             "begin": "(?=\\.|#)",
-            "end": "(?<=\\})",
+            "end": "(?<=\\}|;)",
+            "name": "check.bcss",
             "patterns": [
                 {
                     "include": "#bcss-selector-def"
@@ -1996,7 +2138,7 @@
                     "contentName": "sub-property-entry",
                     "patterns": [
                         {
-                            "begin": "((.|#)?[a-zA-Z][a-zA-Z]*)(\\\\[a-z][a-z0-9]*)*",
+                            "begin": "((.|#)?([a-zA-Z][a-zA-Z]*)(\\\\.[a-z][a-z0-9]*)*)",
                             "end": "(?<=\\}|;)",
                             "beginCaptures": {
                                 "0": {
@@ -2026,6 +2168,10 @@
                             "include": "#bcss-selection-definition"
                         }
                     ]
+                },
+                {
+                    "match": "#",
+                    "name": "start.identifier.bcss"
                 }
             ]
         },
@@ -2034,23 +2180,23 @@
                 {
                     "comment": "detect sub  html5 start tag. Must use {} definition",
                     "match": "\\b(a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b[a-zA-Z\\-]+",
-                    "transform":[
+                    "transform": [
                         "[ $0]"
                     ],
-                    "transformMatch":"\\s(.+)",
+                    "transformMatch": "\\s(.+)",
                     "captures": {
                         "0": {
-                            "name": "entity.name.tag.custom-tag.or.property.bcss custom-tag.or.property.start.bcss sub"
+                            "name": "entity.name.tag.custom-tag.or.property.bcss custom-tag.or.property.sub.bcss sub"
                         }
                     }
                 },
                 {
                     "match": "\\b(a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b",
-                    "comment":"match sub html5 start tag.",
-                    "transform":[
+                    "comment": "match sub html5 start tag.",
+                    "transform": [
                         "[ $0]"
                     ],
-                    "transformMatch":"\\s(.+)",
+                    "transformMatch": "\\s(.+)",
                     "captures": {
                         "0": {
                             "name": "entity.name.tag.html5-tag.bcss sub"
@@ -2059,8 +2205,8 @@
                 }
             ]
         },
-        "bcss-sub-selection-definition":{
-            "patterns":[
+        "bcss-sub-selection-definition": {
+            "patterns": [
                 {
                     "include": "#bcss-selection-definition"
                 },
@@ -2075,6 +2221,9 @@
                     "include": "#single-comment"
                 },
                 {
+                    "include": "#bcss-multi-line-comment"
+                },
+                {
                     "include": "#bcss-inline-directive"
                 },
                 {
@@ -2083,6 +2232,9 @@
                 {
                     "match": "\\\\.+$",
                     "name": "invalid.properties"
+                },
+                {
+                    "include": "#bcss-start-sub-property"
                 },
                 {
                     "begin": "(?=\\[)",
@@ -2098,15 +2250,42 @@
                 },
                 {
                     "comment": "detect html5 start tag. Must use {} definition",
-                    "begin": "(?=\\b(a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b(?:[a-zA-Z\\-]*)?)",
-                    "end": "(?<=\\}|;)",
+                    "begin": "(?=p:active)",
+                    "end": "(?=:|\\})|(?<=\\}|;)",
+                    "name": "check-proper",
                     "patterns": [
                         {
-                            "begin": "\\b(a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b[a-zA-Z\\-]+",
+                            "begin": ".+(?:\\\\.[a-zA-Z][a-zA-Z0-9\\-]*)+",
+                            "end": "(?=\\}|:)|(?<=;)",
+                            "comment": "content list of event",
+                            "name": "entity.name.tag.event.property.bcss event.property",
+                            "patterns": [
+                                {
+                                    "include": "#bcss-selection-definition"
+                                },
+                                {
+                                    "include": "#bcss-sub-selection-definition"
+                                }
+                            ]
+                        },
+                        {
+                            "begin": "\\b(a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b[a-zA-Z\\-]*(?:\\\\.[a-zA-Z][a-zA-Z0-9\\-]*)*|((?:-)*[a-zA-Z\\-][a-zA-Z0-9\\-]*)",
                             "end": "(?=:)|(?<=\\}|;)",
                             "beginCaptures": {
                                 "0": {
-                                    "name": "entity.name.tag.custom-tag.or.property.bcss custom-tag.or.property.start.bcss"
+                                    "patterns": [
+                                        {
+                                            "match": "\\b(a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b[a-zA-Z\\-]*(?:\\\\.[a-zA-Z][a-zA-Z0-9\\-]*)*",
+                                            "name": "entity.name.tag.bcss tag.start.bcss"
+                                        },
+                                        {
+                                            "include": "#global-css-properties"
+                                        },
+                                        {
+                                            "match": "(-*(?:[a-zA-Z][a-zA-Z]*)?)",
+                                            "name": "entity.name.tag.custom-property.bcss"
+                                        }
+                                    ]
                                 }
                             },
                             "patterns": [
@@ -2115,7 +2294,7 @@
                                 },
                                 {
                                     "include": "#bcss-sub-selection-definition"
-                                } 
+                                }
                             ]
                         },
                         {
@@ -2168,22 +2347,264 @@
                     "include": "#css-value-defs"
                 },
                 {
-                    "include":"#end-instruction"
+                    "include": "#end-instruction"
                 }
-                
-
+            ]
+        },
+        "bcss-speudo-function": {
+            "begin": "\\(",
+            "end": "\\)",
+            "patterns": []
+        },
+        "bcss-array-attribute": {
+            "begin": "\\[",
+            "end": "\\]",
+            "patterns": []
+        },
+        "bcss-class-id-root": {
+            "begin": "\\.(([a-zA-Z][a-zA-Z]*)(\\\\.[a-zA-Z][a-zA-Z]*)?)?",
+            "end": "(?=;|\\s|:|\\+|>|~|#|\\{|\\.)|(?<=})",
+            "beginCaptures": {
+                "0": {
+                    "name": "entity.name.function.class.class"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#bcss-array-attribute"
+                },
+                {
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "name": "invalid.class-def.bcss"
+                }
+            ]
+        },
+        "bcss-identifier-id-root": {
+            "begin": "#([a-zA-Z][a-zA-Z\\-_]*(\\\\.[a-zA-Z][a-zA-Z]*)?)?",
+            "end": "(?=;|\\s|:|\\+|>|~|#|\\.)|(?<=})",
+            "beginCaptures": {
+                "0": {
+                    "name": "entity.name.class.identifier"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#bcss-array-attribute"
+                }
+            ]
+        },
+        "bcss-speudo-id-root": {
+            "begin": ":(:)?[a-zA-Z][a-zA-Z]*",
+            "end": "(?=;|\\s|:|\\+|>|~|#|\\{)|(?<=})",
+            "beginCaptures": {
+                "0": {
+                    "patterns": [
+                        {
+                            "include": "#speudo-classes"
+                        },
+                        {
+                            "match": ":(:)?[a-zA-Z][a-zA-Z]*",
+                            "name": "invalid.speudo.class"
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#bcss-speudo-function"
+                },
+                {
+                    "include": "#bcss-array-attribute"
+                }
+            ]
+        },
+        "bcss-select-sub-patterns": {
+            "name": "sub",
+            "begin": "(?=\\s*(\\.|#|-+)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z\\-]*)?((\\.|#|:)[a-zA-Z][a-zA-Z]*)*)",
+            "end": "(?=:|\\{|\\})|(?<=\\})",
+            "patterns": [
+                {
+                    "match": "\\s+",
+                    "replaceWith": "",
+                    "isGlueValue": " ",
+                    "name": "subdetection"
+                },
+                {
+                    "begin": "(?:\\.|#|-+)?[a-zA-Z][a-zA-Z]*(?:\\\\.[a-zA-Z][a-zA-Z\\-]*)?(?:(?:\\.|#|:)[a-zA-Z][a-zA-Z]*)*",
+                    "end": "(?=:|\\s|\\{|\\})|(?<=})",
+                    "name": "subcapture",
+                    "transform": [
+                        "trim",
+                        "[ $0]"
+                    ],
+                    "transformMatch": "\\s+(.+)",
+                    "beginCaptures": {
+                        "0": {
+                            "patterns": [
+                                {
+                                    "include": "#bcss-capture-id-class-selection"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "bcss-capture-id-class-selection": {
+            "begin": "(\\.|#)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z]*)?",
+            "end": "(?=\\s|>|\\+|~|\\[|\\})|(?<=})",
+            "name": "bcss-capture-id-class-selection-",
+            "beginCaptures": {
+                "0": {
+                    "patterns": [
+                        {
+                            "include": "#bcss-class-id-root"
+                        },
+                        {
+                            "include": "#bcss-identifier-id-root"
+                        },
+                        {
+                            "name": "entity.name.tag.class.bcss",
+                            "match": "[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z]*)?",
+                            "captures": {
+                                "1": {
+                                    "name": "event"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#bcss-array-attribute"
+                },
+                {
+                    "include": "#bcss-speudo-id-root"
+                },
+                {
+                    "include": "#bcss-class-id-root"
+                },
+                {
+                    "include": "#bcss-identifier-id-root"
+                },
+                {
+                    "include": "#bcss-media-block-properties"
+                }
+            ]
+        },
+        "bcss-root-media": {
+            "name": "start",
+            "begin": "(?=(\\.|#|-+)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z\\-]*)?((\\.|#|:)[a-zA-Z][a-zA-Z]*)*)",
+            "end": "(?=:|\\})|(?<=\\})",
+            "patterns": [
+                {
+                    "begin": "-+[a-zA-Z][a-zA-Z]*",
+                    "end": "(?=:|\\{)",
+                    "name": "variable.language.custom-property.bcss"
+                },
+                {
+                    "begin": "\\bbackground-color\\b([a-z0-9\\-]+)?",
+                    "end": "(?=:)|(?<=\\})",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "support.type.property-name.css-property.bcss"
+                        }
+                    },
+                    "patterns": [
+                        {
+                            "begin": "\\{",
+                            "end": "\\}",
+                            "name": "invalid.css-property.bcss",
+                            "endCaptures": {
+                                "0": {
+                                    "name": "invalid.brank.end.bcss"
+                                }
+                            }
+                        },
+                        {
+                            "comment": "check for speudo-block",
+                            "begin": "(?=\\+|\\.|~|\\*|#|\\s\\w)",
+                            "end": "(?<=\\})",
+                            "patterns": [
+                                {
+                                    "include": "#bcss-media-block-properties---"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "patterns": [
+                        {
+                            "begin": "(?=(\\.|#|-+)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z\\-]*)?((\\.|#|:)[a-zA-Z][a-zA-Z]*)*)",
+                            "end": "(?=:|\\{|\\})|(?<=\\})",
+                            "name":"rrrrrr",
+                            "patterns": [
+                                {
+                                    "begin": "(\\.|#|-+)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z\\-]*)?((\\.|#|:)[a-zA-Z][a-zA-Z]*)*",
+                                    "end": "(?=:|\\{|\\})|(?<=\\})",
+                                    "name":"sss",
+                                    "beginCaptures": {
+                                        "0": {
+                                            "patterns": [
+                                                {
+                                                    "include": "#bcss-capture-id-class-selection"
+                                                }
+                                            ]
+                                        }
+                                    },
+                                    "patterns": [
+                                        {
+                                            "begin": "(?=\\s+|,|>|\\+|~)|(?<=\\s|,|>|\\+|~)",
+                                            "end": "(?=:|\\}|\\{)|(?<=\\})",
+                                            "name": "detect.sub",
+                                            "patterns": [
+                                                {
+                                                    "include": "#bcss-select-sub-patterns"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                { "patterns":[
+                    {
+                        "include": "#single-comment"
+                    },
+                    {
+                        "include": "#bcss-multi-line-comment"
+                    },
+                    {
+                        "include": "#bcss-inline-directive"
+                    },
+                    {
+                        "include": "#bcss-media-block"
+                    },
+                    {
+                        "match": "\\\\.+$",
+                        "name": "invalid.properties"
+                    }
+                ]}
             ]
         }
     },
     "patterns": [
         {
-            "include": "#region-block"
+            "include": "#region-block-"
         },
         {
-            "include": "#root-definition"
+            "include": "#root-definition-"
         },
         {
-            "include": "#bcss-media-block-properties"
+            "include": "#bcss-media-block-properties-"
+        },
+        {
+            "include": "#bcss-root-media"
         }
     ]
 }
