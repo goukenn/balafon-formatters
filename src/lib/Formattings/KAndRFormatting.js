@@ -85,7 +85,7 @@ class KAndRFormatting extends FormattingBase {
             sb = _bbuffer;
             if (lineFeedFlag){
                 option.lineFeedFlag = false;
-                const buffer = option.saveBuffer();
+                option.saveBuffer();
                 option.appendExtraOutput();
                 option.output.push(_b.trimStart());                
                 sb += option.flush(true);

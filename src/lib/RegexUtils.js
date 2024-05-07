@@ -8,6 +8,14 @@ const START_HERE = "(??)";
  */
 class RegexUtils{
     /**
+     * stringify and regex result
+     * @param {*} c 
+     * @returns 
+     */
+    static Stringify(c){
+        return c.toString().slice(1, -1).replace("\\/","/")
+    }
+    /**
      * remove capture brancket
      * @param {string} str 
      * @returns 

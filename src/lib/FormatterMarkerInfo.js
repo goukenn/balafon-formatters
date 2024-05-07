@@ -25,6 +25,7 @@ class FormatterMarkerInfo{
     oldBlockStart;
     blockStarted;
     useEntry = true;
+    
     /**
      * store marker update mode
      * @var {number}

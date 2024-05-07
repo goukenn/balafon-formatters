@@ -3,6 +3,7 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { FormatterResourceLoadingPattern } = require("./FormatterResourceLoadingPattern");
+const { RegexUtils } = require("./RegexUtils");
 
 class Utils {
     static TestScope;
@@ -525,7 +526,8 @@ class Utils {
 
             if (_p = /^\[(?<expression>.+)\]$/.exec(s)) {
                 let c = Utils.GetRegexFrom(_p.groups['expression'], [v]);
-                v = v.replace(v, c.toString().slice(1, -1));
+                c = RegexUtils.Stringify(c);
+                v = v.replace(v, c);
                 return v;
             }
 

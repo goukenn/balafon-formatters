@@ -433,6 +433,11 @@
                     "match": ","
                 },
                 {
+                    "name": "keyword.operator.separator.bcss",
+                    "match": "\\s*(\\/)\\s*",
+                    "transform":["trim","[ $0 ]"]
+                },
+                {
                     "include": "#system-block-definition"
                 },
                 {
@@ -1049,7 +1054,7 @@
                     },
                     "patterns": [
                         {
-                            "include": "#css-value-definition---d"
+                            "include": "#css-value-definition"
                         }
                     ],
                     "formattingMode": 1
@@ -1670,7 +1675,7 @@
             "name": "region.block.bcss",
             "patterns": [
                 {
-                    "include": "#root-definition"
+                    "include": "#bcss-root-definition"
                 },
                 {
                     "include": "#region-block"
@@ -1695,7 +1700,7 @@
                 }
             }
         },
-        "root-definition": {
+        "bcss-root-definition": {
             "patterns": [
                 {
                     "include": "#single-line-comment"
@@ -1714,17 +1719,7 @@
                 },
                 {
                     "include": "#bcss-root-directives"
-                },
-                {
-                    "include": "#bcss-property-value"
-                },
-                {
-                    "match": "((?:\\-*)\\b[a-zA-Z][a-zA-Z\\-_]*)(\\s*:)(\\s|$)",
-                    "name": "property-define"
-                },
-                {
-                    "include": "#meta-properties-selector"
-                },
+                },                                             
                 {
                     "include": "#global-directive-import"
                 }
@@ -2096,6 +2091,19 @@
                 {
                     "match": "([a-zA-Z][a-zA-Z0-9_\\-]*(?:\\\\.[a-zA-Z][a-zA-Z0-9_\\-]*)*)",
                     "name": "entity.name.tag.bcss tag.bcss"
+                }
+            ]
+        },
+        "bcss-invalid-block":{
+            "begin":"\\{",
+            "end":"(?=\\})",
+            "name":"invalid.property.block",
+            "formattingMode":1,
+            "isBlock":true,
+            "patterns":[
+                {
+                    "match":"(?<=\\{).+(?=\\})",
+                    "name":"lala"
                 }
             ]
         },
@@ -2495,57 +2503,94 @@
             ]
         },
         "bcss-root-media": {
-            "name": "start",
-            "begin": "(?=(\\.|#|-+)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z\\-]*)?((\\.|#|:)[a-zA-Z][a-zA-Z]*)*)",
-            "end": "(?=:|\\})|(?<=\\})",
-            "patterns": [
+            "debugName": "media.root.bcss",
+            "begin": "(?=(?:\\.|#|-+)?[a-zA-Z][a-zA-Z]*(?:\\\\.[a-zA-Z][a-zA-Z\\-]*)?(?:(?:\\.|#|:)[a-zA-Z][a-zA-Z]*)*)",
+            "end": "(?=@|\\})",
+            "patterns": [ 
                 {
-                    "begin": "-+[a-zA-Z][a-zA-Z]*",
-                    "end": "(?=:|\\{)",
-                    "name": "variable.language.custom-property.bcss"
-                },
-                {
-                    "begin": "\\bbackground-color\\b([a-z0-9\\-]+)?",
-                    "end": "(?=:)|(?<=\\})",
-                    "beginCaptures": {
-                        "0": {
-                            "name": "support.type.property-name.css-property.bcss"
-                        }
-                    },
-                    "patterns": [
+                    "comment":"check for css properties or custom properties definition",
+                    "begin":"(?=(-)?\\b[a-z][a-z\\-_0-9]*\\b)",
+                    "name":"check.custom.prop.bcss",
+                    "end":"(?=;|:|\\})|(?<=\\})",
+                    
+                    "patterns":[
                         {
-                            "begin": "\\{",
-                            "end": "\\}",
-                            "name": "invalid.css-property.bcss",
-                            "endCaptures": {
-                                "0": {
-                                    "name": "invalid.brank.end.bcss"
+                            "name":"check-css-prop",
+                            "begin":"(?=(z-index|y|x|writing-mode|word-(wrap|spacing|break)|will-change|width|white-(space-collapse|space)|webkit-(user-select|transition-timing-function|transition-property|transition-duration|transition-delay|transition|transform-style|transform-origin|transform|text-stroke-width|text-stroke-color|text-stroke|text-size-adjust|text-security|text-fill-color|perspective-origin|perspective|order|mask-size|mask-repeat|mask-position-y|mask-position-x|mask-position|mask-origin|mask-image|mask-composite|mask-clip|mask|line-clamp|justify-content|flex-wrap|flex-shrink|flex-grow|flex-flow|flex-direction|flex-basis|flex|filter|clip-path|box-sizing|box-shadow|box-pack|box-orient|box-ordinal-group|box-flex|box-direction|box-align|border-top-right-radius|border-top-left-radius|border-radius|border-image|border-bottom-right-radius|border-bottom-left-radius|background-size|background-origin|background-clip|backface-visibility|appearance|animation-timing-function|animation-play-state|animation-name|animation-iteration-count|animation-fill-mode|animation-duration|animation-direction|animation-delay|animation|align-self|align-items|align-content)|visibility|vertical-align|vector-effect|user-select|unicode-bidi|translate|transition-(timing-function|property|duration|delay)|transition|transform-(style|origin|box)|transform|touch-action|top|text-(wrap-style|wrap-mode|wrap|underline-position|underline-offset|transform|shadow|rendering|overflow|orientation|justify|indent|emphasis-style|emphasis-position|emphasis-color|emphasis|decoration-thickness|decoration-style|decoration-skip-ink|decoration-line|decoration-color|decoration|combine-upright|anchor|align-last|align)|table-layout|tab-size|stroke-(width|opacity|miterlimit|linejoin|linecap|dashoffset|dasharray)|stroke|stop-(opacity|color)|shape-(rendering|outside|margin|image-threshold)|scrollbar-(width|gutter|color)|scroll-(snap-type|snap-stop|snap-align|padding-top|padding-right|padding-left|padding-inline-start|padding-inline-end|padding-inline|padding-bottom|padding-block-start|padding-block-end|padding-block|padding|margin-top|margin-right|margin-left|margin-inline-start|margin-inline-end|margin-inline|margin-bottom|margin-block-start|margin-block-end|margin-block|margin|behavior)|scale|ry|rx|ruby-(position|align)|row-gap|rotate|right|resize|r|quotes|print-color-adjust|position|pointer-events|place-(self|items|content)|perspective-origin|perspective|paint-order|page-(break-inside|break-before|break-after)|page|padding-(top|right|left|inline-start|inline-end|inline|bottom|block-start|block-end|block)|padding|overscroll-(behavior-y|behavior-x|behavior-inline|behavior-block|behavior)|overflow-(y|x|wrap|inline|clip-margin|block|anchor)|overflow|outline-(width|style|offset|color)|outline|order|opacity|offset-(rotate|position|path|distance|anchor)|offset|object-(position|fit)|moz-(window-dragging|user-select|user-modify|user-input|transition-timing-function|transition-property|transition-duration|transition-delay|transition|transform-style|transform-origin|transform|text-size-adjust|tab-size|perspective-origin|perspective|padding-start|padding-end|osx-font-smoothing|orient|margin-start|margin-end|hyphens|force-broken-image-icon|font-language-override|font-feature-settings|float-edge|box-sizing|box-pack|box-orient|box-ordinal-group|box-flex|box-direction|box-align|border-start-width|border-start-style|border-start-color|border-start|border-image|border-end-width|border-end-style|border-end-color|border-end|backface-visibility|appearance|animation-timing-function|animation-play-state|animation-name|animation-iteration-count|animation-fill-mode|animation-duration|animation-direction|animation-delay|animation)|mix-blend-mode|min-(width|inline-size|height|block-size)|max-(width|inline-size|height|block-size)|math-(style|depth)|mask-(type|size|repeat|position-y|position-x|position|origin|mode|image|composite|clip)|mask|marker-(start|mid|end)|marker|margin-(top|right|left|inline-start|inline-end|inline|bottom|block-start|block-end|block)|margin|list-(style-type|style-position|style-image|style)|line-(height|break)|lighting-color|letter-spacing|left|justify-(self|items|content)|isolation|inset-(inline-start|inline-end|inline|block-start|block-end|block)|inset|inline-size|ime-mode|image-(rendering|orientation)|hyphens|hyphenate-character|height|grid-(template-rows|template-columns|template-areas|template|row-start|row-gap|row-end|row|gap|column-start|column-gap|column-end|column|auto-rows|auto-flow|auto-columns|area)|grid|gap|forced-color-adjust|font-(weight|variation-settings|variant-position|variant-numeric|variant-ligatures|variant-east-asian|variant-caps|variant-alternates|variant|synthesis-weight|synthesis-style|synthesis-small-caps|synthesis-position|synthesis|style|stretch|size-adjust|size|palette|optical-sizing|language-override|kerning|feature-settings|family)|font|flood-(opacity|color)|float|flex-(wrap|shrink|grow|flow|direction|basis)|flex|filter|fill-(rule|opacity)|fill|empty-cells|dominant-baseline|display|direction|d|cy|cx|cursor|css-float|counter-(set|reset|increment)|content-visibility|content|container-(type|name)|container|contain-(intrinsic-width|intrinsic-size|intrinsic-inline-size|intrinsic-height|intrinsic-block-size)|contain|columns|column-(width|span|rule-width|rule-style|rule-color|rule|gap|fill|count)|color-(scheme|interpolation-filters|interpolation|adjust)|color|clip-(rule|path)|clip|clear|caret-color|caption-side|break-(inside|before|after)|box-(sizing|shadow|decoration-break)|bottom|border-(width|top-width|top-style|top-right-radius|top-left-radius|top-color|top|style|start-start-radius|start-end-radius|spacing|right-width|right-style|right-color|right|radius|left-width|left-style|left-color|left|inline-width|inline-style|inline-start-width|inline-start-style|inline-start-color|inline-start|inline-end-width|inline-end-style|inline-end-color|inline-end|inline-color|inline|image-width|image-source|image-slice|image-repeat|image-outset|image|end-start-radius|end-end-radius|color|collapse|bottom-width|bottom-style|bottom-right-radius|bottom-left-radius|bottom-color|bottom|block-width|block-style|block-start-width|block-start-style|block-start-color|block-start|block-end-width|block-end-style|block-end-color|block-end|block-color|block)|border|block-size|baseline-source|background-(size|repeat|position-y|position-x|position|origin|image|color|clip|blend-mode|attachment)|background|backface-visibility|backdrop-filter|aspect-ratio|appearance|animation-(timing-function|play-state|name|iteration-count|fill-mode|duration|direction|delay|composition)|animation|all|align-(self|items|content)|accent-color|-webkit-(user-select|transition-timing-function|transition-property|transition-duration|transition-delay|transition|transform-style|transform-origin|transform|text-stroke-width|text-stroke-color|text-stroke|text-size-adjust|text-security|text-fill-color|perspective-origin|perspective|order|mask-size|mask-repeat|mask-position-y|mask-position-x|mask-position|mask-origin|mask-image|mask-composite|mask-clip|mask|line-clamp|justify-content|flex-wrap|flex-shrink|flex-grow|flex-flow|flex-direction|flex-basis|flex|filter|clip-path|box-sizing|box-shadow|box-pack|box-orient|box-ordinal-group|box-flex|box-direction|box-align|border-top-right-radius|border-top-left-radius|border-radius|border-image|border-bottom-right-radius|border-bottom-left-radius|background-size|background-origin|background-clip|backface-visibility|appearance|animation-timing-function|animation-play-state|animation-name|animation-iteration-count|animation-fill-mode|animation-duration|animation-direction|animation-delay|animation|align-self|align-items|align-content)|-moz-(window-dragging|user-select|user-modify|user-input|transition-timing-function|transition-property|transition-duration|transition-delay|transition|transform-style|transform-origin|transform|text-size-adjust|tab-size|perspective-origin|perspective|padding-start|padding-end|osx-font-smoothing|orient|margin-start|margin-end|hyphens|force-broken-image-icon|font-language-override|font-feature-settings|float-edge|box-sizing|box-pack|box-orient|box-ordinal-group|box-flex|box-direction|box-align|border-start-width|border-start-style|border-start-color|border-start|border-image|border-end-width|border-end-style|border-end-color|border-end|backface-visibility|appearance|animation-timing-function|animation-play-state|animation-name|animation-iteration-count|animation-fill-mode|animation-duration|animation-direction|animation-delay|animation))([a-z\\-]+)?)",
+                            "end":"(?=:|;|\\})|(?<=\\})",
+                            "patterns":[
+                                {
+                                    "begin":"\\{",
+                                    "end":"\\}",
+                                    "name":"invalid.check.definition"
+                                },
+                                {
+                                    "begin":"(-moz-animation(-delay|-direction|-duration|-fill-mode|-iteration-count|-name|-play-state|-timing-function)|-moz-appearance|-moz-backface-visibility|-moz-border-end(-color|-style|-width)|-moz-border-image|-moz-border-start(-color|-style|-width)|-moz-box-align|-moz-box-direction|-moz-box-flex|-moz-box-ordinal-group|-moz-box-orient|-moz-box-pack|-moz-box-sizing|-moz-float-edge|-moz-font-feature-settings|-moz-font-language-override|-moz-force-broken-image-icon|-moz-hyphens|-moz-margin-end|-moz-margin-start|-moz-orient|-moz-osx-font-smoothing|-moz-padding-end|-moz-padding-start|-moz-perspective(-origin)|-moz-tab-size|-moz-text-size-adjust|-moz-transform(-origin|-style)|-moz-transition(-delay|-duration|-property|-timing-function)|-moz-user-input|-moz-user-modify|-moz-user-select|-moz-window-dragging|-webkit-align-content|-webkit-align-items|-webkit-align-self|-webkit-animation(-delay|-direction|-duration|-fill-mode|-iteration-count|-name|-play-state|-timing-function)|-webkit-appearance|-webkit-backface-visibility|-webkit-background-clip|-webkit-background-origin|-webkit-background-size|-webkit-border-bottom-left-radius|-webkit-border-bottom-right-radius|-webkit-border-image|-webkit-border-radius|-webkit-border-top-left-radius|-webkit-border-top-right-radius|-webkit-box-align|-webkit-box-direction|-webkit-box-flex|-webkit-box-ordinal-group|-webkit-box-orient|-webkit-box-pack|-webkit-box-shadow|-webkit-box-sizing|-webkit-clip-path|-webkit-filter|-webkit-flex(-basis|-direction|-flow|-grow|-shrink|-wrap)|-webkit-justify-content|-webkit-line-clamp|-webkit-mask(-clip|-composite|-image|-origin|-repeat|-size)|-webkit-mask(-position(-x|-y))|-webkit-order|-webkit-perspective(-origin)|-webkit-text-fill-color|-webkit-text-security|-webkit-text-size-adjust|-webkit-text-stroke(-color|-width)|-webkit-transform(-origin|-style)|-webkit-transition(-delay|-duration|-property|-timing-function)|-webkit-user-select|accent-color|align-content|align-items|align-self|all|animation(-composition|-delay|-direction|-duration|-fill-mode|-iteration-count|-name|-play-state|-timing-function)|appearance|aspect-ratio|backdrop-filter|backface-visibility|background(-attachment|-blend-mode|-clip|-color|-image|-origin|-repeat|-size)|background(-position(-x|-y))|baseline-source|block-size|border(-collapse|-color|-end-end-radius|-end-start-radius|-radius|-spacing|-start-end-radius|-start-start-radius|-style|-width)|border-top(-color|-left-radius|-right-radius|-style|-width)|border-right(-color|-style|-width)|border-left(-color|-style|-width)|border-inline(-color|-style|-width)|border-inline-start(-color|-style|-width)|border-inline(-end(-color|-style|-width))|border-block-start(-color|-style|-width)|border-block(-end(-color|-style|-width))|border(-block(-color|-style|-width|-outset|-repeat|-slice|-source|-width|-color|-left-radius|-right-radius|-style|-width|-color|-style|-width))|bottom|box-decoration-break|box-shadow|box-sizing|break-after|break-before|break-inside|caption-side|caret-color|clear|clip(-path|-rule)|color(-adjust|-scheme)|color(-interpolation(-filters))|column-count|column-fill|column-gap|column-rule(-color|-style|-width)|column-span|column-width|columns|contain(-intrinsic-block-size|-intrinsic-height|-intrinsic-inline-size|-intrinsic-size|-intrinsic-width)|contain(er(-name|-type))|content(-visibility)|counter-increment|counter-reset|counter-set|css-float|cursor|cx|cy|d(irection|isplay|ominant-baseline)|empty-cells|fill(-opacity|-rule)|filter|flex(-basis|-direction|-flow|-grow|-shrink|-wrap)|float|flood-color|flood-opacity|font(-family|-feature-settings|-kerning|-language-override|-optical-sizing|-palette|-stretch|-style|-variation-settings|-weight)|font-variant(-alternates|-caps|-east-asian|-ligatures|-numeric|-position)|font-synthesis(-position|-small-caps|-style|-weight)|font(-size(-adjust))|forced-color-adjust|gap|grid(-area|-auto-columns|-auto-flow|-auto-rows|-gap)|grid-template(-areas|-columns|-rows)|grid-row(-end|-gap|-start)|grid(-column(-end|-gap|-start))|height|hyphenate-character|hyphens|image-orientation|image-rendering|ime-mode|inline-size|inset-inline(-end|-start)|inset(-block(-end|-start))|isolation|justify-content|justify-items|justify-self|left|letter-spacing|lighting-color|line-break|line-height|list-style(-image|-position|-type)|margin(-bottom|-left|-right|-top)|margin-inline(-end|-start)|margin(-block(-end|-start))|marker(-end|-mid|-start)|mask(-clip|-composite|-image|-mode|-origin|-repeat|-size|-type)|mask(-position(-x|-y))|math-depth|math-style|max-block-size|max-height|max-inline-size|max-width|min-block-size|min-height|min-inline-size|min-width|mix-blend-mode|moz-animation(-delay|-direction|-duration|-fill-mode|-iteration-count|-name|-play-state|-timing-function)|moz-appearance|moz-backface-visibility|moz-border-end(-color|-style|-width)|moz-border-image|moz-border-start(-color|-style|-width)|moz-box-align|moz-box-direction|moz-box-flex|moz-box-ordinal-group|moz-box-orient|moz-box-pack|moz-box-sizing|moz-float-edge|moz-font-feature-settings|moz-font-language-override|moz-force-broken-image-icon|moz-hyphens|moz-margin-end|moz-margin-start|moz-orient|moz-osx-font-smoothing|moz-padding-end|moz-padding-start|moz-perspective(-origin)|moz-tab-size|moz-text-size-adjust|moz-transform(-origin|-style)|moz-transition(-delay|-duration|-property|-timing-function)|moz-user-input|moz-user-modify|moz-user-select|moz-window-dragging|object-fit|object-position|offset(-anchor|-distance|-path|-position|-rotate)|opacity|order|outline(-color|-offset|-style|-width)|overflow(-anchor|-block|-clip-margin|-inline|-wrap|-x|-y)|overscroll-behavior(-block|-inline|-x|-y)|padding(-bottom|-left|-right|-top)|padding-inline(-end|-start)|padding(-block(-end|-start))|page(-break-after|-break-before|-break-inside)|paint-order|perspective(-origin)|place-content|place-items|place-self|pointer-events|position|print-color-adjust|quotes|r(esize|ight|otate|ow-gap|uby-align|uby-position|x|y)|scale|scroll-behavior|scroll-margin(-bottom|-left|-right|-top)|scroll-margin-inline(-end|-start)|scroll-margin(-block(-end|-start))|scroll-padding(-bottom|-left|-right|-top)|scroll-padding-inline(-end|-start)|scroll-padding(-block(-end|-start))|scroll-snap-align|scroll-snap-stop|scroll-snap-type|scrollbar-color|scrollbar-gutter|scrollbar-width|shape-image-threshold|shape-margin|shape-outside|shape-rendering|stop-color|stop-opacity|stroke(-dasharray|-dashoffset|-linecap|-linejoin|-miterlimit|-opacity|-width)|tab-size|table-layout|text-align(-last)|text-anchor|text-combine-upright|text-decoration(-color|-line|-skip-ink|-style|-thickness)|text-emphasis(-color|-position|-style)|text-indent|text-justify|text-orientation|text-overflow|text-rendering|text-shadow|text-transform|text-underline-offset|text-underline-position|text-wrap(-mode|-style)|top|touch-action|transform(-box|-origin|-style)|transition(-delay|-duration|-property|-timing-function)|translate|unicode-bidi|user-select|vector-effect|vertical-align|visibility|webkit-align-content|webkit-align-items|webkit-align-self|webkit-animation(-delay|-direction|-duration|-fill-mode|-iteration-count|-name|-play-state|-timing-function)|webkit-appearance|webkit-backface-visibility|webkit-background-clip|webkit-background-origin|webkit-background-size|webkit-border-bottom-left-radius|webkit-border-bottom-right-radius|webkit-border-image|webkit-border-radius|webkit-border-top-left-radius|webkit-border-top-right-radius|webkit-box-align|webkit-box-direction|webkit-box-flex|webkit-box-ordinal-group|webkit-box-orient|webkit-box-pack|webkit-box-shadow|webkit-box-sizing|webkit-clip-path|webkit-filter|webkit-flex(-basis|-direction|-flow|-grow|-shrink|-wrap)|webkit-justify-content|webkit-line-clamp|webkit-mask(-clip|-composite|-image|-origin|-repeat|-size)|webkit-mask(-position(-x|-y))|webkit-order|webkit-perspective(-origin)|webkit-text-fill-color|webkit-text-security|webkit-text-size-adjust|webkit-text-stroke(-color|-width)|webkit-transform(-origin|-style)|webkit-transition(-delay|-duration|-property|-timing-function)|webkit-user-select|white-space(-collapse)|width|will-change|word-break|word-spacing|word-wrap|writing-mode|x|y|z-index)[a-z0-9\\-_]+",
+                                    "end":"(?=:)",
+                                    "name":"variable.language.custom-property2.bcss",
+                                    "comment":"allow custom property or selector",
+                                    "patterns":[
+                                        {
+                                            "include":"#bcss-css-sub-detection"
+                                        }
+                                    ]
+                                },
+                                {"include":"#global-css-properties"},
+                                {
+                                    "begin":"[a-z0-9]+",
+                                    "end":"(?=:|;)|(?<=\\})",
+                                    "name":"variable.language.custom-property.fallback.tag-definition.bcss fallback.tag.bcss",
+                                    "patterns":[ 
+                                        {
+                                            "include":"#bcss-css-sub-detection"
+                                        }
+                                    ]
                                 }
-                            }
+                               
+                            ]
                         },
                         {
-                            "comment": "check for speudo-block",
-                            "begin": "(?=\\+|\\.|~|\\*|#|\\s\\w)",
-                            "end": "(?<=\\})",
-                            "patterns": [
+                            "begin":"\\b[a-z][a-z\\-_0-9]*\\b(\\\\.([a-z][a-z0-9\\-_])+)*",
+                            "name":"fallback.entity.name.tag.custom-properties.bcss detect.custom-properties.bcss",
+                            "end":"(?=\\})|(?<=}|;|:)",
+                            "comment":"detect custom properties",
+                            "patterns":[ 
                                 {
-                                    "include": "#bcss-media-block-properties---"
+                                    "match":"\\s+",
+                                    "replaceWith":"",
+                                    "isGlueValue":" "
+                                },
+                                {
+                                    "include":"#bcss-css-sub-detection"
                                 }
                             ]
+                        },
+                        {
+                            "begin":":",
+                            "end":"(?=;|\\})",
+                            "name":"invalid.properties.definifion"
                         }
+                    ]
+                },
+                {
+                    "begin": "-+[a-zA-Z][a-zA-Z\\-_]*",
+                    "end": "(?=:|;|\\})|(?<=\\})",
+                    "name": "support.type.property-name.custom-property.bcss custom-property.bcss",
+                    "comment": "detect custom properties. only support value definition",
+                    "patterns":[
+                        {"include":"#bcss-invalid-block"}
                     ]
                 },
                 {
                     "patterns": [
                         {
                             "begin": "(?=(\\.|#|-+)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z\\-]*)?((\\.|#|:)[a-zA-Z][a-zA-Z]*)*)",
-                            "end": "(?=:|\\{|\\})|(?<=\\})",
-                            "name":"rrrrrr",
+                            "end": "(?=:|\\{|\\})", 
                             "patterns": [
                                 {
                                     "begin": "(\\.|#|-+)?[a-zA-Z][a-zA-Z]*(\\\\.[a-zA-Z][a-zA-Z\\-]*)?((\\.|#|:)[a-zA-Z][a-zA-Z]*)*",
                                     "end": "(?=:|\\{|\\})|(?<=\\})",
-                                    "name":"sss",
+                                    
                                     "beginCaptures": {
                                         "0": {
                                             "patterns": [
@@ -2557,54 +2602,53 @@
                                     },
                                     "patterns": [
                                         {
-                                            "begin": "(?=\\s+|,|>|\\+|~)|(?<=\\s|,|>|\\+|~)",
-                                            "end": "(?=:|\\}|\\{)|(?<=\\})",
-                                            "name": "detect.sub",
-                                            "patterns": [
-                                                {
-                                                    "include": "#bcss-select-sub-patterns"
-                                                }
-                                            ]
+                                            "include":"#bcss-css-sub-detection"
                                         }
+                                       
                                     ]
                                 }
                             ]
                         }
                     ]
                 },
-                { "patterns":[
-                    {
-                        "include": "#single-comment"
-                    },
-                    {
-                        "include": "#bcss-multi-line-comment"
-                    },
-                    {
-                        "include": "#bcss-inline-directive"
-                    },
+                { "patterns":[                   
                     {
                         "include": "#bcss-media-block"
                     },
                     {
                         "match": "\\\\.+$",
                         "name": "invalid.properties"
+                    },
+                    {
+                        "include": "#css-value-defs"
+                    },
+                    {
+                        "include": "#end-instruction"
                     }
                 ]}
+            ]
+        },
+        "bcss-css-sub-detection": {
+            "begin": "(?=\\s+|,|>|\\+|~)|(?<=\\s|,|>|\\+|~)",
+            "end": "(?=:|\\}|\\{)|(?<=\\})",
+            "name": "detect.sub",
+            "patterns": [
+                {
+                    "include": "#bcss-select-sub-patterns"
+                }
             ]
         }
     },
     "patterns": [
         {
-            "include": "#region-block-"
+            "include": "#region-block"
         },
         {
-            "include": "#root-definition-"
-        },
-        {
-            "include": "#bcss-media-block-properties-"
-        },
+            "include": "#bcss-root-definition"
+        },        
         {
             "include": "#bcss-root-media"
         }
+       
     ]
 }

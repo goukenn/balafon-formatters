@@ -377,7 +377,17 @@ class Formatters {
         return objClass;
     }
     /**
-     * 
+     * transform data to 
+     * @param {string|string[]} data 
+     * @param {string} target
+     * @param {*} option 
+     */
+    transformTo(data, target,  option){
+        throw new Error('transform not implement');
+    }
+
+    /**
+     * format the data
      * @param {string|string[]} data 
      * @param {*} option format option 
      * @returns 
@@ -421,6 +431,8 @@ class Formatters {
         // + | START : FORMATTER LOGIC
         // + | ------------------------------------------------------------
         const _output_fc = () => { 
+            const { formatting } = _formatter;
+
             function _update_start_line_flag(_start_line_flag, option){
                 const {pos} = option;
                 if (!_start_line_flag && option.skipMarkerFlag && (option.range.start < pos)){
@@ -440,7 +452,7 @@ class Formatters {
                 debug && Debug.log('read:[' + objClass.lineCount + "]:::" + line);
                 objClass.resetRange();
                 objClass.line = line;
-                objClass.sourceLine = line; // source line 
+                objClass.sourceLine = line; // save the source line 
                 objClass.pos = 0;
                 objClass.continue = false;
                 objClass.lineCount++;
@@ -451,12 +463,14 @@ class Formatters {
                     if (!_matcherInfo.marker.allowMultiline) {
                         throw new Error(`marker '${_matcherInfo.name}' do not allow multi line.`);
                     }
-                    objClass.continue = _matcherInfo.marker.newLineContinueState; // true;
+                    objClass.continue = _matcherInfo.marker.newLineContinueState; 
                     objClass.lineJoin = false;
                     _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
 
                 } else {
                     objClass.line = _trimStart && !useIndent ? objClass.line.trimStart() : objClass.line;
+                    // update the source line
+                    objClass.sourceLine = objClass.line;
                     _trimStart = true;
                 }
                 if (line.length <= 0) {
@@ -513,6 +527,7 @@ class Formatters {
                         this._updateMarkerFormatting(_matcherInfo, objClass);
                     }
                 }
+                formatting.updateEndLineUpdateMode(_matcherInfo, option);
             });
             if (this.skip_r) {
                 this.skip_r = false;
@@ -801,7 +816,7 @@ class Formatters {
         let ret = handle.apply(this, [_marker, option]);
         if (ret === null) {
             // + update global mode formatting
-            formatting.updateGlobalFormatting(_marker.mode, option);
+            formatting.updateGlobalFormatting(_marker, option);
         } else {
             // + | move next mode to top parent
             ret.mode = option.nextMode;
@@ -903,8 +918,9 @@ class Formatters {
     _treatTransform(_cm_value ,_marker, _captures ){
         if (_cm_value.length > 0) {
             const _tmatch = _marker.transformMatch || _marker.match;
+           
             // + passing transformed to data
-            const _group = _tmatch.exec(_cm_value);
+            const _group = _tmatch ? _tmatch.exec(_cm_value) : null;
             _captures = _marker.transformCaptures || _captures;
             if (_group) {
                 // copy groups
@@ -913,6 +929,7 @@ class Formatters {
                 _marker.group.indices = _group.indices;
                 _group.forEach(a => _marker.group.push(a));
             } else {
+                if (_marker.matchType==1)
                 throw new Error("failed transform error match error. use transform capture to handle")
             }
         }
@@ -1000,6 +1017,7 @@ class Formatters {
         let { debug, listener } = option;
         let { formatting } = this;
         debug && Debug.log('--::appendConstant::--[' + value + ']');
+        value = formatting.treatConstantValue(value, patternInfo, option); 
 
         let _inf = new PatternMatchInfo;
         _inf.use({ marker: constant_type_marker || option.constants.PrevLineFeedConstant, line: option.line, index: -2, formatting });
@@ -1015,7 +1033,9 @@ class Formatters {
         } else {
             fc_update();
         }
-        // +| missing update pattern mode from constant logic
+        // + | 
+        // + | missing update pattern mode from constant logic
+        // + |
         patternInfo.mode = _inf.mode;
     }
     /**
@@ -1525,7 +1545,7 @@ class Formatters {
         if (_start && patternInfo.isStreamCapture) {
             return this._startStreamingPattern(patternInfo, _line, _endRegex, option, null, null, _buffer, false);
         }
-        // + | DETECT core match
+        // + | DETECT : core match
         ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option));
 
         if (_error) {
@@ -1630,6 +1650,8 @@ class Formatters {
             _p = _endRegex.exec(_line);
             if (_p) {
                 _p.index += option.pos;
+                _p.sourceRegex = _endRegex;
+                _p.type = '_end_';
             }
             patternInfo.endGroup = _p;
         } else {
@@ -1822,10 +1844,10 @@ class Formatters {
                     buffer: _buffer,
                     _line,
                     pos: _next_position,
-                    line: option.line
+                    line: option.line,
+                    endGroup: _p
                 };
                 _endCaptureCallback = this._closeNonCaptureBlock;
-                //_next_position = option.pos;
             }
         }
 
@@ -1876,26 +1898,10 @@ class Formatters {
             // + | just reduce block depth
             this._closeBlockEntry(option);
         } else {
-            _formatting.handleEndOnNonBlockElement(this, _marker, option);
-
+            ({ _b } = _formatting.handleEndOnNonBlockElement(this, _marker, option, {_b}));
         }
         // + | append to buffer 
-        if (_b.length > 0) {
-            // if (_old){
-            //     _buffer = option.buffer;
-            //     _old.content = _buffer;
-            //     option.formatterBuffer.clear();
-            //     option.formatterBuffer.appendToBuffer(_b);
-            //     _buffer = this._updateOldMarkerContent(_old, option);
-            //     if (_buffer.trim().length>0){
-            //         if (_close_block){
-            //             option.output.push(_buffer);
-            //             _buffer = '';
-            //         } else{
-            //             option.formatterBuffer.appendToBuffer(_buffer);
-            //         }
-            //     }
-            // } else 
+        if (_b.length > 0) { 
             option.formatterBuffer.appendToBuffer(_b);//, _marker, false);
             _b = '';
         }
@@ -1983,13 +1989,13 @@ class Formatters {
         return parent;
     }
     /**
-     * 
-     * @param {{pos:number, line:string, buffer:string, _line: string, _old:*}} info 
+     * end non capture block
+     * @param {{pos:number, line:string, buffer:string, _line: string, _old:*, endGroup}} info 
      * @param {FormatterOptions} option 
      * @returns 
      */
     _closeNonCaptureBlock(info, option) {
-        const { parent } = info;
+        const { parent, endGroup } = info;
         let p = null;
         let _old = null; 
         const _line = info.line.substring(info.pos);
@@ -2032,7 +2038,12 @@ class Formatters {
             p = info.parent; 
             let tp = p.endRegex.exec(_line);
             if (tp){  
-                p = _end_non_capture(p, tp);
+                if ((tp.index + _nextPosition) == endGroup.index){
+                 // + | same index - update capture continue end
+                    p = _end_non_capture(p, tp);
+                } else { 
+                    break; 
+                }
                 treat = true;
             } else {
                 if (treat) { 
@@ -2200,9 +2211,9 @@ class Formatters {
      * @returns 
      */
     _updateOldMarkerContent(_old, option) {
-        let { content, marker, currentMode } = _old;
+        let { content, marker, currentMode, autoStartLine } = _old;
+        const { startLine, buffer } = option;
         const _formatting = this.formatting;
-        const buffer = option.buffer;
         const extra = option.flush(true);
         const isEntryContent = content == _old.entryBuffer;
         let _joinwith = null;
@@ -2210,11 +2221,12 @@ class Formatters {
             buffer = this._updateOldEntryCapture(_old, buffer, option);
             _joinwith = marker.joinWith;
         }
-
+       
 
         const props = {
             marker, buffer, extra, option, content,
             mode: currentMode,
+            autoStartLine, 
             startBlock: _old.startBlock,
             isEntryContent
         };
@@ -2226,6 +2238,7 @@ class Formatters {
         // update content
         _old.content = content;
         _old.startBlock = 0;
+        _old.autoStartLine = props.autoStartLine;
         // + | store update current joinWith
         _old.joinWith = _joinwith;
         _old.set();

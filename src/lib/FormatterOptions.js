@@ -670,6 +670,13 @@ class FormatterOptions {
         return _old;
     }
     /**
+     * get if reading is in real start line
+     * @var {boolean}
+     */
+    get startLineReading(){
+        return this.startLine && (this.line == this.sourceLine);
+    }
+    /**
      * return shift markerInfo from list
      * @param {PatternMatchInfo} marker 
      * @param {bool} throwError 
