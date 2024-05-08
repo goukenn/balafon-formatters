@@ -8,6 +8,14 @@ const START_HERE = "(??)";
  */
 class RegexUtils{
     /**
+     * check request start line
+     * @param {*} reg 
+     * @returns 
+     */
+    static CheckRequestStartLine(reg){
+        return /([^\\]|^)\^/.test(reg.toString());
+    }
+    /**
      * stringify and regex result
      * @param {*} c 
      * @returns 

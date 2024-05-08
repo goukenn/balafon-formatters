@@ -45,6 +45,18 @@ settings
 }
 ```
 
+### use patterns '(?:)' to stop parent begin/end without end detection'
+```jsonc
+  "patterns":[
+        {
+            "match":"[ 0-9]+"
+        },
+        {
+            "match":"(?:)"                            
+        }
+    ]
+```
+
 ### References
 
 replaceWith : string|ReplaceWithProtocol
@@ -78,6 +90,7 @@ element
 
 
 ## RELEASES
+    - Feature: Lint support lint errors definition { $ref : code }, declared in lintErrors of data
 - 1.0.7
     - 
 - 1.0.4

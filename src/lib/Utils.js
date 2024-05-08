@@ -191,7 +191,7 @@ class Utils {
     /**
      * get match info
      * @var {array} patterns
-     * @var {array} l string
+     * @var {string} l string
      * @var {*} options
      * @var {*} parentMatcherInfo parent pattern for get result
      * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined, patterns}}
@@ -213,12 +213,22 @@ class Utils {
             if (s.startLine) {
                 if (!option.startLine) {
                     skip = true;
-                }
-
+                } 
             }
 
             if (!skip) {
                 let _d = _ts.check(l, option, parentMatcherInfo);
+                // TODO: match agains source line to check 
+                // if (_ts.name == "detect.sub--start"){
+                    if((_d.regex) && (l.length>0)&&(option.sourceLine != l)&&(!option.startLine) && RegexUtils.CheckRequestStartLine(_d.regex)){
+                        const _td = _ts.check(option.sourceLine, option, parentMatcherInfo, _d.regex);
+                        // ignore start line
+                        if (_td && (_td.index == -1)){
+                            _d = null;
+                        }
+                    }
+                // }
+                // check agains source line
                 if (_d) {
                     ({ p, s, from, patterns } = _d);
                     item_index = _d.index == -1 ? _count : _d.index;

@@ -314,7 +314,17 @@ class Patterns {
                 if (_t =='string'){
                     _rt.message = _t;
                 } else if (n){
-                    const {code, message} = n;
+                    const {code, message, $ref} = n;
+                    const { lintErrors } = parser.data;
+                    if ($ref && lintErrors){
+                        if ($ref in lintErrors){
+                            const { code , message } = {code: $ref, message:lintErrors[$ref]};
+                            _rt.message = message;
+                            _rt.code = code;
+                            return _rt;
+                        }
+                        
+                    }
                     _rt.message = message;
                     _rt.code = code;
                 }
@@ -448,25 +458,24 @@ class Patterns {
             a.tokenID = this.tokenID;
         }
     }
-    check(l, option, parentMatcherInfo) {
+    check(l, option, parentMatcherInfo, regex) {
         let p = null;
         const { begin, match, patterns } = this;
-        if (begin) {
-            p = begin.exec(l);
-        } else if (match) {
-            p = match.exec(l);
+        regex = regex || begin || match;
+        if (regex) { 
+            p = regex.exec(l);
         } else {
             // + | use for pattern only definition list
             if (patterns) {
                 const cp = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo);
                 if (cp) {
-                    return { p: cp._match, s: cp._a, from: this, patterns: patterns, index: cp.index };
+                    return { p: cp._match, s: cp._a, from: this, patterns: patterns, index: cp.index, regex: cp.regex };
                 }
                 return false;
             }
             throw new Error("cannot check : " + l);
         }
-        return { p, s: this, index: -1 };
+        return { p, s: this, index: -1, regex };
     }
 
     get matchRegex() {

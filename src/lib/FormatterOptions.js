@@ -337,6 +337,7 @@ class FormatterOptions {
             }
             return null;
         }
+     
         /**
          * append to buffer
          * @param {string} value 
@@ -736,6 +737,13 @@ class FormatterOptions {
             this.formatterBuffer.clear();
         }
     }
+    /**
+     * get marker info
+     */
+    get peekMarkerInfo(){
+        return this.markerInfo.length>0? this.markerInfo[0] : null;
+    }
+
     appendExtraOutput() {
         this.debug && Debug.log('---:append extra output:---');
         const { listener, output } = this;
