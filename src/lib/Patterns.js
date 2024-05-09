@@ -7,6 +7,7 @@ const { Utils } = require('./Utils');
 const { RegexUtils } = require('./RegexUtils');
 const { BlockInfo } = require('./BlockInfo');
 const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
+const { RegexEngine } = require('./RegexEngine');
 class Patterns {
     /**
      * @var {undefined|null|string|{message:string, code: number}} lint error 
@@ -268,12 +269,18 @@ class Patterns {
         const q = this;
         const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const transform = Utils.TransformPropertyCallback();
-        const _regex_parser = (s) => {
+        const _regex_parser = (s) => { 
             if (s == '(??)') {
                 q.isStartOnly = true;
                 s = '';
             }
-            return Utils.RegexParse(s, 'd');
+            let is_empty = false;
+            if (s==''){
+                is_empty = true;
+            }
+            let g = Utils.RegexParse(s, 'd');
+            g = RegexEngine.Load(g, is_empty);
+            return g;
         };
         const _capture_parser = Utils.JSONInitCaptureField(q);
 
@@ -487,6 +494,11 @@ class Patterns {
      * @returns 
      */
     endRegex(p) {
+        if (!this.end || (( this.end instanceof RegexEngine) &&  this.end.isEmpty)){
+            return null;
+        }
+
+
         if (this.matchType == 0) {
             let s = this.end.toString();
             let idx = s.lastIndexOf('/');

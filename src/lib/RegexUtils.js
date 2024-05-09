@@ -7,13 +7,50 @@ const START_HERE = "(??)";
  * regex utility class 
  */
 class RegexUtils{
+     /**
+     * get regex info on start line
+     * @param {string} s regex string expression
+     */
+     static RegexInfo(s) { 
+        let option = '';
+        if (s == "(??)") {
+            return {
+                s: "^.^",
+                option,
+                beginOnly: true
+            };
+        }
+
+        let _option = /^\(\?(?<active>[imx]+)(-(?<disable>[ixm]+))?\)/;
+        let _potion = null;
+        if (_potion = _option.exec(s)) {
+            let sp = '';
+            if (_potion.groups) {
+                sp = _potion.groups.active ?? '';
+                if (_potion.groups.disable) {
+                    _potion.groups.disable.split().forEach(i => {
+                        sp = sp.replace(i, '');
+                    });
+                }
+            }
+            s = s.replace(_option, '');
+            option = sp;
+        }
+        return {
+            s,
+            option
+        };
+    }
     /**
      * check request start line
      * @param {*} reg 
      * @returns 
      */
     static CheckRequestStartLine(reg){
-        return /([^\\]|^)\^/.test(reg.toString());
+        // + | TO CHECK that regex request for start line 
+        // - ^ must not be escaped \^
+        // - ^ must not be a non validated group [^] 
+        return /([^\\\\[]|^)\^/.test(reg.toString());
     }
     /**
      * stringify and regex result
@@ -63,6 +100,26 @@ class RegexUtils{
             capture= true;
         }
         return capture ? l : null;
+    }
+
+    static ReadBrank(str, position, count=1, start='(', end=')'){
+        const ln = str.length;
+        let ch = null;
+        let _stpos = position;
+        while(position<ln){
+            ch = str[position];
+            if (ch==start){
+                count++;
+            }else if (ch==end){
+                count--;
+                if (count==0){ 
+                    position ++;
+                    break;
+                }
+            }
+            position ++;
+        }
+        return str.substring(_stpos, position);
     }
     
     /**

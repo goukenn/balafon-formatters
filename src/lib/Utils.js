@@ -417,38 +417,11 @@ class Utils {
     }
 
     /**
-     * 
+     * get regex info on start line
      * @param {string} s regex string expression
      */
     static RegexInfo(s) {
-        let option = '';
-        if (s == "(??)") {
-            return {
-                s: "^.^",
-                option,
-                beginOnly: true
-            };
-        }
-
-        let _option = /^\(\?(?<active>[imx]+)(-(?<disable>[ixm]+))?\)/;
-        let _potion = null;
-        if (_potion = _option.exec(s)) {
-            let sp = '';
-            if (_potion.groups) {
-                sp = _potion.groups.active ?? '';
-                if (_potion.groups.disable) {
-                    _potion.groups.disable.split().forEach(i => {
-                        sp = sp.replace(i, '');
-                    });
-                }
-            }
-            s = s.replace(_option, '');
-            option = sp;
-        }
-        return {
-            s,
-            option
-        };
+        return RegexUtils.RegexInfo(s);
     }
     static RegexParseInfo(s, flag) {
         let _info = Utils.RegexInfo(s);
@@ -457,13 +430,18 @@ class Utils {
         }
         return _info;
     }
+    /**
+     * 
+     * @param {*} s 
+     * @param {*} flag 
+     * @returns 
+     */
     static RegexParse(s, flag) {
         if (typeof (s) == 'string') {
             let _info = Utils.RegexParseInfo(s, flag);
             return new RegExp(_info.s, _info.option);
         } else if (typeof (s) == 'object') {
-            if (s instanceof RegExp) {
-
+            if (s instanceof RegExp){
                 let _info = Utils.RegexParseInfo(s.toString(), flag);
                 return new RegExp(_info.s, _info.option);
             }
@@ -473,7 +451,6 @@ class Utils {
                 return regex;
             }
             return new RegExp(regex, option);
-
         }
         return s;
     }

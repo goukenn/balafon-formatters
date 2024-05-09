@@ -7,17 +7,19 @@
     "patterns": [
         {
             "include": "#single-condition-expression"
-        },{
+        },
+        {
             "include": "#single-else-expression"
         },
         {
-            "include":"#core-definition"
+            "include": "#core-definition"
         }
+     
     ],
     "repository": {
-        "core-definition":{
-            "name":"core.definition.js",
-            "patterns":[
+        "core-definition": {
+            "name": "core.definition.js",
+            "patterns": [
                 {
                     "include": "#reserved-words"
                 },
@@ -50,62 +52,92 @@
                 }
             ]
         },
-        "single-condition-expression":{
-            "name":"condition.expression.js",
-            "begin":"\\b(if|elseif|while|switch)\\b",
-            "end":"$",
-            "patterns":[
-                { "match":"\\s+", "replaceWith":"", "isGlue":true, "comment":"remove space before data"},
-                { "match":"\\s*$", "comment":"skip empty line", "replaceWith":"", "name":"meta.skip.extra.line.js"},
-                {"include":"#block-branket-stop"},
-                {"include":"#branket-function-condition"},
-                {"include":"#block-single-line-instruction"}               
+        "single-condition-expression": {
+            "name": "condition.expression.js",
+            "begin": "\\b(if|elseif|while|switch)\\b",
+            "end": "",
+            "patterns": [
+                {
+                    "match": "\\s+",
+                    "replaceWith": "",
+                    "isGlueValue":" ",
+                    "comment": "remove space before data"
+                },
+                {
+                    "match": "\\s*$",
+                    "comment": "skip empty line",
+                    "replaceWith": "",
+                    "name": "meta.skip.extra.line.js"
+                },
+                {
+                    "include": "#block-branket-stop"
+                },
+                {
+                    "include": "#branket-function-condition"
+                },
+                {
+                    "include": "#block-single-line-instruction"
+                }
             ]
         },
         "block-single-line-instruction": {
-            "name":"single.instruct.js",
-            "begin":"(?=[^\\(\\{\\s])",
-            "end":"\\s*(;)\\s*|$",
-            "comment":"start detect single expression",
-            "patterns":[
+            "name": "single.instruct.js",
+            "begin": "(?=[^\\(\\{\\s])",
+            "end": "\\s*(;)\\s*|$",
+            "comment": "start detect single expression",
+            "patterns": [
                 {
-                    "include":"#reserved-words"
-                },                
+                    "include": "#reserved-words"
+                },
                 {
-                    "include":"#block-end-single-instruction"
+                    "include": "#block-end-single-instruction"
                 }
             ],
-            "endCaptures":{
-                "0":{
-                    "match":"\\s*(;)\\s*",
-                    "transform":"trim"
+            "endCaptures": {
+                "0": {
+                    "match": "\\s*(;)\\s*",
+                    "transform": "trim"
                 }
             },
-            "isBlock":true,
-            "closeParent":true,
-            "formattingMode":2
+            "isBlock": true,
+            "closeParent": true, 
+            "formattingMode": 2
         },
-        "block-end-single-instruction":{
+        "block-end-single-instruction": {
             "match": "(?=\\s*(;)\\s*|$)",
             "name": "operator.end.single.instruction",
-            "closeParent":";"
+            "closeParent": ";"
         },
-        "single-else-expression":{
-            "name":"else.condition.expression.js",
-            "begin":"\\b(else)\\b",
-            "end":"$",
-            "patterns":[
-                { "match":"\\s*$", "comment":"skip empty line", "replaceWith":""},
-                { "match":"\\s+", "replaceWith":" ", "isGlue":true},
-                {"include":"#block-branket-stop"},
-                {"include":"#branket-function-condition"},
-                {"include":"#block-single-line-instruction"} 
+        "single-else-expression": {
+            "name": "else.condition.expression.js",
+            "begin": "\\b(else)\\b",
+            "end": "$",
+            "patterns": [
+                {
+                    "match": "\\s*$",
+                    "comment": "skip empty line",
+                    "replaceWith": ""
+                },
+                {
+                    "match": "\\s+",
+                    "replaceWith": " ",
+                    "isGlue": true
+                },
+                {
+                    "include": "#block-branket-stop"
+                },
+                {
+                    "include": "#branket-function-condition"
+                },
+                {
+                    "include": "#block-single-line-instruction"
+                }
             ]
         },
         "reserved-words": {
             "match": "\\b(abstract|arguments|await|boolean|break|byte|case|catch|char|class|const|continue|debugger|default|delete|do|double|else|enum|eval|export|extends|false|final|finally|float|for|function|goto|if|implements|import|in|instanceof|int|interface|let|long|native|new|null|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|true|try|typeof|var|void|volatile|while|with|yield)\\b",
             "name": "reserved-word",
-            "tokenID":"reserved-word"
+            "tokenID": "reserved-word"
         },
         "block-branket": {
             "begin": "\\{",
@@ -114,7 +146,7 @@
             "isBlock": true,
             "patterns": [
                 {
-                    "include":"#core-definition"
+                    "include": "#core-definition"
                 }
             ]
         },
@@ -123,10 +155,10 @@
             "end": "\\}",
             "name": "instruction.block.js",
             "isBlock": true,
-            "closeParent":true,
+            "closeParent": true,
             "patterns": [
                 {
-                    "include":"#core-definition"
+                    "include": "#core-definition"
                 }
             ]
         },
@@ -135,25 +167,30 @@
             "end": "\\}\\s*(?=,|\\))?",
             "name": "block.in.function.js",
             "isBlock": true,
-            "beginCaptures":{
-                "0":{"name":"begin.brace.js"}
+            "beginCaptures": {
+                "0": {
+                    "name": "begin.brace.js"
+                }
             },
-            "endCaptures":{
-                "0":{"name":"end.brace.js"}
-            }, 
+            "endCaptures": {
+                "0": {
+                    "name": "end.brace.js"
+                }
+            },
             "patterns": [
                 {
-                    "include":"#core-definition"
+                    "include": "#core-definition"
                 }
             ]
         },
         "trim-multispace": {
-            "match": "\\s+",
+            "match": "\\s+", 
             "name": "multi-line-space",
-            "replaceWith": " "
+            "replaceWith": " ",
+            "isGlueValue": " "
         },
         "end-instruction": {
-            "match": "(;)",
+            "match": "\\s*(;)\\s*",
             "name": "operator.end.instruction",
             "formattingMode": 1,
             "isInstructionSeparator": true
@@ -191,12 +228,12 @@
                     "transform": "trim"
                 }
             },
-            "patterns":[
+            "patterns": [
                 {
-                    "include":"#string"
+                    "include": "#string"
                 },
                 {
-                    "include":"#reserved-words"
+                    "include": "#reserved-words"
                 },
                 {
                     "include": "#branket-function-condition"
@@ -224,22 +261,25 @@
             "formattingMode": 1
         },
         "number": {
-            "match": "(\\.\\d+)|(\\d+(\\.(\\d+)?)?)", 
+            "match": "(\\.\\d+)|(\\d+(\\.(\\d+)?)?)",
             "name": "constant.number.js",
             "tokenID": "number",
-            "className":"number-class"
+            "className": "number-class"
         },
         "operators": {
-            "match": "\\s*(=>|=((=)?=)?|&(&)?|\\|\\||<=|>=|!)\\s*", 
+            "match": "\\s*(=>|=((=)?=)?|&(&)?|\\|\\||<=|>=|!)\\s*",
             "name": "operator.js",
             "tokenID": "operator",
-            "className":"op",
-            "transform":["trim", "[ $0 ]"],
-            "patterns":[
+            "className": "op",
+            "transform": [
+                "trim",
+                "[ $0 ]"
+            ],
+            "patterns": [
                 {
-                    "match":"\\s*=>\\s*",
-                    "name":"lamda",
-                    "transform":"trim"
+                    "match": "\\s*=>\\s*",
+                    "name": "lamda",
+                    "transform": "trim"
                 }
             ]
         }
