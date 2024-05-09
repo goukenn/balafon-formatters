@@ -106,7 +106,8 @@
         "block-end-single-instruction": {
             "match": "(?=\\s*(;)\\s*|$)",
             "name": "operator.end.single.instruction",
-            "closeParent": ";"
+            "closeParent": ";",
+            "transform":"trim"
         },
         "single-else-expression": {
             "name": "else.condition.expression.js",
@@ -193,7 +194,8 @@
             "match": "\\s*(;)\\s*",
             "name": "operator.end.instruction",
             "formattingMode": 1,
-            "isInstructionSeparator": true
+            "isInstructionSeparator": true,
+            "transform":"trim"
         },
         "string": {
             "begin": "(\"|')",
