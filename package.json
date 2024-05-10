@@ -237,7 +237,21 @@
       "html.format.enable":true,
       "javascript.format.enable": true,
       "typescript.format.enable": true,
-      "json.format.enable": true
+      "json.format.enable": true,
+
+      "editor.tokenColorCustomizations": {
+        "[source.bhtml]":{
+
+        },
+        "textMateRules": [
+          {
+            "scope":"source.bhtml bcss.property", 
+            "settings": {
+              "foreground": "#f6ff00"
+            }
+          }
+        ]
+      }
     }
   },
   "publisher": "CADBONDJEDOUE"
