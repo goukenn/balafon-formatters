@@ -204,11 +204,27 @@ class FormattingBase {
             }
         }
     }
+    updatePreprendExtra(prependExtra, extra, option){ 
+        option.saveBuffer(); 
+        let r = '';
+        (!Array.isArray(prependExtra) ? [prependExtra] : prependExtra).
+        forEach(i=>{
+            option.formatterBuffer.appendToBuffer(i);
+            option.store(); 
+        });
+        if (extra !== null)
+            option.output.push(extra);
+        r = option.flush(true);
+        option.restoreSavedBuffer();
+        extra =r;
+        return {extra};
+    }
     /**
      * depending on marker mode update old marker content new value
      * update from buffer content. 
      */
-    updateOldMarkerContent({ content, marker, extra, buffer, option, mode, isEntryContent, autoStartLine, startBlock }) {
+    updateOldMarkerContent({ content, marker, extra, buffer, option, mode, isEntryContent, 
+        autoStartLine, prependExtra }) {
         let _ld = '';
         const { debug, joinWith, startLine, formatterBuffer } = option;
         mode = mode == undefined ? FM_APPEND : mode;
@@ -221,11 +237,17 @@ class FormattingBase {
             return content;
         }
 
+        if (prependExtra){
+            // + | prepend extra data 
+            ({extra} = this.updatePreprendExtra(prependExtra, extra, option)); 
+            prependExtra = null;
+        }
+
         const _undef = typeof (marker.mode) == 'undefined';
         // let _change_mode = _undef || (mode == marker.mode);
         let _append_next_mode = _undef ? FM_APPEND : marker.mode;
 
-        debug && (() => {
+        debug?.feature('update-old-buffer') && (() => {
             Debug.log("--::update old buffer::--");
             console.log({ content, buffer, extra, mode });
         })();
@@ -338,6 +360,7 @@ class FormattingBase {
         this._updateGlobalMarkerOptionDefinition(marker, option);
         _props.mode = marker.mode;
         _props.autoStartLine = autoStartLine;
+        _props.prependExtra = prependExtra;
         return content + _ld;
     }
 
@@ -409,7 +432,7 @@ class FormattingBase {
         const { debug } = option;
         if (option.markerInfo.length > 0) {
             const _old = option.markerInfo[0];
-            debug && Debug.log("onAppend to buffer - value={" + value + "}");
+            debug?.feature('on-append-to-buffer') && Debug.log("onAppend to buffer - value={" + value + "}");
             // + | change current mode according to formatting rule
             if (marker.formattingMode == PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED) {
 

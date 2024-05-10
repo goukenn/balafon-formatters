@@ -109,7 +109,7 @@ class RegexEngine{
         }
 
         if (_def.length>0){
-            let _engine = new RegexEngine(_def);  
+            let _engine = new RegexEngine(_def, false);  
             _engine.info = inf; 
             return _engine;
         }

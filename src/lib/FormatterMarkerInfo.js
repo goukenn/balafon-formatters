@@ -43,6 +43,22 @@ class FormatterMarkerInfo{
      */
     joinWith;
 
+    /**
+     * data stored
+     */
+    prependExtra;
+
+    storePrependExtra(data){
+        if (!this.prependExtra && data){
+            if (!Array.isArray(this.prependExtra)){
+                this.prependExtra = [this.prependExtra]
+            }
+            this.prependExtra.push(data);
+            return;
+        }
+        this.prependExtra = data;
+    }
+
     toString(){
         return 'FormatterMarkerInfo#'+this.marker.toString();
     }
@@ -83,7 +99,7 @@ class FormatterMarkerInfo{
                 },
                 set(v) {
                     if (v != _content) {
-                        option.debug && Debug.log("---::store content ::---\n[value::'" + v+"']")
+                        option.debug?.feature("store-content") && Debug.log("---::store content ::---\n[value::'" + v+"']")
                         _content = v;
                     }
                 }

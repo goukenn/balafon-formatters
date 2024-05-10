@@ -186,7 +186,7 @@
             }
         },
         "html-attribute": {
-            "match": "(\\*)?\\b[\\w]+\\b",
+            "match": "(?i)(\\*)?[a-z][a-z0-9\\-]*(:[a-z][a-z0-9\\-]*)?",
             "name": "storage.tag.attribute.html"
         },
         "bracket-html-attribute": {
@@ -194,11 +194,11 @@
             "name": "tag.bracket.attribute.html"
         },
         "function-html-attribute": {
-            "match": "\\[\\s*\\b[\\w]+\\b\\*\\]",
+            "match": "\\[\\s*\\b[a-z][a-z0-9\\-]*(:[a-z][a-z0-9\\-]*)]\\s*",
             "name": "tag.function.attribute.html"
         },
         "global-self-closing-html-tag": {
-            "begin": "(<)(img|link|br)\\b",
+            "begin": "(<)(img|link|br)(?=[>|\\s|\\/])",
             "end": "(\\/)?>",
             "comment": "image tag must be consider as a global self closing element",
             "name": "auto.closing.tag.html",
@@ -236,7 +236,7 @@
         "inner-html-block": {
             "begin": "(\\<)\\b([\\w]+(?:[0-9\\w_\\-]+)?(?:[\\w]+[\\w\\-0-9]+)?)\\b",
             "end": "\\s*\\/\\>|\\<\\/\\2\\s*>",
-            "name": "entity.name.function.inner.html.tag.html",
+            "name": "entity.name.function.html.inner-tag.bhtml inner-tag.bhtml",
             "beginCaptures": {
                 "1": {
                     "name": "start.bracket.tag.bhtml"
@@ -484,10 +484,10 @@
                     "include": "#php-embedded"
                 },
                 {
-                    "isBlock": true,
+                    "isBlock": false,
                     "comment": "// * beginNonCapture / endNonCapture ==> streamCapture ",
-                    "begin": "(?:[^<]+)",
-                    "end": "(?=<[a-zA-Z\\/])",
+                    "begin": "(?=[^<])",
+                    "end": "(?=<)",
                     "name": "sub-inner......",
                     "patterns": [
                         {
@@ -496,13 +496,21 @@
                         },
                         {
                             "name": "inner.content.bhtml",
-                            "match": "[^<]+",
-                            "formattingMode": 1,
+                            "match": "[^<\\s]+",
+                            "formattingMode": 0,
                             "transform": "trim",
                             "joinWith": null
                         },
                         {
-                            "include": "#php-embedded"
+                            "match":"\\s+",
+                            "replaceWith":" ",
+                            "isGlueValue":" "
+                        },
+                        {
+                            "include": "#string"
+                        },
+                        {
+                            "include": "#php-embedded-"
                         }
                     ]
                 }

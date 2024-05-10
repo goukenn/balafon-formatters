@@ -347,7 +347,7 @@ class FormatterOptions {
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
             const { debug } = this;
-            debug && Debug.log("[append to buffer] - ={" + value + '}');
+            debug?.feature('append-to-buffer') && Debug.log("[append to buffer] - ={" + value + '}');
             let _buffer = value;
             if (value.length > 0) {
                 if (m_appendToBufferListener) {
@@ -434,7 +434,7 @@ class FormatterOptions {
                 return value;
 
             };
-            debug && Debug.log('--:::TreatEndCapture:::--' + marker);
+            debug?.feature('treat-capture') && Debug.log('--:::TreatEndCapture:::--' + marker);
             let def = endMatch;
             // if ((endMatch[0].length==0) && (_cap)&&(endMatch.input.length>0)){
              
@@ -745,7 +745,7 @@ class FormatterOptions {
     }
 
     appendExtraOutput() {
-        this.debug && Debug.log('---:append extra output:---');
+        this.debug?.feature('append-extra-prefix-line') && Debug.log('---:append extra output:---');
         const { listener, output } = this;
         FormatterOptions.AppendExtraLiveOutput({ listener, output });
     }

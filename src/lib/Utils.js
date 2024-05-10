@@ -274,9 +274,8 @@ class Utils {
 
         if (_a) {
             _match.index += pos;
-
-            if (debug) {
-                console.log('matcher-begin: ', {
+ 
+                debug?.feature('matcher-begin') && console.log('matcher-begin: ', {
                     '__name': _a.toString(),
                     name: _a.name, line, pos:
                         _match.index, depth,
@@ -289,8 +288,7 @@ class Utils {
                     regex: _a.matchRegex,
                     type: _a.matchType == 0 ? "begin/end" : "match",
                     isFromGroupRef: _from != null
-                });
-            }
+                }); 
             if (_a.throwError) {
                 let e = _a.throwError;
                 let msg = typeof (e) == 'object' ? e.message : 'invalid match';

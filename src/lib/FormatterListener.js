@@ -89,7 +89,7 @@ class FormatterListener {
         rt.tokenID = tokenID;
         rt.value =  value;
         option.lastToken = rt;
-        debug && Debug.log("render token", JSON.parse(JSON.stringify(rt)));
+        debug?.feature("render-token") && Debug.log("render token", JSON.parse(JSON.stringify(rt)));
         if (engine){
             return engine.renderToken(value, tokens, tokenID, marker);
         } 
