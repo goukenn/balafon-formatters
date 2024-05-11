@@ -311,8 +311,9 @@
         },
         "bhtml-global-html-tag": {
             "begin": "(<)((?:[a-zA-Z][a-zA-Z0-9\\-]*)(?::[a-zA-Z][a-zA-Z0-9\\-]*)?)(?![\\w-])",
-            "end": "<\\/\\2\\s*>|\\/>|(?<=^\\s*>)",
+            "end": "<\\/\\2\\s*>|\\/>|(?<=>)",
             "name": "root",
+            "endMissingValue--": "<\\/$2>",
             "beginCaptures": {
                 "1": {
                     "name": "entity.name.type.global.html.start-tag.bracket.tag.bhtml html.tag.start-tag.bracket.bhtml"
@@ -382,11 +383,18 @@
                 {
                     "name": "entity.name.type.missing.tag",
                     "begin": "</[a-zA-Z][a-zA-Z0-9\\-]*(:[a-zA-Z][a-zA-Z0-9\\-]*)?\\s*$",
-                    "end": "^\\s*>",
+                    "end": "(?<=>)",                    
                     "comment": "close missing root tag.",
+                    "beginCaptures":{
+                        "0":{"name":"entity.name.type.global.html.end-tag.bthml"}
+                    },
                     "patterns": [
                         {
                             "include": "#bhtml-end-tag-content"
+                        },
+                        {
+                            "match": "(>)",
+                            "name": "entity.name.type.html.end-tag.bracket.bhtml"
                         }
                     ]
                 },
@@ -430,13 +438,16 @@
             },
             "patterns": [
                 {
+                    "include": "#trim-white-space"
+                },
+                {
                     "include": "#string"
                 }
             ]
         },
         "read-attribute": {
-            "begin": "([\\w\\-]+)\\s*",
-            "end": "(?=([=]|>|\\s|$))",
+            "begin": "(?i)([a-z][a-z0-9]*(:[a-z][a-z0-9]*)?)(?![\\w-])",
+            "end": "(?=>)|(?<='|\")",
             "name": "attribute.bhtml",
             "tokenID": "attribute",
             "comment": "detect attribute definition-primary",
@@ -444,7 +455,21 @@
                 "0": {
                     "transform": "trim"
                 }
-            }
+            },
+            "patterns": [
+                {
+                    "include": "#trim-white-space"
+                },
+                {
+                    "include": "#read-attribute-value"
+                }
+            ]
+        },
+        "trim-white-space":{
+            "match":"\\s+",
+            "replaceWith":"",
+            "isGlueValue":"",
+            "name": "meta.trim.white-space.bhtml"
         },
         "bhtml-string-mustache": {
             "begin": "\\{\\{",
@@ -459,7 +484,6 @@
                 {
                     "include": "#string"
                 },
-               
                 {
                     "include": "#bhtml-glue-white-space"
                 },
@@ -507,7 +531,6 @@
                 }
             },
             "patterns": [
-               
                 {
                     "include": "#bhtml-inner-definition"
                 },
@@ -543,7 +566,8 @@
         "bhtml-sub-tag": {
             "begin": "(<)((?:[a-zA-Z][a-zA-Z0-9\\-]*)(?::[a-zA-Z][a-zA-Z0-9\\-]*)?)(?![\\w-])",
             "end": "<\\/\\2\\s*>|\\/>|(?<=^\\s*>)",
-            "name":"sub",
+            "name": "sub",
+            "endMissingValue": "</\\2>",
             "beginCaptures": {
                 "0": {
                     "name": "entity.name.function.html.sub-tag.bhtml"

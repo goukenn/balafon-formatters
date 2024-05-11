@@ -23,6 +23,8 @@ const { BlockInfo } = require("./BlockInfo");
 const { FormatterPatternException } = require("./FormatterPatternException");
 const { FormatterToken } = require("./FormatterToken");
 const { FormatterDebugger } = require("./FormatterDebugger");
+const { FormatterEndMissingExpression } = require("./FormatterEndMissingExpression");
+const { FormatterEndMissingEngine } = require("./FormatterEndMissingEngine");
 
 
 // + | --------------------------------------------------------
@@ -43,7 +45,8 @@ Utils.Classes = {
     FormatterPatternException,
     FormatterCloseParentInfo,
     FormatterToken,
-    FormatterDebugger
+    FormatterDebugger,
+    FormatterEndMissingExpression
 };
 
 let sm_globalEngine;
@@ -735,14 +738,23 @@ class Formatters {
     }
     _lastExpectedMatchResult(marker, option, _old) {
         const _formatting = this.formatting;
-        const { endMissingValue } = marker;
+        const { endMissingValue, group } = marker;
         let _p = [];
         let regex = '';
 
 
         if (!marker.isEndCaptureOnly) {
             if ((endMissingValue != undefined) && (endMissingValue !== null)) {
-                regex = endMissingValue;
+
+                if (endMissingValue instanceof FormatterEndMissingExpression){
+                    const engine = FormatterEndMissingEngine.Get(this.scopeName);
+
+                    regex = endMissingValue.load(group, 
+                        (s)=>Utils.ReplaceRegexGroup(Utils.RegExToString(s), group),
+                        engine, group[0]);
+                } else{
+                    regex = endMissingValue;
+                }
             } else {
                 if (_old && _old.marker.end.toString() != "/$/d")
                     regex = Utils.ReplaceRegexGroup(Utils.RegExToString(marker.end), marker.group);

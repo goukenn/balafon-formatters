@@ -285,6 +285,14 @@ class Patterns {
         const _capture_parser = Utils.JSONInitCaptureField(q);
 
         const parse = {
+            endMissingValue(n, parser){
+                if (typeof(n)=='object'){
+                    const { FormatterEndMissingExpression } = Utils.Classes;
+                    const {expression} = n;
+                    return new FormatterEndMissingExpression(expression);
+                }
+                return n;
+            },
             closeParent(n, parser) {
                 const _type = typeof (n);
                 const { FormatterCloseParentInfo } = Utils.Classes;
