@@ -313,7 +313,9 @@
             "begin": "(<)((?:[a-zA-Z][a-zA-Z0-9\\-]*)(?::[a-zA-Z][a-zA-Z0-9\\-]*)?)(?![\\w-])",
             "end": "<\\/\\2\\s*>|\\/>|(?<=>)",
             "name": "root",
-            "endMissingValue--": "<\\/$2>",
+            "endMissingValue": {
+                "expression":"[engine.autoCloseTagValue,\"$2\"]"
+            },
             "beginCaptures": {
                 "1": {
                     "name": "entity.name.type.global.html.start-tag.bracket.tag.bhtml html.tag.start-tag.bracket.bhtml"
@@ -518,6 +520,7 @@
             "begin": "(?!</)(\\>)",
             "end": "(?=</[a-zA-Z])",
             "comment": "enter inner html.",
+            "name":"root-inner.bthml",
             "contentName": "variable.name.function.html-root.inner.bthml",
             "beginCaptures": {
                 "0": {
@@ -567,7 +570,9 @@
             "begin": "(<)((?:[a-zA-Z][a-zA-Z0-9\\-]*)(?::[a-zA-Z][a-zA-Z0-9\\-]*)?)(?![\\w-])",
             "end": "<\\/\\2\\s*>|\\/>|(?<=^\\s*>)",
             "name": "sub",
-            "endMissingValue": "</\\2>",
+            "endMissingValue": {
+                "expression":"[engine.autoCloseTagValue,\"$2\"]"
+            },
             "beginCaptures": {
                 "0": {
                     "name": "entity.name.function.html.sub-tag.bhtml"

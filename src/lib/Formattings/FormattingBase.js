@@ -24,6 +24,7 @@ class FormattingBase {
      * @param {*} option 
      */
     updateBufferConstant(data, mode, _marker, option) {
+        const { formatterBuffer } = option.formatterBuffer;
         switch (mode) {
             case FM_START_LINE:
             case FM_END_BLOCK:
@@ -31,7 +32,7 @@ class FormattingBase {
                 let _buffer = option.buffer;
                 if (_buffer.length > 0) {
                     option.output.push(_buffer); // append line 
-                    option.formatterBuffer.clear();
+                    formatterBuffer.clear();
                 }
                 option.appendToBuffer(data, _marker);
                 mode = FM_APPEND;
@@ -54,7 +55,7 @@ class FormattingBase {
                     option.appendToBuffer(data, _marker);
                     if (option.output.length > 0) {
                         option.store();
-                        option.formatterBuffer.appendToBuffer(option.flush(true));
+                        formatterBuffer.appendToBuffer(option.flush(true));
                     }
                     mode = FM_APPEND;
                 }

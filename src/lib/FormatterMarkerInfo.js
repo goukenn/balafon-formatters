@@ -62,6 +62,15 @@ class FormatterMarkerInfo{
     toString(){
         return 'FormatterMarkerInfo#'+this.marker.toString();
     }
+
+    /**
+     * 
+     * @param {*} formatter 
+     * @param {*} _marker 
+     * @param {*} entry 
+     * @param {*} _endRegex 
+     * @param {*} option 
+     */
     constructor(formatter, _marker, entry, _endRegex, option){  
         this.startBlock = _marker.isBlock ? 1 : 0;
         this.oldBlockStart = _marker.isBlock;
@@ -75,38 +84,56 @@ class FormatterMarkerInfo{
 
         
     
-        (function (entry, _inf) {
+        (function (entry, _marker_info) {
             var _content = entry;
             var _isNew  = true;
-            _inf.set = function(){
+            var _data = '';
+            if (option.lastDefineStates?.bufferSegment.join('')==entry){
+                _data = option.lastDefineStates.dataSegment;
+            }
+            _marker_info.set = function(){
                 _isNew = false;
             };
-            
+            /**
+             * get untreated data
+             */
+            Object.defineProperty(_marker_info, 'data', {get(){
+                return _data || this.content;
+            }});
             /**
              * is new marker info 
              */
-            Object.defineProperty(_inf, 'isNew', {get(){
+            Object.defineProperty(_marker_info, 'isNew', {get(){
                 return _isNew;
             }});
-            Object.defineProperty(_inf, 'entryBuffer', {
+            Object.defineProperty(_marker_info, 'entryBuffer', {
                 get() {
                     return entry;
                 }
             });
-            Object.defineProperty(_inf, 'content', {
+            Object.defineProperty(_marker_info, 'content', {
                 get() {
                     return _content;
                 },
                 set(v) {
+                    let _untreat = null;
+                    if (typeof(v)=='object'){
+                        const { content, data } = v;
+                        v = v;
+                        _untreat = data;    
+                    }
                     if (v != _content) {
                         option.debug?.feature("store-content") && Debug.log("---::store content ::---\n[value::'" + v+"']")
                         _content = v;
                     }
+                    if (_untreat){
+                        this._data = _untreat;
+                    }
                 }
             });
-            Object.defineProperty(_inf, 'childs', {
+            Object.defineProperty(_marker_info, 'childs', {
                 get() {
-                    return _inf.marker.childs;
+                    return _marker_info.marker.childs;
                 }
             });
         })(entry, this); 

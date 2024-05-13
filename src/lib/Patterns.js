@@ -40,6 +40,11 @@ class Patterns {
      * setup the value on end missing
      */
     endMissingValue;
+
+    /**
+     * 
+     */
+    endMissingCaptures;
     /**
      * the name of this pattern
      */
@@ -127,7 +132,7 @@ class Patterns {
     startLineTransform;
 
     /**
-     * 
+     * used for begin capture
      */
     beginCaptures;
 
@@ -355,6 +360,7 @@ class Patterns {
             captures: _capture_parser,
             streamCaptures: _capture_parser,
             transformCaptures: _capture_parser,
+            endMissingCaptures: _capture_parser,
             transform,
             lineFeed(d, parser) {
                 return typeof (d) == 'boolean' ? d : false;

@@ -3,10 +3,44 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { FormatterResourceLoadingPattern } = require("./FormatterResourceLoadingPattern");
-const { RegexUtils } = require("./RegexUtils");
+const { RegexUtils } = require("./RegexUtils"); 
 
+/**
+ * utility classe
+ */
 class Utils {
     static TestScope;
+
+    /**
+     * render data
+     * @param {string} value 
+     * @param {PatternMatchInfo} marker 
+     * @param {null|CaptureInfo[]} captures 
+     * @param {FormatterOptions} option 
+     * @returns 
+     */
+    static RenderToBuffer(value, marker, captures, option ){
+        let _cm_value = value;
+        let _cm_data = value;
+        
+        // if (captures){
+        //     _cm_value = Utils.TreatCapture(marker, captures, _cm_value, option.tokenChains, option)
+        // }
+
+        option.saveBuffer(); 
+        option.appendToBuffer(_cm_value, marker, option);
+        option.store();
+        let refdata = {data:null};
+        _cm_value = option.flush(true, refdata);
+        _cm_data = refdata.data;        
+        option.restoreSavedBuffer();
+
+        return {
+            "source": _cm_value,
+            "data": _cm_data
+        };
+
+    }
     /**
      * define properties
      * @param {*} target 
@@ -605,7 +639,8 @@ class Utils {
             const _caps = _formatter.getMarkerCaptures(_marker);
             if (matches && _caps) {
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
-                let out = g.render(listener, _caps, false, _tokens, option);
+                const _outdefine = {};
+                let out = g.render(listener, _caps, false, _tokens, option, _outdefine);
                 return out;
             }
             return check;
@@ -686,11 +721,22 @@ class Utils {
         return value;
     }
 
+    /**
+     * 
+     * @param {*} marker 
+     * @param {*} _cap 
+     * @param {*} group 
+     * @param {*} tokenChains 
+     * @param {*} option 
+     * @returns {string|undefined}
+     */
     static TreatCapture(marker, _cap, group, tokenChains, option) {
         const { listener } = option;
         const { CaptureRenderer } = Utils.Classes;
         let _s = null;
         if (Array.isArray(group) == false) {
+            if (group === null)
+                group = '';
             const indices = [];
             indices.push([0, group.length]);
             group = [group];

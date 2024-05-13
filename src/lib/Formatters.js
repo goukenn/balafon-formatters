@@ -134,6 +134,9 @@ class Formatters {
         this.patterns = [];
         this.repository = {};
 
+        /**
+         * get or set the listener info
+         */
         Object.defineProperty(this, 'listener', { get() { return m_listener; }, set(value) { m_listener = value } })
         Object.defineProperty(this, 'errors', { get() { return m_errors; } })
         /**
@@ -384,8 +387,11 @@ class Formatters {
         const { listener } = this;
         let _o = null;
         if (listener) {
+            if (typeof(listener)=='function' )
             // + | invoke function listener creator
-            _o = listener.apply(this);
+                _o = listener.apply(this);
+            else 
+                _o = listener;
         }
         return _o || new FormatterListener();
     }
@@ -599,14 +605,7 @@ class Formatters {
                     _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
                     _start = true;
                 }
-                option.EOF = false;
-                // if (_marker_info){
-                //     let _buffer = option.buffer;
-                //     option.restoreBuffer(_marker_info);
-                //     if (option.formatterBuffer!= _rootBuffer){
-                //         option.formatterBuffer.appendToBuffer(_buffer);
-                //     }
-                // }
+                option.EOF = false;                
             }
 
             debug?.feature('end') && (() => {
@@ -738,26 +737,30 @@ class Formatters {
     }
     _lastExpectedMatchResult(marker, option, _old) {
         const _formatting = this.formatting;
-        const { endMissingValue, group } = marker;
+        const { endMissingValue, group, isEndCaptureOnly } = marker;
         let _p = [];
         let regex = '';
+        let _value = '';
 
 
-        if (!marker.isEndCaptureOnly) {
+        if (!isEndCaptureOnly) {
             if ((endMissingValue != undefined) && (endMissingValue !== null)) {
 
                 if (endMissingValue instanceof FormatterEndMissingExpression){
                     const engine = FormatterEndMissingEngine.Get(this.scopeName);
-
-                    regex = endMissingValue.load(group, 
+                    _value = _old?.content || group[0];
+                    let _cvalue = endMissingValue.load(group, 
                         (s)=>Utils.ReplaceRegexGroup(Utils.RegExToString(s), group),
-                        engine, group[0]);
+                        engine, _value, marker, option);
+                    if (_old){
+                        _old.content = _cvalue;
+                    }
                 } else{
-                    regex = endMissingValue;
+                    regex = Utils.ReplaceRegexGroup(endMissingValue, group);
                 }
             } else {
                 if (_old && _old.marker.end.toString() != "/$/d")
-                    regex = Utils.ReplaceRegexGroup(Utils.RegExToString(marker.end), marker.group);
+                    regex = Utils.ReplaceRegexGroup(Utils.RegExToString(marker.end), group);
             }
             //remove escaped litteral
             regex = regex ? regex.replace(/\\/g, "") : '';
@@ -1611,6 +1614,7 @@ class Formatters {
             // END FOUND
             // ---------------------------------------------------------------
             _p = this._lastExpectedMatchResult(patternInfo, option, _old);
+            _buffer = _old.content;
             // _p= [0];
             // _p.index = 0;
             // _p.indices = [];
@@ -2144,9 +2148,7 @@ class Formatters {
             let _up = _buffer.substring(0, _ln);
             _nextBuffer = _buffer.substring(_ln);
 
-            this._updateOldMarkerContent(_parentInfo, option, _up, '');
-            //_parentInfo.formatterBuffer.appendToBuffer(_up);
-            // _buffer = _nextBuffer;
+            this._updateOldMarkerContent(_parentInfo, option, _up, '');         
             _buffer = '';
         }
         return { _buffer, _nextBuffer};

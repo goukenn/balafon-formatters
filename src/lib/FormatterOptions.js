@@ -6,13 +6,14 @@ const { Utils } = require("./Utils");
 const { Debug } = require("./Debug");
 
 /**
- * @typedef FormatterOptions
- * @funcion newBuffer  
+ * @typedef IFormatterOptions
+ * @funcion newBuffer 
+ * @property {string} line current line definition
  */
 
 /**
  * class used to expose formatter option 
- * @property blockStart flags to indicate block is started on document . need to reset on format focument
+ * @type IFormatterOptions
  */
 class FormatterOptions {
     /**
@@ -115,6 +116,10 @@ class FormatterOptions {
     lastToken;
 
     /**
+     * flag to store last define
+     */
+    lastDefineStates;
+    /**
      * .ctr
      * @param {*} _formatter 
      * @param {*} _formatterBuffer 
@@ -194,6 +199,7 @@ class FormatterOptions {
             }
         });
         Object.defineProperty(option, 'buffer', { get: function () { return _formatterBuffer.buffer; } })
+        Object.defineProperty(option, 'data', { get: function () { return _formatterBuffer.data; } })
         Object.defineProperty(option, 'outputBufferInfo', { get() { return _outputBufferInfo; } })
         Object.defineProperty(option, 'tokenChains', {
             get() {
@@ -227,6 +233,9 @@ class FormatterOptions {
         });
         Object.defineProperty(option, 'output', {
             get: function () { return _formatterBuffer.output; },
+        });
+        Object.defineProperty(option, 'dataOutput', {
+            get: function () { return _formatterBuffer.dataOutput; },
         });
         Object.defineProperty(option, 'depth', {
             get() { return m_depth; },
@@ -357,7 +366,8 @@ class FormatterOptions {
                     if (treat){
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
-                    this.formatterBuffer.appendToBuffer(_buffer);
+                    this.formatterBuffer.appendToBuffer({
+                        source: _buffer, data: value});
                 }
             }
             _marker.value = { source: value, value: _buffer };
@@ -385,7 +395,7 @@ class FormatterOptions {
          * @param {*} matches 
          * @returns 
          */
-        option.treatBeginCaptures = function (patternInfo, _captures) {
+        option.treatBeginCaptures = function (patternInfo, _captures, _outdefine) {
             const { marker, group } = patternInfo;
             const { formatter } = this;
             // + | do capture treatment 
@@ -394,7 +404,7 @@ class FormatterOptions {
                 return;
             }
             const _capKeys = Object.keys(_cap);
-            let _s = null;
+            let _s = null; 
             // if ((_capKeys.length == 1) && (0 in _cap)){
             //     const op = [];
             //     _s = CaptureRenderer.CreateFromGroup( group, marker.name);
@@ -407,13 +417,15 @@ class FormatterOptions {
             // + | clone and reset indices before generate  
             _s = CaptureRenderer.CreateFromGroup(group, marker.name);
             if (_s) {
-                let _g = _s.render(this.listener, _cap, false, this.tokenChains, this);
+                _outdefine =_outdefine || {};
+                let _g = _s.render(this.listener, _cap, false, this.tokenChains, this, _outdefine);
                 patternInfo.startOutput = _g;
+                this.lastDefineStates = _outdefine;
                 return _g;
             }
             return null; // this.treatCaptures(_cap, marker, group);
         };
-        option.treatEndCaptures = function (markerInfo, endMatch, captures) {
+        option.treatEndCaptures = function (markerInfo, endMatch, captures, _outdefine) {
             let _cap = captures || { ...markerInfo.captures, ...markerInfo.endCaptures };
             if (is_emptyObj(_cap)) {
                 return endMatch[0];
@@ -436,32 +448,20 @@ class FormatterOptions {
             };
             debug?.feature('treat-capture') && Debug.log('--:::TreatEndCapture:::--' + marker);
             let def = endMatch;
-            // if ((endMatch[0].length==0) && (_cap)&&(endMatch.input.length>0)){
-             
-            //     const p = Utils.GetNextCapture(endMatch.input, markerInfo.endRegex, this);
-            //     p.index = endMatch.index; 
-            //     p.indices = [[0, p[0].length]];
-            //     def = p;
-            // } 
             let _s = CaptureRenderer.CreateFromGroup(def, marker.name);
             if (_s) { 
-                
+                _outdefine = _outdefine || {};
                 let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
-                    q
+                    q, _outdefine
                 );
                 markerInfo.endOutput = _g;
+                this.lastDefineStates = _outdefine;
                 return _g;
             }
-            return null; //this.treatCaptures(_cap, marker, endMatch);
+            return null; 
         }
       
-        // function getRenderOption(q) {
-        //     return {
-        //         debug: q.debug,
-        //         engine: q.engine,
-        //         formatter: _formatter
-        //     };
-        // }
+    
 
         /**
          * deprecated use only renderer to treat value 
@@ -521,6 +521,9 @@ class FormatterOptions {
             _formatterBuffer = new FormatterBuffer;
             _formatterBuffer.id = id;
         };
+        /**
+         * save buffer
+         */
         option.saveBuffer = function () {
             m_saveCount++;
             _bufferState.push({
@@ -529,15 +532,21 @@ class FormatterOptions {
             });
             this.newBuffer('_save_buffer_');
         };
+        /**
+         * restore saved buffer
+         */
         option.restoreSavedBuffer = function () {
             let buffer = _bufferState.pop();
             if (buffer) {
                 this.restoreBuffer({ state: buffer });
                 m_saveCount--;
             }
-        }
+        };
 
-
+        /**
+         * store definition
+         * @param {*} startBlock 
+         */
         option.store =
             /**
              * store and clear formatter buffer  
@@ -545,9 +554,9 @@ class FormatterOptions {
              */
             function (startBlock = false) {
                 const _ctx = this;
-                const { buffer, output, depth, formatterBuffer, listener } = _ctx;
-                if (listener) {
-                    listener.store.apply(null, [{ buffer, output, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
+                const { buffer, output, dataOutput, depth, formatterBuffer, listener } = _ctx;
+                if (listener?.store) {
+                    listener.store.apply(null, [{ buffer, output, dataOutput, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
                 }
                 _formatterBuffer.clear();
             }
@@ -558,7 +567,7 @@ class FormatterOptions {
            * @param {bool} clear 
            * @returns 
            */
-            function (clear) {
+            function (clear, refdata) {
                 const _ctx = this;
                 const { buffer, output, listener } = _ctx;
                 let l = '';
@@ -569,6 +578,9 @@ class FormatterOptions {
                 }
                 //+| clear output and buffer 
                 if (clear) {
+                    if (refdata){
+                        refdata.data = this.dataOutput.join(lineFeed);
+                    }
                     this.formatterBuffer.clear();
                     output.length = 0;
                 }
@@ -663,9 +675,12 @@ class FormatterOptions {
         if (_old) {
             // unshif and restore buffer 
             let _rbuffer = option.buffer;
+            let _rdata = option.data;
             option.restoreBuffer(_old);
             if (_rbuffer) {
-                option.formatterBuffer.appendToBuffer(_rbuffer);
+                option.formatterBuffer.appendToBuffer(
+                    {
+                    source:_rbuffer, data: _rdata});
             }
         }
         return _old;

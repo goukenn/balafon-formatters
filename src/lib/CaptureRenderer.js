@@ -121,9 +121,12 @@ class CaptureRenderer{
      * @param {*|{debug:bool}} option 
      * @returns 
      */
-    render(listener, captures, end, tokens, option){ 
+    render(listener, captures, end, tokens, option, outdefine){ 
         if (!captures){
             throw new Error('missing captures info');
+        }
+        if (!outdefine){
+            throw new Error('missing outdefine info');
         }
         const self = this;
         const { matches, roots } = self;
@@ -132,8 +135,10 @@ class CaptureRenderer{
         let _begin = 0;
         let _output = ''; 
         let _formatter = option.formatter;
-        let treat_root = function (_input, root, listener, captures, tokens){
+        let treat_root = function (_input, root, listener, captures, tokens, refData){
+            // treat rf value
             let rf = root.value;
+            let rd = rf;
             let subchilds = [{root, output:[], treat:false, sub:false}];
             let _end = false;
             while(subchilds.length>0){
@@ -191,6 +196,7 @@ class CaptureRenderer{
                         // treat pattern or other stuff 
                         if (end){
                             // special treatment for end captures
+                            rd = rf;
                             rf = end(rf, cap, id, listener, {tokens, engine, debug, tokenID});
                             _end = true; 
                         } else {
@@ -216,6 +222,7 @@ class CaptureRenderer{
                         }
                     } 
                     if (listener && !_treat_pattern){
+                        rd = rf;
                         rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option); 
                     }
                     if (q.parent){
@@ -230,7 +237,7 @@ class CaptureRenderer{
                     q.treat = true;
                 }
             }
-
+            refData.data = rd;
             return rf;
         };
         let treat_constant = function(c, listener){
@@ -242,9 +249,11 @@ class CaptureRenderer{
             return c;
         }
         let c = '';
+        let d = '';
         let _keys = Object.keys(roots);
         let _Capkeys = Object.keys(captures);
         let _root_only = ( 0 in captures) && (_Capkeys.length==1);
+        let _ref_data = {data:null, input:_input, bufferSegment:[],dataSegment:[]};
         for(let j in roots){ 
             if ( !_root_only && ((j==0)&&(_keys.length>1))){
                 continue;
@@ -252,17 +261,34 @@ class CaptureRenderer{
             let rt = roots[j];
 
             c = _input.substring(_begin, rt.start);
-            c = treat_constant(c, listener); 
+            if (c.length>0){
+                d += c; 
+                _ref_data.dataSegment.push(c);
+                c = treat_constant(c, listener); 
+                _output += c;   
+                _ref_data.bufferSegment.push(c);
+            }         
+            c = treat_root(_input, rt,listener,captures,tokens,_ref_data);
             _output += c;
-            _output += treat_root(_input, rt,listener,captures,tokens);
             _begin = rt.end;
+            d+=_ref_data.data;
+            _ref_data.dataSegment.push(_ref_data.data);
+            _ref_data.bufferSegment.push(c);
             if (_root_only)
                 break;
         }
         if (_begin < _input.length){
-            c = treat_constant(_input.substring(_begin), listener); 
+            let l = _input.substring(_begin);
+            d+= l;
+            _ref_data.dataSegment.push(l);
+            c = treat_constant(l, listener); 
             _output += c;
+            _ref_data.bufferSegment.push(c);
         } 
+        if (outdefine){ 
+            outdefine.bufferSegment = _ref_data.bufferSegment;
+            outdefine.dataSegment = _ref_data.dataSegment;
+        }
         return _output;
     }
     /**
