@@ -134,6 +134,7 @@ class PatternMatchInfo {
         Object.defineProperty(this, 'line', { get() { return m_line; } });
         Object.defineProperty(this, 'startOutput', {
             get() { 
+                // + | return group[0] on start definition
                 if((m_startOutput==null)||(m_startOutput==undefined))
                     return m_group[0];
                 return m_startOutput; }, 
@@ -285,6 +286,15 @@ class PatternMatchInfo {
      */
     get matchType(){
         return this.marker.matchType;
+    }
+
+    /**
+     * check is pattern only definition.
+     * @var {bool}
+     */
+    get isPatternsOnly(){
+
+        return false;
     }
     /**
      * debug this marker. internal used

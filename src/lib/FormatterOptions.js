@@ -374,7 +374,18 @@ class FormatterOptions {
             _marker.value = { source: value, value: _buffer };
             if (raise)
             _formatter.onAppendToBuffer(_marker, _buffer, option);
+            if (_buffer.trim().length>0){
+                option.glueValue = null;
+            }
         }
+        option.useGlue = (_marker, _cm_value)=>{
+             // + | update or reset glue value
+             if (_marker.isGlueValue) {
+                option.glueValue = _cm_value;
+            } else {
+                option.glueValue = null;
+            }
+        };
         option.treatValueBeforeStoreToBuffer = function (_marker, _buffer){
             const { listener, tokenChains, engine } = this;
             if (listener?.renderToken) {
@@ -397,23 +408,13 @@ class FormatterOptions {
          * @returns 
          */
         option.treatBeginCaptures = function (patternInfo, _captures, _outdefine) {
-            const { marker, group } = patternInfo;
-            const { formatter } = this;
+            const { marker, group } = patternInfo; 
             // + | do capture treatment 
-            let _cap = _captures || { ...marker.captures, ...marker.beginCaptures };
+            let _cap = _captures || Utils.BeginCaptures(marker);
             if (is_emptyObj(_cap)) {
                 return;
-            }
-            const _capKeys = Object.keys(_cap);
-            let _s = null; 
-            // if ((_capKeys.length == 1) && (0 in _cap)){
-            //     const op = [];
-            //     _s = CaptureRenderer.CreateFromGroup( group, marker.name);
-
-            //     let mm = _s.render(this.listener, _cap, false, this.tokenChains,  this);
-            //     console.log(new_g, "data: ");
-
-            // }
+            } 
+            let _s = null;  
             // + | use capture to treat and pattern to continue reading
             // + | clone and reset indices before generate  
             _s = CaptureRenderer.CreateFromGroup(group, marker.name);
@@ -424,7 +425,7 @@ class FormatterOptions {
                 this.lastDefineStates = _outdefine;
                 return _g;
             }
-            return null; // this.treatCaptures(_cap, marker, group);
+            return null;
         };
         option.treatEndCaptures = function (markerInfo, endMatch, captures, _outdefine) {
             let _cap = captures || { ...markerInfo.captures, ...markerInfo.endCaptures };

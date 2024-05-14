@@ -1418,11 +1418,7 @@ class Formatters {
             if (_old && b) {
                 _formatting.onEndInstruction(_marker, option);
             }
-            if (_marker.isGlueValue) {
-                option.glueValue = _cm_value;
-            } else {
-                option.glueValue = null;
-            }
+            option.useGlue(_marker, _cm_value); 
             this._updateJoinWith(_marker, option);
             _e.storeValue = true;
             this._updateNextMode(option, _marker);
@@ -1626,11 +1622,19 @@ class Formatters {
                 _cm_value = this._treatMatchValue(_cm_value, patternInfo, option, _op, null, false);
                 if (_op.indexOf('transform') != -1) {
                     _captures = patternInfo.transformCaptures || null;
-                    this._treatTransform(_cm_value, patternInfo, _captures);
+                    ({_captures} =  this._treatTransform(_cm_value, patternInfo, _captures)); 
+                }   
+                // + | update start input 
+                patternInfo.startOutput = _cm_value;
+            }
+            // _captures = _captures || Utils.BeginCaptures(patternInfo);
+            // + | treat begin captures and update buffer
+            if (option.treatBeginCaptures(patternInfo, _captures) == undefined){
+                if (patternInfo.startOutput.length>0){
+                    patternInfo.startOutput = option.treatValueBeforeStoreToBuffer(patternInfo,  patternInfo.startOutput);
                 }
             }
-            // + | treat begin captures and update buffer
-            option.treatBeginCaptures(patternInfo, _captures);
+
             patternInfo.start = false;
             if (patternInfo.isBlock) {
                 // - on base start width K_R coding style 
@@ -2792,16 +2796,7 @@ class Formatters {
     static HandleSameGroup(q, patternInfo, _matcher, _p, _old, _buffer, _endRegex, option, endFound, _line) {
 
         const { debug } = option;
-        const { endMatchLogic } = q.settings;
-        // if (0 && (endMatchLogic == 'before')) {
-        //     //priority to end block
-        //     _line = _line || option.line.substring(option.pos);
-        //     // debug && Debug.log("Before logic just call end found. ");             
-        //     if (endFound) {
-        //         return endFound.apply(q, [_buffer, _line, patternInfo, _p, option, _old]);
-        //     }
-        //     return q._handleFoundEndPattern(_buffer, _line, patternInfo, _p, option, _old);
-        // }
+        const { endMatchLogic } = q.settings; 
 
         // + | priority to same group
         let _ret = null;

@@ -10,6 +10,18 @@ const { RegexUtils } = require("./RegexUtils");
 class Utils {
     static TestScope;
 
+    /**
+     * Get default begin captures
+     * @param {*} marker 
+     * @returns 
+     */
+    static BeginCaptures(marker){
+        return { ...marker.captures, ...marker.beginCaptures };
+    }
+    static EndCaptures(marker){
+        return { ...marker.captures, ...marker.endCaptures };
+    }
+
     static JSON_REGEX_PARSER(){
         return (s) => { 
             if (s == '(??)') {

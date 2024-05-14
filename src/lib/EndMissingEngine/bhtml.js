@@ -9,7 +9,7 @@ class bhtml{
         return auto_closed.split('|').indexOf(target) != -1;
     }
     /**
-     * return buffer content
+     * auto close tagreturn buffer content
      * @param {string} target - tag name 
      * @param {*} value - data baleur
      * @param {*} marker - source marker
@@ -48,35 +48,7 @@ class bhtml{
             }
         }
         _load_data({buffer:tp, data: _close_tag});
-        
-
-
         return value.bufferSegment.join('');
-        
-
- 
-        // let _self_closed = /\/>\s*$/.test(value); 
-        // let _captures = marker.endMissingCaptures || marker.endCaptures || marker.captures;
-        // let _data = new FormatterSegmentOperation(value);
-        
-        // if (!this.isAutoCloseTag(target,value)){
-        //     throw Error("not implement");       
-        // }else{
-        //     _close_tag = '/>';
-            
-        //     let _const = Utils.RenderToBuffer(_close_tag, marker,_captures, option);
-
-        //     if (!_self_closed){
-        //         _value = _value.replace(/>\s*$/, _close_tag);
-        //         _value = _const.buffer.replace(_const.buffer)
-        //     } else {
-        //         if (!_is_closed){
-        //             _value += '>';
-        //         }
-        //         _value +=_close_tag;
-        //     }  
-        // }
-        // return _value;
     }
 }
 

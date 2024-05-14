@@ -452,6 +452,7 @@ class FormattingBase {
             mode = FM_START_LINE;
         }
         marker.mode = mode;
+       
 
     }
     handleEndFound(formatter, marker, option, _buffer, _b) {
