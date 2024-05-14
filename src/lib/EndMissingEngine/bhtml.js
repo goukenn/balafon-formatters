@@ -8,29 +8,75 @@ class bhtml{
     isAutoCloseTag(target, value){
         return auto_closed.split('|').indexOf(target) != -1;
     }
-    autoCloseTagValue(target, value, marker, option){
+    /**
+     * return buffer content
+     * @param {string} target - tag name 
+     * @param {*} value - data baleur
+     * @param {*} marker - source marker
+     * @param {*} option - formatting option
+     * @returns {string}
+     */
+    autoCloseTagValue(target, value, marker, option, captures){
         let _value = value;
-        let _is_closed = />\s*$/.test(value);
-        let _self_closed = /\/>\s*$/.test(value);
-        let _close_tag = "</"+target+">";
-        let _captures = marker.endMissingCaptures || marker.endCaptures || marker.captures;
-        if (!this.isAutoCloseTag(target,value)){
-            throw Error("not implement");       
-        }else{
-            _close_tag = '/>';
-            
-            Utils.RenderToBuffer(_close_tag, marker,_captures, option);
+        let _formatter = option.formatter;
 
-            if (!_self_closed){
-                _value = _value.replace(/>\s*$/, _close_tag);
-            } else {
-                if (!_is_closed){
-                    _value += '>';
-                }
-                _value +=_close_tag;
-            }  
+        let _lastData = _value.dataSegment.pop();
+        let _lastBuffer = _value.bufferSegment.pop();
+        let _load_data = (_cp)=>{
+            _value.dataSegment.push(_cp.data);
+            _value.bufferSegment.push(_cp.buffer);
+        };
+
+        let _captures = captures || marker.endCaptures || marker.captures; //[]; //marker.endMissingCaptures || marker.endCaptures || marker.captures;
+        let _is_closed  = />\s*$/.test(_lastData);
+        let _close_tag = "</"+target+">";
+        let _is_auto_closed = this.isAutoCloseTag(target,value);
+       
+
+        if (_is_auto_closed){
+            _close_tag = "/>";
         }
-        return _value;
+        let _p = Utils.CreateEndMatch(_close_tag);
+
+        let tp = option.treatEndCaptures(marker, _p, _captures);
+        //let cp = Utils.RenderToBuffer(_close_tag, marker, _captures, option);
+        if (!_is_closed){
+            _load_data({buffer: _lastBuffer, data: _lastData});
+            if (!_is_auto_closed){
+                const _tdp = Utils.RenderToBuffer('>', marker,_captures, option);
+                _load_data(_tdp); 
+            }
+        }
+        _load_data({buffer:tp, data: _close_tag});
+        
+
+
+        return value.bufferSegment.join('');
+        
+
+ 
+        // let _self_closed = /\/>\s*$/.test(value); 
+        // let _captures = marker.endMissingCaptures || marker.endCaptures || marker.captures;
+        // let _data = new FormatterSegmentOperation(value);
+        
+        // if (!this.isAutoCloseTag(target,value)){
+        //     throw Error("not implement");       
+        // }else{
+        //     _close_tag = '/>';
+            
+        //     let _const = Utils.RenderToBuffer(_close_tag, marker,_captures, option);
+
+        //     if (!_self_closed){
+        //         _value = _value.replace(/>\s*$/, _close_tag);
+        //         _value = _const.buffer.replace(_const.buffer)
+        //     } else {
+        //         if (!_is_closed){
+        //             _value += '>';
+        //         }
+        //         _value +=_close_tag;
+        //     }  
+        // }
+        // return _value;
     }
 }
 

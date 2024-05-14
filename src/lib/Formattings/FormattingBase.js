@@ -224,10 +224,10 @@ class FormattingBase {
      * depending on marker mode update old marker content new value
      * update from buffer content. 
      */
-    updateOldMarkerContent({ content, marker, extra, buffer, option, mode, isEntryContent, 
+    updateOldMarkerContent({ content, marker, extra, buffer, data, segments, option, mode, isEntryContent, 
         autoStartLine, prependExtra }) {
         let _ld = '';
-        const { debug, joinWith, startLine, formatterBuffer } = option;
+        const { debug, joinWith, formatterBuffer } = option;
         mode = mode == undefined ? FM_APPEND : mode;
         const _props = arguments[0];
 
@@ -244,20 +244,24 @@ class FormattingBase {
             prependExtra = null;
         }
 
-        const _undef = typeof (marker.mode) == 'undefined';
-        // let _change_mode = _undef || (mode == marker.mode);
+        const _undef = typeof (marker.mode) == 'undefined'; 
         let _append_next_mode = _undef ? FM_APPEND : marker.mode;
 
         debug?.feature('update-old-buffer') && (() => {
             Debug.log("--::update old buffer::--");
-            console.log({ content, buffer, extra, mode });
+            console.log({ content, buffer, extra, mode, data });
         })();
-         // + | check to update the marker content before  
-        // if (marker.isBlock && !marker.isBlockStarted)
-        // {
-        //     this.startBlockDefinition( option.formatter, marker, option);
-        // }
-    
+        const _updateLd = ()=>{
+            const _ref_data = {};
+            const _buffer = option.flush(true, _ref_data);
+            _ld += _buffer;
+            _updateSegment({buffer: _buffer, data:_ref_data.data}); 
+        }
+        const _updateSegment = ({buffer, data})=>{
+            segments.bufferSegment.push(buffer);
+            segments.dataSegment.push(data);
+        };
+        
 
         switch (mode) {
             case FM_START_LINE:
@@ -278,8 +282,7 @@ class FormattingBase {
                 ({ value, mode, content } = this.updateMergeEndBlock({ content, marker, extra, buffer, option, _hasBuffer, _hasExtra }));
                 option.formatterBuffer.appendToBuffer(value);
                 option.store();
-                value = option.flush(true);
-                _ld = value;
+                _ld = option.flush(true);
                 break;
             case FM_START_BLOCK: // every block start with extra output
                 option.appendExtraOutput();
@@ -314,10 +317,8 @@ class FormattingBase {
                 if (_hasExtra) {
                     option.appendExtraOutput();
                     option.output.push(extra);
-                    extra = option.flush(true);
-                    _ld = extra;
-                }
-
+                    _ld = option.flush(true); 
+                } 
                 if (buffer.length > 0) {
                     if (!/\\s+$/.test(content)) {
                         content += ' ';
@@ -329,11 +330,12 @@ class FormattingBase {
                 if (_hasExtra) {
                     option.appendExtraOutput();
                     option.output.push(extra);
-                    extra = option.flush(true);
-                    _ld = extra;
+                    _updateLd();
                 }
                 if (buffer.length > 0) {
                     _ld += buffer;
+                    _updateSegment({buffer, data});
+                   
                 }
                 break;
             case FM_START_LINE_NEXT_LINE:
@@ -560,7 +562,7 @@ class FormattingBase {
      * operation to handle end block after restoring buffer
      * @param {Formatters} formatter 
      * @param {*} _marker parent marker info 
-     * @param {*} _buffer 
+     * @param {string|{buffer:string, data:string}} _buffer 
      * @param {FormatterOptions} option 
      */
     updateEndBlockAfterRestoringBuffer(formatter, _marker, _buffer, _old, option) {
@@ -601,7 +603,11 @@ class FormattingBase {
                 formatter.appendJoinToBuffer(_next_old.joinWith, option);
                 _next_old.joinWith = null;
             }
-            option.appendToBuffer(_buffer, _marker);
+            if (typeof(_buffer)=='string'){
+                option.appendToBuffer(_buffer, _marker);
+            } else {
+                option.formatterBuffer.appendToBuffer(_buffer);
+            }
         }
         if (isBlock && _next_old) {
             // + | update marker definition depending of the formatter
@@ -660,7 +666,6 @@ class FormattingBase {
      */
     handleEndFormattingOnNonStartBlockElement(formatter, marker_info, option) {
         const { mode } = marker_info;
-        // update buffer 
         switch (mode) {
             case FM_START_LINE:
                 // append line 

@@ -51,15 +51,17 @@ class FormatterListener {
      * treat current buffer and store it to option 
      * buffer to ouput . 
      */
-    store({buffer, output, depth, tabStop, startBlock}) { 
+    store({buffer, data, output, dataOutput, depth, tabStop, startBlock}) { 
         let s = buffer;
         let d = depth; 
         if (s.length > 0){
             if (startBlock){
                 output.unshift('');
+                dataOutput.unshift('');
             }
             let _tab = d > 0 ? tabStop.repeat(d) : '';
             output.push(_tab + s);
+            dataOutput.push(_tab+data);
         } 
     }
     /**

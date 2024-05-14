@@ -2,6 +2,10 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 /**
+ * @import (./IBufferData)
+ */
+
+/**
  * class that help to manibule buffer by segment
  * @property {string[]} output 
  * @property {string[]} dataOutput 
@@ -75,20 +79,29 @@ class FormatterBuffer {
     }
     /**
      * append value to buffer segment
-     * @param {string|{source:string, data: string}} v 
+     * @param {string|{buffer:string, data: string}} v 
      */
     appendToBuffer(v) {
         if (typeof(v)=='string'){
             this.bufferSegments.push(v);
             this.appendToData(v);
         } else {
-            const {source, data} = v;
-            this.bufferSegments.push(source);
+            const {buffer, data} = v;
+            this.bufferSegments.push(buffer);
             this.appendToData(data);
         }
     }
     appendToData(v) {
         this.dataSegments.push(v);
+    }
+    storeToBuffer(buffer, {lastDefineStates}){
+        if (buffer == lastDefineStates.bufferSegment.join('')){
+            this.appendToBuffer({buffer, data: lastDefineStates.dataSegment.join('')});
+        }
+        else {
+            // just store to buffer 
+            this.appendToBuffer(buffer);
+        }
     }
     /**
      * clear segments

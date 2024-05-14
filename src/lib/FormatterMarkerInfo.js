@@ -63,6 +63,9 @@ class FormatterMarkerInfo{
         return 'FormatterMarkerInfo#'+this.marker.toString();
     }
 
+    updateDataSegments(data){
+            
+    }
     /**
      * 
      * @param {*} formatter 
@@ -89,16 +92,19 @@ class FormatterMarkerInfo{
             var _isNew  = true;
             var _data = '';
             if (option.lastDefineStates?.bufferSegment.join('')==entry){
-                _data = option.lastDefineStates.dataSegment;
+                const { dataSegment, bufferSegment } = option.lastDefineStates;
+                _data = { dataSegment, bufferSegment };
+            }else{
+                _data = {dataSegment: [], bufferSegment:[]}
             }
             _marker_info.set = function(){
                 _isNew = false;
             };
             /**
-             * get untreated data
+             * get stored data segment
              */
             Object.defineProperty(_marker_info, 'data', {get(){
-                return _data || this.content;
+                return _data;
             }});
             /**
              * is new marker info 

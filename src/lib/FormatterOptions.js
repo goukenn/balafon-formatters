@@ -4,6 +4,7 @@ Object.defineProperty(exports, 'enModule', { value: true });
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
 const { Debug } = require("./Debug");
+const { FormatterBuffer } = require("./FormatterBuffer");
 
 /**
  * @typedef IFormatterOptions
@@ -367,7 +368,7 @@ class FormatterOptions {
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
                     this.formatterBuffer.appendToBuffer({
-                        source: _buffer, data: value});
+                        buffer: _buffer, data: value});
                 }
             }
             _marker.value = { source: value, value: _buffer };
@@ -554,9 +555,9 @@ class FormatterOptions {
              */
             function (startBlock = false) {
                 const _ctx = this;
-                const { buffer, output, dataOutput, depth, formatterBuffer, listener } = _ctx;
+                const { buffer, data, output, dataOutput, depth, formatterBuffer, listener } = _ctx;
                 if (listener?.store) {
-                    listener.store.apply(null, [{ buffer, output, dataOutput, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
+                    listener.store.apply(null, [{ buffer, output,data, dataOutput, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
                 }
                 _formatterBuffer.clear();
             }
@@ -569,17 +570,19 @@ class FormatterOptions {
            */
             function (clear, refdata) {
                 const _ctx = this;
-                const { buffer, output, listener } = _ctx;
+                const { buffer, output, listener, dataOutput} = _ctx;
                 let l = '';
+                let data = null;
                 if (listener?.output) {
-                    l = listener.output.apply(null, [{ buffer, output, lineFeed, _ctx }]);
+                    l = listener.output.apply(null, [{ buffer, output, dataOutput, lineFeed, _ctx }]);
                 } else {
-                    l = this.output.join(lineFeed);
+                    l = output.join(lineFeed);
+                    data = dataOutput.join(lineFeed);
                 }
                 //+| clear output and buffer 
                 if (clear) {
                     if (refdata){
-                        refdata.data = this.dataOutput.join(lineFeed);
+                        refdata.data = data;
                     }
                     this.formatterBuffer.clear();
                     output.length = 0;
@@ -769,6 +772,22 @@ class FormatterOptions {
             listener.appendExtraOutput({ output: output });
         } else
             output.push('');
+    }
+    get bufferSegmentState(){
+        const { formatterBuffer } = this;
+        return {
+            bufferSegment : formatterBuffer.bufferSegment,
+            dataSegment : FormatterBuffer.dataSegment
+        };
+    }
+    /**
+     * get buffer states
+     */
+    get bufferState(){
+        return {
+            buffer: this.buffer,
+            data : this.data
+        };
     }
 }
 

@@ -739,8 +739,7 @@ class Formatters {
         const _formatting = this.formatting;
         const { endMissingValue, group, isEndCaptureOnly } = marker;
         let _p = [];
-        let regex = '';
-        let _value = '';
+        let regex = ''; 
 
 
         if (!isEndCaptureOnly) {
@@ -748,12 +747,15 @@ class Formatters {
 
                 if (endMissingValue instanceof FormatterEndMissingExpression){
                     const engine = FormatterEndMissingEngine.Get(this.scopeName);
-                    _value = _old?.content || group[0];
+                    // _value = _old?.data.dataSegment.join('') || group[0];
                     let _cvalue = endMissingValue.load(group, 
                         (s)=>Utils.ReplaceRegexGroup(Utils.RegExToString(s), group),
-                        engine, _value, marker, option);
+                        engine, _old?.data, marker, option);
                     if (_old){
+                        // + update value - content value
                         _old.content = _cvalue;
+                        _p = Utils.CreateEndMatch('');
+                        return _p;
                     }
                 } else{
                     regex = Utils.ReplaceRegexGroup(endMissingValue, group);
@@ -913,14 +915,48 @@ class Formatters {
      * @param {*} group 
      * @returns 
      */
-    _operationReplaceWith(_marker, value, group, option) {
+    _operationReplaceWith(_marker, value, group, option, _refObj) {
         let _formatter = this;
         const { replaceWith, replaceWithCondition } = _marker;
         let g = group;
-        if (replaceWith) {
+        _refObj = _refObj || {};
+        if (!replaceWith){
+            _refObj.replaced = false;
+            return value;
+        }
+        let _tab = replaceWith
+
+        if (_tab instanceof ReplaceWithCondition){
+            _tab = [_tab];
+        }
+        if (Array.isArray(_tab)){
+            _tab = _tab.slice(0);
+
+            // + array of replace with conditions
+            while(_tab.length>0){
+                const q = _tab.shift();
+                const { expression, match, captures } = q; 
+                if (!expression){
+                    // + | skip missing expression
+                    continue;
+                }
+                if(match){
+                    const _p = {replaced:true, g, _rpw:null};
+                    const tvalue = Utils.ReplaceWithCheck(expression,value, q, _p);
+                    if (_p.replaced){
+                        const { _rpw } = _p;
+                        value = Utils.DoReplaceWith(tvalue, _formatter, _rpw, g, _marker, option, captures);
+                         
+                        return value;
+                    }
+                }
+            } 
+        }
+        else {
             let _rpw = Utils.RegExToString(replaceWith);
             const _cond = replaceWithCondition;
             let match = _cond?.match;
+            const _captures = _cond?.captures; 
 
             if (match) {
                 let _op = _cond.operator || '=';
@@ -929,6 +965,7 @@ class Formatters {
                     let r = match.test(_s);
                     if (_op) {
                         if (((_op == '=') && !r) || ((_op == '!=') && (r))) {
+                            _refObj.replaced = false;
                             return value;
                         }
                     }
@@ -938,13 +975,18 @@ class Formatters {
                         ((_op == ">=") && (_s >= _ex)) ||
                         ((_op == "<=") && (_s <= _ex))
                     ) {
-                        if (_s >= _ex) return value;
+                        if (_s >= _ex){
+                            _refObj.replaced = false;
+                            return value;
+                        }
                     }
                 }
             }
-            value = Utils.DoReplaceWith(value, _formatter, _rpw, g, _marker, option);
 
-        }
+            value = Utils.DoReplaceWith(value, _formatter, _rpw, g, _marker, option, _captures);  
+            return value;
+        } 
+        _refObj.replaced = false; 
         return value;
     }
     /**
@@ -961,7 +1003,9 @@ class Formatters {
     _onEndHandler(markerInfo, option) {
         const { tokenList } = option;
 
-
+        if (markerInfo.isShiftenContentName){
+            this._shiftPatternContentName(markerInfo, option);
+        }
         if (markerInfo.isShiftenName) {
             if ((tokenList.length > 0) && (tokenList[0] == markerInfo.name)) {
                 tokenList.shift();
@@ -984,7 +1028,12 @@ class Formatters {
         group = group || _marker.group;
         _cm_value = this.treatMarkerValue(_marker, _cm_value, _op, option, this._getMatchGroup(group));
         if (treat) {
+            let _bck = _cm_value; 
             _cm_value = this._treatMatchResult(_cm_value, _op, _marker, option);
+            // + | update op.data  to store data to store after match treated
+            if ((_op.indexOf('replaceWith')!=-1)|| (_cm_value!= _bck)){
+                _op.data = _bck;
+            }
         }
         return _cm_value;
     }
@@ -1072,7 +1121,9 @@ class Formatters {
      */
     treatMarkerValue(_marker, c, op, option, group) {
         if (_marker.replaceWith) {
-            c = this._operationReplaceWith(_marker, c, group || _marker.group, option);
+            const _refObj = {replaced:true};
+            c = this._operationReplaceWith(_marker, c, group || _marker.group, option, _refObj);
+            if (_refObj.replaced)
             op.push('replaceWith');
         }
         if (_marker.transform) {
@@ -1325,9 +1376,18 @@ class Formatters {
     _storeMatchValueHandler(_marker, option, _e, _extra) {
         const { _op, _old, _skip_value } = _extra;
         let _cm_value = _e.value;
+        let _data = _e.data;
         const _formatting = this.formatting;
         const b = _e.isInstructionSeparator || false;
         const _is_join = option.joinWith && option.startLine;
+        const _store_to_buffer = function(_cm_value, _data, option){
+            if (_data != undefined){
+                option.formatterBuffer.appendToBuffer({buffer:_cm_value, data:_data});
+            }else{
+                option.appendToBuffer(_cm_value, _marker);
+            }
+        };
+    
         if (b || (!_marker.lineFeed) || (option.buffer.length > 0) || (_cm_value.length > 0)) {
 
             if (_op.indexOf('replaceWith') == -1) {
@@ -1336,7 +1396,8 @@ class Formatters {
                     this.appendJoinToBuffer(option.joinWith, option);
 
                 }
-                option.appendToBuffer(_cm_value, _marker);
+                _store_to_buffer(_cm_value, _data, option);
+                
             } else {
                 if ((option.glueValue == _cm_value)) {
                     this._onEndHandler(_marker, option);
@@ -1348,7 +1409,7 @@ class Formatters {
                         // join entry with join value
                         option.formatterBuffer.appendToBuffer(option.joinWith);
                     }
-                    option.formatterBuffer.appendToBuffer(_cm_value);
+                    _store_to_buffer(_cm_value, _data, option);
                     if (option.skipEmptyMatchValue) {
                         option.skipEmptyMatchValue = false;
                     }
@@ -1450,6 +1511,8 @@ class Formatters {
         // + | update cursor position
         option.pos = _next_position;
         const _op = [];
+        // + | store update .data
+        
         // + | treat match value
         _cm_value = this._treatMatchValue(_cm_value, _marker, option, _op);
 
@@ -1465,7 +1528,8 @@ class Formatters {
         let _e_args = {
             handle: false, value: _cm_value, 'state': 'match', udpateChild: true,
             _skip_value,
-            isInstructionSeparator: false
+            isInstructionSeparator: false,
+            data : _op.data
         };
         let _chains_match = [
             [this, this._handleInstructionSeperatorProperty],
@@ -1511,19 +1575,21 @@ class Formatters {
         const { tokenList } = option;
         const name = patternInfo.contentName;
         if (name) {
-            // if (option.tokenList.length>0){
-            //     if (tokenList[0]==name)
-            //     option.tokenList.shift();
-            // else 
-            //     throw Error('missing contentName');
-            // }
-        }
+            if ((tokenList.length>0)&&(tokenList[0]==name)){
+                    option.tokenList.shift();
+                    patternInfo.isShiftenContentName = false;
+            }
+            else {
+                throw Error('missing contentName');
+            }
+        } 
     }
     _unshiftPatternContentName(patternInfo, option) {
         const { tokenList } = option;
         const name = patternInfo.contentName;
-        if (patternInfo.contentName) {
-            //option.tokenList.unshift(name);
+        if (name && !patternInfo.isShiftenContentName) {
+            tokenList.unshift(name);
+            patternInfo.isShiftenContentName = true;
         }
     }
     /**
@@ -1829,7 +1895,7 @@ class Formatters {
         const { formatting } = q;
         if (_buffer.length > 0) {
             // + | direct append to buffer
-            option.formatterBuffer.appendToBuffer(_buffer);
+            option.formatterBuffer.storeToBuffer(_buffer, option);
             _buffer = '';
         }
         if ((_append.trim().length > 0)) {
@@ -1996,7 +2062,7 @@ class Formatters {
             option.saveBuffer();
             _saved = true;
         }
-        this._unshiftPatternContentName(_marker, option);
+        this._shiftPatternContentName(_marker, option);
 
         let _b = _isSkipTreatEnd ? '' : option.treatEndCaptures(_marker, _p);
         option.skipTreatEnd = false;
@@ -2060,13 +2126,15 @@ class Formatters {
 
             // + | restore buffering then update the buffer
             if ((_old.marker == _marker)) {
-                _buffer = option.buffer;
+                // _buffer = option.buffer;
+                _buffer = option.bufferState;
+
                 let _nextBuffer = null;
                 // - so st treat buffer 
                 if (!_old.useEntry && _marker.isBlock) {
                     // + | store                    
                     // option.store(false);
-                    option.output.push(_buffer);
+                    option.output.push(_buffer.buffer);
                     _buffer = option.flush(true);
                 } else {
                     if (_old.useEntry && parent && !parent.isBlock && _marker.updateParentProps?.isBlock && (_old.entryBuffer.length>0)){
@@ -2408,21 +2476,24 @@ class Formatters {
         return _inf;
     }
     /**
-     * update marker information - content that is on the buffer
+     * update marker information - content and datathat is on the buffer
      * @param {*} _old 
      * @param {bool} startLine 
-     * @param {*} option 
+     * @param {FormatterOptions } option 
      * @returns 
      */
     _updateOldMarkerContent(_old, option, buffer, extra) {
         let { content, marker, currentMode, autoStartLine , prependExtra } = _old;
+        let data= null;
         //const { startLine, buffer } = option;
         const _formatting = this.formatting;
         const _is_buffer = (buffer==undefined ) && (extra==undefined);
 
         if (_is_buffer){
+            const _ref_data = {};
             buffer = option.buffer;
-            extra = option.flush(true);
+            data = option.data;
+            extra = option.flush(true, _ref_data);
         }else{
             buffer = buffer || '';
             extra = extra || '';
@@ -2441,12 +2512,15 @@ class Formatters {
 
 
         const props = {
-            marker, buffer, extra, option, content,
+            marker, buffer, extra, option, 
+            content,
+            data,
+            segments: _old.data,
             mode: currentMode,
             autoStartLine,
             startBlock: _old.startBlock,
             isEntryContent,
-            prependExtra
+            prependExtra,
         };
         content = _formatting.updateOldMarkerContent(props);
         //+| update current mode 
@@ -2898,6 +2972,7 @@ exports.SpecialMeaningPatternBase = SpecialMeaningPatternBase;
 const { FormatterStreamBuffer } = require('./FormatterStreamBuffer');
 const { FormatterLintError } = require('./FormatterLintError');
 const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
+const { ReplaceWithCondition } = require('./ReplaceWithCondition');
 
 
 

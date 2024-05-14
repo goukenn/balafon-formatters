@@ -6,9 +6,15 @@ const { Utils } = require("./Utils");
 
 
 class ReplaceWithCondition{
+    /**
+     * expression to check
+     * @var {undefined|*}
+     */
+    expression;
     check;
     operator = '=';
     match;
+    captures;
 
     constructor(){ 
     }
@@ -17,8 +23,11 @@ class ReplaceWithCondition{
         const _regex_parser = (s)=>{
             return Utils.RegexParse(s); 
         };
+        const _capture_parser = Utils.JSONInitCaptureField(this);
         return Utils.JSonParse(this, {
-            match: _regex_parser
+            expression: _regex_parser,
+            match: _regex_parser,
+            captures : _capture_parser
         }, parser, fieldname, data, refKey);
     }
     json_validate(field_name, d, throw_on_error){

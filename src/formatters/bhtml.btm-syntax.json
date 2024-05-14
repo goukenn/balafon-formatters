@@ -332,30 +332,37 @@
                     ],
                     "patterns": [
                         {
-                            "match": "^\\s*\\/\\>",
+                            "match": "^\\s*(\\/\\>)",
                             "name": "close.tag",
-                            "replaceWith": "(>)(</)($2)(>)",
-                            "replaceWithCondition": {
-                                "check": "$2",
-                                "operator": "!=",
-                                "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr"
-                            },
+                            "replaceWith": 
+                                {
+                                    "expression":"(>)(</)($2)(>)",
+                                    "check": "$2",
+                                    "operator": "!=",
+                                    "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr",
+                                    "captures": {
+                                        "1": {
+                                            "name": "symbol.end.tag.bhtml"
+                                        },
+                                        "2": {
+                                            "name": "symbol.start.close.tag.bhtml"
+                                        },
+                                        "3": {
+                                            "name": "tagname.bhtml"
+                                        },
+                                        "4": {
+                                            "name": "symbol.end.tag.bhtml"
+                                        }
+                                    }
+                                }
+                            ,
                             "updateParentProps": {
                                 "isBlock": false
                             },
                             "captures": {
                                 "1": {
                                     "name": "symbol.end.tag.bhtml"
-                                },
-                                "2": {
-                                    "name": "symbol.start.close.tag.bhtml"
-                                },
-                                "3": {
-                                    "name": "tagname.bhtml"
-                                },
-                                "4": {
-                                    "name": "symbol.end.tag.bhtml"
-                                }
+                                } 
                             }
                         },
                         {
@@ -522,6 +529,7 @@
             "comment": "enter inner html.",
             "name":"root-inner.bthml",
             "contentName": "variable.name.function.html-root.inner.bthml",
+            "endMissingValue":"</",
             "beginCaptures": {
                 "0": {
                     "name": "entity.name.type.global.html.end-tag.bracket.bhtml html.tag.end-tag.bracket.bhtml",

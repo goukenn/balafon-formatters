@@ -223,7 +223,7 @@ class CaptureRenderer{
                     } 
                     if (listener && !_treat_pattern){
                         rd = rf;
-                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option); 
+                        rf = _end ? rf : rf.length>0? listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option) : ''; 
                     }
                     if (q.parent){
                         // update parent value.

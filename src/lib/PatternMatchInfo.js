@@ -62,6 +62,13 @@ class PatternMatchInfo {
      * @var {?boolean}
      */
      isShiftenName = false;
+
+
+     /**
+      * flag: shiftenContentName
+      * @var {?boolean}
+      */
+     isShiftenContentName=false;
  
 
     constructor() {

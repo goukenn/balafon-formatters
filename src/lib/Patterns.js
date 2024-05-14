@@ -8,6 +8,17 @@ const { RegexUtils } = require('./RegexUtils');
 const { BlockInfo } = require('./BlockInfo');
 const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
 const { RegexEngine } = require('./RegexEngine');
+
+/**
+ * @typedef IFormatterReplaceWithCondition
+ * @type
+ * @property {string} expression,
+ * 
+ */
+
+/**
+ * 
+ */
 class Patterns {
     /**
      * @var {undefined|null|string|{message:string, code: number}} lint error 
@@ -38,13 +49,10 @@ class Patterns {
     whileCaptures;
     /**
      * setup the value on end missing
+     * @var {string|undefined|{expression:string, captures: undefined|captureInfo}}
      */
     endMissingValue;
-
-    /**
-     * 
-     */
-    endMissingCaptures;
+ 
     /**
      * the name of this pattern
      */
@@ -116,12 +124,13 @@ class Patterns {
 
     /**
      * similar likje end expression will replace the match apend value before adding it to buffer
+     * @var {string|undefined|ReplaceWithCondition|ReplaceWithCondition[]}
      */
     replaceWith;
 
     /**
      * replace with condition object 
-     * @var {} 
+     * @var {object} 
      */
     replaceWithCondition;
 
@@ -288,13 +297,38 @@ class Patterns {
             return g;
         };
         const _capture_parser = Utils.JSONInitCaptureField(q);
+        const _replace_with = (n, parser, fieldname, refObj)=>{
+            if (typeof(n)=='string'){
+ 
+                return _regex_parser.apply(q, [n, parser, fieldname, refObj]);
+            }
+            if (typeof(n)=='object'){
+                let m = new ReplaceWithCondition;
+                JSonParser._LoadData(parser, m, n, refObj);
+                return m;
+            }
+            if (Array.isArray(n)){
+                let d = [];
+                n.forEach(n=>{
+                    let m = new ReplaceWithCondition;
+                    JSonParser._LoadData(parser, m, n, refObj);
+                    d.push(m);
+                });
+                return d;
+            }
+            return null;
+        };
 
         const parse = {
             endMissingValue(n, parser){
                 if (typeof(n)=='object'){
                     const { FormatterEndMissingExpression } = Utils.Classes;
                     const {expression} = n;
-                    return new FormatterEndMissingExpression(expression);
+                    let {captures } = n;
+                    if (captures){
+                        captures = _capture_parser(captures, parser); 
+                    }
+                    return new FormatterEndMissingExpression(expression, captures);
                 }
                 return n;
             },
@@ -326,7 +360,7 @@ class Patterns {
             begin: _regex_parser,
             end: _regex_parser,
             match: _regex_parser,
-            replaceWith: _regex_parser,
+            replaceWith: _replace_with,
             transformMatch: _regex_parser,
             lintError: function(n, parser){
                 const _t = typeof(n);
@@ -359,8 +393,7 @@ class Patterns {
             endCaptures: _capture_parser,
             captures: _capture_parser,
             streamCaptures: _capture_parser,
-            transformCaptures: _capture_parser,
-            endMissingCaptures: _capture_parser,
+            transformCaptures: _capture_parser, 
             transform,
             lineFeed(d, parser) {
                 return typeof (d) == 'boolean' ? d : false;

@@ -1,15 +1,77 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
-const { PatternMatchInfo } = require("./PatternMatchInfo");
-const { FormatterResourceLoadingPattern } = require("./FormatterResourceLoadingPattern");
-const { RegexUtils } = require("./RegexUtils"); 
+const { PatternMatchInfo } = require("./PatternMatchInfo"); 
+const { RegexUtils } = require("./RegexUtils");  
 
 /**
  * utility classe
  */
 class Utils {
     static TestScope;
+
+    static JSON_REGEX_PARSER(){
+        return (s) => { 
+            if (s == '(??)') {
+                q.isStartOnly = true;
+                s = '';
+            }
+            let is_empty = false;
+            if (s==''){
+                is_empty = true;
+            }
+            let g = Utils.RegexParse(s, 'd');
+            g = RegexEngine.Load(g, is_empty);
+            return g;
+        };
+    }
+ 
+    /**
+     * create end match
+     * @param {*} value 
+     * @returns 
+     */
+    static CreateEndMatch(value, input){
+        const _p = [value];
+        _p.index = 0;
+        _p.indices = [[0, value.length]];
+        _p.input = input || "\0";
+        return _p;
+    }
+
+    static ReplaceWithCheck(replaceWith, value, {match, captures, operator, check}, _refObj){
+        let _rpw = Utils.RegExToString(replaceWith);
+        const { g }  = _refObj; 
+        _refObj._rpw = _rpw;
+        if (match) {
+            let _op = operator || '=';
+            let _s = Utils.ReplaceRegexGroup(check, g);
+            if (/(!)?=/.test(_op)) {
+                let r = match.test(_s);
+                if (_op) {
+                    if (((_op == '=') && !r) || ((_op == '!=') && (r))) {
+                        _refObj.replaced = false;
+                        return value;
+                    }
+                }
+            } else if (/(\<\>)=/.test(_op)) {
+                let _ex = match.toString().replace(/\\\//g, '');
+                if (
+                    ((_op == ">=") && (_s >= _ex)) ||
+                    ((_op == "<=") && (_s <= _ex))
+                ) {
+                    if (_s >= _ex){
+                        _refObj.replaced = false;
+                        return value;
+                    }
+                }
+            }
+        }
+        else{
+            _refObj.replaced=false;
+        }
+        return value;
+    }
 
     /**
      * render data
@@ -36,7 +98,7 @@ class Utils {
         option.restoreSavedBuffer();
 
         return {
-            "source": _cm_value,
+            "buffer": _cm_value,
             "data": _cm_data
         };
 
@@ -614,9 +676,11 @@ class Utils {
  * @param {*} replace_with 
  * @param {*} group 
  * @param {*} _marker markerInfo
+ * @param {FormatterOptions} option markerInfo
+ * @param {*} captures markerInfo
  * @returns 
  */
-    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option) {
+    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option, captures) {
         let g = group;
         let _rp = replace_with; // 
         let m = '';
@@ -636,7 +700,7 @@ class Utils {
             // passing exec to formatt new value
             let matches = cp.exec(_in);
             const _tokens = option.tokenChains;
-            const _caps = _formatter.getMarkerCaptures(_marker);
+            const _caps = captures || _formatter.getMarkerCaptures(_marker);
             if (matches && _caps) {
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
                 const _outdefine = {};
