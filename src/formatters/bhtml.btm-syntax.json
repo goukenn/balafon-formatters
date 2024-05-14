@@ -498,6 +498,8 @@
                 },
                 {
                     "include": "#bhtml-string-mustache"
+                },{
+                    "match":"[^<\\s'\"\\{]+(\\s[^<\\s'\"\\{]+)*"
                 }
             ],
             "formattingMode": 0,
