@@ -359,7 +359,29 @@ class FormatterOptions {
             const { debug } = this;
             debug?.feature('append-to-buffer') && Debug.log("[append to buffer] - ={" + value + '}');
             let _buffer = value;
-            if (value.length > 0) {
+            let _storeBuffer = (value, data, _marker, treat)=>{
+                let _buffer = value;        
+                let _data = data;        
+                if (m_appendToBufferListener) {
+                    value = m_appendToBufferListener(value, _marker, treat, this);
+                }
+                else {
+                    if (treat){
+                        _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
+                    } 
+                    this.formatterBuffer.appendToBuffer({
+                        buffer: _buffer, data: _data});
+                }
+            };
+
+
+            if (typeof(value) == 'object' ){
+                // passing object 
+                // encapsulate buffer but not data
+                _storeBuffer(value.buffer, value.data, _marker, false); 
+                _buffer = option.buffer;
+            }
+            else if (value.length > 0) {
                 if (m_appendToBufferListener) {
                     value = m_appendToBufferListener(value, _marker, treat, this);
                 }
@@ -377,7 +399,8 @@ class FormatterOptions {
             if (_buffer.trim().length>0){
                 option.glueValue = null;
             }
-        }
+        };
+
         option.useGlue = (_marker, _cm_value)=>{
              // + | update or reset glue value
              if (_marker.isGlueValue) {
@@ -430,7 +453,9 @@ class FormatterOptions {
         option.treatEndCaptures = function (markerInfo, endMatch, captures, _outdefine) {
             let _cap = captures || { ...markerInfo.captures, ...markerInfo.endCaptures };
             if (is_emptyObj(_cap)) {
-                return endMatch[0];
+                if (endMatch[0].length>0)
+                    return option.treatValueBeforeStoreToBuffer(markerInfo, endMatch[0]);
+                return;
             }
             const { marker } = markerInfo;
             const { debug } = this;
@@ -646,6 +671,7 @@ class FormatterOptions {
         
         this.glueValue = null;
         this.joinWith = null;
+        this.lastDefineStates = null;
     }
     cleanNewOldBuffers() {
         const option = this;

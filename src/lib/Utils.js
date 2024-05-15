@@ -685,7 +685,7 @@ class Utils {
  * do replace with
  * @param {*} value 
  * @param {*} _formatter 
- * @param {*} replace_with 
+ * @param {string} replace_with 
  * @param {*} group 
  * @param {*} _marker markerInfo
  * @param {FormatterOptions} option markerInfo
@@ -704,10 +704,12 @@ class Utils {
             //
             m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
             let check = m.replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
+            // escape range
+            // m = m.replace(/\\/g, '\\\\');
             // ------------------------
             // consider escape to check
             //
-            let cp = new RegExp(m.replace(/\\/g, '\\\\'), 'd');
+            let cp = new RegExp(m, 'd');
             let _in = value.replace(value, check).replace(/\\\\/g, /\\0/);
             // passing exec to formatt new value
             let matches = cp.exec(_in);
@@ -719,6 +721,7 @@ class Utils {
                 let out = g.render(listener, _caps, false, _tokens, option, _outdefine);
                 return out;
             }
+            check = check.replace(/\\(.)/g,'$1');
             return check;
 
         } else {

@@ -24,7 +24,7 @@ class FormattingBase {
      * @param {*} option 
      */
     updateBufferConstant(data, mode, _marker, option) {
-        const { formatterBuffer } = option.formatterBuffer;
+        const { formatterBuffer } = option;
         switch (mode) {
             case FM_START_LINE:
             case FM_END_BLOCK:

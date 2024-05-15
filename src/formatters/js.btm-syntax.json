@@ -280,7 +280,7 @@
             "patterns": [
                 {
                     "match": "\\s*=>\\s*",
-                    "name": "lamda",
+                    "name": "meta.operator.lamda.js",
                     "transform": "trim"
                 }
             ]

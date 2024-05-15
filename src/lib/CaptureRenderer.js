@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', {value:true});
 
+const { FormatterMatchTreatment } = require('./FormatterMatchTreatment');
 const { FormatterOptions } = require('./FormatterOptions');
 const { FormatterSyntaxException } = require('./FormatterSyntaxException');
 const { Utils } = require('./Utils');
@@ -154,7 +155,7 @@ class CaptureRenderer{
                     subchilds.unshift(q);
                     while(childrens.length>0){
                         let croot = childrens.pop();
-                        subchilds.unshift({parent: q, treat:false, root: croot});
+                        subchilds.unshift({parent: q, treat:false, root: croot, sub:false});
                     }
                 }else{
                     rf = q.sub ? q.output : q.root.value;
@@ -163,21 +164,25 @@ class CaptureRenderer{
                     let cap = null;
                    
                     if (Array.isArray(rf)){
+                        // + | transform reference to rf 
                         const nv = q.root.value;
                         let offset = 0;
                         let _out = '';
                         let c = '';
-                        // + | order block 
+                        // + | glue value to for rendering
                         rf.forEach(s=>{
-                            c = treat_constant(nv.substring(offset, s.range[0]), listener);
-                            let dt = c+s.rf;// +nv;//.substring(s.range[0]+s.range[1]);
+                            // c = treat_constant(nv.substring(offset, s.range[0]), listener);
+                            c = nv.substring(offset, s.range[0]);//, listener);
+                            let dt = c+s.rf;
                             offset = s.range[0]+s.range[1];
                             _out +=dt;
                         });
-                        _out+= treat_constant(nv.substring(offset), listener);
+                        // _out+= treat_constant(nv.substring(offset), listener);
+                        _out+= nv.substring(offset);//, listener);
                         rf = _out;
                     }
                     let _treat_pattern = false;
+                    const _op = FormatterMatchTreatment.Init(rf);
                     if (id in captures){
                         cap = captures[id];
                         if (cap.throwError){
@@ -202,8 +207,7 @@ class CaptureRenderer{
                         } else {
                             // treat value. cap
                             if(_formatter){
-                                const op = [];
-                                rf = _formatter.treatMarkerValue(cap, rf, op, option, self.matches);
+                                rf = _formatter.treatMarkerValue(cap, rf, _op, option, self.matches);
 
                             }else{
                                 if (cap.transform){
@@ -229,11 +233,12 @@ class CaptureRenderer{
                         // update parent value.
                         let s =  q.root.start - q.parent.root.start;
                         let e =  q.root.end - q.root.start;
-                        // let v =  q.parent.root.value;
-                        // + | transform to [start_index, length] of nv to replace
-                        q.parent.output.push({range:[s,e], rf}); 
+;
+                        // + | transform to range - at [start_index, length] of nv to replace
+                        if (rf.length>0){
+                            q.parent.output.push({range:[s,e], rf, rd}); 
+                        }
                     }
-
                     q.treat = true;
                 }
             }

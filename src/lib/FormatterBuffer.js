@@ -95,7 +95,7 @@ class FormatterBuffer {
         this.dataSegments.push(v);
     }
     storeToBuffer(buffer, {lastDefineStates}){
-        if (buffer == lastDefineStates.bufferSegment.join('')){
+        if (lastDefineStates && (buffer == lastDefineStates.bufferSegment.join(''))){
             this.appendToBuffer({buffer, data: lastDefineStates.dataSegment.join('')});
         }
         else {

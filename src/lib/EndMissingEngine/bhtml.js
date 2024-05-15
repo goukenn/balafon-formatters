@@ -18,8 +18,6 @@ class bhtml{
      */
     autoCloseTagValue(target, value, marker, option, captures){
         let _value = value;
-        let _formatter = option.formatter;
-
         let _lastData = _value.dataSegment.pop();
         let _lastBuffer = _value.bufferSegment.pop();
         let _load_data = (_cp)=>{

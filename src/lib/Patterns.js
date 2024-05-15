@@ -298,9 +298,11 @@ class Patterns {
         };
         const _capture_parser = Utils.JSONInitCaptureField(q);
         const _replace_with = (n, parser, fieldname, refObj)=>{
-            if (typeof(n)=='string'){
- 
-                return _regex_parser.apply(q, [n, parser, fieldname, refObj]);
+            if (typeof(n)=='string'){ 
+                //n = n.replaceAll("\\\\","\\");
+
+                const _reg =  _regex_parser.apply(q, [n, parser, fieldname, refObj]);
+                return _reg;
             }
             if (typeof(n)=='object'){
                 let m = new ReplaceWithCondition;
