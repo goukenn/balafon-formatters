@@ -51,6 +51,10 @@ Utils.Classes = {
 
 let sm_globalEngine;
 /**
+ * @var engine formatter
+ */
+let sm_engine_formatter;
+/**
  * formatters entry point
  */
 class Formatters {
@@ -108,6 +112,19 @@ class Formatters {
     firstLineMatch;
 
 
+    /**
+     * get engine formatter
+     * @var {null|{resolve(name:string):PatterMatchErrorInfo}}
+     */
+    static get EngineFormatter(){
+        return sm_engine_formatter;
+    }
+    /**
+     * set the engine formatter
+     */
+    static set EngineFormatter(value){
+        sm_engine_formatter = value;
+    }
 
     /**
      * set global engine
@@ -187,6 +204,7 @@ class Formatters {
         option.startLine = false;
         option.lineFeedFlag = false;
         option.blockStart = false;
+        option.matchTransform = null;
     }
     /**
      * get the line feed
@@ -998,10 +1016,26 @@ class Formatters {
      * @returns 
      */
     _handleCallback(type, option) {
+        // console.log("handle ::::::::::::::::::::::::::::::::::::"+type);
         return {
             "0": option.listener?.handleBeginEndMarker || this._handleBeginEndMarker,
-            "1": option.listener?.handleMatchMarker || this._handleMatchMarker
+            "1": option.listener?.handleMatchMarker || this._handleMatchMarker,
+            "2": option.listener?.handleBeginWhile || this._handleBeginWhile,
+            "3": option.listener?.handleMatchTransform || this._handleMatchTransform,
         }[type]
+    }
+    _handleMatchTransform(marker, option){
+        const {parent} = marker;
+        let _cm_value = marker.group[0]; 
+        option.matchTransform = marker;
+        let op = [];
+        _cm_value = this.treatMarkerValue(marker, _cm_value, op, option, marker.group);
+        if (_cm_value.length>0){
+            option.appendToBuffer(_cm_value, marker);
+        }
+        option.matchTransform = marker;
+        return parent;
+
     }
     _onEndHandler(markerInfo, option) {
         const { tokenList } = option;
@@ -1083,11 +1117,7 @@ class Formatters {
         }
         if (_marker.patterns?.length > 0){
             const new_value = Utils.TreatPatternValue(_cm_value, _marker.patterns, _marker.group, option);
-            _cm_value = new_value || _cm_value;
-            // const lp = Utils.GetPatternMatcherInfoFromLine(_cm_value, _marker.patterns, option, _marker.parent);
-            // if (lp) {
-            //     _cm_value = this.treatMarkerValue(lp, _cm_value, _op, option);
-            // }
+            _cm_value = new_value || _cm_value; 
         }
         return _cm_value;
     }
@@ -1546,6 +1576,9 @@ class Formatters {
             this._storeMatchValueHandler(_marker, option, _e_args, { _op, _old });
         }
         this._onEndHandler(_marker, option);
+
+        this.formatting.updateMatchNextFormatting(_marker, option);
+
         if (_marker.closeParent) {
             return this._closeMarker(_marker, parent, option, _marker.closeParentData);
         }
@@ -1558,7 +1591,7 @@ class Formatters {
     _shiftPatternContentName(patternInfo, option) {
         const { tokenList } = option;
         const name = patternInfo.contentName;
-        if (name) {
+        if (name && patternInfo.isShiftenContentName) {
             if ((tokenList.length>0)&&(tokenList[0]==name)){
                     option.tokenList.shift();
                     patternInfo.isShiftenContentName = false;
@@ -1628,9 +1661,7 @@ class Formatters {
          _old.content= _new_v;
         _old.useEntry = false;
         _old.startBlock = 0;
-        formatting.startBlock(_old);
-        _old.currentMode = 5;
-        option.nextMode = 5;//_old.currentMode;
+        formatting.startBlock(_old); 
     }
     /**
      * handle marker info 
@@ -2073,13 +2104,14 @@ class Formatters {
             (parent.isEndCaptureOnly || _marker.isEndCaptureOnly)){
             // + | send to parent block
             _checkParentInfo = {
+                _line,
+                _marker,
+                _old,
                 parent,
                 buffer: _buffer,
-                _line,
                 pos: _next_position,
                 line: option.line,
                 endGroup: _p,
-                _old,
                 fromChild : (!parent.isEndCaptureOnly && _marker.isEndCaptureOnly),
                 state
             };
@@ -2371,18 +2403,22 @@ class Formatters {
         // + | loop thru end captured data to close 
         while (info.parent && (fromChild || info.parent.isEndCaptureOnly)) {
             p = info.parent;
-            fromChild = false;
+           
             if (p.endRegex == null) {
                 // just loop on current p;
-                return p;
+                treat = true;
+                break;
             }
             tp = p.endRegex.exec(_line);
             if (tp) {
                 if ((tp.index + _offsetPosition) == endGroup.index) {
                     // + | same index - update capture continue end
                     tp.index += _offsetPosition;
-                    // fromChild = p.isEndCaptureOnly;
-                    p = _end_non_capture(p, tp, option.nextMode);
+                    // + 
+                    if (tp[0].length==0){
+                        // fromChild = p.isEndCaptureOnly;
+                        p = _end_non_capture(p, tp, option.nextMode);
+                    }
                 } else {
                     break;
                 }
@@ -2401,6 +2437,7 @@ class Formatters {
                 p = null;
             }
             info.parent = p;
+            fromChild = false;
         }
 
         if (_is_match && (treat) && p){

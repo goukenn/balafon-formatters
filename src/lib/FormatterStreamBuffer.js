@@ -455,8 +455,6 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                 if (parent && (patternInfo.childs.length > 0)) {
                     patternInfo.childs.forEach(a => parent.childs.push(a));
                 }
-
-                //option.nextMode = 1;
                 return parent;
             }
             // + | put this line to buffer and skip   

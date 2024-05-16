@@ -131,6 +131,12 @@ class FormatterOptions {
      * @var {null|bolean}
      */
     startBlock;
+
+    /**
+     * transform marker style
+     * @var {*}
+     */
+    matchTransformFlag;
  
     /**
      * .ctr
@@ -690,6 +696,7 @@ class FormatterOptions {
         this.glueValue = null;
         this.joinWith = null;
         this.lastDefineStates = null;
+        this.transformMarker = null;
     }
     cleanNewOldBuffers() {
         const option = this;

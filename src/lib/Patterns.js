@@ -9,6 +9,14 @@ const { BlockInfo } = require('./BlockInfo');
 const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
 const { RegexEngine } = require('./RegexEngine');
 
+
+const PatternParsing = { init: false };
+const PTN_BEGIN_END = 0;
+const PTN_MATCH = 1;
+const PTN_BEGIN_WHILE = 2;
+const PTN_MATCH_TRANSFORM = 3;
+
+
 /**
  * @typedef IFormatterReplaceWithCondition
  * @type
@@ -28,6 +36,12 @@ class Patterns {
      * 
      */
     match;
+
+    /**
+     * match transform for injection
+     * @var {} 
+     */
+    matchTransform;
     /**
      * start capture 
      */
@@ -52,7 +66,7 @@ class Patterns {
      * @var {string|undefined|{expression:string, captures: undefined|captureInfo}}
      */
     endMissingValue;
- 
+
     /**
      * the name of this pattern
      */
@@ -286,17 +300,22 @@ class Patterns {
         });
     }
     json_parse(parser, fieldname, data, refKey, refObj) {
+
+        // if (!PatternParsing.init) {
+        //     PatternParsing.parser = (() => {
+
+
         const { Patterns, RefPatterns, CaptureInfo } = Utils.Classes;
         const q = this;
         const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const transform = Utils.TransformPropertyCallback();
-        const _regex_parser = (s) => { 
+        const _regex_parser = (s) => {
             if (s == '(??)') {
                 q.isStartOnly = true;
                 s = '';
             }
             let is_empty = false;
-            if (s==''){
+            if (s == '') {
                 is_empty = true;
             }
             let g = Utils.RegexParse(s, 'd');
@@ -304,21 +323,21 @@ class Patterns {
             return g;
         };
         const _capture_parser = Utils.JSONInitCaptureField(q);
-        const _replace_with = (n, parser, fieldname, refObj)=>{
-            if (typeof(n)=='string'){ 
+        const _replace_with = (n, parser, fieldname, refObj) => {
+            if (typeof (n) == 'string') {
                 //n = n.replaceAll("\\\\","\\");
 
-                const _reg =  _regex_parser.apply(q, [n, parser, fieldname, refObj]);
+                const _reg = _regex_parser.apply(q, [n, parser, fieldname, refObj]);
                 return _reg;
             }
-            if (typeof(n)=='object'){
+            if (typeof (n) == 'object') {
                 let m = new ReplaceWithCondition;
                 JSonParser._LoadData(parser, m, n, refObj);
                 return m;
             }
-            if (Array.isArray(n)){
+            if (Array.isArray(n)) {
                 let d = [];
-                n.forEach(n=>{
+                n.forEach(n => {
                     let m = new ReplaceWithCondition;
                     JSonParser._LoadData(parser, m, n, refObj);
                     d.push(m);
@@ -329,13 +348,13 @@ class Patterns {
         };
 
         const parse = {
-            endMissingValue(n, parser){
-                if (typeof(n)=='object'){
+            endMissingValue(n, parser) {
+                if (typeof (n) == 'object') {
                     const { FormatterEndMissingExpression } = Utils.Classes;
-                    const {expression} = n;
-                    let {captures } = n;
-                    if (captures){
-                        captures = _capture_parser(captures, parser); 
+                    const { expression } = n;
+                    let { captures } = n;
+                    if (captures) {
+                        captures = _capture_parser(captures, parser);
                     }
                     return new FormatterEndMissingExpression(expression, captures);
                 }
@@ -368,25 +387,27 @@ class Patterns {
             }, // update with parent
             begin: _regex_parser,
             end: _regex_parser,
+            while: _regex_parser,
             match: _regex_parser,
+            matchTransform:_regex_parser,
             replaceWith: _replace_with,
             transformMatch: _regex_parser,
-            lintError: function(n, parser){
-                const _t = typeof(n);
-                let _rt = {message:null,code:null};
-                if (_t =='string'){
+            lintError: function (n, parser) {
+                const _t = typeof (n);
+                let _rt = { message: null, code: null };
+                if (_t == 'string') {
                     _rt.message = _t;
-                } else if (n){
-                    const {code, message, $ref} = n;
+                } else if (n) {
+                    const { code, message, $ref } = n;
                     const { lintErrors } = parser.data;
-                    if ($ref && lintErrors){
-                        if ($ref in lintErrors){
-                            const { code , message } = {code: $ref, message:lintErrors[$ref]};
+                    if ($ref && lintErrors) {
+                        if ($ref in lintErrors) {
+                            const { code, message } = { code: $ref, message: lintErrors[$ref] };
                             _rt.message = message;
                             _rt.code = code;
                             return _rt;
                         }
-                        
+
                     }
                     _rt.message = message;
                     _rt.code = code;
@@ -402,7 +423,7 @@ class Patterns {
             endCaptures: _capture_parser,
             captures: _capture_parser,
             streamCaptures: _capture_parser,
-            transformCaptures: _capture_parser, 
+            transformCaptures: _capture_parser,
             transform,
             lineFeed(d, parser) {
                 return typeof (d) == 'boolean' ? d : false;
@@ -425,6 +446,13 @@ class Patterns {
                 return objOrBool(d, parser, PatterMatchErrorInfo);
             }
         };
+        //         return parse;
+        //     })();
+        //     PatternParsing.init = true;
+        // }
+        // const q = this;
+        // const parse = PatternParsing.parser;
+
         let fc = parse[fieldname];
         if (fc) {
             return fc.apply(q, [data, parser, refKey, refObj]);
@@ -451,10 +479,18 @@ class Patterns {
     }
 
     get matchType() {
-        if (this.begin) {
-            return 0;
-        } else if (this.match) {
-            return 1;
+        const { begin, end, match, matchTransform } = this;
+        const _while = this.while;
+        if (begin) {
+            if (end)
+                return PTN_BEGIN_END;
+            else if (_while) {
+                return PTN_BEGIN_WHILE;
+            }
+        } else if (match) {
+            return PTN_MATCH;
+        } else if (matchTransform) {
+            return PTN_MATCH_TRANSFORM;
         }
         return -1;
     }
@@ -523,9 +559,10 @@ class Patterns {
     }
     check(l, option, parentMatcherInfo, regex) {
         let p = null;
-        const { begin, match, patterns } = this;
-        regex = regex || begin || match;
-        if (regex) { 
+        const { begin, match, patterns , matchTransform} = this;
+        const _while = this.while;
+        regex = regex || begin || match || matchTransform;
+        if (regex) {
             p = regex.exec(l);
         } else {
             // + | use for pattern only definition list
@@ -542,7 +579,13 @@ class Patterns {
     }
 
     get matchRegex() {
-        return this.matchType == 0 ? this.begin : this.match;
+        const rgs = {
+            "0":this.begin,
+            "1":this.match,
+            "2":this.while,
+            "3":this.matchTransform
+        };
+        return rgs[this.matchType]; //  this.matchType == 0 ? this.begin : this.match;
     }
     /**
      * calculate end regex
@@ -550,7 +593,7 @@ class Patterns {
      * @returns 
      */
     endRegex(p) {
-        if (!this.end || (( this.end instanceof RegexEngine) &&  this.end.isEmpty)){
+        if (!this.end || ((this.end instanceof RegexEngine) && this.end.isEmpty)) {
             return null;
         }
 
@@ -589,12 +632,14 @@ class Patterns {
         name = debugName || name;
         function getMatchInfo() {
             switch (matchType) {
-                case 0:
+                case PTN_BEGIN_END:
                     return { "begin": begin?.toString(), "end": end?.toString() };
-                case 1:
+                case PTN_MATCH:
                     return { 'match': match?.toString() };
-                case 2:
+                case PTN_BEGIN_WHILE:
                     return { 'begin': begin?.toString(), "while": _while?.toString() };
+                case PTN_MATCH_TRANSFORM:
+                    return { "matchTransfrom": _while?.toString() };
             }
         }
         if (!name) {

@@ -198,6 +198,12 @@ class KAndRFormatting extends FormattingBase {
                 }
                 break;
             case PatternFormattingMode.PFM_LINE_JOIN_END:
+            case PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED:
+            case PatternFormattingMode.PFM_LINE_JOIN_END:
+            // join line formatting mode 
+            case PatternFormattingMode.PFM_LINE_JOIN:
+            // enable streaming buffer
+            case PatternFormattingMode.PFM_STREAMING:
                 break;
             default:
                 throw new Error('not implement formatting mode '+formattingMode);

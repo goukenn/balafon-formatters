@@ -195,7 +195,7 @@ class FormattingBase {
             let { nextMode, startLineReading } = option;
             let _buffer_is_empty = option.formatterBuffer.isEmpty;
             if ((formattingMode == PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED) && (mode == FM_APPEND)) {
-                //  option.lineFeedFlag = true; 
+
                 option.nextMode = FM_START_LINE;
                 marker.mode = FM_START_LINE; 
                 // + | change the current mode to start line request
@@ -626,6 +626,20 @@ class FormattingBase {
                     = FM_START_LINE;
             }
         }
+    }
+    updateMatchNextFormatting(marker, option){
+        const {formattingMode} = marker;
+        let { lineFeedFlag, nextMode } = option;
+        switch (formattingMode) {
+            case PatternFormattingMode.PFM_LINE_FEED:
+                lineFeedFlag = true;
+                nextMode = FM_START_LINE;
+                break;        
+            default:
+                break;
+        }
+        option.lineFeedFlag = lineFeedFlag;
+        option.nextMode = nextMode;
     }
     updateNextSavedMode(mode, option) {
         switch (mode) {

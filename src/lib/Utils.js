@@ -247,6 +247,7 @@ class Utils {
         return function (d, parser, refKey, refObj) {
             let _out = [];
             let q = refObj || this;
+            const { Formatters } = Utils.Classes;
             d.forEach((a) => {
                 const { include } = a;
                 const _extends = a.extends;
@@ -268,15 +269,18 @@ class Utils {
                                     parser.includes[_key] = _o;
                                     JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
                                     parser.initialize(_o);
-                                    class_name.Init(_o);
-
+                                    class_name.Init(_o); 
                                 }
                             }
                         }
                     } else {
                         // TODO: load engine source formatter - or not
                         // _o = new FormatterResourceLoadingPattern(include);
-                        console.log("loading source , ", include);
+                        const {EngineFormatter} =  Formatters;
+                        if (EngineFormatter){
+                            return EngineFormatter.resolve(include);
+                        } 
+
                     }
                 }
                 else if (_extends) {
@@ -351,6 +355,9 @@ class Utils {
             }
             if (!skip && s.skip){
                 skip = Utils.CheckSkip(s.skip, s, option);
+            }
+            if (!skip && option.matchTransform && s.matchTransform){
+                skip = true;
             }
 
             if (!skip) {

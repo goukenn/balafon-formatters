@@ -88,7 +88,10 @@ class CaptureInfo{
                 return m;
             },
             transform,
-            captures
+            captures,
+            matchTransform(){
+                console.log("match transform ..... ");
+            }
         };
         let fc = parse[fieldname];
         if (fc){
