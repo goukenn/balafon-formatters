@@ -32,7 +32,7 @@ class FormatterListener {
      * @var {{formatterBuffer: FormatterBuffer, tabStop:string, depth:number}} param
      */
     startNewBlock({formatterBuffer, tabStop, depth}){ 
-         
+         // override to mark start new block
     } 
     /**
      * override en output

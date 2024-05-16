@@ -122,19 +122,14 @@ class FormatterMarkerInfo{
                     return _content;
                 },
                 set(v) {
-                    let _untreat = null;
-                    if (typeof(v)=='object'){
-                        const { content, data } = v;
-                        v = v;
-                        _untreat = data;    
-                    }
+                    
                     if (v != _content) {
-                        option.debug?.feature("store-content") && Debug.log("---::store content ::---\n[value::'" + v+"']")
+                        option.debug?.feature("store-content") && (()=>{
+                            Debug.log("---::store content ::---\n[value::'" + v+"']"); 
+                            console.log({newValue: v, oldValue:_content});
+                        })();
                         _content = v;
-                    }
-                    if (_untreat){
-                        this._data = _untreat;
-                    }
+                    } 
                 }
             });
             Object.defineProperty(_marker_info, 'childs', {

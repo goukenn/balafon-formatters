@@ -295,7 +295,32 @@ class Utils {
             return _out;
         }
     }
+    /**
+     * check skip pattern
+     * @param {*} skip 
+     * @param {*} marker 
+     * @param {*} option 
+     * @returns 
+     */
+    static CheckSkip(skip, marker, option){
 
+        if (typeof(skip)=='string'){
+            skip = [skip];
+        }
+        const _flags = {
+            startLine : option.startLine,
+            startBlock : option.startBlock
+        }
+        while(skip.length>0){
+            let q = skip.shift();
+            if (q in _flags){
+                if (_flags[q]){
+                    return true;
+                }
+            }  
+        } 
+        return false;
+    }
     /**
      * get match info
      * @var {array} patterns
@@ -305,6 +330,7 @@ class Utils {
      * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined, patterns}}
      */
     static GetMatchInfo(patterns, l, option, parentMatcherInfo) {
+        const { FormatterOptions } = Utils.Classes;
         let _a = null;
         let _from = null;
         let _match = 0;
@@ -322,6 +348,9 @@ class Utils {
                 if (!option.startLine) {
                     skip = true;
                 } 
+            }
+            if (!skip && s.skip){
+                skip = Utils.CheckSkip(s.skip, s, option);
             }
 
             if (!skip) {

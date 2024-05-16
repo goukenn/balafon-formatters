@@ -5,16 +5,13 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * export pattern match info
  */
 class PatternMatchInfo {
+   
     /**
      * indicate new created pattern info
      * @var {bool}
      */
     start = true;
-    /**
-     * current definition block
-     * @var {bool}
-     */
-    isBlock;  
+  
     /**
      * formatting start block element
      */
@@ -202,6 +199,13 @@ class PatternMatchInfo {
                 });
             })(this, m_marker);
         };
+    }
+    /**
+     * @var {boolean}
+     */
+    get isUpdatedBlock(){
+        const {updatedProperties} = this;
+        return updatedProperties && ('isBlock' in updatedProperties);
     }
     get isMatchCaptureOnly(){
         return this.marker?.isMatchCaptureOnly;

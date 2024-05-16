@@ -74,6 +74,12 @@ protocol ReplaceWithProtocol{
     - In order to operate on the entired mactch result - do not capturure sub element. 
 
 
+## Formatting mode 
+- 1: line feed
+- 2: line join on end.
+- 6: line feed if updated isBlock and contain children
+
+
 # extension 
 .btm-syntax.json
 

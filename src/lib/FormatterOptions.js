@@ -120,6 +120,18 @@ class FormatterOptions {
      * flag to store last define
      */
     lastDefineStates;
+
+    /**
+     * flag: use to indicate the line is starting
+     */
+    startLine; 
+
+    /**
+     * flag: newly block start
+     * @var {null|bolean}
+     */
+    startBlock;
+ 
     /**
      * .ctr
      * @param {*} _formatter 
@@ -559,6 +571,7 @@ class FormatterOptions {
             });
             this.newBuffer('_save_buffer_');
         };
+
         /**
          * restore saved buffer
          */
@@ -579,17 +592,17 @@ class FormatterOptions {
              * store and clear formatter buffer  
              * @param {bool} startBlock 
              */
-            function (startBlock = false) {
+            function (startBlock = false){
                 const _ctx = this;
                 const { buffer, data, output, dataOutput, depth, formatterBuffer, listener } = _ctx;
                 if (listener?.store) {
                     listener.store.apply(null, [{ buffer, output,data, dataOutput, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
                 }
                 _formatterBuffer.clear();
-            }
+            };
 
         option.flush =
-            /**
+           /**
            * flush with what is in the buffer - and clear buffer 
            * @param {bool} clear 
            * @returns 
@@ -610,15 +623,20 @@ class FormatterOptions {
                     if (refdata){
                         refdata.data = data;
                     }
-                    this.formatterBuffer.clear();
+                    this.formatterBuffer.clearAll();
                     output.length = 0;
                 }
                 return l;
             }
-        option.appendLine = function () {
+        option.appendLine = 
+            /**
+             * 
+             * @returns 
+             */
+            function () {
             const { listener } = this; 
             const { lineFeed } = _formatter.settings;
-            if (listener) {
+            if (listener?.appendLine) {
                 return listener.appendLine(lineFeed,
                     this.formatterBuffer, this, {
                     store: () => {
@@ -693,6 +711,14 @@ class FormatterOptions {
             }
         }
     }
+    onBeginEndFound(){
+        this.glueValue = null;
+        this.cleanNewOldBuffers();
+    }
+    onBeginWhileFound(){
+
+    }
+
     /**
      * shift and restore from
      * @param {*} from 
@@ -791,14 +817,26 @@ class FormatterOptions {
 
     appendExtraOutput() {
         this.debug?.feature('append-extra-prefix-line') && Debug.log('---:append extra output:---');
-        const { listener, output } = this;
-        FormatterOptions.AppendExtraLiveOutput({ listener, output });
+        const { listener, output , dataOutput} = this;
+        FormatterOptions.AppendExtraLiveOutput({ listener, output, dataOutput });
     }
-    static AppendExtraLiveOutput({ listener, output }) {
+    /**
+     * flush and get data
+     * @param {*} clear 
+     * @returns {{buffer:string, data: string}}
+     */
+    flushAndData(clear){
+        const _refData = {};
+        const _buffer = this.flush(clear, _refData);
+        return {buffer: _buffer, data: _refData.data };
+    }
+    static AppendExtraLiveOutput({ listener, output, dataOutput }) {
         if (listener?.appendExtraOutput) {
             listener.appendExtraOutput({ output: output });
-        } else
+        } else{
             output.push('');
+            dataOutput.push('');
+        }
     }
     get bufferSegmentState(){
         const { formatterBuffer } = this;

@@ -37,6 +37,8 @@ const PFM_STREAMING = 4;
 
 const PFM_APPEND_THEN_LINE_FEED = 5;
 
+const PFM_LINE_FEED_IF_IS_UPDATED_BLOCK = 6;
+
 
 exports.PatternFormattingMode = {
     get PFM_LINE_FEED(){
@@ -53,6 +55,9 @@ exports.PatternFormattingMode = {
     },
     get PFM_APPEND_THEN_LINE_FEED(){
         return PFM_APPEND_THEN_LINE_FEED;
+    },
+    get PFM_LINE_FEED_IF_IS_UPDATED_BLOCK(){
+        return PFM_LINE_FEED_IF_IS_UPDATED_BLOCK;
     }
 };
 

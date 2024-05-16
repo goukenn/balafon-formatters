@@ -195,7 +195,7 @@ class FormattingBase {
             let { nextMode, startLineReading } = option;
             let _buffer_is_empty = option.formatterBuffer.isEmpty;
             if ((formattingMode == PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED) && (mode == FM_APPEND)) {
-                option.lineFeedFlag = true; 
+                //  option.lineFeedFlag = true; 
                 option.nextMode = FM_START_LINE;
                 marker.mode = FM_START_LINE; 
                 // + | change the current mode to start line request
@@ -298,8 +298,7 @@ class FormattingBase {
                 }
                 break;
             case FM_END_INSTRUCTION: // after end instruction 
-                if (_hasExtra) {
-                    // option.appendExtraOutput();
+                if (_hasExtra) { 
                     option.output.push(extra);
                     _ld = option.flush(true);
                     _hasExtra = false;
@@ -508,7 +507,7 @@ class FormattingBase {
      * @param {*} marker_info 
      * @param {*} option 
      */
-    handleEndOnNonBlockElement(formatter, marker_info, option, { _b }) {
+    handleEndOnNonBlockElement(formatter, marker_info, option, { _b, _old }) {
         // + | append with line feed if requested
         const { parent, mode, lineFeed, formattingMode } = marker_info;
         let _lf = (formattingMode == PatternFormattingMode.PFM_LINE_FEED) || (lineFeed);
@@ -524,7 +523,7 @@ class FormattingBase {
 
             if (_lf) {
                 marker_info.mode = FM_START_LINE;
-                option.lineFeedFlag = true;
+                // option.lineFeedFlag = true;
             } else {
                 // + | depending on mode.
                 this._updateGlobalMarkerOptionDefinition(marker_info, option);
@@ -543,6 +542,15 @@ class FormattingBase {
                 option.formatterBuffer.appendToBuffer(_buffer);
                 _b = '';
             }
+        } else if (_old?.currentMode== FM_START_LINE){
+            option.saveBuffer();
+            option.appendExtraOutput();
+            option.formatterBuffer.appendToBuffer(_b);
+            option.store();
+            let _buffer = option.flush(true);
+            option.restoreSavedBuffer();
+            option.formatterBuffer.appendToBuffer(_buffer);
+            _b = '';
         }
         return { _b };
     }
@@ -576,8 +584,7 @@ class FormattingBase {
                     if (mode == FM_START_LINE) {
 
                         option.saveBuffer();
-                        let _frm = option.formatterBuffer;
-                        //option.appendExtraOutput();
+                        let _frm = option.formatterBuffer; 
                         _frm.appendToBuffer(_buffer);
                         option.store();
                         _buffer = option.flush(true);
@@ -637,6 +644,9 @@ class FormattingBase {
         return update({ marker }, option);
     }
 
+    updateBlockMarkerPropertyMode(old, option){
+        old.currentMode = FM_APPEND_BLOCK;
+    }
     /**
     * treat and start block definition 
     * @param {Formatters} formatter 
@@ -656,7 +666,7 @@ class FormattingBase {
         const { parent } = patternInfo;
         if (parent) {
             parent.mode = FM_APPEND;
-        }
+        } 
     }
 
     /**

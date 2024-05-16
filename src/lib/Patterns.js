@@ -254,6 +254,13 @@ class Patterns {
      */
     closeParent;
 
+
+    /**
+     * skip matching on 
+     * @var {null|undefined|string|string[]}
+     */
+    skip;
+
     constructor() {
         this.patterns = [];
         this.isBlock = false;
