@@ -1,10 +1,120 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
-const { PatternMatchInfo } = require("./PatternMatchInfo");
+const { PatternMatchInfo } = require("./PatternMatchInfo"); 
+const { RegexUtils } = require("./RegexUtils");  
 
+/**
+ * utility classe
+ */
 class Utils {
     static TestScope;
+
+    /**
+     * Get default begin captures
+     * @param {*} marker 
+     * @returns 
+     */
+    static BeginCaptures(marker){
+        return { ...marker.captures, ...marker.beginCaptures };
+    }
+    static EndCaptures(marker){
+        return { ...marker.captures, ...marker.endCaptures };
+    }
+
+    static JSON_REGEX_PARSER(){
+        return (s) => { 
+            if (s == '(??)') {
+                q.isStartOnly = true;
+                s = '';
+            }
+            let is_empty = false;
+            if (s==''){
+                is_empty = true;
+            }
+            let g = Utils.RegexParse(s, 'd');
+            g = RegexEngine.Load(g, is_empty);
+            return g;
+        };
+    }
+ 
+    /**
+     * create end match
+     * @param {*} value 
+     * @returns 
+     */
+    static CreateEndMatch(value, input){
+        const _p = [value];
+        _p.index = 0;
+        _p.indices = [[0, value.length]];
+        _p.input = input || "\0";
+        return _p;
+    }
+
+    static ReplaceWithCheck(replaceWith, value, {match, captures, operator, check}, _refObj){
+        let _rpw = Utils.RegExToString(replaceWith);
+        const { g }  = _refObj; 
+        _refObj._rpw = _rpw;
+        if (match) {
+            let _op = operator || '=';
+            let _s = Utils.ReplaceRegexGroup(check, g);
+            if (/(!)?=/.test(_op)) {
+                let r = match.test(_s);
+                if (_op) {
+                    if (((_op == '=') && !r) || ((_op == '!=') && (r))) {
+                        _refObj.replaced = false;
+                        return value;
+                    }
+                }
+            } else if (/(\<\>)=/.test(_op)) {
+                let _ex = match.toString().replace(/\\\//g, '');
+                if (
+                    ((_op == ">=") && (_s >= _ex)) ||
+                    ((_op == "<=") && (_s <= _ex))
+                ) {
+                    if (_s >= _ex){
+                        _refObj.replaced = false;
+                        return value;
+                    }
+                }
+            }
+        }
+        else{
+            _refObj.replaced=false;
+        }
+        return value;
+    }
+
+    /**
+     * render data
+     * @param {string} value 
+     * @param {PatternMatchInfo} marker 
+     * @param {null|CaptureInfo[]} captures 
+     * @param {FormatterOptions} option 
+     * @returns 
+     */
+    static RenderToBuffer(value, marker, captures, option ){
+        let _cm_value = value;
+        let _cm_data = value;
+        
+        // if (captures){
+        //     _cm_value = Utils.TreatCapture(marker, captures, _cm_value, option.tokenChains, option)
+        // }
+
+        option.saveBuffer(); 
+        option.appendToBuffer(_cm_value, marker, option);
+        option.store();
+        let refdata = {data:null};
+        _cm_value = option.flush(true, refdata);
+        _cm_data = refdata.data;        
+        option.restoreSavedBuffer();
+
+        return {
+            "buffer": _cm_value,
+            "data": _cm_data
+        };
+
+    }
     /**
      * define properties
      * @param {*} target 
@@ -111,7 +221,7 @@ class Utils {
             parser.patternClassName = patternClassName;
             parser.captureInfoClassName = captureInfoClassName;
             parser.closeParentInfoClassName = closeParentInfoClassName;
-        } else { 
+        } else {
             parser.patternClassName = pattern_class_name;
         }
         if (registry) {
@@ -137,22 +247,19 @@ class Utils {
         return function (d, parser, refKey, refObj) {
             let _out = [];
             let q = refObj || this;
+            const { Formatters } = Utils.Classes;
             d.forEach((a) => {
                 const { include } = a;
                 const _extends = a.extends;
                 let _o = null, _key = null, _def = null;
                 if (include) {
                     if (include[0] == '#') {
+                        // + | LOAD INCLUDE PROPERTY . #include
                         _key = include.substring(1);
-                        // if (_key in parser.includes){
-                        //     _o = new refkey_class_name(parser.includes[_key]);
-                        // }
-                        // else 
                         if (_key in parser.includes) {
                             _o = new refkey_class_name(parser.includes[_key]);
                         }
                         else {
-
                             if (refKey && (refKey == _key) && refObj) {
                                 _o = new refkey_class_name(q);
                             } else {
@@ -162,11 +269,18 @@ class Utils {
                                     parser.includes[_key] = _o;
                                     JSonParser._LoadData(parser, _o, _def, _key, refObj || _o);
                                     parser.initialize(_o);
-                                    class_name.Init(_o);
-
+                                    class_name.Init(_o); 
                                 }
                             }
                         }
+                    } else {
+                        // TODO: load engine source formatter - or not
+                        // _o = new FormatterResourceLoadingPattern(include);
+                        const {EngineFormatter} =  Formatters;
+                        if (EngineFormatter){
+                            return EngineFormatter.resolve(include);
+                        } 
+
                     }
                 }
                 else if (_extends) {
@@ -180,22 +294,47 @@ class Utils {
                 }
                 if (_o) {
                     _out.push(_o);
-                }
-
+                } 
             });
             return _out;
         }
     }
+    /**
+     * check skip pattern
+     * @param {*} skip 
+     * @param {*} marker 
+     * @param {*} option 
+     * @returns 
+     */
+    static CheckSkip(skip, marker, option){
 
+        if (typeof(skip)=='string'){
+            skip = [skip];
+        }
+        const _flags = {
+            startLine : option.startLine,
+            startBlock : option.startBlock
+        }
+        while(skip.length>0){
+            let q = skip.shift();
+            if (q in _flags){
+                if (_flags[q]){
+                    return true;
+                }
+            }  
+        } 
+        return false;
+    }
     /**
      * get match info
      * @var {array} patterns
-     * @var {array} l string
+     * @var {string} l string
      * @var {*} options
      * @var {*} parentMatcherInfo parent pattern for get result
      * @var {boolean|{_a,_match: null|number|RegExpResult,_from:undefined, patterns}}
      */
     static GetMatchInfo(patterns, l, option, parentMatcherInfo) {
+        const { FormatterOptions } = Utils.Classes;
         let _a = null;
         let _from = null;
         let _match = 0;
@@ -212,12 +351,28 @@ class Utils {
             if (s.startLine) {
                 if (!option.startLine) {
                     skip = true;
-                }
-
+                } 
+            }
+            if (!skip && s.skip){
+                skip = Utils.CheckSkip(s.skip, s, option);
+            }
+            if (!skip && option.matchTransform && s.matchTransform){
+                skip = true;
             }
 
             if (!skip) {
                 let _d = _ts.check(l, option, parentMatcherInfo);
+                // TODO: match agains source line to check 
+                // if (_ts.name == "detect.sub--start"){
+                    if((_d.regex) && (l.length>0)&&(option.sourceLine != l)&&(!option.startLine) && RegexUtils.CheckRequestStartLine(_d.regex)){
+                        const _td = _ts.check(option.sourceLine, option, parentMatcherInfo, _d.regex);
+                        // ignore start line
+                        if (_td && (_td.index == -1)){
+                            _d = null;
+                        }
+                    }
+                // }
+                // check agains source line
                 if (_d) {
                     ({ p, s, from, patterns } = _d);
                     item_index = _d.index == -1 ? _count : _d.index;
@@ -263,9 +418,8 @@ class Utils {
 
         if (_a) {
             _match.index += pos;
-
-            if (debug) {
-                console.log('matcher-begin: ', {
+ 
+                debug?.feature('matcher-begin') && console.log('matcher-begin: ', {
                     '__name': _a.toString(),
                     name: _a.name, line, pos:
                         _match.index, depth,
@@ -276,26 +430,26 @@ class Utils {
                     value: _match[0],
                     detectOn: l,
                     regex: _a.matchRegex,
-                    type: _a.matchType==0?"begin/end":"match",
+                    type: _a.matchType == 0 ? "begin/end" : "match",
                     isFromGroupRef: _from != null
-                });
-            }
+                }); 
             if (_a.throwError) {
                 let e = _a.throwError;
-                const msg = typeof (e) == 'object' ? e.message : 'invalid match';
+                let msg = typeof (e) == 'object' ? e.message : 'invalid match';
+                msg = msg.replace("%value%", "'"+_match[0]+"'");
                 throw new FormatterPatternException(msg, _a, _match, lineCount);
             }
             // + | add property to offset 
             _match.offset = _match[0].length;
             // +| treat begin captures must be at corresponding data info
-            //options.treatBeginCaptures(_a, _match); 
+
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index, option.formatter.formatting);
             return _info;
         }
         return _a;
     }
-    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1) {
+    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1, formatting) {
         _info.use({
             marker: _a,
             endRegex: _a.endRegex(_match),
@@ -304,7 +458,8 @@ class Utils {
             parent: parentMatcherInfo,
             patterns,
             fromGroup: _from,
-            index
+            index,
+            formatting
         });
     }
     /**
@@ -316,13 +471,14 @@ class Utils {
      * @returns 
      */
     static GetPatternMatcherInfoFromLine(line, patterns, option, parentMatcherInfo) {
-        const { debug, depth, lineCount } = option;
+        const { debug, depth, lineCount, formatter } = option;
         const { RefPatterns, FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
         let pos = 0;
         let _from = null;
         let index = -1;
+        const { formatting } = formatter;
         ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, line, option, parentMatcherInfo));
 
         if (_a) {
@@ -347,10 +503,10 @@ class Utils {
             }
             // + | add property to offset 
             _match.offset = _match[0].length;
-            // +| treat begin captures must be at corresponding data info
-            //options.treatBeginCaptures(_a, _match); 
+            // +| treat begin captures must be at corresponding data info 
+
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index);
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index, formatting);
             return _info;
         }
         return _a;
@@ -361,23 +517,32 @@ class Utils {
      * @param {*} p group match
      * @returns 
      */
-    static GetRegexFrom(s, p, flag) {
-
-        s = s.replace(/[^\\]?\$([\d]+)/, (a, m) => {
-            if (a[0] == "\\") return a;
-            if (a[0] != '$')
-                return a[0] + p[m];
+    static GetRegexFrom(s, p, flag, op) {
+        if ((op == 'end') || (op=='while'))
+        {
+            
+            s = s.replace(/\\([\d]+)/g, (a, m) => {
+          
             return p[m];
         });
+
+        }
+        else {
+
+            s = s.replace(/[^\\]?\$([\d]+)/g, (a, m) => {
+                if (a[0] == "\\") return a;
+                if (a[0] != '$')
+                    return a[0] + p[m];
+                return p[m];
+            });
+        }
         s = /^\/.+\/$/.test(s) ? s.substring(1).slice(0, -1) : s;
-
-
         return new RegExp(s, flag || '');
     }
 
 
-    static ReplaceRegexGroup(s, group) {
-        let gp = Utils.GetRegexFrom(s, group);
+    static ReplaceRegexGroup(s, group, op) {
+        let gp = Utils.GetRegexFrom(s, group, null,op);
         gp = gp.toString().substring(1).slice(0, -1).replace(/\\\//g, "/");
         s = s.replace(s, gp);
         return s;
@@ -394,38 +559,11 @@ class Utils {
     }
 
     /**
-     * 
+     * get regex info on start line
      * @param {string} s regex string expression
      */
     static RegexInfo(s) {
-        let option = '';
-        if (s == "(??)") {
-            return {
-                s: "^.^",
-                option,
-                beginOnly: true
-            };
-        }
-
-        let _option = /^\(\?(?<active>[imx]+)(-(?<disable>[ixm]+))?\)/;
-        let _potion = null;
-        if (_potion = _option.exec(s)) {
-            let sp = '';
-            if (_potion.groups) {
-                sp = _potion.groups.active ?? '';
-                if (_potion.groups.disable) {
-                    _potion.groups.disable.split().forEach(i => {
-                        sp = sp.replace(i, '');
-                    });
-                }
-            }
-            s = s.replace(_option, '');
-            option = sp;
-        }
-        return {
-            s,
-            option
-        };
+        return RegexUtils.RegexInfo(s);
     }
     static RegexParseInfo(s, flag) {
         let _info = Utils.RegexInfo(s);
@@ -434,13 +572,18 @@ class Utils {
         }
         return _info;
     }
+    /**
+     * 
+     * @param {*} s 
+     * @param {*} flag 
+     * @returns 
+     */
     static RegexParse(s, flag) {
         if (typeof (s) == 'string') {
             let _info = Utils.RegexParseInfo(s, flag);
             return new RegExp(_info.s, _info.option);
         } else if (typeof (s) == 'object') {
-            if (s instanceof RegExp) {
-
+            if (s instanceof RegExp){
                 let _info = Utils.RegexParseInfo(s.toString(), flag);
                 return new RegExp(_info.s, _info.option);
             }
@@ -450,7 +593,6 @@ class Utils {
                 return regex;
             }
             return new RegExp(regex, option);
-
         }
         return s;
     }
@@ -475,7 +617,7 @@ class Utils {
              * @returns 
              */
             rtrim(v) {
-                return v.trimStart();
+                return v.trimEnd();
             }
             , /**
             * 
@@ -483,7 +625,7 @@ class Utils {
             * @returns 
             */
             ltrim(v) {
-                return v.trimEnd();
+                return v.trimStart();
             }
         };
         transform.forEach((s) => {
@@ -513,7 +655,8 @@ class Utils {
 
             if (_p = /^\[(?<expression>.+)\]$/.exec(s)) {
                 let c = Utils.GetRegexFrom(_p.groups['expression'], [v]);
-                v = v.replace(v, c.toString().slice(1, -1));
+                c = RegexUtils.Stringify(c);
+                v = v.replace(v, c);
                 return v;
             }
 
@@ -578,12 +721,14 @@ class Utils {
  * do replace with
  * @param {*} value 
  * @param {*} _formatter 
- * @param {*} replace_with 
+ * @param {string} replace_with 
  * @param {*} group 
  * @param {*} _marker markerInfo
+ * @param {FormatterOptions} option markerInfo
+ * @param {*} captures markerInfo
  * @returns 
  */
-    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option) {
+    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option, captures) {
         let g = group;
         let _rp = replace_with; // 
         let m = '';
@@ -595,20 +740,24 @@ class Utils {
             //
             m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
             let check = m.replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
+            // escape range
+            // m = m.replace(/\\/g, '\\\\');
             // ------------------------
             // consider escape to check
             //
-            let cp = new RegExp(m.replace(/\\/g, '\\\\'), 'd');
+            let cp = new RegExp(m, 'd');
             let _in = value.replace(value, check).replace(/\\\\/g, /\\0/);
             // passing exec to formatt new value
             let matches = cp.exec(_in);
             const _tokens = option.tokenChains;
-            const _caps = _formatter.getMarkerCaptures(_marker);
+            const _caps = captures || _formatter.getMarkerCaptures(_marker);
             if (matches && _caps) {
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
-                let out = g.render(listener, _caps, false, _tokens, option);
+                const _outdefine = {};
+                let out = g.render(listener, _caps, false, _tokens, option, _outdefine);
                 return out;
             }
+            check = check.replace(/\\(.)/g,'$1');
             return check;
 
         } else {
@@ -636,7 +785,6 @@ class Utils {
         let _bckCapture = _formatter.info.captureGroup;
         _formatter.info.captureGroup = group;
         const q = option;
-        // debug && Debug.log('---::::treatEndCaptures::::--- contains patterns');
         if (_formatter.settings.useCurrentFormatterInstance) {
             option.pushState();
             // backup setting
@@ -688,11 +836,22 @@ class Utils {
         return value;
     }
 
+    /**
+     * 
+     * @param {*} marker 
+     * @param {*} _cap 
+     * @param {*} group 
+     * @param {*} tokenChains 
+     * @param {*} option 
+     * @returns {string|undefined}
+     */
     static TreatCapture(marker, _cap, group, tokenChains, option) {
         const { listener } = option;
         const { CaptureRenderer } = Utils.Classes;
         let _s = null;
         if (Array.isArray(group) == false) {
+            if (group === null)
+                group = '';
             const indices = [];
             indices.push([0, group.length]);
             group = [group];
@@ -706,8 +865,8 @@ class Utils {
     }
     /**
      * get next capture data
-     * @param {*} line 
-     * @param {*} endRegex 
+     * @param {string} line 
+     * @param {string} endRegex 
      * @param {*} option 
      * @returns 
      */
@@ -715,7 +874,7 @@ class Utils {
         const { RegexUtils } = Utils.Classes;
         let m = endRegex.toString();
         m = m.substring(0, m.lastIndexOf('/') + 1).slice(1, -1);
-        m = RegexUtils.UnsetCapture(m); // .replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
+        m = RegexUtils.UnsetCapture(m);
         let reg = new RegExp(m);
         let _ret = reg.exec(line);
         if (_ret) {

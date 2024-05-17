@@ -49,6 +49,12 @@ class CaptureInfo{
      */
     format;
 
+    /**
+     * throw error on capture detection
+     * @var {string|{message: string, match:regularExpression|string}}
+     */
+    throwError;
+
     constructor(parent){ 
 
         Object.defineProperty(this, 'parent', {get(){return parent;}})
@@ -82,7 +88,10 @@ class CaptureInfo{
                 return m;
             },
             transform,
-            captures
+            captures,
+            matchTransform(){
+                console.log("match transform ..... ");
+            }
         };
         let fc = parse[fieldname];
         if (fc){

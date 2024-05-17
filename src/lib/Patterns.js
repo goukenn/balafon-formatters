@@ -1,17 +1,47 @@
 "use strict";
-Object.defineProperty(exports, '__esModule', {value:true});
+Object.defineProperty(exports, '__esModule', { value: true });
 
-const { JSonParser } = require('./JSonParser'); 
+const { JSonParser } = require('./JSonParser');
 const { ReplaceWithCondition } = require('./ReplaceWithCondition');
 const { Utils } = require('./Utils');
 const { RegexUtils } = require('./RegexUtils');
 const { BlockInfo } = require('./BlockInfo');
 const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
-class Patterns{
+const { RegexEngine } = require('./RegexEngine');
+
+
+const PatternParsing = { init: false };
+const PTN_BEGIN_END = 0;
+const PTN_MATCH = 1;
+const PTN_BEGIN_WHILE = 2;
+const PTN_MATCH_TRANSFORM = 3;
+
+
+/**
+ * @typedef IFormatterReplaceWithCondition
+ * @type
+ * @property {string} expression,
+ * 
+ */
+
+/**
+ * 
+ */
+class Patterns {
+    /**
+     * @var {undefined|null|string|{message:string, code: number}} lint error 
+     */
+    lintError;
     /**
      * 
      */
     match;
+
+    /**
+     * match transform for injection
+     * @var {} 
+     */
+    matchTransform;
     /**
      * start capture 
      */
@@ -20,10 +50,23 @@ class Patterns{
      * end match
      */
     end;
+
+    /**
+     * use for begin/while . to implement
+     * @var {string|Regex}
+     */
+    while;
+
+    /**
+     * while captures definitions
+     */
+    whileCaptures;
     /**
      * setup the value on end missing
+     * @var {string|undefined|{expression:string, captures: undefined|captureInfo}}
      */
     endMissingValue;
+
     /**
      * the name of this pattern
      */
@@ -37,9 +80,9 @@ class Patterns{
      * describe this pattern
      */
     comment;
-      /**
-     * @var {?string} use for token matching
-     */
+    /**
+   * @var {?string} use for token matching
+   */
     tokenID;
     /**
      * @var {?array} list of patterns
@@ -50,14 +93,14 @@ class Patterns{
      * @var {?bool}
      */
     lineFeed;
-     /**
-      * indicate that this must be consider as a block element
-     * @var {?bool|BlockInfo}
-     */
+    /**
+     * indicate that this must be consider as a block element
+    * @var {?bool|BlockInfo}
+    */
     isBlock;
 
     /**
-     * get or set condition expression to set if this element is a bloc.
+     * get or set condition expression to set if this element is a block.
      * @var {?string}
      */
     emptyBlockCondition;
@@ -95,12 +138,13 @@ class Patterns{
 
     /**
      * similar likje end expression will replace the match apend value before adding it to buffer
+     * @var {string|undefined|ReplaceWithCondition|ReplaceWithCondition[]}
      */
     replaceWith;
 
     /**
      * replace with condition object 
-     * @var {} 
+     * @var {object} 
      */
     replaceWithCondition;
 
@@ -111,7 +155,7 @@ class Patterns{
     startLineTransform;
 
     /**
-     * 
+     * used for begin capture
      */
     beginCaptures;
 
@@ -137,7 +181,25 @@ class Patterns{
     transform;
 
     /**
-     * formatting mode
+     * match to apply after tranform definition
+     * @var {null|undefined|RegExp|string}
+     */
+    transformMatch;
+
+    /**
+     * transform captures
+     * @var  {null|undefined|captures}
+     */
+    transformCaptures;
+
+    /**
+     * formatting mode after begin of (begin/end) selection
+     * @var {?number}
+     */
+    beginFormattingMode;
+
+    /**
+     * formatting mode - after rendering the element
      */
     formattingMode = 0;
 
@@ -145,6 +207,12 @@ class Patterns{
      * a glue value - to merge on 
      */
     isGlueValue;
+
+    /**
+     * same value with
+     * @var {?string} join 
+     */
+    joinWith;
 
     /**
      * throw error on matching
@@ -160,6 +228,12 @@ class Patterns{
     streamAction;
 
     /**
+     * stream formatter
+     * @var {{format(buffer: string):string}|(buffer:string):string}
+     */
+    streamFormatter;
+
+    /**
      * captures to attach on stream or use captures as a fallback
      */
     streamCaptures;
@@ -169,12 +243,24 @@ class Patterns{
      * indicate that this pattern must be only apply on start line
      * @var {boolean}
      */
-    startLine=false;
-   
+    startLine = false;
+
+    /**
+     * @var {number}
+     */
+    applyEndPatternLast;
+
     /**
      * @var {boolean} debug this field
      */
     debug;
+
+
+    /**
+     * name used in debug mode
+     * @var {?string}
+     */
+    debugName;
 
     /**
      * force close parent with litteral
@@ -182,7 +268,14 @@ class Patterns{
      */
     closeParent;
 
-    constructor(){
+
+    /**
+     * skip matching on 
+     * @var {null|undefined|string|string[]}
+     */
+    skip;
+
+    constructor() {
         this.patterns = [];
         this.isBlock = false;
         this.allowMultiline = true;
@@ -190,111 +283,194 @@ class Patterns{
         var m_parent = null;
         var m_startOnly = false;
 
-        Object.defineProperty(this, 'parent', {get(){return m_parent;}, set(v){
-            if ((v==null)||(v instanceof Patterns) )
-                m_parent = v;
-            else 
-                throw Error('parent value not valid');
-        }});
-        Object.defineProperty(this, 'isStartOnly', {get(){
-            return m_startOnly;
-        }, set(v){
-            m_startOnly= v;
-        }});
+        Object.defineProperty(this, 'parent', {
+            get() { return m_parent; }, set(v) {
+                if ((v == null) || (v instanceof Patterns))
+                    m_parent = v;
+                else
+                    throw Error('parent value not valid');
+            }
+        });
+        Object.defineProperty(this, 'isStartOnly', {
+            get() {
+                return m_startOnly;
+            }, set(v) {
+                m_startOnly = v;
+            }
+        });
     }
-    json_parse(parser, fieldname, data, refKey, refObj){ 
+    json_parse(parser, fieldname, data, refKey, refObj) {
+
+        // if (!PatternParsing.init) {
+        //     PatternParsing.parser = (() => {
+
+
         const { Patterns, RefPatterns, CaptureInfo } = Utils.Classes;
         const q = this;
         const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const transform = Utils.TransformPropertyCallback();
-        const _regex_parser = (s)=>{
-            if (s=='(??)'){
+        const _regex_parser = (s) => {
+            if (s == '(??)') {
                 q.isStartOnly = true;
                 s = '';
             }
-            return Utils.RegexParse(s, 'd'); 
+            let is_empty = false;
+            if (s == '') {
+                is_empty = true;
+            }
+            let g = Utils.RegexParse(s, 'd');
+            g = RegexEngine.Load(g, is_empty);
+            return g;
         };
-        const _capture_parser = Utils.JSONInitCaptureField(q); 
-       
+        const _capture_parser = Utils.JSONInitCaptureField(q);
+        const _replace_with = (n, parser, fieldname, refObj) => {
+            if (typeof (n) == 'string') {
+                //n = n.replaceAll("\\\\","\\");
+
+                const _reg = _regex_parser.apply(q, [n, parser, fieldname, refObj]);
+                return _reg;
+            }
+            if (typeof (n) == 'object') {
+                let m = new ReplaceWithCondition;
+                JSonParser._LoadData(parser, m, n, refObj);
+                return m;
+            }
+            if (Array.isArray(n)) {
+                let d = [];
+                n.forEach(n => {
+                    let m = new ReplaceWithCondition;
+                    JSonParser._LoadData(parser, m, n, refObj);
+                    d.push(m);
+                });
+                return d;
+            }
+            return null;
+        };
+
         const parse = {
-            closeParent(n,parser){
-                const _type = typeof(n);
+            endMissingValue(n, parser) {
+                if (typeof (n) == 'object') {
+                    const { FormatterEndMissingExpression } = Utils.Classes;
+                    const { expression } = n;
+                    let { captures } = n;
+                    if (captures) {
+                        captures = _capture_parser(captures, parser);
+                    }
+                    return new FormatterEndMissingExpression(expression, captures);
+                }
+                return n;
+            },
+            closeParent(n, parser) {
+                const _type = typeof (n);
                 const { FormatterCloseParentInfo } = Utils.Classes;
                 const _gcl = parser.closeParentInfoClassName || FormatterCloseParentInfo;
-                if (_type=='object'){
+                if (_type == 'object') {
 
-                    let m = new _gcl; 
+                    let m = new _gcl;
                     JSonParser._LoadData(parser, m, n);
                     return m;
                 }
-                if (_type=='boolean'){
+                if (_type == 'boolean') {
                     return n;
                 }
-                if (_type=='string'){
+                if (_type == 'string') {
                     return n;
                 }
                 throw new Error('invalid closeParentType');
             },
-            patterns(n,parser, refKey, refObj){
-                let d = patterns.apply(q, [n,parser, refKey, refObj]);
-                d.forEach((s)=>{
+            patterns(n, parser, refKey, refObj) {
+                let d = patterns.apply(q, [n, parser, refKey, refObj]);
+                d.forEach((s) => {
                     s.parent = q;
                 });
                 return d;
             }, // update with parent
             begin: _regex_parser,
             end: _regex_parser,
+            while: _regex_parser,
             match: _regex_parser,
-            replaceWith: _regex_parser,
-            replaceWithCondition(n , parser, ){
-                let m = new ReplaceWithCondition; 
-                JSonParser._LoadData(parser, m, n, refObj);  
+            matchTransform:_regex_parser,
+            replaceWith: _replace_with,
+            transformMatch: _regex_parser,
+            lintError: function (n, parser) {
+                const _t = typeof (n);
+                let _rt = { message: null, code: null };
+                if (_t == 'string') {
+                    _rt.message = _t;
+                } else if (n) {
+                    const { code, message, $ref } = n;
+                    const { lintErrors } = parser.data;
+                    if ($ref && lintErrors) {
+                        if ($ref in lintErrors) {
+                            const { code, message } = { code: $ref, message: lintErrors[$ref] };
+                            _rt.message = message;
+                            _rt.code = code;
+                            return _rt;
+                        }
+
+                    }
+                    _rt.message = message;
+                    _rt.code = code;
+                }
+                return _rt;
+            },
+            replaceWithCondition(n, parser) {
+                let m = new ReplaceWithCondition;
+                JSonParser._LoadData(parser, m, n, refObj);
                 return m;
             },
-            beginCaptures :_capture_parser,
-            endCaptures :_capture_parser,
-            captures :_capture_parser,
+            beginCaptures: _capture_parser,
+            endCaptures: _capture_parser,
+            captures: _capture_parser,
             streamCaptures: _capture_parser,
-           transform,
-           lineFeed(d, parser){
-                return typeof(d)=='boolean' ? d : false; 
-           },
-           isBlock(d, parser){
-                let _t = typeof(d);
-                if (_t=='object'){
+            transformCaptures: _capture_parser,
+            transform,
+            lineFeed(d, parser) {
+                return typeof (d) == 'boolean' ? d : false;
+            },
+            isBlock(d, parser) {
+                let _t = typeof (d);
+                if (_t == 'object') {
                     let m = new BlockInfo;
                     JSonParser._LoadData(parser, m, d);
                     return m;
                 }
-                return _t=='boolean' ? d : false;
-           },
-           throwError(d,parser){
-                if (typeof(d)=="string"){
+                return _t == 'boolean' ? d : false;
+            },
+            throwError(d, parser) {
+                if (typeof (d) == "string") {
                     let l = new PatterMatchErrorInfo;
                     l.message = d;
                     return l;
                 }
-                return objOrBool(d, parser, PatterMatchErrorInfo); 
-           }
+                return objOrBool(d, parser, PatterMatchErrorInfo);
+            }
         };
+        //         return parse;
+        //     })();
+        //     PatternParsing.init = true;
+        // }
+        // const q = this;
+        // const parse = PatternParsing.parser;
+
         let fc = parse[fieldname];
-        if (fc){
+        if (fc) {
             return fc.apply(q, [data, parser, refKey, refObj]);
         }
         return data;
     }
-    json_validate(field_name, d, throw_on_error){
+    json_validate(field_name, d, throw_on_error) {
         const validator = {
-            patterns(d){
+            patterns(d) {
                 return Array.isArray(d);
             },
-            replaceWithCondition(d){
-                return typeof(d)=='object';
+            replaceWithCondition(d) {
+                return typeof (d) == 'object';
             }
         };
         let f = validator[field_name];
-        if (f && !f(d)){
-            if (throw_on_error){
+        if (f && !f(d)) {
+            if (throw_on_error) {
                 throw new Error(`[${field_name}] is not valid`);
             }
             return false;
@@ -302,20 +478,28 @@ class Patterns{
         return true;
     }
 
-    get matchType(){
-        if (this.begin){
-            return 0;
-        } else if (this.match){
-            return 1;
+    get matchType() {
+        const { begin, end, match, matchTransform } = this;
+        const _while = this.while;
+        if (begin) {
+            if (end)
+                return PTN_BEGIN_END;
+            else if (_while) {
+                return PTN_BEGIN_WHILE;
+            }
+        } else if (match) {
+            return PTN_MATCH;
+        } else if (matchTransform) {
+            return PTN_MATCH_TRANSFORM;
         }
         return -1;
     }
     /**
      * get if end is capture only regex
      */
-    get isEndCaptureOnly(){
+    get isEndCaptureOnly() {
         let s = this.end;
-        if (s){
+        if (s) {
             return RegexUtils.IsCapturedOnlyRegex(s.toString());
         }
         return false;
@@ -323,9 +507,9 @@ class Patterns{
     /**
      * get if begin capture only
      */
-    get isBeginCaptureOnly(){
+    get isBeginCaptureOnly() {
         let s = this.begin;
-        if (s){
+        if (s) {
             return RegexUtils.IsCapturedOnlyRegex(s);
         }
         return false;
@@ -334,9 +518,9 @@ class Patterns{
      * get if block is capture only
      * @return {boolean}
      */
-    get isCaptureOnly(){
+    get isCaptureOnly() {
         let { begin, end } = this;
-        if (begin && end){
+        if (begin && end) {
             return this.isBeginCaptureOnly && this.isEndCaptureOnly;
         }
         return false;
@@ -344,9 +528,9 @@ class Patterns{
     /**
      * is match capture only
      */
-    get isMatchCaptureOnly(){
+    get isMatchCaptureOnly() {
         let s = this.match;
-        if (s){
+        if (s) {
             return RegexUtils.IsCapturedOnlyRegex(s);
         }
         return !1;
@@ -354,12 +538,12 @@ class Patterns{
     /**
      * new line continue state
      */
-    get newLineContinueState(){
+    get newLineContinueState() {
         return true;
     }
-    static Init(_o){
-        if ((_o.matchType == -1) && (_o.patterns?.length>0)){
-            _o.patterns.forEach(s=>{
+    static Init(_o) {
+        if ((_o.matchType == -1) && (_o.patterns?.length > 0)) {
+            _o.patterns.forEach(s => {
                 _o._initRef(s);
             });
         }
@@ -368,88 +552,116 @@ class Patterns{
      * initialize reference
      * @param {*} a 
      */
-    _initRef(a){
-        if (!a.tokenID && this.tokenID){
+    _initRef(a) {
+        if (!a.tokenID && this.tokenID) {
             a.tokenID = this.tokenID;
         }
     }
-    check(l, option, parentMatcherInfo){
+    check(l, option, parentMatcherInfo, regex) {
         let p = null;
-        const { begin, match , patterns} = this;
-        if (begin){
-            p = begin.exec(l);
-        } else if (match){
-            p = match.exec(l);
+        const { begin, match, patterns , matchTransform} = this;
+        const _while = this.while;
+        regex = regex || begin || match || matchTransform;
+        if (regex) {
+            p = regex.exec(l);
         } else {
             // + | use for pattern only definition list
-            if (patterns){
-                const cp = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo); 
-                if (cp){
-                    return {p: cp._match, s:cp._a, from:this, patterns: patterns, index: cp.index};
+            if (patterns) {
+                const cp = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo);
+                if (cp) {
+                    return { p: cp._match, s: cp._a, from: this, patterns: patterns, index: cp.index, regex: cp.regex };
                 }
                 return false;
             }
-            throw new Error("cannot check : "+l);
+            throw new Error("cannot check : " + l);
         }
-        return {p,s:this, index:-1};
+        return { p, s: this, index: -1, regex };
     }
-    
-    get matchRegex(){
-        return this.matchType == 0? this.begin : this.match;
-    }  
+
+    get matchRegex() {
+        const rgs = {
+            "0":this.begin,
+            "1":this.match,
+            "2":this.while,
+            "3":this.matchTransform
+        };
+        return rgs[this.matchType]; //  this.matchType == 0 ? this.begin : this.match;
+    }
     /**
      * calculate end regex
      * @param {*} p 
      * @returns 
      */
-    endRegex(p){
-        if (this.matchType==0){ 
+    endRegex(p) {
+        if (!this.end || ((this.end instanceof RegexEngine) && this.end.isEmpty)) {
+            return null;
+        }
+
+
+        if (this.matchType == 0) {
             let s = this.end.toString();
             let idx = s.lastIndexOf('/');
             let flag = '';
-            if (idx<(s.length-1)){
+            if (idx < (s.length - 1)) {
                 //remove options
-                flag = s.substring(idx+1);
-                s = s.substring(0, idx+1);
+                flag = s.substring(idx + 1);
+                s = s.substring(0, idx + 1);
             }
-            return Utils.GetRegexFrom(s, p, flag); 
+            return Utils.GetRegexFrom(s, p, flag, 'end');
         }
         return null;
     }
-    // get blockStart(){
-    //     const t = this.matchType;
-    //     if (!this.isBlock || (t!=0)){
-    //         return '';
-    //     }
-    //     return this.block?.start || this.begin.toString().trim();
-    // }
-    // get blockEnd(){
-    //     const t = this.matchType;
-    //     if (!this.isBlock || (t!=0)){
-    //         return '';
-    //     }
-    //     return this.block?.end || this.end.toString().trim();
-    // }
-    toString(){
-        let { name, begin, end, match } = this;
-        if (!name){
-            name = JSON.stringify({type:this.matchType, match, 
-                begin, end});
+    endWhile(p) {
+        if (this.matchType == 2) {
+            let s = this.while.toString();
+            let idx = s.lastIndexOf('/');
+            let flag = '';
+            if (idx < (s.length - 1)) {
+                //remove options
+                flag = s.substring(idx + 1);
+                s = s.substring(0, idx + 1);
+            }
+            return Utils.GetRegexFrom(s, p, flag, 'while');
+        }
+        return null;
+    }
+
+    toString() {
+        let { name, begin, end, match, debugName, matchType } = this;
+        const _while = this.while;
+        name = debugName || name;
+        function getMatchInfo() {
+            switch (matchType) {
+                case PTN_BEGIN_END:
+                    return { "begin": begin?.toString(), "end": end?.toString() };
+                case PTN_MATCH:
+                    return { 'match': match?.toString() };
+                case PTN_BEGIN_WHILE:
+                    return { 'begin': begin?.toString(), "while": _while?.toString() };
+                case PTN_MATCH_TRANSFORM:
+                    return { "matchTransfrom": _while?.toString() };
+            }
+        }
+        if (!name) {
+            name = JSON.stringify({
+                type: matchType,
+                //...getMatchInfo()
+            });
         }
         return `Patterns[#${name}]`;
     }
 }
 
 
-const objOrBool = (d, parser, class_type)=>{
-    let _t = typeof(d);
-    if (_t=='object'){
+const objOrBool = (d, parser, class_type) => {
+    let _t = typeof (d);
+    if (_t == 'object') {
         let m = new class_type;
         JSonParser._LoadData(parser, m, d);
         return m;
     }
-    return _t=='boolean' ? d : false;
+    return _t == 'boolean' ? d : false;
 }
 
- 
+
 exports.Patterns = Patterns;

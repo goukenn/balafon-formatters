@@ -1,7 +1,938 @@
 {
-    "sourceName":"bview.source",
-    "repository":{},
-    "patterns":[
+    "scopeName": "source.bview",
+    "$schema": "https://igkdev.com/schemas/btm-syntax.json",
+    "patterns": [
+        {
+            "include": "#single-line-comment"
+        },
+        {
+            "include": "#comment-block"
+        },
+        {
+            "include": "#double-quote-with-mustache-string"
+        },
+        {
+            "include": "#selector-tag"
+        },
+        {
+            "include": "#block-definition"
+        }
+    ],
+    "repository": {
+        "meta.embedded.langugages": {
+            "patterns": [
+                {
+                    "begin": "php\\(",
+                    "end": "\\)",
+                    "name": "local.php",
+                    "contentName": "meta.embedded.php",
+                    "patterns": [
+                        {
+                            "include": "source.php"
+                        }
+                    ]
+                },
+                {
+                    "begin": "js\\(",
+                    "end": "\\)",
+                    "contentName": "meta.embedded.js",
+                    "patterns": [
+                        {
+                            "include": "source.js"
+                        }
+                    ]
+                },
+                {
+                    "begin": "jsx\\(",
+                    "end": "\\)",
+                    "contentName": "meta.embedded.jsx",
+                    "patterns": [
+                        {
+                            "include": "source.js.jsx"
+                        }
+                    ]
+                },
+                {
+                    "begin": "css\\(",
+                    "end": "\\)",
+                    "contentName": "meta.embedded.css",
+                    "patterns": [
+                        {
+                            "include": "source.css"
+                        }
+                    ]
+                }
+            ]
+        },
+        "block-definition": {
+            "name": "block.definition.bview",
+            "isBlock": true,
+            "begin": "\\{",
+            "end": "\\}",
+            "beginCaptures": {
+                "0": {
+                    "name": "branket.start.bview"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "branket.end.bview"
+                }
+            }
+        },
+        "single-line-comment": {
+            "match": "\\/\\/(.)+$",
+            "name": "comment.single.line.bview",
+            "formattingMode": 1
+        },
+        "section-inner-block": {
+            "begin": "\\s*\\{(?:($|\\s*))",
+            "end": "\\}",
+            "isBlock": true,
+            "name": "meta.inner.block.bview",
+            "beginCaptures": {
+                "0": {
+                    "name": "tag.start",
+                    "transform": "trim"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "tag.block.end.bview"
+                }
+            },
+            "patterns": [
+                { "include":"#group-function-call"},
 
-    ]
+                {
+                    "begin": "(?=\\'|\")",
+                    "end": ";|-|$",
+                    "patterns": [
+                        {
+                            "include": "#string"
+                        },
+                        {
+                            "match":"\\s*(\\+)\\s+",
+                            "name":"keyword.operator.concat.bview"
+                        },
+                        {
+                            "include": "#inner-variable"
+                        }
+                    ],
+                    "formattingMode": 1
+                },
+                {
+                    "include": "#selector-definition"
+                },
+                {
+                    "include": "#section-patterns"
+                },
+                {
+                    "match": "\\s*(\\+)\\s*",
+                    "name": "concation.oeprator.bview",
+                    "transform": [
+                        "trim",
+                        "[ $0 ]"
+                    ]
+                },
+                {
+                    "include": "#inner-variable"
+                }
+
+             
+            ]
+        },
+        "inner-variable":{
+            "begin": "(?i)(\\$(\\$)?[a-z_][a-z_0-9]*)",
+            "end": "$|\\)|(?=\\+|%|\\/|\\*|'|\"|\\}|\\{|\\))",
+            "name": "variable.name",
+            "comment": "detect litteral variable to apply to node",
+            "patterns": [
+                {
+                    "comment": "php operator",
+                    "match": "->",
+                    "name": "keyword.operator.object.ref.operator.bview"
+                },
+                {
+                    "begin": "\\[",
+                    "end": "\\]",
+                    "formattingMode": 1
+                },
+                {
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "formattingMode": 1
+                },
+                {
+                    "match": "(\\$)?[a-z_][a-z_0-9]*",
+                    "name": "subinvocation.bview"
+                },
+                {
+                    "match": ";| |\\s*$",
+                    "formattingMode": 1
+                }
+            ]
+            
+        },
+        "group-function-call":{
+            "begin":"\\(",
+            "end":"\\)",
+            "formattingMode": 1
+        },
+        "section-patterns": {
+            "patterns": [
+                {
+                    "include": "#comment-block"
+                },
+                {
+                    "include": "#conditional-expression"
+                },
+                {
+                    "include": "#tag-content"
+                },
+                {
+                    "include": "#mustache-expression"
+                },
+                {
+                    "include": "#tag-append-single"
+                },
+                {
+                    "include": "#active-attributes"
+                }
+            ]
+        },
+        "mustache-expression": {
+            "begin": "\\{\\{(?=[^\\{])",
+            "end": "(?<=[^\\}])\\}\\}",
+            "name": "entity.name.function.meta.mustache.bview",
+            "beginCaptures": {
+                "0": {
+                    "name": "meta.mustache.start.bview"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "meta.mustache.end.bview"
+                }
+            },
+            "contentName": "meta.mustache.expression.bview"
+        },
+        "comment-block": {
+            "name": "comment.block.bview",
+            "begin": "\\/\\*",
+            "end": "\\*\\/"
+        },
+        "tagname": {
+            "match": "(?i)([a-z_]+[a-z0-9:\\-_]*(?::[a-z]+[a-z\\-_]+)?)",
+            "comment": "selector tagname",
+            "name": "entity.name.tag.selector.tagname.bview"
+        },
+        "tag-class": {
+            "match": "(?i)\\.((-+)?[a-z_]+((\\\\:)?[a-z0-9\\-_]+)*)",
+            "comment": "selector tagname class",
+            "name": "entity.name.class.tagname.class.bview"
+        },
+        "tag-name": {
+            "match": "(?i)\\#([a-z_]+[a-z0-9\\-_]*)",
+            "comment": "selector identifier name value",
+            "name": "string.regexp.selector.tagname.name.bview"
+        },
+        "tag-id": {
+            "match": "(?i)\\%([a-z_]+[a-z0-9\\-_]*)",
+            "comment": "selector identifier. id attribute",
+            "name": "constant.selector.tagname.id.bview"
+        },
+        "tag-glue": {
+            "match": "\\s*(\\>)\\s*",
+            "comment": "append tag",
+            "transform": [
+                "trim",
+                "[ $0 - ]"
+            ],
+            "isGlueValue": " ",
+            "captures": {
+                "1": {
+                    "name": "constant.character.operator.append.tagname.bview"
+                }
+            }
+        },
+        "selector-tag": {
+            "name": "meta.tagname.selector.bview",
+            "patterns": [
+                {
+                    "include": "#selector-definition"
+                }
+            ]
+        },
+        "selector-definition": {
+            "patterns": [
+                {
+                    "include": "#tagname"
+                },
+                {
+                    "include": "#tag-class"
+                },
+                {
+                    "include": "#tag-name"
+                },
+                {
+                    "include": "#tag-id"
+                },
+                {
+                    "include": "#tag-active-attrib"
+                },
+                {
+                    "include": "#tag-attrib"
+                },
+                {
+                    "include": "#tag-func"
+                },
+                {
+                    "include": "#tag-glue"
+                },
+                {
+                    "include": "#section-inner-block"
+                }
+            ]
+        },
+        "tag-attrib": {
+            "comment": "tagname attribute definition-only one per tagname definition",
+            "begin": "\\[\\s*",
+            "end": "\\s*\\]",
+            "name": "meta.tagname.attribute.bview",
+            "contentName": "tagname.attributes.definition.bview",
+            "beginCaptures": {
+                "0": {
+                    "name": "brank.array.start.bview",
+                    "transform": "trim"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "brank.array.end.bview",
+                    "transform": [
+                        "trim",
+                        "[$0]"
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#attribute-expression-separator"
+                },
+                {
+                    "comment": "skip mutiple value",
+                    "match": "\\s+",
+                    "transform": [
+                        "trim",
+                        "[ ]"
+                    ]
+                },
+                {
+                    "name": "tagname.attribute.active.inline.bview",
+                    "match": "\\s*(@[a-zA-Z_]([a-zA-Z_:0-9\\-]+)?)(\\s+@[a-zA-Z_]([a-zA-Z_:0-9\\-]+)?)*\\s*"
+                },
+                {
+                    "name": "meta.attribute.parameter.bview",
+                    "begin": "(?i)([a-z_](?:[a-z0-9_\\-]+)?)(\\s*(?::)\\s*)?",
+                    "end": "(?=(,|\\s*\\]))",
+                    "beginCaptures": {
+                        "1": {
+                            "name": "entity.other.attribute-name.attribute.parameter.name.bview"
+                        },
+                        "2": {
+                            "name": "storage.punctuation.array.separator.bview",
+                            "patterns": [
+                                {
+                                    "match": "(.)+",
+                                    "transform": "trim"
+                                }
+                            ]
+                        }
+                    },
+                    "contentName": "meta.attribute.parameter.value.bview",
+                    "patterns": [
+                        {
+                            "comment": "Import first punctuation",
+                            "match": "\\s*(:)\\s*",
+                            "captures": {
+                                "1": {
+                                    "name": "meta.punctuation.array.separator.bview"
+                                }
+                            }
+                        },
+                        {
+                            "include": "#number"
+                        },
+                        {
+                            "include": "#string-with-mustache"
+                        }
+                    ]
+                },
+                {
+                    "include": "#string"
+                }
+            ]
+        },
+        "tag-func": {
+            "comment": "tagname function litteral - only one per tagname definition",
+            "begin": "(?<=[^\\s])\\(",
+            "end": "\\)",
+            "name": "meta.tagname.func.bview",
+            "contentName": "tagname.func.bview",
+            "patterns": [
+                {
+                    "include": "#expression-separator"
+                },
+                {
+                    "name": "func.args",
+                    "patterns": [
+                        {
+                            "include": "#hex-number"
+                        },
+                        {
+                            "include": "#number"
+                        },
+                        {
+                            "include": "#string"
+                        },
+                        {
+                            "name": "litteral.args.bview",
+                            "begin": "\\s*\\[\\[:@(raw|ctrl)",
+                            "end": "\\]\\]",
+                            "contentName": "litteral.args.expression.bview",
+                            "patterns": [
+                                {
+                                    "include": "source.php"
+                                }
+                            ]
+                        },
+                        {
+                            "include": "#hex-color"
+                        },
+                        {
+                            "name": "constant.litteral.args.bview",
+                            "comment": "use for href",
+                            "match": "(?i)#([a-z0-9]+)?"
+                        },
+                        {
+                            "include": "#url"
+                        }
+                    ]
+                }
+            ]
+        },
+        "tag-active-attrib": {
+            "match": "(?i)\\!([a-z_]+[a-z0-9\\-_]*)",
+            "comment": "selector identifier. id attribute",
+            "name": "constant.selector.tagname.active.attrib.bview"
+        },
+        "number": {
+            "name": "constant.numeric.bview",
+            "match": "((\\d+)?\\.\\d+)|(\\d+)(\\.\\d+)?"
+        },
+        "hex-number": {
+            "name": "constant.numeric.bview",
+            "match": "(?i)0x([a-f0-9]+)?"
+        },
+        "hex-color": {
+            "name": "constant.litteral.args.hexcolor.bview",
+            "match": "(?i)#([a-f0-9]{8}|[a-f0-9]{6}|[a-f0-9]{4})"
+        },
+        "url": {
+            "name": "constant.url.bview",
+            "match": "(?i)(((ftp|http(s)|[a-z]+)?:\\/\\/)|(\\.))[^\\s\\/\\)]+(\\/[^\\s\\/\\)]+)*"
+        },
+        "expression-separator": {
+            "name": "punctuation.operator.bview",
+            "match": "\\s*,\\s*"
+        },
+        "attribute-expression-separator": {
+            "name": "punctuation.attribute.array.separator.bview",
+            "match": "\\s*,\\s*",
+            "transform": [
+                "trim",
+                "[$0 ]"
+            ]
+        },
+        "tag-append-single": {
+            "begin": "\\s*\\+ ",
+            "end": "$",
+            "name": "meta.append.single.node.bview",
+            "patterns": [
+                {
+                    "include": "#selector-tag"
+                }
+            ]
+        },
+        "tag-content": {
+            "begin": "\\s*- ",
+            "end": "$|(?=\\})",
+            "name": "meta.tag.content.expression.bview",
+            "formattingMode": 1,
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.start.content.expression.bview",
+                    "patterns": [
+                        {
+                            "match": "(.)+",
+                            "transform": [
+                                "trim",
+                                "[$0 ]"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "match": "\\s+",
+                    "transform": "trim"
+                },
+                {
+                    "include": "#mark-fn-support"
+                },
+                {
+                    "include": "#string-with-mustache"
+                },
+                {
+                    "include": "#expression-constant"
+                }
+            ]
+        },
+        "active-attributes": {
+            "name": "parameter.attribute.active.bview",
+            "match": "(^|\\)|\\])?\\s*(@[a-zA-Z_]([a-zA-Z_:0-9\\-]+)?)(\\s+@[a-zA-Z_]([a-zA-Z_:0-9\\-]+)?)*\\s*$"
+        },
+        "expression-constant": {
+            "name": "constant.expression.bview",
+            "patterns": [
+                {
+                    "include": "#string-with-mustache"
+                },
+                {
+                    "include": "#litteral-constant-non-mustache"
+                },
+                {
+                    "include": "#mustache-expression"
+                }
+            ]
+        },
+        "conditional-expression": {
+            "begin": "(^|\\)|\\]|\\s*)?(?<exp>\\*if)\\s*(:)",
+            "end": "$",
+            "name": "condition.bview",
+            "beginCaptures": {
+                "2": {
+                    "name": "conditional.operator.bview"
+                },
+                "3": {
+                    "name": "punctuation.operator.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "name": "conditional.expression.bview",
+                    "patterns": [
+                        {
+                            "include": "#litteral-constant-non-mustache"
+                        },
+                        {
+                            "include": "#mustache-expression"
+                        },
+                        {
+                            "include": "#mustache-content-expression"
+                        }
+                    ]
+                }
+            ]
+        },
+        "string": {
+            "patterns": [
+                {
+                    "include": "#single-quote-string"
+                },
+                {
+                    "include": "#double-quote-string"
+                }
+            ]
+        },
+        "string-with-mustache": {
+            "patterns": [
+                {
+                    "include": "#single-quote-with-mustache-string"
+                },
+                {
+                    "include": "#double-quote-with-mustache-string"
+                }
+            ]
+        },
+        "single-quote-string": {
+            "begin": "'",
+            "end": "'",
+            "name": "string.single.quoted.bview",
+            "patterns": [
+                {
+                    "name": "constant.escaped.string",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "double-quote-with-mustache-string": {
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.with.mustache.bview",
+            "patterns": [
+                {
+                    "name": "constant.escaped.string",
+                    "match": "\\\\."
+                },
+                {
+                    "include": "#mustache-expression"
+                }
+            ]
+        },
+        "single-quote-with-mustache-string": {
+            "begin": "'",
+            "end": "'",
+            "name": "string.single.quoted.bview",
+            "patterns": [
+                {
+                    "name": "constant.escaped.string",
+                    "match": "\\\\."
+                },
+                {
+                    "include": "#mustache-expression"
+                }
+            ]
+        },
+        "double-quote-string": {
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.bview",
+            "patterns": [
+                {
+                    "name": "constant.escaped.string",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "mustache-content-expression": {
+            "name": "constant.mustache.content.expression.bview",
+            "patterns": [
+                {
+                    "match": "[^\\{]+",
+                    "name": "constant.concat.mustache.bview"
+                },
+                {
+                    "include": "#mustache-expression"
+                }
+            ]
+        },
+        "litteral-constant-non-mustache": {
+            "comment": "litteral expression without mustache expression",
+            "name": "constant.litteral.expression.bview",
+            "match": "[^\\{\\}]+"
+        },
+        "mark-html": {
+            "begin": "\\bhtml\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "name": "highlight.html.bview",
+            "patterns": [
+                {
+                    "include": "text.html.basic"
+                }
+            ]
+        },
+        "mark-bcss": {
+            "begin": "\\bbcss\\b\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "name": "highlight.bcss.bview",
+            "patterns": [
+                {
+                    "include": "source.bcss"
+                }
+            ]
+        },
+        "mark-bjs": {
+            "begin": "\\bbjs\\b\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "name": "highlight.balafonjs.bview",
+            "patterns": [
+                {
+                    "include": "source.js"
+                }
+            ]
+        },
+        "mark-css": {
+            "begin": "\\bcss\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "name": "highlight.css.bview",
+            "patterns": [
+                {
+                    "include": "source.css"
+                }
+            ]
+        },
+        "mark-gql": {
+            "name": "highlight.gql.bview",
+            "begin": "gql\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "source.graphql"
+                }
+            ]
+        },
+        "mark-jsx": {
+            "name": "highlight.jsx.bview",
+            "begin": "\\bjsx\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "source.js.jsx"
+                }
+            ]
+        },
+        "mark-tsx": {
+            "name": "highlight.tsx.bview",
+            "begin": "tsx\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "source.tsx"
+                }
+            ]
+        },
+        "mark-vue": {
+            "name": "highlight.vue.bview",
+            "comment": "mark vue content SFC",
+            "isBlock": true,
+            "begin": "vue\\s*\\(",
+            "end": "\\)",
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "source.vue"
+                }
+            ]
+        },
+        "mark-js": {
+            "name": "highlight.js.bview",
+            "begin": "js\\s*\\(",
+            "end": "\\)\\s*",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "source.js"
+                }
+            ]
+        },
+        "mark-svg": {
+            "name": "highlight.svg.bview",
+            "begin": "\\bsvg\\s*\\(",
+            "end": "\\)\\s*",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "text.html.basic"
+                }
+            ]
+        },
+        "mark-xml": {
+            "name": "highlight.xml",
+            "begin": "\\bxml\\s*\\(",
+            "end": "\\)",
+            "isBlock": true,
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "text.xml"
+                }
+            ]
+        },
+        "mark-fn-support": {
+            "comment": "mark function call support",
+            "name": "mark.function.support.bview",
+            "patterns": [
+                {
+                    "include": "#mark-html"
+                },
+                {
+                    "include": "#mark-css"
+                },
+                {
+                    "include": "#mark-bcss"
+                },
+                {
+                    "include": "#mark-svg"
+                },
+                {
+                    "include": "#mark-js"
+                },
+                {
+                    "include": "#mark-bjs"
+                },
+                {
+                    "include": "#mark-tsx"
+                },
+                {
+                    "include": "#mark-gql"
+                },
+                {
+                    "include": "#mark-vue"
+                },
+                {
+                    "include": "#mark-xml"
+                },
+                {
+                    "begin": "\\b(local)\\b\\s*\\(",
+                    "end": "\\)",
+                    "isBlock": true,
+                    "beginCaptures": {
+                        "1": {
+                            "name": "support.function.func.name.bview"
+                        }
+                    },
+                    "endCaptures": {
+                        "0": {
+                            "name": "func.name.end.bview"
+                        }
+                    },
+                    "name": "expression.in.func.bview"
+                }
+            ]
+        },
+        "function-litteral": {
+            "name": "function.litteral.bview",
+            "begin": "\\b\\w+\\(",
+            "end": "\\)\\s*$",
+            "beginCaptures": {
+                "1": {
+                    "name": "support.function.func.name.bview"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "func.name.end.bview"
+                }
+            },
+            "contentName": "func.expression.bview"
+        }
+    }
 }

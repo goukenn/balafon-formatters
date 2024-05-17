@@ -46,6 +46,18 @@ settings
 }
 ```
 
+### use patterns '(?:)' to stop parent begin/end without end detection'
+```jsonc
+  "patterns":[
+        {
+            "match":"[ 0-9]+"
+        },
+        {
+            "match":"(?:)"                            
+        }
+    ]
+```
+
 ### References
 
 replaceWith : string|ReplaceWithProtocol
@@ -63,6 +75,12 @@ protocol ReplaceWithProtocol{
     - In order to operate on the entired mactch result - do not capturure sub element. 
 
 
+## Formatting mode 
+- 1: line feed
+- 2: line join on end.
+- 6: line feed if updated isBlock and contain children
+
+
 # extension 
 .btm-syntax.json
 
@@ -70,8 +88,18 @@ FEATURES
 
 "(??)" = start here move position ++; if no pattern until end found
 
-## RELEASES
+### capture - block
+for block only start element begin with (?:.) - end with non capture so that buffering will join
+element
 
+### join item on start line 
+`joinWith`[?string]: indicate how to join buffer on start line - directive.
+
+
+## RELEASES
+    - Feature: Lint support lint errors definition { $ref : code }, declared in lintErrors of data
+- 1.0.7
+    - 
 - 1.0.4
     - update extension information
 - 1.0.3

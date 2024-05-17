@@ -33,6 +33,13 @@ class FormatterSetting {
      */
     transformEngine
 
+
+    /**
+     * support end match logic technique
+     * @var {'before'|'after'} 
+     */
+    endMatchLogic = 'before';
+
     /**
      * 
      * @param {*} parser

@@ -3,10 +3,11 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { FormatterBuffer } = require('./FormatterBuffer');
-const { SpecialMeaningPatternBase } = require('./Formatters');
+const { SpecialMeaningPatternBase, Patterns } = require('./Formatters');
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
 const { FormattingMode } = require("./Formattings/FormattingMode");
+const { Debug } = require("./Debug");
 
 const FORMATTER_ID = '_formatter_buffer_';
 /**
@@ -16,8 +17,11 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
     name = 'system.formatter.stream.buffer';
     formatterBuffer;
     from;
+    initialMode = 1;
     startPosition;
     started = false;
+    closed = false;
+    marked = false;
     endFoundListener;
     /**
   * backup source marker info
@@ -27,6 +31,8 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
      * backup stream token list
      */
     sourceTokenList;
+
+
 
     get matchType() {
         return 4;
@@ -38,7 +44,15 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         let m_saved = { saved: false, started: false };
         const self = this;
 
-        this.appendToBuffer = function (v) {
+        this.appendToBuffer = function (v, def) {
+            if (def) {
+                const {_marker, formatting} = def;
+                if (_marker && formatting && (_marker.mode != 1) ){
+                    let _buffer = this.formatterBuffer.buffer;
+                    v = formatting.joinStreamBuffer(_marker.mode, _buffer, v);
+                    this.formatterBuffer.clear();
+                }
+            }
             this.formatterBuffer.appendToBuffer(v);
             return v;
         }
@@ -49,6 +63,8 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         Object.defineProperty(this, 'buffer', { get() { return this.formatterBuffer.buffer; } });
         Object.defineProperty(this, 'begin', { get() { return this.from?.begin; } });
         Object.defineProperty(this, 'end', { get() { return this.from?.end; } });
+        Object.defineProperty(this, 'comment', { get() { return this.from?.comment; } });
+        Object.defineProperty(this, 'index', { get() { return this.from?.index; } });
         Object.defineProperty(this, 'patterns', {
             get() {
                 return this.from?.patterns;
@@ -57,6 +73,22 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                 throw new Error('failed to set patterns not allowed');
             }
         });
+
+        // Object.defineProperty(this, 'comment', {get:function(){
+        //     return "Hello";
+        // }});
+        const q = this;
+        Object.keys(FormatterStreamBuffer.prototype).forEach(a => {
+            if (/(from)/.test(a))
+                return;
+            Object.defineProperty(q, a, {
+                get: function () {
+                    // console.log("this from ", q.from?.marker.comment);
+                    return q.from ? q.from[i] : undefined;
+                }
+            });
+        });
+
     }
     get newLineContinueState() {
         return false;
@@ -67,14 +99,24 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
     get isEndCaptureOnly() {
         return this.from.isEndCaptureOnly;
     }
+    get isWhileCaptureOnly() {
+        return this.from.isWhileCaptureOnly;
+    }
     get isBeginCaptureOnly() {
         return this.from.isBeginCaptureOnly;
     }
     get patterns() {
-        return this.from.patterns;
+        return this.from?.patterns;
     }
     get indexOf() {
         return this.from?.indexOf;
+    }
+    get endRegex() {
+        return this.from?.endRegex;
+    }
+
+    get marker() {
+        return this.from?.marker;
     }
 
     // class on end of file 
@@ -120,6 +162,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             let _nbuffer = option.buffer;
             if (!_restored && (_nbuffer.length > 0)) {
                 q.appendToBuffer(_nbuffer);
+                //option.formatterBuffer.clear();
             }
         }
         function _restoreState(option, _bck) {
@@ -153,11 +196,10 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         }
 
         return function (markerInfo, option) {
-
-            // + | start definition stream 
-
+            // + | -----------------------------------------
+            // + | handle streaming buffer
             option.stream = q;
-
+            const { debug } = option;
             const _formatter = this;
             let _next_position = option.pos;
             let _buffer = q.buffer;
@@ -165,6 +207,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             const _line = option.line.substring(option.pos);
             let _p, _matcher;
             const _markerInfo = option.markerInfo;
+            debug && Debug.log("::- HANDLE STREAMING -::");
             try {
                 if (!_bck.started) {
                     // + | ------------------------------------------------------------------------
@@ -174,7 +217,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                     _bck.started = true;
                     //option.pos++;
                 }
-                ({ _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, option, false, markerInfo));
+                ({ _p, _matcher } = _formatter.detectPatternInfo(_line, markerInfo, option, markerInfo));
             } catch (e) {
                 // invalid stream tag selection 
                 const cp = _markerInfo.shift();
@@ -188,31 +231,37 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             let _old = option.shiftAndRestoreFrom(markerInfo, false);
             if (_old) {
                 _topStreamRemoved = true;
-                // + | here muste get the definition for the parent - to update if required
-                _old = option.shiftFromMarkerInfo(from, true);
             }
-            // let _found = false;
-            // options.pos++;
+            // + | here must get the definition for the parent - to update if required
+            _old = (_markerInfo.length > 0) ? option.shiftFromMarkerInfo(from, false) : null;
             if (!_bck.saved) {
                 _bck.option = {
                     listener: option.appendToBufferListener
                 };
                 // + | Set add to buffer listener : data
                 option.appendToBufferListener = (v, _marker, treat, option) => {
-                    _buffer = option.buffer;
+                    let _buffer = option.buffer;
+                    const { formatting } = option.formatter;
+                    const _def = {_marker, formatting} ;
+                    if (treat && !q.from.formatter){
+                        v = option.treatValueBeforeStoreToBuffer(_marker, v);
+                    }
+
+
                     if (_buffer.length > 0) {
-                        q.appendToBuffer(_buffer);
+                        if (_buffer != option.glueValue){
+                        q.appendToBuffer(_buffer, _def);
                         option.formatterBuffer.clear();
+                        }
                     }
                     if (v.length > 0)
-                        q.appendToBuffer(v);
+                        q.appendToBuffer(v, _def);
                     return v;
                 };
                 _bck.saved = true;
             }
 
             option.storeRange(option.pos);
-            // FormatterBuffer.DEBUG = true;            
             let r = null;
             const endFound = FormatterStreamBuffer.HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState);
             q.endFoundListener = (_buffer, _line, patternInfo, _p, option, _old) => {
@@ -238,6 +287,12 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                     // + | just start stream buffer 
                     _buffer = '';
                 }
+                if (!q.marked) {
+                    const _stream_old = _formatter._updateMarkerOldContentOrSwapBuffer(markerInfo, null, '', null, option);
+                    q.marked = true;
+                    _stream_old.endFound = endFound;
+                }
+
                 r = _formatter.handleMatchLogic({
                     _p,
                     _old,
@@ -259,6 +314,11 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                         return markerInfo;// q.from;
                     }
                 });
+
+                if (q.closed && q.marked) {
+                    option.shiftAndRestoreFrom(markerInfo, false);
+                }
+
             } catch (e) {
                 // update buffer 
                 console.log("End buffer..... ", e);
@@ -271,10 +331,16 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             if (r && !(r instanceof PatternMatchInfo)) {
                 throw new Error("pattern not valid");
             }
+            if (!q.closed) {
+                if (r === q.from) {
+                    return markerInfo;
+                }
+            }
+
             return r;
         };
     }
-  
+
 
     moveToNextPattern(patternInfo, option, _old, markerInfo, next_position, length, _tline) {
         const { parent, hostPatterns, streamAction, indexOf } = patternInfo;
@@ -318,19 +384,20 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             return null;
         }
         return parent;
-    } 
+    }
     static HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState) {
         return (_buffer, _line, patternInfo, _p, option, _old) => {
             const { parent, streamAction } = patternInfo;
             const { formatter } = option;
             const { endRegex } = markerInfo;
-
+            q.closed = true;
+            // + backup line 
             let _cline = option.line; // all line 
             let _cpos = option.pos;
 
             let _cbuffer = q.buffer;
             let _nextCapture = null;
-            let _next_position = 0;  
+            let _next_position = 0;
             option.pos = 0;
             _nextCapture = Utils.GetNextCapture(_line, endRegex, option);
             option.storeRange(option.pos);
@@ -338,7 +405,6 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             if (!_nextCapture) {
                 throw new Error('missing capture');
             }
-
             const _end = _nextCapture[0];
             const _sline = _line.substring(0, _nextCapture.index);
             _line = _line.substring(_nextCapture.index + _end.length);
@@ -346,8 +412,6 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             const _tline = FormatterStreamBuffer.GetBufferedLine(formatter,
                 _gline, option, patternInfo);
             option.line = _tline + _line;
-            // q.clear();
-
             _restoreState(option, _bck);
 
             // + | move buffer to parrent 
@@ -355,7 +419,6 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
             _old && option.restoreBuffer(_old);
             if (_buffer.length > 0)
                 option.formatterBuffer.appendToBuffer(_buffer);
-
             // + | unset marker option 
             formatter._onEndHandler(patternInfo, option);
             if (parent) {
@@ -365,23 +428,34 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
                 if (_idx === -1) {
                     throw new Error('missing component. use index not valid');
                 }
+                // + | depend on streamAction passing to content to next|parent 
+                // + | next: mean to child process
+                // + | parent: to parent buffer 
+
                 // restart on parent by removing to handle logic
-                let _patterns = Utils.GetPatternsList(patternInfo.hostPatterns, _idx, streamAction);
-                // if (_patterns.length > 0) {               
-                if (streamAction == 'parent') {
-                    return parent;
+                // let _patterns = Utils.GetPatternsList(patternInfo.hostPatterns, _idx, streamAction);
+                // if (streamAction == 'parent') {
+                //     return parent;
+                // }
+                // let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent);
+                // if (g) { // continue to cp
+                //     let cp = _formatter._handleMarker(g, option); 
+                //     return cp;
+                // }
+                // move cursor 
+                _cpos = _tline.length - _next_position;
+                let _gbuffer = _tline.substring(0, _cpos);
+                ({ _gbuffer, _cpos } = option.treatAndFormat(q, _gbuffer));
+                // update stored definition and move cursor to next
+                option.pos = _cpos;
+                option.storeRange(option.pos);
+                option.appendToBuffer(_gbuffer, option.constants.StreamBufferConstant);
+
+                // passing children to parent
+                if (parent && (patternInfo.childs.length > 0)) {
+                    patternInfo.childs.forEach(a => parent.childs.push(a));
                 }
-                let g = Utils.GetPatternMatcherInfoFromLine(option.line, _patterns, option, parent);
-                if (g) { // continue to cp
-                    let cp = _formatter._handleMarker(g, option);
-                    // let _rb = option.getBufferContent(true);
-                    // if(_rb){
-                    //     q.appendToBuffer(_rb);
-                    // }
-                    return cp;
-                }
-                option.pos = _next_position;
-                return parent; //_formatter._handleMarker(parent, option);
+                return parent;
             }
             // + | put this line to buffer and skip   
             return q.moveToNextPattern(patternInfo, option, _old, markerInfo,
@@ -407,21 +481,14 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         }
         return _line;
     }
+
     /**
      * 
      * @param {*} option 
      */
     start(option) {
-        // init and start buffering
-        this._onStart();
-    }
-    _onStart() {
-
-    }
-    _onEnd() {
-
+        this.initialMode = option.nextMode;
     }
 }
-
 
 exports.FormatterStreamBuffer = FormatterStreamBuffer;

@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', {value:true});
 
+const { FormatterMatchTreatment } = require('./FormatterMatchTreatment');
+const { FormatterOptions } = require('./FormatterOptions');
+const { FormatterSyntaxException } = require('./FormatterSyntaxException');
 const { Utils } = require('./Utils');
 class CaptureRenderer{
     matches;
@@ -119,9 +122,12 @@ class CaptureRenderer{
      * @param {*|{debug:bool}} option 
      * @returns 
      */
-    render(listener, captures, end, tokens, option){ 
+    render(listener, captures, end, tokens, option, outdefine){ 
         if (!captures){
             throw new Error('missing captures info');
+        }
+        if (!outdefine){
+            throw new Error('missing outdefine info');
         }
         const self = this;
         const { matches, roots } = self;
@@ -130,8 +136,10 @@ class CaptureRenderer{
         let _begin = 0;
         let _output = ''; 
         let _formatter = option.formatter;
-        let treat_root = function (_input, root, listener, captures, tokens){
+        let treat_root = function (_input, root, listener, captures, tokens, refData){
+            // treat rf value
             let rf = root.value;
+            let rd = rf;
             let subchilds = [{root, output:[], treat:false, sub:false}];
             let _end = false;
             while(subchilds.length>0){
@@ -147,7 +155,7 @@ class CaptureRenderer{
                     subchilds.unshift(q);
                     while(childrens.length>0){
                         let croot = childrens.pop();
-                        subchilds.unshift({parent: q, treat:false, root: croot});
+                        subchilds.unshift({parent: q, treat:false, root: croot, sub:false});
                     }
                 }else{
                     rf = q.sub ? q.output : q.root.value;
@@ -156,23 +164,34 @@ class CaptureRenderer{
                     let cap = null;
                    
                     if (Array.isArray(rf)){
+                        // + | transform reference to rf 
                         const nv = q.root.value;
                         let offset = 0;
                         let _out = '';
                         let c = '';
-                        // + | order block 
+                        // + | glue value to for rendering
                         rf.forEach(s=>{
-                            c = treat_constant(nv.substring(offset, s.range[0]), listener);
-                            let dt = c+s.rf;// +nv;//.substring(s.range[0]+s.range[1]);
+                            // c = treat_constant(nv.substring(offset, s.range[0]), listener);
+                            c = nv.substring(offset, s.range[0]);//, listener);
+                            let dt = c+s.rf;
                             offset = s.range[0]+s.range[1];
                             _out +=dt;
                         });
-                        _out+= treat_constant(nv.substring(offset), listener);
+                        // _out+= treat_constant(nv.substring(offset), listener);
+                        _out+= nv.substring(offset);//, listener);
                         rf = _out;
                     }
                     let _treat_pattern = false;
+                    const _op = FormatterMatchTreatment.Init(rf);
                     if (id in captures){
                         cap = captures[id];
+                        if (cap.throwError){
+                            //+ | use match to handle throw error
+                            let e_obj = CaptureRenderer.CheckError(cap.throwError, rf, option); 
+                            if (e_obj){
+                                throw e_obj;
+                            }
+                        } 
                         if (cap.name){
                             tokens.unshift(cap.name);
                         }
@@ -182,13 +201,13 @@ class CaptureRenderer{
                         // treat pattern or other stuff 
                         if (end){
                             // special treatment for end captures
+                            rd = rf;
                             rf = end(rf, cap, id, listener, {tokens, engine, debug, tokenID});
                             _end = true; 
                         } else {
                             // treat value. cap
                             if(_formatter){
-                                const op = [];
-                                rf = _formatter.treatMarkerValue(cap, rf, op, option, self.matches);
+                                rf = _formatter.treatMarkerValue(cap, rf, _op, option, self.matches);
 
                             }else{
                                 if (cap.transform){
@@ -207,35 +226,39 @@ class CaptureRenderer{
                         }
                     } 
                     if (listener && !_treat_pattern){
-                        rf = _end ? rf : listener.renderToken(rf, tokens, tokenID, engine, debug, cap); 
+                        rd = rf;
+                        rf = _end ? rf : rf.length>0? listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option) : ''; 
                     }
                     if (q.parent){
                         // update parent value.
                         let s =  q.root.start - q.parent.root.start;
                         let e =  q.root.end - q.root.start;
-                        // let v =  q.parent.root.value;
-                        // + | transform to [start_index, length] of nv to replace
-                        q.parent.output.push({range:[s,e], rf}); 
+;
+                        // + | transform to range - at [start_index, length] of nv to replace
+                        if (rf.length>0){
+                            q.parent.output.push({range:[s,e], rf, rd}); 
+                        }
                     }
-
                     q.treat = true;
                 }
             }
-
+            refData.data = rd;
             return rf;
         };
         let treat_constant = function(c, listener){
             if (c.length>0){
                 if (listener){
-                    c = listener.renderToken(c, ['constant.definition']);
+                    c = listener.renderToken(c, ['constant.definition'], 'constant', engine, debug, null, option);
                 }
             }
             return c;
         }
         let c = '';
+        let d = '';
         let _keys = Object.keys(roots);
         let _Capkeys = Object.keys(captures);
         let _root_only = ( 0 in captures) && (_Capkeys.length==1);
+        let _ref_data = {data:null, input:_input, bufferSegment:[],dataSegment:[]};
         for(let j in roots){ 
             if ( !_root_only && ((j==0)&&(_keys.length>1))){
                 continue;
@@ -243,18 +266,60 @@ class CaptureRenderer{
             let rt = roots[j];
 
             c = _input.substring(_begin, rt.start);
-            c = treat_constant(c, listener); 
+            if (c.length>0){
+                d += c; 
+                _ref_data.dataSegment.push(c);
+                c = treat_constant(c, listener); 
+                _output += c;   
+                _ref_data.bufferSegment.push(c);
+            }         
+            c = treat_root(_input, rt,listener,captures,tokens,_ref_data);
             _output += c;
-            _output += treat_root(_input, rt,listener,captures,tokens);
             _begin = rt.end;
+            d+=_ref_data.data;
+            _ref_data.dataSegment.push(_ref_data.data);
+            _ref_data.bufferSegment.push(c);
             if (_root_only)
                 break;
         }
         if (_begin < _input.length){
-            c = treat_constant(_input.substring(_begin), listener); 
+            let l = _input.substring(_begin);
+            d+= l;
+            _ref_data.dataSegment.push(l);
+            c = treat_constant(l, listener); 
             _output += c;
+            _ref_data.bufferSegment.push(c);
         } 
+        if (outdefine){ 
+            outdefine.bufferSegment = _ref_data.bufferSegment;
+            outdefine.dataSegment = _ref_data.dataSegment;
+        }
         return _output;
+    }
+    /**
+     * 
+     * @param {*} error 
+     * @param {string} rf 
+     * @param {FormatterOptions} option 
+     * @returns 
+     */
+    static CheckError(error, rf, option){
+        let e_obj = null;
+        let message = null , match = null;
+        let _error = true;
+        if (typeof(error) == 'object'){
+            ({message, match} = error);
+        } else{
+            message = error;
+        }
+        if (match){
+            const regex = typeof(match)=='string'? new RegExp(match) : match;
+            _error = regex.test(rf);
+        }  
+        if (_error){ 
+            e_obj= new FormatterSyntaxException(message, option);
+        }
+        return e_obj;
     }
 }
 exports.CaptureRenderer = CaptureRenderer;

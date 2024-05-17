@@ -32,7 +32,7 @@ class FormatterListener {
      * @var {{formatterBuffer: FormatterBuffer, tabStop:string, depth:number}} param
      */
     startNewBlock({formatterBuffer, tabStop, depth}){ 
-         
+         // override to mark start new block
     } 
     /**
      * override en output
@@ -51,15 +51,17 @@ class FormatterListener {
      * treat current buffer and store it to option 
      * buffer to ouput . 
      */
-    store({buffer, output, depth, tabStop, startBlock}) { 
+    store({buffer, data, output, dataOutput, depth, tabStop, startBlock}) { 
         let s = buffer;
         let d = depth; 
         if (s.length > 0){
             if (startBlock){
                 output.unshift('');
+                dataOutput.unshift('');
             }
             let _tab = d > 0 ? tabStop.repeat(d) : '';
             output.push(_tab + s);
+            dataOutput.push(_tab+data);
         } 
     }
     /**
@@ -82,9 +84,14 @@ class FormatterListener {
      * @param {*} marker parent marker  
      * @returns {string}
      */
-    renderToken(value, tokens, tokenID, engine, debug, marker){
-
-        debug && Debug.log("render token", 0, {tokens,tokenID, value});
+    renderToken(value, tokens, tokenID, engine, debug, marker, option){
+        const { FormatterToken } = Utils.Classes;
+        const rt = new FormatterToken();
+        rt.tokens = tokens;
+        rt.tokenID = tokenID;
+        rt.value =  value;
+        option.lastToken = rt;
+        debug?.feature("render-token") && Debug.log("render token", JSON.parse(JSON.stringify(rt)));
         if (engine){
             return engine.renderToken(value, tokens, tokenID, marker);
         } 

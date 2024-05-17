@@ -5,16 +5,13 @@ Object.defineProperty(exports, '__esModule', { value: true });
  * export pattern match info
  */
 class PatternMatchInfo {
+   
     /**
      * indicate new created pattern info
      * @var {bool}
      */
     start = true;
-    /**
-     * current definition block
-     * @var {bool}
-     */
-    isBlock;  
+  
     /**
      * formatting start block element
      */
@@ -62,6 +59,13 @@ class PatternMatchInfo {
      * @var {?boolean}
      */
      isShiftenName = false;
+
+
+     /**
+      * flag: shiftenContentName
+      * @var {?boolean}
+      */
+     isShiftenContentName=false;
  
 
     constructor() {
@@ -126,7 +130,12 @@ class PatternMatchInfo {
         Object.defineProperty(this, 'group', { get() { return m_group; } });
         Object.defineProperty(this, 'line', { get() { return m_line; } });
         Object.defineProperty(this, 'startOutput', {
-            get() { return m_startOutput || m_group[0]; }, set(v) {
+            get() { 
+                // + | return group[0] on start definition
+                if((m_startOutput==null)||(m_startOutput==undefined))
+                    return m_group[0];
+                return m_startOutput; }, 
+            set(v) {
                 m_startOutput = v;
             }
         });
@@ -156,7 +165,7 @@ class PatternMatchInfo {
          * 
          * @param {*} marker 
          */
-        this.use = function ({ marker, endRegex, group, line, parent, patterns , fromGroup, index=-1}) {
+        this.use = function ({ marker, endRegex, group, line, parent, patterns, formatting, fromGroup, index=-1}) {
             m_marker = marker;
             m_endRegex = endRegex;
             m_group = group;
@@ -164,10 +173,11 @@ class PatternMatchInfo {
             m_parent = parent;
             // setup configurable properties
             m_isBlock = marker.isBlock;
-            m_lineFeed = marker.lineFeed || (marker.formattingMode == 1);
+            m_lineFeed = marker.lineFeed || formatting.isLineFeed(marker.formattingMode); 
             m_patterns = patterns;
             m_fromGroup = fromGroup;
             m_index = index;
+ 
             
             (function (q, pattern) {
                 const _keys = Object.keys(q);
@@ -190,12 +200,22 @@ class PatternMatchInfo {
             })(this, m_marker);
         };
     }
+    /**
+     * @var {boolean}
+     */
+    get isUpdatedBlock(){
+        const {updatedProperties} = this;
+        return updatedProperties && ('isBlock' in updatedProperties);
+    }
     get isMatchCaptureOnly(){
         return this.marker?.isMatchCaptureOnly;
     }
     //
     get isEndCaptureOnly() {
         return this.marker?.isEndCaptureOnly;
+    }
+    get isWhileCaptureOnly() {
+        return this.marker?.isWhileCaptureOnly;
     }
     get isBeginCaptureOnly() {
         return this.marker?.isBeginCaptureOnly;
@@ -270,6 +290,15 @@ class PatternMatchInfo {
      */
     get matchType(){
         return this.marker.matchType;
+    }
+
+    /**
+     * check is pattern only definition.
+     * @var {bool}
+     */
+    get isPatternsOnly(){
+
+        return false;
     }
     /**
      * debug this marker. internal used

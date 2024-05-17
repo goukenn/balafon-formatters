@@ -7,6 +7,64 @@ const START_HERE = "(??)";
  * regex utility class 
  */
 class RegexUtils{
+     /**
+     * get regex info on start line
+     * @param {string} s regex string expression
+     */
+     static RegexInfo(s) { 
+        let option = '';
+        if (s == "(??)") {
+            return {
+                s: "^.^",
+                option,
+                beginOnly: true
+            };
+        }
+
+        let _option = /^\(\?(?<active>[imx]+)(-(?<disable>[ixm]+))?\)/;
+        let _potion = null;
+        if (_potion = _option.exec(s)) {
+            let sp = '';
+            if (_potion.groups) {
+                sp = _potion.groups.active ?? '';
+                if (_potion.groups.disable) {
+                    _potion.groups.disable.split().forEach(i => {
+                        sp = sp.replace(i, '');
+                    });
+                }
+            }
+            s = s.replace(_option, '');
+            option = sp;
+        }
+        return {
+            s,
+            option
+        };
+    }
+    /**
+     * check request start line
+     * @param {*} reg 
+     * @returns 
+     */
+    static CheckRequestStartLine(reg){
+        // + | TO CHECK that regex request for start line 
+        // - ^ must not be escaped \^
+        // - ^ must not be a non validated group [^] 
+        return /([^\\\\[]|^)\^/.test(reg.toString());
+    }
+    /**
+     * stringify and regex result
+     * @param {*} c 
+     * @returns 
+     */
+    static Stringify(c){
+        return c.toString().slice(1, -1).replace("\\/","/")
+    }
+    /**
+     * remove capture brancket
+     * @param {string} str 
+     * @returns 
+     */
     static RemoveCapture(str){
         let l = str;
         let p = 0;
@@ -30,6 +88,10 @@ class RegexUtils{
                 escaped = ch=="\\";
                 index++;
             }
+            //+ | fix: remove repeating brank symbol
+            if ((index+1<ln)&&(/[\\?\\*]/.test( l[index+1]))){
+                index++;
+            }
             return l.substring(0, start_index)+l.substring(index+1);
         }
         let capture = false;
@@ -38,6 +100,26 @@ class RegexUtils{
             capture= true;
         }
         return capture ? l : null;
+    }
+
+    static ReadBrank(str, position, count=1, start='(', end=')'){
+        const ln = str.length;
+        let ch = null;
+        let _stpos = position;
+        while(position<ln){
+            ch = str[position];
+            if (ch==start){
+                count++;
+            }else if (ch==end){
+                count--;
+                if (count==0){ 
+                    position ++;
+                    break;
+                }
+            }
+            position ++;
+        }
+        return str.substring(_stpos, position);
     }
     
     /**
@@ -53,6 +135,8 @@ class RegexUtils{
         if (s==null){
             return false;
         }
+        s = s.split('|').join('').trim();
+
         f = s.length==0;  
         return f;
     }
@@ -61,7 +145,38 @@ class RegexUtils{
      * @param {*} m 
      */
     static UnsetCapture(m){
-        return m.replace(/\(\?(?:(?:=|<=|:))(.+)\)/, "$1");
+        const _regex = /\(\?(:|<|=)/;
+        let p = null;
+        let s = '';
+        let ch = null;
+        while( p = _regex.exec(m)){
+            s = m.substring(0, p.index);
+            // + | remove branket dans leave content 
+            let i = 1;
+            let g = m.substring(p.index + p[0].length);
+            let ln = g.length;
+            let pos = 0;
+            while(pos<ln){
+                ch = g[pos];
+                if (ch==')'){
+                    i--;
+                    if (i==0){
+                        if ((pos+1<ln) && /\?|\*/.test(g[pos+1])){
+                            pos++;
+                        }
+                        let end = g.substring(0, pos)+g.substring(pos+1);
+                        s+= end;
+                        break;
+                    }
+                }
+                else if (ch=='(') {
+                    i++;
+                }
+                pos++;
+            } 
+            m = s;
+        } 
+        return m;
     }
 }
 

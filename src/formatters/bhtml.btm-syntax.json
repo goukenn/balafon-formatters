@@ -1,0 +1,787 @@
+{
+    "$schema": "https://igkdev.com/schemas/btm-syntax.json",
+    "settings": {
+        "noSpaceJoin": true,
+        "transfromEngine": "html"
+    },
+    "comment": "balafon framework html entities",
+    "author": "C.A.D BONDJE DOUE",
+    "repository": {
+        "html-space-constant": {
+            "match": "\\s+",
+            "name": "constant.empty.space.bhtml",
+            "replaceWith": " "
+        },
+        "string": {
+            "begin": "\"",
+            "end": "\"",
+            "name": "string.quoted.bhtml",
+            "patterns": [
+                {
+                    "name": "constant.escaped.string",
+                    "match": "\\\\."
+                }
+            ]
+        },
+        "string-named": {
+            "begin": "(\"|')",
+            "end": "\\1",
+            "name": "string.definition.with.name",
+            "allowMultiline": false,
+            "tokenID": "string",
+            "patterns": [
+                {
+                    "match": "(?i)\\bbondje\\b",
+                    "name": "author.name",
+                    "transform": [
+                        "upperCase"
+                    ]
+                },
+                {
+                    "match": "\\\\.",
+                    "name": "escaped.char"
+                }
+            ]
+        },
+        "url": {
+            "match": "(?i)(?<scheme>(?:ftp|http(?:s)|[a-z]+)):(?:\\/\\/|\\/|)(?<path>(?:\\/|\\.\\.(?:\\/)?|\\.(?:\\/)?)[^\\/\\)\\(]+(?:\\/|\/[^\\/\\)\\()\\;]+))(?:;(?<queryo>[^\\?\\#]+))?(?:\\?(?<query>[^\\#]+))?(?:(?<anchor>#.+))?",
+            "name": "url.text",
+            "tokenID": "url",
+            "patterns": [
+                {
+                    "match": "\\\\.",
+                    "name": "escaped.char"
+                }
+            ]
+        },
+        "tag-definition": {
+            "begin": "\\<(\\b[\\w]+\\b)",
+            "end": "(\\/|\\<\\/\\1\\s*)?\\>",
+            "name": "tag.definition.bhtml",
+            "tokenID": "tagname",
+            "isBlock": false,
+            "endCaptures": {
+                "0": {
+                    "comment": "remove not used white space",
+                    "match": "<\\/([\\w]+)\\s+\\>",
+                    "replaceWith": "\\<\\/$1\\>"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#end-tag"
+                },
+                {
+                    "match": "(?=\\<\\/[\\w]+\\>)",
+                    "name": "end.tag.block.bhtml",
+                    "tokenID": "endtag.block"
+                },
+                {
+                    "match": "(?:\\>)",
+                    "name": "start.html.end.block.bhtml",
+                    "updateParentProps": {
+                        "isBlock": true
+                    }
+                },
+                {
+                    "match": "(\\/\\>)",
+                    "name": "start.empty.html.block.bhtml",
+                    "tokenID": "endtag.block",
+                    "formattingMode": 1,
+                    "updateParentProps": {
+                        "isBlock": true
+                    }
+                },
+                {
+                    "include": "#html-attribute"
+                },
+                {
+                    "include": "#function-html-attribute"
+                },
+                {
+                    "include": "#bracket-html-attribute"
+                },
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#comment"
+                },
+                {
+                    "include": "#operator"
+                }
+            ],
+            "updateParentProps": {
+                "isBlock": true
+            }
+        },
+        "empty-tag": {
+            "begin": "\\<([a-zA-Z]+[a-zA-Z0-9\\-](:[a-zA-Z]+[a-zA-Z0-9\\-])?)\\s*\\/\\>",
+            "end": "(?:>)",
+            "formattingMode": 1,
+            "tokenID": "empty.tag",
+            "name": "entity.name.type.html.empty-tag.definition.bhtml",
+            "updateParentProps": {
+                "isBlock": true
+            }
+        },
+        "operator": {
+            "match": "\\s*(\\+|\\*|-|%|=)\\s*",
+            "name": "tag.operator.bhtml",
+            "tokenID": "tag.operator",
+            "replaceWith": "$1",
+            "nextTrimWhiteSpace": true
+        },
+        "comment": {
+            "begin": "\\<\\!--",
+            "end": "--\\>",
+            "tokenID": "comment",
+            "name": "comment.bhtml",
+            "formattingMode": 1
+        },
+        "doctype": {
+            "begin": "\\<!DOCTYPE",
+            "end": "\\>",
+            "tokenID": "doctype",
+            "name": "constant.doctype.bhtml",
+            "formattingMode": 1,
+            "patterns": [
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#url"
+                }
+            ]
+        },
+        "processor-expression": {
+            "begin": "\\<\\?[\\w]+",
+            "end": "\\?>",
+            "tokenID": "processor",
+            "name": "constant.processor.bhtml",
+            "formattingMode": 1,
+            "patterns": [
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#url"
+                }
+            ]
+        },
+        "end-tag": {
+            "begin": "\\<\\/[\\w]+(\\s+|$)",
+            "end": "\\>",
+            "tokenID": "detect-bad-end.tag",
+            "name": "end.tag.definition.bhtml",
+            "comment": "detect non well formed end tags",
+            "nextTrimWhiteSpace": true,
+            "endCaptures": {
+                "0": {
+                    "nextTrimWhiteSpace": true
+                }
+            }
+        },
+        "html-attribute": {
+            "match": "(?i)(\\*)?[a-z][a-z0-9\\-]*(:[a-z][a-z0-9\\-]*)?",
+            "name": "storage.tag.attribute.bhtml"
+        },
+        "bracket-html-attribute": {
+            "match": "\\[\\s*(\\*)?([\\w]+([\\-\\w]+)?)\\s*\\]",
+            "name": "tag.bracket.attribute.bhtml"
+        },
+        "function-html-attribute": {
+            "match": "\\[\\s*\\b[a-z][a-z0-9\\-]*(:[a-z][a-z0-9\\-]*)]\\s*",
+            "name": "tag.function.attribute.bhtml"
+        },
+        "global-self-closing-html-tag": {
+            "begin": "(<)(img|link|br)(?=[>|\\s|\\/])",
+            "end": "(\\/)?>",
+            "comment": "image tag must be consider as a global self closing element",
+            "name": "auto.closing.tag.bhtml",
+            "beginCaptures": {
+                "1": {
+                    "name": "start.bracket.tag.bhtml"
+                },
+                "2": {
+                    "name": "tagname.bhtml"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "end.capture",
+                    "patterns": [
+                        {
+                            "match": ">",
+                            "replaceWith": "/>",
+                            "captures": {
+                                "0": {
+                                    "name": "entity.name.tag.symbol.bhtml"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#html-attribute"
+                }
+            ]
+        },
+        "block-inner-def": {
+            "patterns": [
+                {
+                    "include": "#php-embed-inline"
+                },
+                {
+                    "include": "#attribe-ref"
+                }
+            ]
+        },
+        "attribe-ref": {
+            "patterns": [
+                {
+                    "match": "\\s+",
+                    "name": "attrib.space.def",
+                    "replaceWith": " "
+                },
+                {
+                    "match": "\\s+(?=>)",
+                    "name": "attrib.space.def",
+                    "replaceWith": ""
+                },
+                {
+                    "include": "#bracket-html-attribute"
+                },
+                {
+                    "include": "#html-attribute"
+                },
+                {
+                    "include": "#function-html-attribute"
+                },
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#comment"
+                },
+                {
+                    "include": "#operator"
+                }
+            ]
+        }, 
+        "bhtml-global-html-tag": {
+            "begin": "(<)((?:[a-zA-Z][a-zA-Z0-9\\-]*)(?::[a-zA-Z][a-zA-Z0-9\\-]*)?)(?![\\w-])",
+            "end": "<\\/\\2\\s*>|\\/>|(?<=>)",
+            "name": "root",
+            "formattingMode": 1,
+            "updateParentProps":{
+                "isBlock":true
+            },
+            "endMissingValue": {
+                "expression":"[engine.autoCloseTagValue,\"$2\"]"
+            },
+            "beginCaptures": {
+                "1": {
+                    "name": "entity.name.type.global.html.start-tag.bracket.tag.bhtml html.tag.start-tag.bracket.bhtml"
+                },
+                "2": {
+                    "name": "entity.name.type.global.html.tag.bhtml html.tag.bhtml"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "entity.name.type.global.html.end-tag.bracket.bhtml html.tag.end-tag.bracket.bhtml",
+                    "transform": [
+                        "trim"
+                    ],
+                    "patterns": [
+                        {
+                            "match": "^\\s*(\\/\\>)",
+                            "name": "close.tag",
+                            "replaceWith": 
+                                {
+                                    "expression":"(>)(</)($2)(>)",
+                                    "check": "$2",
+                                    "operator": "!=",
+                                    "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr",
+                                    "captures": {
+                                        "1": {
+                                            "name": "symbol.end.tag.bhtml"
+                                        },
+                                        "2": {
+                                            "name": "symbol.start.close.tag.bhtml"
+                                        },
+                                        "3": {
+                                            "name": "tagname.bhtml"
+                                        },
+                                        "4": {
+                                            "name": "symbol.end.tag.bhtml"
+                                        }
+                                    }
+                                }
+                            , 
+                            "captures": {
+                                "1": {
+                                    "name": "symbol.end.tag.bhtml"
+                                } 
+                            }
+                        },
+                        {
+                            "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\s*)(\\>)",
+                            "name": "end.tag.bhtml",
+                            "tokenID": "endtag",
+                            "captures": {
+                                "1": {
+                                    "name": "symbol.end.tag.bhtml"
+                                },
+                                "2": {
+                                    "name": "tagname.bhtml"
+                                },
+                                "4": {
+                                    "name": "symbol.end.tag.bhtml"
+                                },
+                                "3": {
+                                    "name": "ignore.end.tag",
+                                    "transform": "trim"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                 
+                {
+                    "name": "entity.name.type.missing.tag",
+                    "begin": "</[a-zA-Z][a-zA-Z0-9\\-]*(:[a-zA-Z][a-zA-Z0-9\\-]*)?\\s*$",
+                    "end": "(?<=>)",                    
+                    "comment": "close missing root tag.",
+               
+                    "beginCaptures":{
+                        "0":{"name":"entity.name.type.global.html.end-tag.bthml",
+                        "patterns":[
+                            {
+                                "include":"#bhtml-remove-tag-trailing-space"
+                            }
+                        ]}
+                    },
+                    "patterns": [
+                        {
+                            "include":"#bhtml-remove-tag-trailing-space"
+                        },
+                        {
+                            "include": "#bhtml-end-tag-content"
+                        },
+                        {
+                            "match": "(>)",
+                            "name": "entity.name.type.html.end-tag.bracket.bhtml"
+                        }
+                    ]
+                },
+                {
+                    "include":"#bhtml-remove-tag-trailing-space"
+                },
+                {
+                    "include": "#bhtml-root-inner-content"
+                },
+                {
+                    "include": "#bhtml-tag-definition"
+                }
+            ]            
+        },
+        "bhtml-remove-tag-trailing-space": {
+            "match":"\\s+(?=(/)?>|$)",
+            "comment": "remove last trailing space",
+            "transform":"trim",
+            "isGlueValue":" "
+        },
+        "bhtml-end-tag-content": {
+            "patterns": [
+                {
+                    "include": "#bhtml-glue-white-space"
+                },
+                {
+                    "match": "[^>]+",
+                    "name": "invalid.not-allowed.bhtml"
+                }
+            ]
+        },
+        "bhtml-glue-white-space": {
+            "name": "constant.glue.white-space.bhtml",
+            "match": "\\s+",
+            "replaceWith": " ",
+            "isGlueValue": " "
+        },
+        "read-attribute-value": {
+            "begin": "\\s*=\\s*",
+            "end": "(?=[\\w]|\\/|\\>)",
+            "name": "operator.attribute.affectation.bhtml",
+            "beginCaptures": {
+                "0": {
+                    "transform": "trim"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#trim-white-space"
+                },
+                {
+                    "include": "#string"
+                }
+            ]
+        },
+        "read-attribute": {
+            "begin": "(?i)([a-z][a-z0-9]*(:[a-z][a-z0-9]*)?)(?![\\w-])",
+            "end": "(?=\\s*(\\/)?>)|(?<='|\")",
+            "name": "attribute.bhtml",
+            "tokenID": "attribute",
+            "comment": "detect attribute definition-primary",
+            "beginCaptures": {
+                "0": {
+                    "transform": "trim"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#trim-white-space"
+                },
+                {
+                    "include": "#read-attribute-value"
+                }
+            ]
+        },
+        "trim-white-space":{
+            "match":"\\s+",
+            "replaceWith":"",
+            "isGlueValue":"",
+            "name": "meta.trim.white-space.bhtml"
+        },
+        "bhtml-string-mustache": {
+            "begin": "\\{\\{",
+            "end": "\\}\\}",
+            "name": "meta.property.mustache.expression.bhtml"
+        },
+        "bthml-inner-trimmed-white-space":{
+            "match":"\\s+",
+            "replaceWith":" ",
+            "isGlueValue": " ",
+            "name": "glue-white-space-2",
+            "skip":["startBlock","startLine"]
+        },
+        
+        "bhtml-inner-content": {
+            "name": "inner.content.bhtml",
+            "begin": "(?=\\s+)|[^<\\s'\"\\{]+",
+            "end": "(?=<)",
+            "patterns": [
+                {
+                    "include": "#string"
+                },
+                {
+                    "include":"#bthml-inner-trimmed-white-space" 
+                },
+                {
+                    "include": "#bhtml-string-mustache"
+                },{
+                    "match":"[^<\\s'\"\\{]+(\\s+[^<\\s'\"\\{]+)*",
+                    "name":"with-patterns",
+                    "patterns": [
+                        {
+                            "include": "#bhtml-glue-white-space"
+                        }
+                    ]
+                }
+            ],
+            "formattingMode": 0,
+            "transform": "trim",
+            "joinWith": null
+        },
+        "bhtml-inner-definition": {
+            "patterns": [
+                {
+                    "include": "#string"
+                },
+                {
+                    "include": "#bhtml-comment"
+                },
+                {
+                    "include": "#php-embedded"
+                },
+                {
+                    "include": "#bhtml-string-mustache"
+                },
+                {
+                    "include": "#bhtml-inner-content"
+                }
+            ]
+        },
+        "bhtml-root-inner-content": {
+            "begin": "(?!</)(\\>)",
+            "end": "(?=</[a-zA-Z])",
+            "comment": "enter inner html.",
+            "name":"root-inner.bthml",
+            "contentName": "variable.name.function.html-root.inner.bthml",
+            "formattingMode": 6,
+            "requestParentBlockCondition":"child.name =='sub'",
+            "beginCaptures": {
+                "0": {
+                    "name": "entity.name.type.global.html.end-tag.bracket.bhtml html.tag.end-tag.bracket.bhtml"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#bhtml-inner-definition"
+                },
+                {
+                    "include": "#bhtml-sub-tag"
+                }
+            ]
+        },
+        "bhtml-sub-inner-content": {
+            "begin": "(?!</)(\\>)",
+            "end": "(?=</[a-zA-Z])",
+            "comment": "sub inner html.",
+            "formattingMode": 6,
+            "requestParentBlockCondition":"child.name =='sub'",
+            "beginCaptures": {
+                "0": {
+                    "name": "entity.name.function.html.sub-tag.end.bracket.bhtml html.sub-tag.end.bracket.bhtml",
+                    "patterns": [
+                        {
+                            "match": ".+",
+                            "transform": "trim"
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#bhtml-inner-definition"
+                },
+                {
+                    "include": "#bhtml-sub-tag"
+                }
+            ]
+        },
+        "bhtml-sub-tag": {
+            "begin": "(<)((?:[a-zA-Z][a-zA-Z0-9\\-]*)(?::[a-zA-Z][a-zA-Z0-9\\-]*)?)(?![\\w-])",
+            "end": "<\\/\\2\\s*>|\\/>|(?<=^\\s*>)",
+            "name": "sub",
+            "updateParentProps":{
+                "isBlock":true
+            },
+            "formattingMode":1,
+            "endMissingValue": {
+                "expression":"[engine.autoCloseTagValue,\"$2\"]"
+            },
+            "beginCaptures": {
+                "0": {
+                    "name": "entity.name.function.html.sub-tag.bhtml"
+                },
+                "1": {
+                    "name": "entity.name.function.html.sub-tag.start-bracket.bhtml"
+                },
+                "3": {
+                    "name": "entity.name.function.html.sub-tag.namespace.bhtml"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "entity.name.function.global.html.end-tag.bracket.bhtml html.tag.end-tag.bracket.bhtml",
+                    "transform": [
+                        "trim"
+                    ],
+                    "patterns": [
+                        {
+                            "match": "^\\s*\\/\\>",
+                            "name": "close.tag",
+                            "replaceWith": "(>)(</)($2)(>)",
+                            "replaceWithCondition": {
+                                "check": "$2",
+                                "operator": "!=",
+                                "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr"
+                            },
+                            "updateParentProps": {
+                                "isBlock": false
+                            },
+                            "captures": {
+                                "1": {
+                                    "name": "symbol.end.tag.bhtml"
+                                },
+                                "2": {
+                                    "name": "symbol.start.close.tag.bhtml"
+                                },
+                                "3": {
+                                    "name": "tagname.bhtml"
+                                },
+                                "4": {
+                                    "name": "symbol.end.tag.bhtml"
+                                }
+                            }
+                        },
+                        {
+                            "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\s*)(\\>)",
+                            "name": "end.tag.bhtml",
+                            "tokenID": "endtag",
+                            "captures": {
+                                "1": {
+                                    "name": "symbol.end.tag.bhtml"
+                                },
+                                "2": {
+                                    "name": "tagname.bhtml"
+                                },
+                                "4": {
+                                    "name": "symbol.end.tag.bhtml"
+                                },
+                                "3": {
+                                    "name": "ignore.end.tag",
+                                    "transform": "trim"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "name": "entity.name.function.missing.tag",
+                    "begin": "</[a-zA-Z][a-zA-Z0-9\\-]*(:[a-zA-Z][a-zA-Z0-9\\-]*)?\\s*$",
+                    "end": "^\\s*>",
+                    "comment": "close missing sub tag.",
+                    "patterns": [
+                        {
+                            "include": "#bhtml-end-tag-content"
+                        }
+                    ]
+                },
+                {
+                    "include": "#bhtml-sub-inner-content"
+                },
+                {
+                    "include": "#bhtml-tag-definition"
+                }
+            ]
+        },
+        "bhtml-tag-definition": {
+            "patterns": [
+                {
+                    "include": "#bhtml-glue-white-space"
+                },
+                {
+                    "include": "#bhtml-attributes-definition"
+                },
+                {
+                    "include": "#bhtml-comment"
+                }
+            ]
+        },
+        "bhtml-comment": {
+            "name": "comment",
+            "begin": "<!--",
+            "end": "-->"
+        },
+        "bhtml-attributes-definition": {
+            "patterns": [
+                {
+                    "include": "#read-attribute"
+                },
+                {
+                    "include": "#read-attribute-value"
+                }
+            ]
+        },
+        "php-embedded": {
+            "patterns": [
+                {
+                    "include": "#php-block-embed"
+                },
+                {
+                    "include": "#php-embed-inline"
+                }
+            ]
+        },  
+        "join-space": {
+            "match": "\\s+",
+            "name": "meta.white.space.bhtml",
+            "replaceWith": " ",
+            "isGlueValue": " "
+        },
+        "php-embed-inline": {
+            "begin": "(<\\?=)\\s+",
+            "end": "\\?>",
+            "name": "embeded.php",
+            "joinWith": " ",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.section.embedded.begin.php"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.embedded.end.php"
+                }
+            },
+            "contentName": "source.php",
+            "patterns": [
+                {
+                    "include": "source.php"
+                }
+            ]
+        },
+        "php-block-embed": {
+            "begin": "(<\\?php)(\\s+|$)",
+            "end": "\\?>",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.section.embedded.begin.php"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.embedded.end.php"
+                }
+            },
+            "contentName": "source.php",
+            "patterns": [
+                {
+                    "include": "source.php"
+                }
+            ]
+        }
+    },
+    "patterns": [
+        {
+            "include": "#php-embedded"
+        },
+        {
+            "include": "#global-self-closing-html-tag"
+        },
+        {
+            "include": "#bhtml-global-html-tag"
+        },
+        {
+            "include": "#string-named"
+        },
+        {
+            "include": "#string"
+        },
+        {
+            "include": "#url"
+        },
+        {
+            "include": "#comment"
+        },
+        {
+            "include": "#doctype"
+        },
+        {
+            "include": "#end-tag"
+        },
+        {
+            "include": "#processor-expression"
+        }
+    ],
+    "scopeName": "source.bhtml"
+}

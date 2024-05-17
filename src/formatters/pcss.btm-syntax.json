@@ -1,0 +1,46 @@
+{
+    "scopeName":"source.pcss", 
+    "patterns":[
+        {
+            "begin":"php\\(",
+            "end":"\\)",
+            "name":"local.php",
+            "contentName":"meta.embedded.php", 
+            "patterns":[
+                {
+                    "include": "source.php"
+                } 
+            ]
+        },
+        {
+            "begin":"js\\(",
+            "end":"\\)",
+            "contentName":"meta.embedded.js", 
+            "patterns":[
+                {
+                    "include": "source.js"
+                } 
+            ]
+        },
+        {
+            "begin":"jsx\\(",
+            "end":"\\)",
+            "contentName":"meta.embedded.jsx", 
+            "patterns":[
+                {
+                    "include": "source.js.jsx"
+                } 
+            ]
+        },
+        {
+            "begin":"css\\(",
+            "end":"\\)",
+            "contentName":"meta.embedded.css", 
+            "patterns":[
+                {
+                    "include": "source.css"
+                } 
+            ]
+        }
+    ]
+}

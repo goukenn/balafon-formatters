@@ -192,6 +192,7 @@ function webFormattingListener(_def) {
                 r.forEach(store_buffer); 
             },
             startNewBlock(a) {
+                // start new block
             }
         };
         Object.defineProperty(_def, 'bufferList', {get(){

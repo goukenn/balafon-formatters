@@ -1,0 +1,33 @@
+{
+    "injectionSelector":"L:text.html.php",
+    "$schema": "https://igkdev.com/schemas/btm-syntax.json",
+    "scopeName":"source.inline.bcss",
+    "patterns":[ 
+        {
+            "include":"#bcss-here-doc"
+        }
+    ],
+    "repository":{
+        "bcss-here-doc":{
+            "begin":"(?i)\\<\\<\\<('|\")\\b(bcss)\\b('|\")$",
+            "end":"^\\2((\\s*;|\\))|$)",
+            "beginCaptures":{
+                "0":{
+                    "name":"string"
+                },
+                "2":{
+                    "name":"keyword.operator.nowdoc.php"
+                }
+            },
+            "endCaptures":{
+                "0":{"name":"keyword.operator.nowdoc.php"}
+            },
+            "name":"meta.embeded.bcss",
+            "patterns":[
+                {
+                    "include":"source.bcss"
+                }
+            ]
+        } 
+    }
+}
