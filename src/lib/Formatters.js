@@ -2440,9 +2440,9 @@ class Formatters {
         let treat = false;
         let fromChild = info.fromChild;
         let tp = null;
-        let _end_non_capture = (p, tp, nextMode) => {
-            let _ret_marker = this._closeMarkerByStop(p, tp, option, { _line, nextMode });
-            this._updateFormatModeFromTo(p, _ret_marker, option);
+        let _end_non_capture = (marker, tp, nextMode) => {
+            let _ret_marker = this._closeMarkerByStop(marker, tp, option, { _line, nextMode });
+            this._updateFormatModeFromTo(marker, _ret_marker, option);
             return _ret_marker;
         };
         let _offsetPosition = _nextPosition;

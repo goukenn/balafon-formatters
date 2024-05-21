@@ -404,6 +404,7 @@ class Utils {
                         _d = _cd;
                         _d.p.index = lineMatcher.position-(lineMatcher.offset+_d.p.index);
                         _d.p.input=l;
+                        _d.p.move = true;
                     }
                     
                 }                
@@ -447,10 +448,17 @@ class Utils {
         _sub_line_offset = _sub_line_offset==null? pos: _sub_line_offset;
         // ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
         ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo));
-
-
-        if (_a) {
+        if (_match){
+            // + | update match index - if movement and position is greater than the line
+            // + | ignore the match
             _match.index += _sub_line_offset;
+            if (_match.index> option.length){
+                _a = null;
+                _match = null;
+            }
+            //({_match, _a}= Utils.FixMatchTag({_match, _a,}));
+        }
+        if (_a) {
 
             debug?.feature('matcher-begin') && console.log('matcher-begin: ', {
                 '__name': _a.toString(),

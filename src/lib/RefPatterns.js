@@ -34,6 +34,13 @@ class RefPatterns extends Patterns {
     check(l, option, parentMatcherInfo){
         return this.pattern.check(l, option, parentMatcherInfo);
     } 
+    /**
+     * 
+     * @returns 
+     */
+    getEntryRegex(){
+        return this.pattern.getEntryRegex();
+    }
     toString(){
         return `RefPatterns[#${this.pattern.name}]`;
     }   

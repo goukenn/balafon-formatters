@@ -352,13 +352,11 @@
                 }
             },
             "patterns": [
-                 
                 {
                     "name": "entity.name.type.missing.tag",
                     "begin": "</[a-zA-Z][a-zA-Z0-9\\-]*(:[a-zA-Z][a-zA-Z0-9\\-]*)?\\s*$",
                     "end": "(?<=>)",                    
-                    "comment": "close missing root tag.",
-               
+                    "comment": "close missing root tag.",               
                     "beginCaptures":{
                         "0":{"name":"entity.name.type.global.html.end-tag.bthml",
                         "patterns":[
@@ -518,7 +516,7 @@
             ]
         },
         "bhtml-root-inner-content": {
-            "begin": "(?!</)(\\>)",
+            "begin": "(?!</)(\\>)|(?<=\\>)",
             "end": "(?=</[a-zA-Z])",
             "comment": "enter inner html.",
             "name":"root-inner.bthml",
@@ -540,9 +538,10 @@
             ]
         },
         "bhtml-sub-inner-content": {
-            "begin": "(?!</)(\\>)",
+            "begin": "(?!</)(\\>)",            
             "end": "(?=</[a-zA-Z])",
             "comment": "sub inner html.",
+            "debugName":"detect.sub.inner-content",
             "formattingMode": 6,
             "requestParentBlockCondition":"child.name =='sub'",
             "beginCaptures": {

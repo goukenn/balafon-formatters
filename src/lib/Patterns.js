@@ -550,28 +550,30 @@ class Patterns {
             a.tokenID = this.tokenID;
         }
     }
+    getEntryRegex(){
+        const { begin, match , matchTransform} = this;
+        //const _while = this.while;
+        switch(this.matchType){
+            case PTN_BEGIN_END: 
+            case PTN_BEGIN_WHILE:
+                return begin;
+            case PTN_MATCH: 
+                return match;
+            case PTN_MATCH_TRANSFORM: return matchTransform;
+        }
+    }
     /**
      * depending on the regex value - or type
-     * @param {*} l 
+     * @param {string} l string to check
      * @param {*} option 
-     * @param {*} parentMatcherInfo 
+     * @param {*} parentMatcherInfo parent matcher
      * @param {*} regex 
      * @returns 
      */
     check(l, option, parentMatcherInfo, regex) {
         let p = null;
-        const { begin, match, patterns , matchTransform} = this;
-        //const _while = this.while;
-        regex = regex || (()=>{
-            switch(this.matchType){
-                case PTN_BEGIN_END: 
-                case PTN_BEGIN_WHILE:
-                    return begin;
-                case PTN_MATCH: 
-                    return match;
-                case PTN_MATCH_TRANSFORM: return matchTransform;
-            }
-        })();
+        const { patterns} = this;
+        regex = regex || this.getEntryRegex();
         if (regex) {
             p = regex.exec(l);
         } else {
