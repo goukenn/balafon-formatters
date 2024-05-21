@@ -167,10 +167,11 @@ class KAndRFormatting extends FormattingBase {
      * @param {*} formatter 
      * @param {*} _marker 
      * @param {*} option 
+     * @param {boolean} force force update 
      */
-    formatBufferMarker(formatter, _marker, option) {
+    formatBufferMarker(formatter, _marker, option, force=false) {
         let _buffer = option.buffer;
-        const { parent } = _marker;
+        const { parent, startOutput } = _marker;
         const { formattingMode, isBlock, isUpdatedBlock } = _marker;
         let update_line_feed = ()=>{
             if (parent) {
@@ -188,12 +189,12 @@ class KAndRFormatting extends FormattingBase {
         switch (formattingMode) {
             case PatternFormattingMode.PFM_LINE_FEED:
                 // + | formatting request last fied 
-                if (_marker.childs.length > 0) {  
+                if (force ||((_marker.childs.length > 0) || (startOutput.trim().length>0))) {  
                    update_line_feed();
                 }
                 break;
             case PatternFormattingMode.PFM_LINE_FEED_IF_IS_UPDATED_BLOCK:
-                if ((_marker.childs.length>0) && (isBlock || isUpdatedBlock)){
+                if (force || ((_marker.childs.length>0) && (isBlock || isUpdatedBlock))){
                     update_line_feed();
                 }
                 break;

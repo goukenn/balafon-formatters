@@ -270,10 +270,15 @@ class Patterns {
 
 
     /**
-     * skip matching on 
+     * skip matching on condition(s)
      * @var {null|undefined|string|string[]}
      */
     skip;
+
+    /**
+     * formatting next glue value
+     */
+    nextGlueValue;
 
     constructor() {
         this.patterns = [];
@@ -309,19 +314,7 @@ class Patterns {
         const q = this;
         const patterns = Utils.ArrayPatternsFromParser(parser, Patterns, RefPatterns);
         const transform = Utils.TransformPropertyCallback();
-        const _regex_parser = (s) => {
-            if (s == '(??)') {
-                q.isStartOnly = true;
-                s = '';
-            }
-            let is_empty = false;
-            if (s == '') {
-                is_empty = true;
-            }
-            let g = Utils.RegexParse(s, 'd');
-            g = RegexEngine.Load(g, is_empty);
-            return g;
-        };
+        const _regex_parser = RegexUtils.RegexParser(q);
         const _capture_parser = Utils.JSONInitCaptureField(q);
         const _replace_with = (n, parser, fieldname, refObj) => {
             if (typeof (n) == 'string') {
@@ -557,11 +550,28 @@ class Patterns {
             a.tokenID = this.tokenID;
         }
     }
+    /**
+     * depending on the regex value - or type
+     * @param {*} l 
+     * @param {*} option 
+     * @param {*} parentMatcherInfo 
+     * @param {*} regex 
+     * @returns 
+     */
     check(l, option, parentMatcherInfo, regex) {
         let p = null;
         const { begin, match, patterns , matchTransform} = this;
-        const _while = this.while;
-        regex = regex || begin || match || matchTransform;
+        //const _while = this.while;
+        regex = regex || (()=>{
+            switch(this.matchType){
+                case PTN_BEGIN_END: 
+                case PTN_BEGIN_WHILE:
+                    return begin;
+                case PTN_MATCH: 
+                    return match;
+                case PTN_MATCH_TRANSFORM: return matchTransform;
+            }
+        })();
         if (regex) {
             p = regex.exec(l);
         } else {
@@ -629,7 +639,7 @@ class Patterns {
     toString() {
         let { name, begin, end, match, debugName, matchType } = this;
         const _while = this.while;
-        name = debugName || name;
+        name = (debugName ? "["+debugName+"]" : null)|| name;
         function getMatchInfo() {
             switch (matchType) {
                 case PTN_BEGIN_END:

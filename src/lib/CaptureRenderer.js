@@ -193,7 +193,7 @@ class CaptureRenderer{
                             }
                         } 
                         if (cap.name){
-                            tokens.unshift(cap.name);
+                            Utils.StoreTokens(cap.name, tokens);
                         }
                         if (cap.tokenID){
                             tokenID = cap.tokenID;

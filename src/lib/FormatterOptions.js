@@ -5,6 +5,7 @@ const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
 const { Debug } = require("./Debug");
 const { FormatterBuffer } = require("./FormatterBuffer");
+const { FormatterLineMatcher } = require("./FormatterLineMatcher");
 
 /**
  * @typedef IFormatterOptions
@@ -15,18 +16,12 @@ const { FormatterBuffer } = require("./FormatterBuffer");
 /**
  * class used to expose formatter option 
  * @type IFormatterOptions
+ * @property {FormatterLineMatcher} lineMatcher 
  */
 class FormatterOptions {
-    /**
-     * operate line
-     * @var {string}
-     */
-    line = '';
-    /**
-     * store default source line
-     * @var {string}
-     */
-    sourceLine = '';
+    // sourceLine;
+    // line;
+
     /**
      * position on operate line 
      */
@@ -136,7 +131,20 @@ class FormatterOptions {
      * transform marker style
      * @var {*}
      */
-    matchTransformFlag;
+    matchTransformFlag; 
+
+
+    /**
+     * get or set last marker Pattern - to skip for next get global pattern loop. skip only one
+     */
+    lastEmptyMarkerPattern;
+
+    /**
+     * flag: value used to glue with next trimmed line;
+     * @var {undefined|string}
+     */
+    nextGlueValue;
+    
  
     /**
      * .ctr
@@ -149,6 +157,8 @@ class FormatterOptions {
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;
+        const c_lineMatcher = new FormatterLineMatcher(this);
+        
         let m_depth = _rg.depth || 0;
         let m_pos = 0;
         let _blockStarted = false;
@@ -206,7 +216,13 @@ class FormatterOptions {
             get() {
                 return this.isRootFormatterBuffer(this.formatterBuffer);
             }
-        })
+        });
+        
+        Object.defineProperty(option, 'lineMatcher', {get(){return c_lineMatcher; }});
+        Object.defineProperty(option, 'sourceLine', {get(){return c_lineMatcher.sourceLine; }});
+        Object.defineProperty(option, 'line', {get(){
+            return c_lineMatcher.line; 
+        }, set(v){ c_lineMatcher.line = v;}});        
         Object.defineProperty(option, '_saveCount', { get: function () { return m_saveCount; } })
         Object.defineProperty(option, 'streamBuffer', { get: function () { return this.stream?.buffer; } })
         Object.defineProperty(option, 'listener', { get: function () { return _listener; } })
@@ -237,8 +253,11 @@ class FormatterOptions {
         Object.defineProperty(option, 'markerInfo', { get: function () { return _markerInfo; } })
         Object.defineProperty(option, 'constants', { get: function () { return m_constants_def; } })
         Object.defineProperty(option, 'pos', {
-            get: function () { return m_pos; }, set(v) {
-                m_pos = v;
+            get: function () { 
+                return c_lineMatcher.position; 
+            }, 
+            set(v){
+                c_lineMatcher.position = v;
             }
         });
         /**
@@ -284,6 +303,9 @@ class FormatterOptions {
         function is_emptyObj(q) {
             return Object.keys(q).length == 0
         }
+        /**
+         * push object state
+         */
         function pushState() {
             let _keys = Object.keys(option);
             let _state = {};
@@ -298,6 +320,9 @@ class FormatterOptions {
             })
             _states.unshift({ ..._state });
         }
+        /**
+         * pop object state
+         */
         function popState() {
             let s = _states.shift();
             if (s) {
@@ -375,7 +400,10 @@ class FormatterOptions {
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
             const { debug } = this;
-            debug?.feature('append-to-buffer') && Debug.log("[append to buffer] - ={" + value + '}');
+            debug?.feature('append-to-buffer') && (()=>{
+                Debug.log("[append to buffer] - ");
+                console.log(value);
+            });
             let _buffer = value;
             let _storeBuffer = (value, data, _marker, treat)=>{
                 let _buffer = value;        
@@ -692,11 +720,12 @@ class FormatterOptions {
         this.lineCount = 0;
         this.markerDepth = 0;
         this.nextMode = 1;
-        
+        // reset glue flags
         this.glueValue = null;
         this.joinWith = null;
         this.lastDefineStates = null;
         this.transformMarker = null;
+        this.lastEmptyMarkerPattern = null;
     }
     cleanNewOldBuffers() {
         const option = this;
@@ -718,9 +747,18 @@ class FormatterOptions {
             }
         }
     }
-    onBeginEndFound(){
+    _resetFlags(){
         this.glueValue = null;
+        this.lastEmptyMarkerPattern = null;
+    }
+
+    onBeginEndFound(_marker, _old){
+        this._resetFlags();
         this.cleanNewOldBuffers();
+        // set the nextGlueValue to use.
+        if (_marker.nextGlueValue){
+            this.nextGlueValue = _marker.nextGlueValue;
+        }
     }
     onBeginWhileFound(){
 
@@ -858,7 +896,9 @@ class FormatterOptions {
     get bufferState(){
         return {
             buffer: this.buffer,
-            data : this.data
+            data : this.data,
+            output:  this.output.slice(0),
+            dataOutput:  this.dataOutput.slice(0)
         };
     }
 }

@@ -77,7 +77,7 @@ class FormattingBase {
      * update marker global option
      * @param {*} param0 
      */
-    updataMarkerGlobalOption({ mode, lineFeedFlag, startLine, formattingMode }, option) {
+    updataMarkerGlobalOption({ mode, lineFeedFlag, startLine }, option) {
         const e = arguments[0];
         switch (mode) {
             case FM_START_LINE_NEXT_LINE:
@@ -115,7 +115,6 @@ class FormattingBase {
                 lineFeedFlag = (pos >= length) || (line.trimEnd().length == pos);
             }
         }
-
         switch (mode) {
             case FM_START_LINE:
             case FM_START_BLOCK:
@@ -131,7 +130,6 @@ class FormattingBase {
      * @param {*} marker 
      */
     treatConstantValue(value, marker, option){
-        const { formattingMode } = marker;
         if (this.trimConstant)
         {
             value = value.trimEnd();
@@ -191,11 +189,9 @@ class FormattingBase {
     updateEndLineUpdateMode(marker, option) {
         if (marker) {
             const _old = option.markerInfo[0];
-            const { formattingMode, mode } = marker;
-            let { nextMode, startLineReading } = option;
+            const { formattingMode, mode } = marker; 
             let _buffer_is_empty = option.formatterBuffer.isEmpty;
             if ((formattingMode == PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED) && (mode == FM_APPEND)) {
-
                 option.nextMode = FM_START_LINE;
                 marker.mode = FM_START_LINE; 
                 // + | change the current mode to start line request
@@ -603,6 +599,15 @@ class FormattingBase {
                 _mark_buffer = true;
             }
         }
+
+        if (_buffer?.output?.length>0){
+            option.output.push(..._buffer.output);
+        }
+        if (_buffer?.dataOutput?.length>0){
+            option.dataOutput.push(..._buffer.dataOutput);
+        }
+
+
         const _next_old = (option.markerInfo.length > 0) ? option.markerInfo[0] : null;
         if (!_mark_buffer)
             option.formatterBuffer.appendToBuffer(_buffer);
