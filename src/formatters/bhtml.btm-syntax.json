@@ -297,55 +297,7 @@
                         "trim"
                     ],
                     "patterns": [
-                        {
-                            "match": "^\\s*(\\/\\>)",
-                            "name": "close.tag",
-                            "replaceWith": {
-                                "expression": "(>)(</)($2)(>)",
-                                "check": "$2",
-                                "operator": "!=",
-                                "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr",
-                                "captures": {
-                                    "1": {
-                                        "name": "symbol.end.tag.bhtml"
-                                    },
-                                    "2": {
-                                        "name": "symbol.start.close.tag.bhtml"
-                                    },
-                                    "3": {
-                                        "name": "tagname.bhtml"
-                                    },
-                                    "4": {
-                                        "name": "symbol.end.tag.bhtml"
-                                    }
-                                }
-                            },
-                            "captures": {
-                                "1": {
-                                    "name": "symbol.end.tag.bhtml"
-                                }
-                            }
-                        },
-                        {
-                            "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\s*)(\\>)",
-                            "name": "end.tag.bhtml",
-                            "tokenID": "endtag",
-                            "captures": {
-                                "1": {
-                                    "name": "symbol.end.tag.bhtml"
-                                },
-                                "2": {
-                                    "name": "tagname.bhtml"
-                                },
-                                "4": {
-                                    "name": "symbol.end.tag.bhtml"
-                                },
-                                "3": {
-                                    "name": "ignore.end.tag",
-                                    "transform": "trim"
-                                }
-                            }
-                        }
+                        {"include":"#bhtml-close-tag-end-capture"}                     
                     ]
                 }
             },
@@ -382,25 +334,16 @@
                     "include": "#bhtml-remove-tag-trailing-space"
                 },
                 {
-                    "name":"meta.wait-inner-content.bhtml",
+                    "name":"meta.wait.inner-root-content.bhtml",
                     "comment":"wait for and tag",
                     "begin":"(?!/)(?=>)",
-                    "end":"(?=</)",
+                    "end":"(?=</)",  
                     "patterns":[
                         {
                             "include": "#bhtml-root-inner-content"
-                        }                        
-                    ]
-                },  
-                {
-                    "name-":"meta.content-inner.child.bhtml",
-                    "begin-":"(?<=>)",
-                    "end-":"(?=</)",
-                    "formattingMode-":1,
-                    "patterns-":[
-                        {"match":"(.+)?(?!</)?", "name":"id---ref"}
-                    ]
-                },          
+                        }                       
+                    ] 
+                },                     
                 {
                     "include": "#bhtml-tag-definition"
                 }
@@ -482,7 +425,10 @@
             "match": "\\s+",
             "replaceWith": " ",
             "isGlueValue": " ",
-            "name": "glue-white-space-2",
+            "markedSegment":{
+                "trimmed":true
+            },
+            "debugName": "meta.glue-white-space.bthml",
             "skip": [
                 "startBlock",
                 "startLine"
@@ -536,13 +482,14 @@
             ]
         },
         "bhtml-root-inner-content": {
-            "begin": "(?<!\\/)(\\>)",
+            "begin": "(\\>)",
             "end": "(?=</[a-zA-Z])",
-            "comment": "enter inner html.",
+            "comment": "root inner html.",
             "name": "root-inner.bthml",
             "contentName": "variable.name.function.html-root.inner.bthml",
             "formattingMode": 6,
             "requestParentBlockCondition": "child.name =='sub'",
+            "isBlockConditionalContainer":true, 
             "beginCaptures": {
                 "0": {
                     "name": "entity.name.type.global.html.end-tag.bracket.bhtml html.tag.end-tag.bracket.bhtml"
@@ -558,7 +505,7 @@
             ]
         },
         "bhtml-sub-inner-content": {
-            "begin": "(?!</)(\\>)",
+            "begin": "(\\>)",
             "end": "(?=</[a-zA-Z])",
             "comment": "sub inner html.",
             "debugName": "detect.sub.inner-content",
@@ -581,6 +528,57 @@
                 },
                 {
                     "include": "#bhtml-sub-tag"
+                }
+            ]
+        },
+        "bhtml-close-tag-end-capture":{
+            "patterns": [
+                {
+                    "match": "^\\s*\\/\\>",
+                    "name": "close.tag",
+                    "replaceWith": "(>)(</)($2)(>)",
+                    "replaceWithCondition": {
+                        "check": "$2",
+                        "operator": "!=",
+                        "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr"
+                    },
+                    "updateParentProps": {
+                        "isBlock": false
+                    },
+                    "captures": {
+                        "1": {
+                            "name": "symbol.end.tag.bhtml"
+                        },
+                        "2": {
+                            "name": "symbol.start.close.tag.bhtml"
+                        },
+                        "3": {
+                            "name": "tagname.bhtml"
+                        },
+                        "4": {
+                            "name": "symbol.end.tag.bhtml"
+                        }
+                    }
+                },
+                {
+                    "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\s*)(\\>)",
+                    "name": "end.tag.bhtml",
+                    "tokenID": "endtag",
+                    "captures": {
+                        "1": {
+                            "name": "symbol.end.tag.bhtml"
+                        },
+                        "2": {
+                            "name": "tagname.bhtml"
+                        },
+                        "4": {
+                            "name": "symbol.end.tag.bhtml"
+                        },
+                        "3": {
+                            "name": "ignore.end.tag",
+                            "transform": "trim"
+                        }
+                    }
                 }
             ]
         },
@@ -613,53 +611,7 @@
                         "trim"
                     ],
                     "patterns": [
-                        {
-                            "match": "^\\s*\\/\\>",
-                            "name": "close.tag",
-                            "replaceWith": "(>)(</)($2)(>)",
-                            "replaceWithCondition": {
-                                "check": "$2",
-                                "operator": "!=",
-                                "match": "br|hr|img|input|source|link|meta|base|col|embed|param|track|wbr"
-                            },
-                            "updateParentProps": {
-                                "isBlock": false
-                            },
-                            "captures": {
-                                "1": {
-                                    "name": "symbol.end.tag.bhtml"
-                                },
-                                "2": {
-                                    "name": "symbol.start.close.tag.bhtml"
-                                },
-                                "3": {
-                                    "name": "tagname.bhtml"
-                                },
-                                "4": {
-                                    "name": "symbol.end.tag.bhtml"
-                                }
-                            }
-                        },
-                        {
-                            "match": "(\\<\\/)(\\b[\\w][\\w:\\-]*\\b)(\\s*)(\\>)",
-                            "name": "end.tag.bhtml",
-                            "tokenID": "endtag",
-                            "captures": {
-                                "1": {
-                                    "name": "symbol.end.tag.bhtml"
-                                },
-                                "2": {
-                                    "name": "tagname.bhtml"
-                                },
-                                "4": {
-                                    "name": "symbol.end.tag.bhtml"
-                                },
-                                "3": {
-                                    "name": "ignore.end.tag",
-                                    "transform": "trim"
-                                }
-                            }
-                        }
+                        {"include":"#bhtml-close-tag-end-capture"}                      
                     ]
                 }
             },
@@ -676,7 +628,19 @@
                     ]
                 },
                 {
-                    "include": "#bhtml-sub-inner-content"
+                    "include": "#bhtml-remove-tag-trailing-space"
+                },
+
+                {
+                    "name":"meta.wait.inner-sub-content.bhtml",
+                    "comment":"wait for and tag",
+                    "begin":"(?!/)(?=>)",
+                    "end":"(?=</)",                 
+                    "patterns":[
+                        {
+                            "include": "#bhtml-sub-inner-content"
+                        }                    
+                    ]
                 },
                 {
                     "include": "#bhtml-tag-definition"

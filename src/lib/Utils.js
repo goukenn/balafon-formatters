@@ -1,5 +1,6 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
+
 const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { RegexUtils } = require("./RegexUtils");
@@ -9,6 +10,12 @@ const { RegexUtils } = require("./RegexUtils");
  */
 class Utils {
     static TestScope;
+
+    static UpdateMarkedSegment(s , _marker){
+        if (_marker.isMarkedSegments){
+            s.marked = _marker.markedInfo();
+        }
+    }
 
     /**
      * Get default begin captures
@@ -327,7 +334,7 @@ class Utils {
      * check skip pattern
      * @param {*} skip 
      * @param {*} marker 
-     * @param {*} option 
+     * @param {FormatterOptions} option 
      * @returns 
      */
     static CheckSkip(skip, marker, option) {
@@ -337,7 +344,8 @@ class Utils {
         }
         const _flags = {
             startLine: option.startLine,
-            startBlock: option.startBlock
+            startBlock: option.startBlock,
+            conditionBlockStart: option.isConditionalBlockStart()
         }
         while (skip.length > 0) {
             let q = skip.shift();
@@ -532,7 +540,8 @@ class Utils {
                 regex: _a.matchRegex,
                 type: _a.matchType == 0 ? "begin/end" : "match",
                 isFromGroupRef: _from != null,
-                parent: _from?.toString()
+                parent: _a.parent?.toString(),
+                from: _from?.toString()
             });
             if (_a.throwError) {
                 let e = _a.throwError;
@@ -830,9 +839,10 @@ class Utils {
  * @param {*} _marker markerInfo
  * @param {FormatterOptions} option markerInfo
  * @param {*} captures markerInfo
+ * @param {refobject|boolean} treat treat marker with capture
  * @returns 
  */
-    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option, captures) {
+    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option, captures, treat=true) {
         let g = group;
         let _rp = replace_with; // 
         let m = '';
@@ -858,7 +868,10 @@ class Utils {
             if (matches && _caps) {
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
                 const _outdefine = {};
-                let out = g.render(listener, _caps, false, _tokens, option, _outdefine);
+                let out = g.render(listener, _caps, false, _tokens, option, _outdefine, treat);
+                if (typeof(treat)=='object'){
+                    treat.segments = _outdefine;
+                }
                 return out;
             }
             check = check.replace(/\\(.)/g, '$1');

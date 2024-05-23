@@ -75,28 +75,95 @@ class FormatterBuffer {
      * @returns string
      */
     join(join) {
+
         return this.bufferSegments.join(join || '');
     }
     /**
+     * join segment 
+     */
+    joinSegments(join = '') {
+        let ch = null;
+        let _bufferS = [];
+        let _dataS = [];
+        const { bufferSegments, dataSegments } = this;
+        if (bufferSegments.marked) {
+            const q = bufferSegments.marked;
+            q.sort();
+            const _OP = q.op;
+            let _call = (tab, q, marked) => {
+                let c = 0;
+                let t = [];
+                const _bufferS = [];
+                const _marked = [];
+                _marked.op = {};
+                tab.forEach(a => {
+                    if ((q.length > 0) && (q[0] == c)) {
+                        if (t.length > 0) {
+                            _bufferS.push(t.join(join));
+                            t.length = 0;
+                        }
+                        _bufferS.push(a);
+                        q.shift();
+                        let _idx = _bufferS.length - 1;
+                        if (c in _OP) {
+                            _marked.op[_idx] = _OP[c];
+                        }
+                        _marked.push(_idx);
+                    } else {
+                        t.push(a);
+                    }
+                    c++;
+                });
+                if (t.length > 0) {
+                    _bufferS.push(t.join(join));
+                    t.length = 0;
+                }
+                if (marked) {
+                    _bufferS.marked = _marked;
+                }
+                return _bufferS;
+            };
+
+            _bufferS = _call(bufferSegments, q.slice(0), true);
+            _dataS = _call(dataSegments, q.slice(0));
+
+        } else {
+            _bufferS.push(this.join(join));
+            _dataS.push(this.dataSegments.join(join));
+        }
+        return { bufferSegment: _bufferS, dataSegment: _dataS };
+    }
+    /**
      * append value to buffer segment
-     * @param {string|{buffer:string, data: string}} v 
+     * @param {string|{buffer:string, data: string, marked: boolean}} v 
      */
     appendToBuffer(v) {
-        if (typeof(v)=='string'){
+        if (typeof (v) == 'string') {
             this.bufferSegments.push(v);
             this.appendToData(v);
         } else {
-            const {buffer, data} = v;
+            const { buffer, data, marked } = v;
             this.bufferSegments.push(buffer);
             this.appendToData(data);
+            if (marked) {
+                if (!this.bufferSegments.marked) {
+                    this.bufferSegments.marked = [];
+                    this.bufferSegments.marked.op = {};
+                }
+                const _idx = this.bufferSegments.length - 1;
+                this.bufferSegments.marked.push(_idx);
+                if (typeof (marked) == 'object') {
+                    this.bufferSegments.marked.op[_idx] = marked;
+                }
+            }
         }
     }
     appendToData(v) {
         this.dataSegments.push(v);
     }
-    storeToBuffer(buffer, {lastDefineStates}){
-        if (lastDefineStates && (buffer == lastDefineStates.bufferSegment.join(''))){
-            this.appendToBuffer({buffer, data: lastDefineStates.dataSegment.join('')});
+    storeToBuffer(buffer, { lastDefineStates }) {
+        if (lastDefineStates && (buffer == lastDefineStates.bufferSegment.join(''))) {
+            this.appendToBuffer({ buffer, data: lastDefineStates.dataSegment.join('') });
         }
         else {
             // just store to buffer 
@@ -146,7 +213,7 @@ class FormatterBuffer {
             }
         });
     }
-    trim(){
+    trim() {
         this.trimStart();
         this.trimEnd();
     }
@@ -176,6 +243,69 @@ class FormatterBuffer {
         const { bufferSegments } = this;
         bufferSegments.pop();
         bufferSegments.push(newValue);
+    }
+
+    /**
+     * 
+     * @param {*} bufferData 
+     * @param {*|'*'|'trimmed'|(a)=>boolean} op 
+     * @returns 
+     */
+    static TreatMarkedSegments(bufferData, op = '*') {
+        const { bufferSegment, dataSegment } = bufferData; 
+        const q = bufferSegment.slice(0);
+        let _idx = -1;
+        switch (op) {
+            case '*': {
+                // remove all marked segments
+                while (bufferSegment.marked.length > 0) {
+                    _idx = bufferSegment.marked.shift();
+                    delete (q[_idx]);
+                    delete (dataSegment[_idx]);
+                } 
+            }
+            break;
+            case 'trimmed': 
+            const _tlist = bufferSegment.marked.slice(0);
+            let _count = 0;
+            while (_tlist.length > 0) {
+                    _idx = _tlist.shift();
+                    let _top = bufferSegment.marked.op[_idx] || null;
+                    if (_top && _top.trimmed){
+                        //let _ts = q[_idx];
+                        delete (q[_idx]);
+                        delete (dataSegment[_idx]);
+                        delete(bufferSegment.marked.op[_idx]);
+                        delete(bufferSegment.marked[_count])
+                    }
+                    _count++;
+                } 
+                const _marked = bufferSegment.marked.filter(o=>o);
+                bufferSegment.marked.length = 0;
+                bufferSegment.marked.push(..._marked);
+                break;
+            default:
+            if (typeof(op) == 'function'){ 
+                while (bufferSegment.marked.length > 0) {
+                    _idx = bufferSegment.marked.shift();
+                    s = q[_idx];
+                    if (op(s)){
+                        delete (q[_idx]);
+                        delete (dataSegment[_idx]);
+                    }
+                }
+            
+            }
+        }
+
+        let elt = dataSegment.filter(o=>o);
+        dataSegment.length = 0;
+        dataSegment.push(...elt);
+        
+        bufferSegment.length = 0;
+        elt = q.filter(o => o);
+        bufferSegment.push(...elt);
+        return bufferData;
     }
 }
 

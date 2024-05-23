@@ -217,8 +217,10 @@ class FormattingBase {
         return {extra};
     }
     /**
+     * -------------------------------------------------------------
      * depending on marker mode update old marker content new value
      * update from buffer content. 
+     * -------------------------------------------------------------
      */
     updateOldMarkerContent({ content, marker, extra, buffer, data, segments, option, mode, isEntryContent, 
         autoStartLine, prependExtra }) {
@@ -226,16 +228,15 @@ class FormattingBase {
         const { debug, joinWith, formatterBuffer } = option;
         mode = mode == undefined ? FM_APPEND : mode;
         const _props = arguments[0];
-
-
         let _hasExtra = (extra.length > 0);
         let _hasBuffer = (buffer.length > 0);
         if (!_hasExtra && !_hasBuffer) {
             return content;
         }
-
         if (prependExtra){
+            // + | ----------------------------------------------------------
             // + | prepend extra data 
+            // + | ----------------------------------------------------------
             ({extra} = this.updatePreprendExtra(prependExtra, extra, option)); 
             prependExtra = null;
         }
@@ -243,16 +244,17 @@ class FormattingBase {
         const _undef = typeof (marker.mode) == 'undefined'; 
         let _append_next_mode = _undef ? FM_APPEND : marker.mode;
 
-        debug?.feature('update-old-buffer') && (() => {
+        debug?.feature('update-old-buffer') && (function (){
             Debug.log("--::update old buffer::--");
             console.log({ content, buffer, extra, mode, data });
         })();
+
         const _updateLd = ()=>{
             const _ref_data = {};
             const _buffer = option.flush(true, _ref_data);
             _ld += _buffer;
             _updateSegment({buffer: _buffer, data:_ref_data.data}); 
-        }
+        };
         const _updateSegment = ({buffer, data})=>{
             segments.bufferSegment.push(buffer);
             segments.dataSegment.push(data);

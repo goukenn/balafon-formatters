@@ -2,16 +2,27 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 /**
+ * type checking requirement
+ * @param {*} v 
+ * @param {*} types 
+ * @returns 
+ */
+function is(v, types) {
+    const t = typeof (v);
+    return (types.indexOf(v) != -1) || (types.indexOf(t) != -1);
+}
+
+/**
  * export pattern match info
  */
 class PatternMatchInfo {
-   
+
     /**
      * indicate new created pattern info
      * @var {bool}
      */
     start = true;
-  
+
     /**
      * formatting start block element
      */
@@ -25,7 +36,7 @@ class PatternMatchInfo {
      * 
      */
     range = {
-        startLine:0, // on start line 
+        startLine: 0, // on start line 
         start: 0, // position start
         end: 0 // position end
     }
@@ -55,19 +66,37 @@ class PatternMatchInfo {
      */
     endGroup = null;
 
-     /**
+    /**
+    * @var {?boolean}
+    */
+    isShiftenName = false;
+
+
+    /**
+     * flag: shiftenContentName
      * @var {?boolean}
      */
-     isShiftenName = false;
+    isShiftenContentName = false;
 
-
-     /**
-      * flag: shiftenContentName
-      * @var {?boolean}
-      */
-     isShiftenContentName=false;
- 
-
+    get isMarkedSegments() {
+        return (this.isTrimmedSegment === true) || (this.markedSegment != null);
+    }
+    markedInfo() {
+        let _info = null;
+        const { isMarkedSegments, isTrimmedSegment, markedSegment } = this;
+        if (isMarkedSegments) {
+            if (typeof (markedSegment) == 'object') {
+                _info = {
+                    trimmed: isTrimmedSegment,
+                    ...markedSegment
+                }
+            }else{
+                _info = {    isTrimmed: isTrimmedSegment};
+            }
+            return _info;
+        }
+        return true;
+    }
     constructor() {
         var m_parent;
         var m_marker;
@@ -88,7 +117,7 @@ class PatternMatchInfo {
         * get or set the buffer mode. 0 - add a line before add go to 1 just append to buffer, 2 add a line after
         */
         Object.defineProperty(this, 'mode', {
-            get() { return m_bufferMode; }, 
+            get() { return m_bufferMode; },
             set(v) {
                 if (v != m_bufferMode) {
                     m_bufferMode = v;
@@ -116,25 +145,31 @@ class PatternMatchInfo {
 
         Object.defineProperty(this, 'parent', { get() { return m_parent; } });
         Object.defineProperty(this, 'updatedProperties', { get() { return m_updatedProperties; } });
-        Object.defineProperty(this, 'isBlock', { get() { return m_isBlock; }, set(value) { 
-            
-            if (value === null){
-                throw new Error('can  not store null value');
+        Object.defineProperty(this, 'isBlock', {
+            get() { return m_isBlock; }, set(value) {
+
+                if (value === null) {
+                    throw new Error('can  not store null value');
+                }
+                m_isBlock = value;
             }
-            m_isBlock = value; } });
-        Object.defineProperty(this, 'lineFeed', { get() { 
-            return m_lineFeed; 
-        } });
+        });
+        Object.defineProperty(this, 'lineFeed', {
+            get() {
+                return m_lineFeed;
+            }
+        });
         Object.defineProperty(this, 'marker', { get() { return m_marker; } });
         Object.defineProperty(this, 'endRegex', { get() { return m_endRegex; } });
         Object.defineProperty(this, 'group', { get() { return m_group; } });
         Object.defineProperty(this, 'line', { get() { return m_line; } });
         Object.defineProperty(this, 'startOutput', {
-            get() { 
+            get() {
                 // + | return group[0] on start definition
-                if((m_startOutput==null)||(m_startOutput==undefined))
+                if ((m_startOutput == null) || (m_startOutput == undefined))
                     return m_group[0];
-                return m_startOutput; }, 
+                return m_startOutput;
+            },
             set(v) {
                 m_startOutput = v;
             }
@@ -142,6 +177,19 @@ class PatternMatchInfo {
         Object.defineProperty(this, 'endOutput', {
             get() { return m_endOutput; }, set(v) {
                 m_endOutput = v;
+            }
+        });
+        Object.defineProperty(this, 'isBlockConditionalContainer', {
+            get() {
+                const { marker } = this;
+                return marker.isBlockConditionalContainer || (() => {
+                    return marker.formattingMode && marker.requestParentBlockCondition;
+
+                })();
+            }, set(v) {
+                if (is(v, ['boolean', undefined, 'undefined'])) {
+                    this.pattern.isBlockConditionalContainer = v;
+                }
             }
         });
 
@@ -165,7 +213,7 @@ class PatternMatchInfo {
          * 
          * @param {*} marker 
          */
-        this.use = function ({ marker, endRegex, group, line, parent, patterns, formatting, fromGroup, index=-1}) {
+        this.use = function ({ marker, endRegex, group, line, parent, patterns, formatting, fromGroup, index = -1 }) {
             m_marker = marker;
             m_endRegex = endRegex;
             m_group = group;
@@ -173,16 +221,16 @@ class PatternMatchInfo {
             m_parent = parent;
             // setup configurable properties
             m_isBlock = marker.isBlock;
-            m_lineFeed = marker.lineFeed || formatting.isLineFeed(marker.formattingMode); 
+            m_lineFeed = marker.lineFeed || formatting.isLineFeed(marker.formattingMode);
             m_patterns = patterns;
             m_fromGroup = fromGroup;
             m_index = index;
- 
-            
+
+
             (function (q, pattern) {
                 const _keys = Object.keys(q);
                 const _keys_t = Object.keys(pattern);
-                ['isBlock', 'lineFeed', 'streamAction'].forEach(s => {
+                ['isBlock', 'lineFeed', 'streamAction', 'isBlockConditionalContainer'].forEach(s => {
                     delete _keys_t[_keys_t.indexOf(s)];
                 });
                 _keys_t.forEach(i => {
@@ -203,11 +251,11 @@ class PatternMatchInfo {
     /**
      * @var {boolean}
      */
-    get isUpdatedBlock(){
-        const {updatedProperties} = this;
+    get isUpdatedBlock() {
+        const { updatedProperties } = this;
         return updatedProperties && ('isBlock' in updatedProperties);
     }
-    get isMatchCaptureOnly(){
+    get isMatchCaptureOnly() {
         return this.marker?.isMatchCaptureOnly;
     }
     //
@@ -226,26 +274,26 @@ class PatternMatchInfo {
     /**
      * get if this empty block is start only use definition 
      */
-    get isStartOnly(){
+    get isStartOnly() {
         return this.marker?.isStartOnly;
     }
 
-    get closeParentData(){
+    get closeParentData() {
         let m = this.marker?.closeParent;
-        let _type = typeof(m);
-        if (_type=='string'){
+        let _type = typeof (m);
+        if (_type == 'string') {
             return m;
         }
-        if (_type=='boolean'){
-            return !m? undefined : '';
+        if (_type == 'boolean') {
+            return !m ? undefined : '';
         }
         return m;
     }
     /**
      * get if this match info is a stream capture
      */
-    get isStreamCapture(){
-        if (this.marker?.isStartOnly){
+    get isStreamCapture() {
+        if (this.marker?.isStartOnly) {
             return false;
         }
         return this.isCaptureOnly && (this.group[0].length == 0);
@@ -281,14 +329,14 @@ class PatternMatchInfo {
     get replaceWithCondition() {
         return this.marker?.replaceWithCondition;
     }
-    get streamAction(){
-        const {streamAction} = this.marker; 
+    get streamAction() {
+        const { streamAction } = this.marker;
         return streamAction || 'next';
     }
     /**
      * expose parker match type
      */
-    get matchType(){
+    get matchType() {
         return this.marker.matchType;
     }
 
@@ -296,14 +344,14 @@ class PatternMatchInfo {
      * check is pattern only definition.
      * @var {bool}
      */
-    get isPatternsOnly(){
+    get isPatternsOnly() {
 
         return false;
     }
     /**
      * debug this marker. internal used
      */
-    get debug(){
+    get debug() {
         return this.marker?.debug;
     }
     toString() {

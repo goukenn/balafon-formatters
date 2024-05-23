@@ -123,7 +123,7 @@ class FormatterOptions {
 
     /**
      * flag: newly block start
-     * @var {null|bolean}
+     * @var {null|undefined|bolean}
      */
     startBlock;
 
@@ -132,8 +132,7 @@ class FormatterOptions {
      * @var {*}
      */
     matchTransformFlag; 
-
-
+ 
     /**
      * get or set last marker Pattern - to skip for next get global pattern loop. skip only one
      */
@@ -144,6 +143,48 @@ class FormatterOptions {
      * @var {undefined|string}
      */
     nextGlueValue; 
+
+    /**
+     * 
+     * @param {*} marker 
+     * @returns 
+     */
+    pushConditionalContainer(marker){
+        const { conditionalContainer } = this;
+        if (marker.isBlockConditionalContainer){
+            conditionalContainer.push({marker, start:true});
+            return true;
+        }
+        return false;
+    }
+    popConditionalContainer(){
+        const { conditionalContainer } = this;
+        return conditionalContainer.pop();
+    }
+
+    /**
+     * @var {boolean}
+     */
+    isConditionalBlockStart(){
+        const { conditionalContainer } =  this;
+        if (conditionalContainer.length>0){
+            let i = conditionalContainer[conditionalContainer.length-1];
+            return i.start;
+        }
+        return false;
+    }
+
+    /**
+     * top conditional block container
+     * @returns 
+     */
+    topConditionalBlockContainer(){
+        const { conditionalContainer } =  this;
+        if (conditionalContainer.length>0){
+            return conditionalContainer[conditionalContainer.length-1];
+        }  
+        return null;
+    }
  
     /**
      * .ctr
@@ -157,6 +198,7 @@ class FormatterOptions {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;
         const c_lineMatcher = new FormatterLineMatcher(this);
+        const c_conditionalContainer = [];
         
         let m_depth = _rg.depth || 0;
         let m_pos = 0;
@@ -217,6 +259,8 @@ class FormatterOptions {
             }
         });
         
+
+        Object.defineProperty(option, 'conditionalContainer', {get(){return c_conditionalContainer; }});
         Object.defineProperty(option, 'lineMatcher', {get(){return c_lineMatcher; }});
         Object.defineProperty(option, 'sourceLine', {get(){return c_lineMatcher.sourceLine; }});
         Object.defineProperty(option, 'line', {get(){
@@ -638,12 +682,13 @@ class FormatterOptions {
         option.flush =
            /**
            * flush with what is in the buffer - and clear buffer 
-           * @param {bool} clear 
+           * @param {bool} clear clear buffer list 
+           * @param {{dataOutput:string, buffers: { bufferSegments: [*], dataSegments: [*]} }} refdata reference data return on buffer clear 
            * @returns 
            */
             function (clear, refdata) {
                 const _ctx = this;
-                const { buffer, output, listener, dataOutput} = _ctx;
+                const { buffer, output, listener, dataOutput, formatterBuffer} = _ctx;
                 let l = '';
                 let data = null;
                 if (listener?.output) {
@@ -655,9 +700,10 @@ class FormatterOptions {
                 //+| clear output and buffer 
                 if (clear) {
                     if (refdata){
-                        refdata.data = data;
+                        refdata.dataOutput = data;
+                        refdata.buffers = formatterBuffer.joinSegments();
                     }
-                    this.formatterBuffer.clearAll();
+                    formatterBuffer.clearAll();
                     output.length = 0;
                 }
                 return l;
@@ -758,6 +804,12 @@ class FormatterOptions {
         // set the nextGlueValue to use.
         if (_marker.nextGlueValue){
             this.nextGlueValue = _marker.nextGlueValue;
+        }
+        if (_marker.isBlockConditionalContainer){
+            if (this.topConditionalBlockContainer()==_marker){
+
+                this.popConditionalContainer();
+            }
         }
     }
     onBeginWhileFound(){

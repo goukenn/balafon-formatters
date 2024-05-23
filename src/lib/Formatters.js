@@ -890,6 +890,9 @@ class Formatters {
         if (typeof (listener?.startNewBlock) == 'function') {
             listener.startNewBlock({ buffer: '', formatterBuffer, output, tabStop, depth });
         }
+        // + | 
+        // + | begin start block 
+        // + | 
         option.startBlock = true;
     }
     /**
@@ -969,9 +972,12 @@ class Formatters {
      * @param {PatternMatchInfo} _marker 
      * @param {*} value 
      * @param {*} group 
+     * @param {*} option 
+     * @param {*} _refObj 
+     * @param {boolean} treat 
      * @returns 
      */
-    _operationReplaceWith(_marker, value, group, option, _refObj) {
+    _operationReplaceWith(_marker, value, group, option, _refObj, treat=true) {
         let _formatter = this;
         const { replaceWith, replaceWithCondition } = _marker;
         let g = group;
@@ -980,7 +986,7 @@ class Formatters {
             _refObj.replaced = false;
             return value;
         }
-        let _tab = replaceWith
+        let _tab = replaceWith;
 
         if (_tab instanceof ReplaceWithCondition) {
             _tab = [_tab];
@@ -1001,7 +1007,7 @@ class Formatters {
                     const tvalue = Utils.ReplaceWithCheck(expression, value, q, _p);
                     if (_p.replaced) {
                         const { _rpw } = _p;
-                        value = Utils.DoReplaceWith(tvalue, _formatter, _rpw, g, _marker, option, captures);
+                        value = Utils.DoReplaceWith(tvalue, _formatter, _rpw, g, _marker, option, captures, treat);
 
                         return value;
                     }
@@ -1039,7 +1045,7 @@ class Formatters {
                 }
             }
 
-            value = Utils.DoReplaceWith(value, _formatter, _rpw, g, _marker, option, _captures);
+            value = Utils.DoReplaceWith(value, _formatter, _rpw, g, _marker, option, _captures, treat);
             return value;
         }
         _refObj.replaced = false;
@@ -1100,10 +1106,11 @@ class Formatters {
      */
     _treatMatchValue(_cm_value, _marker, option, _op, group, treat = true) {
         group = group || _marker.group;
-        _cm_value = this.treatMarkerValue(_marker, _cm_value, _op, option, this._getMatchGroup(group));
+        const _ref_segment = treat ? {} : true;
+        _cm_value = this.treatMarkerValue(_marker, _cm_value, _op, option, this._getMatchGroup(group), _ref_segment);
         if (treat) {
-            if (_op.treated) {
-                _op.data = _op.source;
+            if (_op.treated) { 
+                _op.data = _ref_segment.segments.dataSegment.join('');
                 return _cm_value;
             }
             const _bck = _cm_value;
@@ -1193,13 +1200,15 @@ class Formatters {
      * @param {string} c value 
      * @param {string[]} op detected operatrion
      * @param {*} option to handle start line transform 
+     * @param {*} group to handle start line transform 
+     * @param {?boolean} treat to handle start line transform 
      * @returns 
      */
-    treatMarkerValue(_marker, c, op, option, group) {
+    treatMarkerValue(_marker, c, op, option, group, treat=true) {
         if (_marker.replaceWith) {
             // + | do replaceWith - replace 
             const _refObj = { replaced: true };
-            c = this._operationReplaceWith(_marker, c, group || _marker.group, option, _refObj);
+            c = this._operationReplaceWith(_marker, c, group || _marker.group, option, _refObj, treat);
             if (_refObj.replaced)
                 op.push('replaceWith');
         }
@@ -1264,11 +1273,10 @@ class Formatters {
      */
     _startStreamingPattern(patternInfo, _line, _endRegex, option, _error, _old, _buffer, end_line = false) {
         const { debug } = option;
-        const { group, patterns } = patternInfo;
+        const { group } = patternInfo;
         let _nextOffset = option.line.length;
-        // let _sub_line = _line;
 
-        debug?.feature('stream-start') && Debug.log("---::: START STREAMING :::--");
+        debug?.feature('stream-start') && Debug.log("---::: START STREAMING :::--"+patternInfo.toString());
         // + switch depending on formatting mode
         if (patternInfo.formattingMode == 4) {
             // + | start formatting with streaming object 
@@ -1303,9 +1311,7 @@ class Formatters {
                 let _buffer = this._updateOldMarkerContent(_old, option);
                 option.formatterBuffer.appendToBuffer(_buffer);
                 let _endpos =  option.pos + select.index;
-                //_nextOffset = select.index + select[0].length;
                 option.storeRange(option.pos, _endpos);
-                //option.pos = _endpos;
                 let _bool = option.shiftFromMarkerInfo(patternInfo, true);
                 option.restoreBuffer(_bool);    
                 if (option.pos!= _endpos){
@@ -1386,12 +1392,20 @@ class Formatters {
         const { _op, _old, _skip_value } = _extra;
         let _cm_value = _e.value;
         let _data = _e.data;
+        const { debug, formatterBuffer} = option;
         const _formatting = this.formatting;
         const b = _e.isInstructionSeparator || false;
         const _is_join = option.joinWith && option.startLine;
         const _store_to_buffer = function (_cm_value, _data, option) {
             if (_data != undefined) {
-                option.formatterBuffer.appendToBuffer({ buffer: _cm_value, data: _data });
+                const s = { buffer: _cm_value, data: _data };
+                Utils.UpdateMarkedSegment(s, _marker);
+              
+                debug.feature('match-value-handler') && (()=>{
+                    Debug.log('inject value handler '); 
+                    console.log(s);
+                })();
+                formatterBuffer.appendToBuffer(s);
             } else {
                 option.appendToBuffer(_cm_value, _marker);
             }
@@ -1635,7 +1649,7 @@ class Formatters {
         const _entryBuffer = _old.entryBuffer;
         let _content = _old.content;
         let _marker = _old.marker;
-        let _new_v = _content.startsWith(_entryBuffer) ? _content.substring(_entryBuffer.length) : _content; // .replace(new RegExp('^' + _old.entryBuffer), '');
+        let _new_v = _content.startsWith(_entryBuffer) ? _content.substring(_entryBuffer.length) : _content;
 
         const { formatting } = this;
         const { bufferSegment, dataSegment } = _old.data;
@@ -1734,9 +1748,13 @@ class Formatters {
                 }
                 // +| get formatting element type 
             }
+            if (patternInfo.isBlockConditionalContainer){
+                option.pushConditionalContainer(patternInfo);
+            }
             this._updateParentProps(patternInfo, true, option);
             if (parent) {
                 if (parent.isBlock && !parent.isBlockStarted && this._isChildBlock(patternInfo, option)) {
+                    // + | start block so that element 
                     if (markerInfo.length > 0) {
                         this._updateBlockMarkerPropertyContent(patternInfo, option);
                     }
@@ -1919,6 +1937,7 @@ class Formatters {
         const _call_update_regex = (_p, _endRegex)=>{
             _p.sourceRegex = _endRegex;
             _p.type = '_end_';
+            _p.offset = _p[0].length;
         };
         try {
             _matcher = _call?Utils.GetPatternMatcher(patterns, option, parentMatcherInfo) : null;
@@ -2320,7 +2339,7 @@ class Formatters {
 
         // + | view child debug
         // + | determine childs
-        debug?.feature('child-counter') && (_marker.childs.length > 0) && Debug.log(`#${_marker.name} have ${_marker.childs.length} childs`);
+        debug?.feature('child-counter') && (_marker.childs.length > 0) && Debug.log(`--::: Counter ::-- #${_marker.name} have ${_marker.childs.length} childs`);
 
         if (_marker?.parent?.newLine) {
             _marker.parent.newLine = false;
@@ -2464,11 +2483,14 @@ class Formatters {
         }
         let _tcline = lineMatcher.subLine;
         let _toffset = lineMatcher.offset;
-
+        let _loopCounter = 0;
+        // + | element do not  capture data 
+        let _start = endGroup[0].length == 0; 
         // + | loop thru end captured data to close 
-        while (info.parent && (fromChild || info.parent.isEndCaptureOnly)) {
+        while (_start && info.parent && (fromChild || info.parent.isEndCaptureOnly)) {
             p = info.parent;
             const { endRegex } = p;
+            _loopCounter++;
 
             if (endRegex == null) {
                 // just loop on current p;
@@ -2525,6 +2547,10 @@ class Formatters {
         }
         option.pos = _nextPosition;
         option.line = _bckLine;
+        // if (!_start){
+        // + | update end lineMatcher offset to next research will start at position
+        option.lineMatcher.offset = _nextPosition;
+        
         if (treat) {
             return p;
         }
@@ -2684,12 +2710,10 @@ class Formatters {
     _updateOldMarkerContent(_old, option, buffer, extra) {
         let { content, marker, currentMode, autoStartLine, prependExtra } = _old;
         let data = null;
-        //const { startLine, buffer } = option;
         const _formatting = this.formatting;
         const _is_buffer = (buffer == undefined) && (extra == undefined);
-
+        const _ref_data = {};        
         if (_is_buffer) {
-            const _ref_data = {};
             buffer = option.buffer;
             data = option.data;
             extra = option.flush(true, _ref_data);
@@ -2697,18 +2721,12 @@ class Formatters {
             buffer = buffer || '';
             extra = extra || '';
         }
-
-
-
-        // const extra = option.flush(true);
         const isEntryContent = _old.useEntry && (content == _old.entryBuffer);
         let _joinwith = null;
         if (_old.captureEntry) {
             buffer = this._updateOldEntryCapture(_old, buffer, option);
             _joinwith = marker.joinWith;
         }
-
-
 
         const props = {
             marker, buffer, extra, option,

@@ -100,6 +100,22 @@ class Patterns {
     isBlock;
 
     /**
+     * indicate that this pattern is a block conditional start
+     * @var {undefined|?boolean}
+     */
+    isBlockConditionalContainer;
+
+    /**
+     * indicate that condition of trimmed segment on depth update
+     */
+    isTrimmedSegment;
+
+    /**
+     * how to marked segment from definition
+     */
+    markedSegment;
+
+    /**
      * get or set condition expression to set if this element is a block.
      * @var {?string}
      */

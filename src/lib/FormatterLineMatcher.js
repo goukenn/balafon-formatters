@@ -11,6 +11,11 @@ class FormatterLineMatcher {
      * @var {?boolean} 
      */
     #m_startLine;
+
+    /**
+     * flag: middel pos when ending - must consider hown element
+     */
+    #m_middelPos;
     /**
      * source line
      * @type {?string}
@@ -114,7 +119,7 @@ class FormatterLineMatcher {
     set position(v) {
         if (v != this.#m_nextPosition) {
             if (v < this.#m_nextPosition) {
-                throw new Error('next position not allowed')
+                throw new Error('next position not allowed '+v+' vs '+this.#m_nextPosition)
             }
             this.#m_offset = this.#m_nextPosition;
             this.#m_nextPosition = v;
