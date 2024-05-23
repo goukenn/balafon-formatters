@@ -1,11 +1,16 @@
 "use strict";
 Object.defineProperty(exports, '__ESModule', { value: true });
 
-
+const { RegexUtils } = require('./RegexUtils')
 /**
  * use to operate on line matching 
  */
 class FormatterLineMatcher {
+    /**
+     * start line flag
+     * @var {?boolean} 
+     */
+    #m_startLine;
     /**
      * source line
      * @type {?string}
@@ -26,6 +31,8 @@ class FormatterLineMatcher {
      * @type {?number}
      */
     #m_nextPosition;
+
+
     /**
      * 
      */
@@ -51,6 +58,18 @@ class FormatterLineMatcher {
         }
     }
 
+    /**
+     * get the start line flag
+     */
+    get startLine(){
+        return this.#m_startLine;
+    }
+    /**
+     * set the start line flag
+     */
+    set startLine(v){
+        this.#m_startLine = v;
+    }
 
     /**
      * define source line
@@ -86,6 +105,12 @@ class FormatterLineMatcher {
     get position() {
         return this.#m_nextPosition;
     }
+    set offset(v){
+        this.#m_offset = v;
+    }
+    /**
+     * chang the position
+     */
     set position(v) {
         if (v != this.#m_nextPosition) {
             if (v < this.#m_nextPosition) {
@@ -98,6 +123,68 @@ class FormatterLineMatcher {
     reset(){
         this.#m_offset = 0;
         this.#m_nextPosition = 0;
+    }
+    /**
+     * and and return regex result
+     * @param {*} regex 
+     * @returns {null|IRegexResult} regex result
+     */
+    check(regex){
+        const _has_movement = RegexUtils.HasBackyardMovementCapture(regex);
+        const _has_startLine = RegexUtils.CheckRequestStartLine(regex);
+        const { subLine, nextLine, sourceLine, position, startLine, offset } = this;
+        let _p = null;
+        if (_has_startLine && startLine && (position == 0)) {
+            _p = regex.exec(sourceLine);
+            if (_p) {
+                _p.move = false;
+                return _p;
+            }
+        }
+        if (_has_movement) {
+            _p = regex.exec(subLine);
+            if (_p) {
+                _p.move = true;
+                _p.index += offset;
+                let _idx = _p.index;
+                let cp = null;
+                let _mark = false;
+                while (_idx < position) {
+                    _mark = true;
+                    _idx++;
+                    let new_s = sourceLine.substring(_idx);
+                    cp = regex.exec(new_s);
+                    if (cp) {
+                        _idx += cp.index;
+                        cp.index = _idx;
+                        cp.input = sourceLine;
+                        cp.move = true;
+                    } else {
+                        break;
+                    }
+                }
+                if (_mark) {
+                    if (!cp) {
+                        _p = null;
+                    } else {
+                        _p = cp;
+                    }
+                }
+                if (_p) {
+                    _p.index += -position;
+                }
+            }  
+        } else if (!_p) {
+            _p = regex.exec(nextLine);
+        }
+        if (_p) {
+            _p.index += position;
+            _p.input = sourceLine;
+            if (_p.index < position) {
+                _p = null;
+            }
+        } 
+        return _p;
     }
 }
 

@@ -35,6 +35,15 @@ class RegexUtils {
         let _ret =  rc.test(regex);
         return _ret;
     }
+    /**
+     * check if regex contains backyard movement capture
+     * @param {*} regex 
+     * @returns 
+     */
+    static HasBackyardMovementCapture(regex){
+        const rc = /(\(\?<(!|=))./;
+        return rc.test(regex);
+    }
   
     /**
      * regex parsing
@@ -153,7 +162,7 @@ class RegexUtils {
     }
  /**
   * remove capture group
-  * @param {string} str 
+  * @param {string} str regex data 
   * @param {*} regex regex that represent the capture
   * @returns 
   */

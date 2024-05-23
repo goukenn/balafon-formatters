@@ -25,7 +25,7 @@ class FormatterOptions {
     /**
      * position on operate line 
      */
-    pos = 0;
+    // pos = 0;
     /**
      * current line cursor
      */
@@ -143,8 +143,7 @@ class FormatterOptions {
      * flag: value used to glue with next trimmed line;
      * @var {undefined|string}
      */
-    nextGlueValue;
-    
+    nextGlueValue; 
  
     /**
      * .ctr
@@ -529,6 +528,7 @@ class FormatterOptions {
                 );
                 markerInfo.endOutput = _g;
                 this.lastDefineStates = _outdefine;
+                debug?.feature('treat-capture') && Debug.log('--:::Captures result : :::--' + _g);
                 return _g;
             }
             return null; 

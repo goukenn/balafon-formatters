@@ -201,7 +201,7 @@ class Utils {
      * @param {*} name 
      * @param {*} tokens 
      */
-    static StoreTokens(name, tokens){
+    static StoreTokens(name, tokens) {
         tokens.unshift(...name.split(' ').reverse());
     }
     /**
@@ -209,14 +209,14 @@ class Utils {
      * @param {*} name 
      * @param {*} tokens 
      */
-    static UnshiftTokens(name, tokens){
+    static UnshiftTokens(name, tokens) {
         const r = name.split(' ').reverse();
-        while(r.length>0){
+        while (r.length > 0) {
             const q = r.shift();
-            if (tokens[0]==q){
+            if (tokens[0] == q) {
                 tokens.shift();
-            } else{
-                throw new Error('missing tokens definition '+q);
+            } else {
+                throw new Error('missing tokens definition ' + q);
             }
         }
     }
@@ -349,6 +349,25 @@ class Utils {
         }
         return false;
     }
+    static _SkipLine(s, option) {
+        let _skip = false;
+        if (s.startLine) {
+            if (!option.startLine) {
+                _skip = true;
+            }
+        }
+        if (!_skip && s.skip) {
+            _skip = Utils.CheckSkip(s.skip, s, option);
+        }
+        if (!_skip && option.matchTransform && s.matchTransform) {
+            _skip = true;
+        }
+        if (!_skip && (option.lastEmptyMarkerPattern?.marker == s)) {
+            _skip = true;
+            option.lastEmptyMarkerPattern = null;
+        }
+        return _skip;
+    }
     /**
      * get match info
      * @var {array} patterns
@@ -364,65 +383,109 @@ class Utils {
         let _match = 0;
         let _index = -1;
         let _patterns = patterns;
-        let _position = -1; // selected pattern position 
-        let _count = 0;
-        const { lineMatcher} = option;
-        const { subLine} = lineMatcher;
-        patterns.forEach((s) => {
-            let _ts = s;
-            let p = null;
-            let from = null;
-            let item_index = null;
-            let skip = false;
-            if (s.startLine) {
-                if (!option.startLine) {
-                    skip = true;
-                }
-            }
-            if (!skip && s.skip) {
-                skip = Utils.CheckSkip(s.skip, s, option);
-            }
-            if (!skip && option.matchTransform && s.matchTransform) {
-                skip = true;
-            }
-            if (!skip && (option.lastEmptyMarkerPattern?.marker ==_ts)) {
-                skip = true;
-                option.lastEmptyMarkerPattern = null;
-            }
-            if (!skip) {
-                let _d = _ts.check(l, option, parentMatcherInfo);
-                if ((_d.regex) && (l.length > 0) && (option.sourceLine != l) && (!option.startLine) && RegexUtils.CheckRequestStartLine(_d.regex)) {
-                    const _td = _ts.check(option.sourceLine, option, parentMatcherInfo, _d.regex);
-                    // ignore start line
-                    if (_td && (_td.index == -1)) {
-                        _d = null;
+        let _position = -1; // selected pattern position        
+        const { lineMatcher } = option;
+        lineMatcher.startLine = option.startLine;
+        const _tloop = [{patterns:patterns, from:null, ref: parentMatcherInfo, count: 0}];
+        const ll = l;
+        while(_tloop.length>0){
+            const _m_patterns = _tloop.shift();
+            let _count = 0;
+            _m_patterns.patterns.forEach((s) => { 
+                let p = null;
+                let from = null;
+                let item_index = null;
+                let skip = Utils._SkipLine(s, option); 
+                
+                if (!skip) {
+                    let { patterns } = s;
+                    const _regex = s.getEntryRegex();
+                    let _d = null;
+                    if (_regex){
+                        p = lineMatcher.check(_regex);
+                        _d = { p, s: s, index: -1, regex: _regex, from: _m_patterns.from, 
+                            patterns: _m_patterns.patterns,
+                            ref: _m_patterns.ref };
                     }
-                } else if ((_d.p==null) && ((l!=subLine) && RegexUtils.HasMovementCapture(_d.regex))){
-                    const _cd = _ts.check(subLine, option, parentMatcherInfo);
-                    if (_cd && _cd.p){
-                        // update index
-                        _d = _cd;
-                        _d.p.index = lineMatcher.position-(lineMatcher.offset+_d.p.index);
-                        _d.p.input=l;
-                        _d.p.move = true;
+                    else{
+                        if (patterns){
+                            _tloop.unshift({patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });  
+                        }
+                    } 
+                    if (_d) {
+                        ({ p, s, from, patterns } = _d);
+                        item_index = _d.index == -1 ? _count : _d.index;
                     }
-                    
-                }                
-                if (_d) {
-                    ({ p, s, from, patterns } = _d);
-                    item_index = _d.index == -1 ? _count : _d.index;
+                    if (p && ((_index == -1) || (_index > p.index))) {
+                        _index = p.index;
+                        _a = s;
+                        _match = p;
+                        _from = from;
+                        _patterns = patterns || _patterns;
+                        _position = item_index || _count;
+                    }
                 }
-                if (p && ((_index == -1) || (_index > p.index))) {
-                    _index = p.index;
-                    _a = s;
-                    _match = p;
-                    _from = from;
-                    _patterns = patterns || _patterns;
-                    _position = item_index || _count;
-                }
-            }
-            _count++;
-        });
+                _count++;
+            }); 
+        } 
+
+        // patterns.forEach((s) => {
+        //     let _ts = s;
+        //     let p = null;
+        //     let from = null;
+        //     let item_index = null;
+        //     let skip = Utils._SkipLine(s, option); 
+            
+        //     if (!skip) {
+        //         const { patterns } = s;
+        //         const _regex = s.getEntryRegex();
+        //         if (_regex){
+        //             p = lineMatcher.check(_regex);
+        //             _d = { p, s: s, index: -1, regex: _regex };
+        //         }
+        //         else{
+        //             if (patterns){
+        //                 const cp = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo);
+        //                 if (cp) {
+        //                     return { p: cp._match, s: cp._a, from: this, patterns: patterns, index: cp.index, regex: cp.regex };
+        //                 }
+        //                 return false;
+        //             }
+        //         }
+
+        //         // let _d = _ts.check(l, option, parentMatcherInfo);
+        //         // if ((_d.regex) && (l.length > 0) && (option.sourceLine != l) && (!option.startLine) && RegexUtils.CheckRequestStartLine(_d.regex)) {
+        //         //     const _td = _ts.check(option.sourceLine, option, parentMatcherInfo, _d.regex);
+        //         //     // ignore start line
+        //         //     if (_td && (_td.index == -1)) {
+        //         //         _d = null;
+        //         //     }
+        //         // } else if ((_d.p == null) && ((l != subLine) && RegexUtils.HasMovementCapture(_d.regex))) {
+        //         //     const _cd = _ts.check(subLine, option, parentMatcherInfo);
+        //         //     if (_cd && _cd.p) {
+        //         //         // update index
+        //         //         _d = _cd;
+        //         //         _d.p.index = lineMatcher.position - (lineMatcher.offset + _d.p.index);
+        //         //         _d.p.input = l;
+        //         //         _d.p.move = true;
+        //         //     }
+
+        //         // }
+        //         if (_d) {
+        //             ({ p, s, from, patterns } = _d);
+        //             item_index = _d.index == -1 ? _count : _d.index;
+        //         }
+        //         if (p && ((_index == -1) || (_index > p.index))) {
+        //             _index = p.index;
+        //             _a = s;
+        //             _match = p;
+        //             _from = from;
+        //             _patterns = patterns || _patterns;
+        //             _position = item_index || _count;
+        //         }
+        //     }
+        //     _count++;
+        // });
 
         if (_match === 0) {
             return false;
@@ -436,35 +499,29 @@ class Utils {
      * @param {*} parentMatcherInfo 
      * @returns 
      */
-    static GetPatternMatcher(patterns, option, parentMatcherInfo = null, _line=null, _sub_line_offset=null) {
-        const { line, pos, debug, depth, lineCount } = option;
+    static GetPatternMatcher(patterns, option, parentMatcherInfo = null/*, _line = null, _sub_line_offset = null*/) {
+        const { line, pos, debug, depth, lineCount, lineMatcher } = option;
         const { FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
         let _from = -1;
-        let l = _line || line.substring(pos);
+        let l = lineMatcher.nextLine; 
         const { RefPatterns } = Utils.Classes;
         let index; 
-        _sub_line_offset = _sub_line_offset==null? pos: _sub_line_offset;
-        // ({ _a, _match, _from } = Utils.GetMatchInfo(patterns, l, options, parentMatcherInfo));
         ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo));
-        if (_match){
-            // + | update match index - if movement and position is greater than the line
-            // + | ignore the match
-            _match.index += _sub_line_offset;
-            if (_match.index> option.length){
+        if (_match) { 
+            if (_match.index > option.length) {
                 _a = null;
                 _match = null;
-            }
-            //({_match, _a}= Utils.FixMatchTag({_match, _a,}));
+            } 
         }
         if (_a) {
 
             debug?.feature('matcher-begin') && console.log('matcher-begin: ', {
                 '__name': _a.toString(),
-                name: _a.name, 
-                line, 
-                pos:_match.index, 
+                name: _a.name,
+                line,
+                pos: _match.index,
                 depth,
                 hasParent: _a.parent != null,
                 isBlock: _a.isBlock,
@@ -474,7 +531,8 @@ class Utils {
                 detectOn: l,
                 regex: _a.matchRegex,
                 type: _a.matchType == 0 ? "begin/end" : "match",
-                isFromGroupRef: _from != null
+                isFromGroupRef: _from != null,
+                parent: _from?.toString()
             });
             if (_a.throwError) {
                 let e = _a.throwError;
@@ -484,8 +542,7 @@ class Utils {
             }
             // + | add property to offset 
             _match.offset = _match[0].length;
-            // +| treat begin captures must be at corresponding data info
-
+            // +| treat begin captures must be at corresponding data  
             let _info = new PatternMatchInfo;
             Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index, option.formatter.formatting);
             return _info;
@@ -525,7 +582,7 @@ class Utils {
         ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, line, option, parentMatcherInfo));
 
         if (_a) {
-            _match.index += pos;
+            // _match.index += pos;
             if (debug) {
                 console.log('matcher-begin-1: ', {
                     '__name': _a.toString(),
@@ -614,7 +671,7 @@ class Utils {
         }
         return _info;
     }
-   
+
 
     /**
      * 
@@ -628,10 +685,10 @@ class Utils {
             return new RegExp(_info.s, _info.option);
         } else if (typeof (s) == 'object') {
             if (s instanceof RegExp) {
-                
+
                 s = RegexUtils.RegexToStringRegex(s);
                 let _info = Utils.RegexParseInfo(s, flag);
-                let _ms =  new RegExp(_info.s, _info.option);
+                let _ms = new RegExp(_info.s, _info.option);
                 return _ms;
             }
             const { option, regex } = s;
@@ -870,9 +927,9 @@ class Utils {
             // + | restore setting
             q.lineCount = _bck.lineCount;
             option.lineMatcher.restore();
-            q.line = _bck.line;            
+            q.line = _bck.line;
             q.depth = _bck.depth;
-            
+
             q.appendToBufferListener = _bck.appendToBufferListener;
             q.restoreBuffer({ state: { formatterBuffer: _bck.formatterBuffer } });
             _bck.markerInfo.forEach(a => q.markerInfo.push(a));
