@@ -81,8 +81,8 @@ class FormatterMarkerInfo{
                 _marked[c] += ic;
                 if (c in bufferSegment.marked.op){
                     let _op = bufferSegment.marked.op[c];
-                    delete(bufferSegment.marked.op[c]);
-                    bufferSegment.marked.op[_new_id]  = _op;
+                    delete(bufferSegment.marked.op[c]); 
+                    Utils.UpdateSegmentMarkerOperation(bufferSegment.marked, _new_id, _op);  
                 }
             }
             if ( !_data.bufferSegment.marked )

@@ -11,8 +11,83 @@ const { RegexUtils } = require("./RegexUtils");
 class Utils {
     static TestScope;
 
-    static UpdateMarkedSegment(s , _marker){
-        if (_marker.isMarkedSegments){
+    /**
+     * utility trim buffer segment
+     * @param {*} bufferSegment 
+     */
+    static TrimBufferSegment(bufferSegment, dataSegment) {
+        const _tlist = bufferSegment.marked.slice(0);
+        let _dir = 0;
+        let _idx = 0;
+        let _count = 0;
+        let q = bufferSegment;
+        let _ln = bufferSegment.length;
+
+        while (_tlist.length > 0) {
+            _idx = _dir == 0 ? _tlist.shift() : _tlist.pop();
+            let _top = bufferSegment.marked.op[_idx] || null;
+            let _trim = _dir == 0 ? _idx == _count : _idx == _count;
+            if (_top && _trim && _top.trimmed) {
+                //let _ts = q[_idx];
+                delete (q[_idx]);
+                delete (dataSegment[_idx]);
+                delete (bufferSegment.marked[bufferSegment.marked.indexOf(_idx)]);
+                delete (bufferSegment.marked.op[_idx]);
+
+            }
+            if (_dir == 1) {
+                if (!_trim) {
+                    break;
+                }
+                _count--;
+            } else {
+                if (!_trim) {
+                    _dir = 1;
+                    _count = _ln - 1;
+                    _tlist.unshift(_idx);
+                    continue;
+                }
+                _count++;
+            }
+        }
+    }
+    static ReorderBufferSegment(bufferSegment) {
+        // order 
+        const _op = bufferSegment.marked.op;
+        const _marked = bufferSegment.marked;
+        let _ni = 0;
+        let _buff = [];
+        _buff.marked = [];
+        _buff.marked.op = {};
+        // update buffer marker order 
+        for (let ri = 0; ri < bufferSegment.length; ri++) {
+            if (bufferSegment[ri] != undefined) {
+                // delete 
+                _buff.push(bufferSegment[ri]);
+                if (ri in _op) {
+                    _buff.marked.push(_ni);
+                    _buff.marked.op[_ni] = _op[ri];
+                } else if (_marked.indexOf(ri) != -1) {
+                    _buff.marked.push(_ni);
+                }
+                _ni++;
+            }
+        }
+
+        bufferSegment.length = 0;
+        bufferSegment.push(..._buff);
+        bufferSegment.marked = _buff.marked;
+
+    }
+
+    static UpdateSegmentMarkerOperation(_d, _idx, op) {
+        if (!op) {
+            console.log("not op ");
+        }
+        _d.op[_idx] = op;
+    }
+    static UpdateMarkedSegment(s, _marker) {
+        if (_marker.isMarkedSegments) {
             s.marked = _marker.markedInfo();
         }
     }
@@ -394,32 +469,34 @@ class Utils {
         let _position = -1; // selected pattern position        
         const { lineMatcher } = option;
         lineMatcher.startLine = option.startLine;
-        const _tloop = [{patterns:patterns, from:null, ref: parentMatcherInfo, count: 0}];
+        const _tloop = [{ patterns: patterns, from: null, ref: parentMatcherInfo, count: 0 }];
         const ll = l;
-        while(_tloop.length>0){
+        while (_tloop.length > 0) {
             const _m_patterns = _tloop.shift();
             let _count = 0;
-            _m_patterns.patterns.forEach((s) => { 
+            _m_patterns.patterns.forEach((s) => {
                 let p = null;
                 let from = null;
                 let item_index = null;
-                let skip = Utils._SkipLine(s, option); 
-                
+                let skip = Utils._SkipLine(s, option);
+
                 if (!skip) {
                     let { patterns } = s;
                     const _regex = s.getEntryRegex();
                     let _d = null;
-                    if (_regex){
+                    if (_regex) {
                         p = lineMatcher.check(_regex);
-                        _d = { p, s: s, index: -1, regex: _regex, from: _m_patterns.from, 
+                        _d = {
+                            p, s: s, index: -1, regex: _regex, from: _m_patterns.from,
                             patterns: _m_patterns.patterns,
-                            ref: _m_patterns.ref };
+                            ref: _m_patterns.ref
+                        };
                     }
-                    else{
-                        if (patterns){
-                            _tloop.unshift({patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });  
+                    else {
+                        if (patterns) {
+                            _tloop.unshift({ patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });
                         }
-                    } 
+                    }
                     if (_d) {
                         ({ p, s, from, patterns } = _d);
                         item_index = _d.index == -1 ? _count : _d.index;
@@ -434,8 +511,8 @@ class Utils {
                     }
                 }
                 _count++;
-            }); 
-        } 
+            });
+        }
 
         // patterns.forEach((s) => {
         //     let _ts = s;
@@ -443,7 +520,7 @@ class Utils {
         //     let from = null;
         //     let item_index = null;
         //     let skip = Utils._SkipLine(s, option); 
-            
+
         //     if (!skip) {
         //         const { patterns } = s;
         //         const _regex = s.getEntryRegex();
@@ -513,15 +590,15 @@ class Utils {
         let _a = null;
         let _match = 0;
         let _from = -1;
-        let l = lineMatcher.nextLine; 
+        let l = lineMatcher.nextLine;
         const { RefPatterns } = Utils.Classes;
-        let index; 
+        let index;
         ({ _a, _match, _from, patterns, index } = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo));
-        if (_match) { 
+        if (_match) {
             if (_match.index > option.length) {
                 _a = null;
                 _match = null;
-            } 
+            }
         }
         if (_a) {
 
@@ -842,7 +919,7 @@ class Utils {
  * @param {refobject|boolean} treat treat marker with capture
  * @returns 
  */
-    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option, captures, treat=true) {
+    static DoReplaceWith(value, _formatter, replace_with, group, _marker, option, captures, treat = true) {
         let g = group;
         let _rp = replace_with; // 
         let m = '';
@@ -869,7 +946,7 @@ class Utils {
                 g = CaptureRenderer.CreateFromGroup(matches, _tokens);
                 const _outdefine = {};
                 let out = g.render(listener, _caps, false, _tokens, option, _outdefine, treat);
-                if (typeof(treat)=='object'){
+                if (typeof (treat) == 'object') {
                     treat.segments = _outdefine;
                 }
                 return out;

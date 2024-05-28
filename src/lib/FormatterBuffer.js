@@ -1,6 +1,10 @@
 "use strict";
+
+
+
 Object.defineProperty(exports, '__esModule', { value: true });
 
+let Joiner = null;
 /**
  * @import (./IBufferData)
  */
@@ -23,7 +27,8 @@ class FormatterBuffer {
         var m_bufferSegments = [];
         var m_dataSegments = [];
         var m_dataOutput = [];
-
+        
+        m_bufferSegments.marked = FormatterBuffer.InitMarkedSegment();
         /*
         arry of buffer segment
          */
@@ -82,10 +87,20 @@ class FormatterBuffer {
      * join segment 
      */
     joinSegments(join = '') {
+        const { bufferSegments, dataSegments } = this;
+        return FormatterBuffer.JoinSegments(bufferSegments, dataSegments); 
+     }
+    /**
+     * copy join segment
+     * @param {*} bufferSegments 
+     * @param {*} dataSegments 
+     * @param {string} join 
+     * @returns 
+     */
+    static JoinSegments(bufferSegments, dataSegments, join = '') {
         let ch = null;
         let _bufferS = [];
         let _dataS = [];
-        const { bufferSegments, dataSegments } = this;
         if (bufferSegments.marked) {
             const q = bufferSegments.marked;
             q.sort();
@@ -106,7 +121,8 @@ class FormatterBuffer {
                         q.shift();
                         let _idx = _bufferS.length - 1;
                         if (c in _OP) {
-                            _marked.op[_idx] = _OP[c];
+                            // + | update marker optionration  
+                            Utils.UpdateSegmentMarkerOperation(_marked, _idx, _OP[c]);
                         }
                         _marked.push(_idx);
                     } else {
@@ -128,10 +144,19 @@ class FormatterBuffer {
             _dataS = _call(dataSegments, q.slice(0));
 
         } else {
-            _bufferS.push(this.join(join));
-            _dataS.push(this.dataSegments.join(join));
+            _bufferS.push(bufferSegments.join(join));
+            _dataS.push(dataSegments.join(join));
         }
         return { bufferSegment: _bufferS, dataSegment: _dataS };
+    }
+    /**
+     * init marked segment
+     * @returns 
+     */
+    static InitMarkedSegment(){
+        const _g = []; 
+        _g.op = {}; 
+        return _g;
     }
     /**
      * append value to buffer segment
@@ -142,49 +167,132 @@ class FormatterBuffer {
             this.bufferSegments.push(v);
             this.appendToData(v);
         } else {
-            const { buffer, data, marked } = v;
-            this.bufferSegments.push(buffer);
-            this.appendToData(data);
-            if (marked) {
-                if (!this.bufferSegments.marked) {
-                    this.bufferSegments.marked = [];
-                    this.bufferSegments.marked.op = {};
-                }
-                const _idx = this.bufferSegments.length - 1;
-                this.bufferSegments.marked.push(_idx);
-                if (typeof (marked) == 'object') {
-                    this.bufferSegments.marked.op[_idx] = marked;
+            const { buffer, data, marked, dataSegments, bufferSegments } = v;
+            if (dataSegments && bufferSegments) {
+                this._joinWith({ bufferSegment: bufferSegments, dataSegment: dataSegments });
+            }
+            else {
+                this.bufferSegments.push(buffer);
+                this.appendToData(data);
+                if (marked) {
+                    if (!('marked' in this.bufferSegments)) {
+                        this.bufferSegments.marked = FormatterBuffer.InitMarkedSegment();
+                    }
+                    const _idx = this.bufferSegments.length - 1;
+                    this.bufferSegments.marked.push(_idx);
+                    if (typeof (marked) == 'object') {
+                        if (!('op' in this.bufferSegments.marked)){
+                            this.bufferSegments.marked.op = [];
+                        }
+                        Utils.UpdateSegmentMarkerOperation( this.bufferSegments.marked, _idx, marked);
+                     
+                    }
                 }
             }
         }
     }
+    /**
+     * push data segment
+     * @param {*} v 
+     */
     appendToData(v) {
         this.dataSegments.push(v);
     }
+    /**
+     * store to buffer
+     * @param {string|{_buffer:string, _data:{bufferSegment:[*], dataSegment:[*]}}} buffer 
+     * @param {*} param1 
+     */
     storeToBuffer(buffer, { lastDefineStates }) {
-        if (lastDefineStates && (buffer == lastDefineStates.bufferSegment.join(''))) {
-            this.appendToBuffer({ buffer, data: lastDefineStates.dataSegment.join('') });
+        if (typeof (buffer) == 'string') {
+
+            if (lastDefineStates && (buffer == lastDefineStates.bufferSegment.join(''))) {
+                this.appendToBuffer({ buffer, data: lastDefineStates.dataSegment.join('') });
+            }
+            else {
+                // just store to buffer 
+                this.appendToBuffer(buffer);
+            }
+        } else {
+            const { _buffer, _data } = buffer;
+
+            let rs = _data.bufferSegment.join('');
+            if (_buffer != rs) {
+                // TODO : update list of item to join operation and trim line
+                this.appendToBuffer({ buffer:_buffer, data: '-nop-'}); // lastDefineStates.dataSegment.join('') });
+                return;
+                throw new Error('invalid buffer mismatch segments');
+            }
+            this._joinWith(_data);
+
         }
-        else {
-            // just store to buffer 
-            this.appendToBuffer(buffer);
+    }
+    static ClearSegments({dataSegment, bufferSegment}){
+        dataSegment.length = 0;
+        bufferSegment.length = 0;
+        if ('marked' in bufferSegment){ 
+            bufferSegment.marked.length = 0;
+            bufferSegment.marked.op = []; 
         }
+    }
+    /**
+     * reduce buffer segment index
+     * @param {number} count 
+     * @param {*} bufferSegment 
+     */
+    static ReduceBufferSegmentIndex(count, bufferSegment){
+          // + | reduce index 
+          const TS = [];
+          bufferSegment.marked.forEach(v=>{
+              const _op = bufferSegment.marked.op[v];
+              const _new_idx = v-count;
+              if (_op){
+                  delete(bufferSegment.marked.op[v]); 
+                  Utils.UpdateSegmentMarkerOperation(bufferSegment.marked, _new_idx,_op);  
+              }
+              TS.push(_new_idx);  
+          }); 
+          bufferSegment.marked.length = 0;
+          bufferSegment.marked.push(...TS);
+    }
+    /**
+     * join with segment
+     * @param {{bufferSegment:[*], dataSegment:[*]}} param0 
+     */
+    _joinWith({ bufferSegment, dataSegment }) {
+        const { FormatterSegmentJoin} = Utils.Classes;
+
+        let join = Joiner || (() => { Joiner = new FormatterSegmentJoin(); return Joiner })();
+        join.bufferSegment = bufferSegment;
+        join.dataSegment = dataSegment;
+        join.updateData({ bufferSegment: this.bufferSegments, dataSegment: this.dataSegments });
     }
     /**
      * clear segments
      */
     clear() {
-        this.bufferSegments.length = 0;
-        this.dataSegments.length = 0;
+        const { bufferSegments, dataSegments } = this;
+        bufferSegments.length = 0;
+        dataSegments.length = 0;
+        bufferSegments.marked = [];
     }
+    /**
+     * clear outputs
+     */
     clearOutput() {
         this.output.length = 0;
         this.dataOutput.length = 0;
     }
+    /**
+     * clear all 
+     */
     clearAll() {
         this.clear();
         this.clearOutput();
     }
+    /**
+     * trim end data
+     */
     trimEnd() {
         const { bufferSegments, dataSegments } = this;
         let q = null;
@@ -247,12 +355,12 @@ class FormatterBuffer {
 
     /**
      * 
-     * @param {*} bufferData 
+     * @param {{ bufferSegment:[], dataSegment:[] }} bufferData 
      * @param {*|'*'|'trimmed'|(a)=>boolean} op 
      * @returns 
      */
     static TreatMarkedSegments(bufferData, op = '*') {
-        const { bufferSegment, dataSegment } = bufferData; 
+        const { bufferSegment, dataSegment } = bufferData;
         const q = bufferSegment.slice(0);
         let _idx = -1;
         switch (op) {
@@ -262,51 +370,75 @@ class FormatterBuffer {
                     _idx = bufferSegment.marked.shift();
                     delete (q[_idx]);
                     delete (dataSegment[_idx]);
-                } 
+                }
             }
-            break;
-            case 'trimmed': 
-            const _tlist = bufferSegment.marked.slice(0);
-            let _count = 0;
-            while (_tlist.length > 0) {
-                    _idx = _tlist.shift();
-                    let _top = bufferSegment.marked.op[_idx] || null;
-                    if (_top && _top.trimmed){
-                        //let _ts = q[_idx];
-                        delete (q[_idx]);
-                        delete (dataSegment[_idx]);
-                        delete(bufferSegment.marked.op[_idx]);
-                        delete(bufferSegment.marked[_count])
-                    }
-                    _count++;
-                } 
-                const _marked = bufferSegment.marked.filter(o=>o);
-                bufferSegment.marked.length = 0;
-                bufferSegment.marked.push(..._marked);
+                break;
+            case 'trimmed':
+
+                Utils.TrimBufferSegment(bufferSegment, dataSegment);
+                Utils.ReorderBufferSegment(bufferSegment);
+                let elt = dataSegment.filter(o => o);
+                dataSegment.length = 0;
+                dataSegment.push(...elt);
+                return dataSegment;
+                // const _tlist = bufferSegment.marked.slice(0);
+                // let _count = 0;
+                // let _dir = 0;
+
+
+
+                // while (_tlist.length > 0) {
+                //     _idx = _dir == 0 ? _tlist.shift() : _tlist.pop();
+                //     let _top = bufferSegment.marked.op[_idx] || null;
+                //     let _trim = _dir == 0 ? _idx == _count : false;
+                //     if (_top && _trim && _top.trimmed) {
+                //         //let _ts = q[_idx];
+                //         delete (q[_idx]);
+                //         delete (dataSegment[_idx]);
+                //         delete (bufferSegment.marked.op[_idx]);
+                //         delete (bufferSegment.marked[_count])
+                //     }
+                //     if (_dir==1){
+                //         if (!_trim){
+                //             break;
+                //         }
+                //     } else {
+                //         if (!_trim){
+                //             _dir = 1;
+                //         }
+                //     }
+                //     _count++;
+                // }
+                // const _marked = bufferSegment.marked.filter(o => o);
+                // bufferSegment.marked.length = 0;
+                // bufferSegment.marked.push(..._marked);
                 break;
             default:
-            if (typeof(op) == 'function'){ 
-                while (bufferSegment.marked.length > 0) {
-                    _idx = bufferSegment.marked.shift();
-                    s = q[_idx];
-                    if (op(s)){
-                        delete (q[_idx]);
-                        delete (dataSegment[_idx]);
+                if (typeof (op) == 'function') {
+                    while (bufferSegment.marked.length > 0) {
+                        _idx = bufferSegment.marked.shift();
+                        s = q[_idx];
+                        if (op(s)) {
+                            delete (q[_idx]);
+                            delete (dataSegment[_idx]);
+                        }
                     }
+
                 }
-            
-            }
         }
 
-        let elt = dataSegment.filter(o=>o);
+        let elt = dataSegment.filter(o => o);
         dataSegment.length = 0;
         dataSegment.push(...elt);
-        
+
         bufferSegment.length = 0;
         elt = q.filter(o => o);
         bufferSegment.push(...elt);
         return bufferData;
     }
 }
+
+const { FormatterSegmentJoin } = require("./FormatterSegmentJoin");
+const { Utils } = require("./Utils");
 
 exports.FormatterBuffer = FormatterBuffer;

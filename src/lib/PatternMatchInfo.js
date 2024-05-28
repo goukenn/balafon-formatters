@@ -78,6 +78,11 @@ class PatternMatchInfo {
      */
     isShiftenContentName = false;
 
+    /**
+     * store start data
+     */
+    startData;
+
     get isMarkedSegments() {
         return (this.isTrimmedSegment === true) || (this.markedSegment != null);
     }
@@ -91,7 +96,7 @@ class PatternMatchInfo {
                     ...markedSegment
                 }
             }else{
-                _info = {    isTrimmed: isTrimmedSegment};
+                _info = {isTrimmed: isTrimmedSegment};
             }
             return _info;
         }

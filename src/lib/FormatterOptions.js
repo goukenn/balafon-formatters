@@ -1,5 +1,5 @@
 "use strict";
-Object.defineProperty(exports, 'enModule', { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
@@ -925,7 +925,7 @@ class FormatterOptions {
     flushAndData(clear){
         const _refData = {};
         const _buffer = this.flush(clear, _refData);
-        return {buffer: _buffer, data: _refData.data };
+        return {buffer: _buffer, data: _refData.dataOutput };
     }
     static AppendExtraLiveOutput({ listener, output, dataOutput }) {
         if (listener?.appendExtraOutput) {
@@ -950,7 +950,9 @@ class FormatterOptions {
             buffer: this.buffer,
             data : this.data,
             output:  this.output.slice(0),
-            dataOutput:  this.dataOutput.slice(0)
+            dataOutput:  this.dataOutput.slice(0),
+            bufferSegments : this.formatterBuffer.bufferSegments,
+            dataSegments : this.formatterBuffer.dataSegments,
         };
     }
 }
