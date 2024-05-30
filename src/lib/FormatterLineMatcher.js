@@ -129,6 +129,22 @@ class FormatterLineMatcher {
         this.#m_offset = 0;
         this.#m_nextPosition = 0;
     }
+       /**
+     * set position and offset 
+     * @param {number} position 
+     * @param {undefined|number} offset 
+     */
+       setPosition(position, offset){
+        if (offset){
+            if (offset > position){
+                throw new Error("offset must not be greater than position");
+            }
+        } else {
+            offset = position;
+        }  
+        this.#m_offset = offset;
+        this.#m_nextPosition = position;
+    }
     /**
      * and and return regex result
      * @param {*} regex 

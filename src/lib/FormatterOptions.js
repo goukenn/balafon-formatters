@@ -8,6 +8,14 @@ const { FormatterBuffer } = require("./FormatterBuffer");
 const { FormatterLineMatcher } = require("./FormatterLineMatcher");
 
 /**
+ * @typedef IFormatSourceOption
+ * @type
+ * @property {?string} name
+ * @property {?string} constantName
+ * @property {?number} depth
+ */
+
+/**
  * @typedef IFormatterOptions
  * @funcion newBuffer 
  * @property {string} line current line definition
@@ -36,7 +44,13 @@ class FormatterOptions {
     skipTreatEnd = false;
     skipTreatWhile = false;
     markerDepth = 0; // store handleMarker stack
+    loopInfo;
 
+    /**
+     * format source option
+     * @var {undefined|IFormatSourceOption}
+     */
+    sourceOption;
     /**
      * join with flag string
      * @var {?string}
@@ -110,6 +124,11 @@ class FormatterOptions {
      * last rendered token 
      */
     lastToken;
+
+    /**
+     * last segment
+     */
+    lastSegment;
 
     /**
      * flag to store last define
@@ -750,6 +769,22 @@ class FormatterOptions {
         return {_gbuffer: buffer, _cpos: buffer.length};
     }
     /**
+     * start loop detected 
+     */
+    loopStart(){
+        if (this.loopInfo == null){
+            this.loopInfo = {
+                position: 0,
+                matcher: null,
+                count: 0
+            };
+        } else {
+            this.loopInfo.position = 0;
+            this.loopInfo.matcher= null;
+            this.loopInfo.count = 0;
+        }
+    }
+    /**
      * reset flags definition
      */
     reset(){
@@ -797,6 +832,32 @@ class FormatterOptions {
         this.glueValue = null;
         this.lastEmptyMarkerPattern = null;
     }
+    /**
+     * set source line 
+     * @param {*} v 
+     * @param {undefined|number} position 
+     * @param {undefined|number} offset 
+     */
+    setSourceLine(v, position, offset){
+        this.lineMatcher.sourceLine = v;
+        if ((position != undefined) && (position>=0)){
+            this.setPosition(position, offset);
+        }
+    }
+
+    /**
+     * set position and offset 
+     * @param {number} position 
+     * @param {undefined|number} offset 
+     */
+    setPosition(position, offset){ 
+        this.lineMatcher.setPosition(position, offset);
+    }
+    /**
+     * 
+     * @param {*} _marker 
+     * @param {*} _old 
+     */
 
     onBeginEndFound(_marker, _old){
         this._resetFlags();
@@ -954,6 +1015,17 @@ class FormatterOptions {
             bufferSegments : this.formatterBuffer.bufferSegments,
             dataSegments : this.formatterBuffer.dataSegments,
         };
+    }
+
+    constantPattern(){
+        let _c =  this.sourceOption?.constantName || this.sourceOption?.name;
+        if (_c){
+
+            let _g = this.constants.refConstantClass;
+
+            return new _g(_c); 
+        }
+        return this.constants.GlobalConstant; 
     }
 }
 

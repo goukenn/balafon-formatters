@@ -55,7 +55,7 @@
         "single-condition-expression": {
             "name": "condition.expression.js",
             "begin": "\\b(if|elseif|while|switch)\\b",
-            "end": "",
+            "end": "(?=;)",
             "patterns": [
                 {
                     "match": "\\s+",
@@ -84,13 +84,10 @@
             "name": "single.instruct.js",
             "begin": "(?=[^\\(\\{\\s])",
             "end": "\\s*(;)\\s*|$",
-            "comment": "start detect single expression",
+            "comment": "start detect single expression",  
             "patterns": [
                 {
                     "include": "#reserved-words"
-                },
-                {
-                    "include": "#block-end-single-instruction"
                 }
             ],
             "endCaptures": {
@@ -100,14 +97,11 @@
                 }
             },
             "isBlock": true,
-            "closeParent": true, 
+            "closeParent": {
+                "value":";",
+                "name":"end.instruction.js"
+            }, 
             "formattingMode": 2
-        },
-        "block-end-single-instruction": {
-            "match": "(?=\\s*(;)\\s*|$)",
-            "name": "operator.end.single.instruction",
-            "closeParent": ";",
-            "transform":"trim"
         },
         "single-else-expression": {
             "name": "else.condition.expression.js",
@@ -188,7 +182,10 @@
             "match": "\\s+", 
             "name": "multi-line-space",
             "replaceWith": " ",
-            "isGlueValue": " "
+            "isGlueValue": " ",
+            "markedSegment":{
+                "trimmed":true
+            }
         },
         "end-instruction": {
             "match": "\\s*(;)\\s*",

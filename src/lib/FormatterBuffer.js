@@ -205,17 +205,21 @@ class FormatterBuffer {
      */
     storeToBuffer(buffer, { lastDefineStates }) {
         if (typeof (buffer) == 'string') {
-
             if (lastDefineStates && (buffer == lastDefineStates.bufferSegment.join(''))) {
                 this.appendToBuffer({ buffer, data: lastDefineStates.dataSegment.join('') });
             }
             else {
-                // just store to buffer 
+                // + | just store to buffer 
                 this.appendToBuffer(buffer);
             }
         } else {
             const { _buffer, _data } = buffer;
-
+            if (!_data.bufferSegment){
+                // + | missing buffer segment
+                this.appendToBuffer(_buffer);
+                return;
+                throw new Error('missing buffer segment');
+            }
             let rs = _data.bufferSegment.join('');
             if (_buffer != rs) {
                 // TODO : update list of item to join operation and trim line
@@ -344,6 +348,34 @@ class FormatterBuffer {
         return null;
     }
     /**
+     * retrieve last segment info
+     */
+    lastSegmentInfo(){
+        const { bufferSegments } = this;
+        if (bufferSegments.length > 0) {
+            const idx = bufferSegments.length - 1;
+            const _buffer =  bufferSegments[idx];
+            const op = FormatterBuffer.GetBufferMarkedOperation(bufferSegments, idx); 
+            return new FormatterSegmentInfo(_buffer, op);
+        }
+        return null;
+    }
+    /**
+     * get buffer sement
+     * @param {*} bufferSegments 
+     * @param {*} idx 
+     */
+    static GetBufferMarkedOperation(bufferSegments, idx){
+        let op = null;
+        if (idx in bufferSegments.marked){
+            let l = bufferSegments.marked[idx];
+            if (l in bufferSegments.marked.op){
+                op = bufferSegments.marked.op[l];
+            }
+        }
+        return op;
+    }
+    /**
      * replace last segment with new value
      * @param {*} newValue 
      */
@@ -438,6 +470,7 @@ class FormatterBuffer {
     }
 }
 
+const { FormatterSegmentInfo } = require("./FormatterSegmentInfo");
 const { FormatterSegmentJoin } = require("./FormatterSegmentJoin");
 const { Utils } = require("./Utils");
 

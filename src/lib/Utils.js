@@ -968,7 +968,7 @@ class Utils {
 
     /**
      * Treat patterns values
-     * @param {string} value value to treat 
+     * @param {string|{value:string, name:string}} value value to treat 
      * @param {*} patterns 
      * @param {*} group - parent group match to resolve
      * @param {*} option - options
@@ -978,6 +978,18 @@ class Utils {
         const _formatter = option.formatter;
         let _bckCapture = _formatter.info.captureGroup;
         _formatter.info.captureGroup = group;
+        let name = null;
+        let _name = null;
+        let _value = null;
+        // extra name and value
+        if (typeof(value)=='object'){
+            ({value, name}=value);
+        } else {
+            _value = value;
+        }
+        _name = name;
+        _value = value;
+
         const q = option;
         if (_formatter.settings.useCurrentFormatterInstance) {
             option.pushState();
@@ -1011,7 +1023,7 @@ class Utils {
             _formatter.info.isSubFormatting++;
             _formatter.patterns = patterns;
 
-            value = _formatter.format(value);
+            value = _formatter.format(_value, {name: _name});
             _formatter.info.isSubFormatting--;
             _formatter.patterns = _bck.patterns;
             // + | restore setting
