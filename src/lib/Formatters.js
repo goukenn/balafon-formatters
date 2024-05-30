@@ -555,9 +555,7 @@ class Formatters {
                 const option = objClass;
                 debug?.feature('read-line') && Debug.log('read:[' + objClass.lineCount + "]:::" + line);
                 objClass.resetRange();
-                lineMatcher.sourceLine = line;
-                objClass.line = line;
-                objClass.pos = 0;
+                lineMatcher.sourceLine = line; 
                 objClass.continue = false;
                 objClass.lineCount++;
                 objClass.markerDepth = 0;
@@ -577,10 +575,9 @@ class Formatters {
                     if (objClass.nextGlueValue) {
                         _nextLine = objClass.nextGlueValue + _nextLine;
                         objClass.nextGlueValue = null;
-                    }
-                    objClass.line = _nextLine;
+                    } 
                     // update the source line
-                    lineMatcher.sourceLine = objClass.line;
+                    lineMatcher.sourceLine = _nextLine;
                     _trimStart = true;
                 }
                 if (line.length <= 0) {
@@ -669,13 +666,14 @@ class Formatters {
                         option.EOF = true;
                         option.lineMatcher.reset();
                         let _start = false;
-                        let _marker_info = option.peekMarkerInfo;
+                        // let _marker_info = option.peekMarkerInfo;
                         while (_matcherInfo) { // close matcher - handle 
-                            if (_start) {
-                                _marker_info = option.peekMarkerInfo;
-                            }
+                            // if (_start) {
+                            //     _marker_info = option.peekMarkerInfo;
+                            // }
                             _matcherInfo = _formatter._handleMarker(_matcherInfo, objClass);
-                            _start = true;
+                            option.lineMatcher.reset();
+                            // _start = true;
                         }
                         option.EOF = false;
                     } else {
@@ -1761,7 +1759,7 @@ class Formatters {
     _handleBeginEndMarker(patternInfo, option) {
         option.state = 'begin/end'; const { formatting } = this;
         const { debug, line, markerInfo } = option;
-        const { parent, lineFeed } = patternInfo;
+        const { parent, lineFeed, group } = patternInfo;
         debug?.feature('match/begin-end') && Debug.log('--::: begin/end - handle marker :::---#' + patternInfo.toString());
 
         let _endRegex = null;

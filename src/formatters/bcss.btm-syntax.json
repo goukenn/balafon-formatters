@@ -1728,7 +1728,7 @@
         "capture-speudo-selector": {
             "begin": "(?:(?::)?:)\\b(active|any-link|autofill|blank|checked|current|default|defined|dir|disabled|empty|enabled|first|first-child|first-of-type|focus|focus-visible|focus-within|fullscreen|future|has|host|host|host-context|hover|indeterminate|in-range|invalid|is|lang|last-child|last-of-type|left|link|local-link|modal|not|nth-child|nth-last-child|nth-last-of-type|nth-of-type|only-child|only-of-type|optional|out-of-range|past|paused|picture-in-picture|placeholder-shown|playing|read-only|read-write|required|right|root|scope|state|target|target-within|user-invalid|valid|visited|where)\\b",
             "end": "(?=\\}|\\{|:|\\[|\\s)|(?<=\\}|\\{)",
-            "debugName": "_debug_capture.speudo.definition",
+            "debugName": "css.capture.speudo.class",
             "beginCaptures": {
                 "0": {
                     "name": "keyword.control.speudo.class.bcss"
@@ -1765,6 +1765,7 @@
             "begin": "(?:\\{)",
             "end": "(?:\\})",
             "isBlock": true,
+            "endMissingValue":"}",
             "name": "meta.global.block.bcss",
             "comment": "block for css style definition",
             "patterns": [
@@ -2240,10 +2241,10 @@
         },
 
         "bcss-root-html5-tag-property": {
-            "begin": "\\b(?:a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b(\\\\.([a-z][a-z0-9\\-]*)*)*",
-            "end": "(?<=\\})",
+            "begin": "\\b(?:a(?:bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(?:ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(?:anvas|aption|enter|ite|ode|ol|olgroup)|d(?:ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(?:m|mbed)|f(?:ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(?:ead|eader|group|1|2|3|4|5|6|r|tml)|i(?:frame|mg|nput|ns)?|k(?:bd|eygen)|l(?:abel|egend|i|ink)|m(?:ain|ap|ark|enu|enuitem|eta|eter)|n(?:av|oframes|oscript)|o(?:bject|l|ptgroup|ption|utput)|p(?:aram|icture|re|rogress)?|q|r(?:p|t|uby)|s(?:amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(?:able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(?:l)?|v(?:ar|ideo)|w(?:br))\\b(?:\\\\.(?:[a-z][a-z0-9\\-]*)*)*",
+            "end": "(?=\\}|\\{)",
             "name": "root-html5-tags.bcss",
-            "comment": " start html5  tag definition",
+            "comment": " start html5 tag definition",
             "beginCaptures": {
                 "0": {
                     "name": "entity.name.tag.html5-definition.bcss",
@@ -2271,6 +2272,7 @@
             ]
         },
         "bcss-css-start-property-speudo-definition": {
+            "debugName":"start-speudo-definition",
             "patterns": [
                 {
                     "include": "#bcss-selection-definition"
@@ -2314,6 +2316,7 @@
             ]
         },
         "bcss-css-property-value-only": {
+            "debugName":"css-property-value-only",
             "patterns": [
                 {
                     "begin": "\\{",

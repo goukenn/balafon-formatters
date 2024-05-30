@@ -494,7 +494,8 @@ class Utils {
                     }
                     else {
                         if (patterns) {
-                            _tloop.unshift({ patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });
+                            //_tloop.unshift({ patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });
+                            _tloop.push({ patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });
                         }
                     }
                     if (_d) {
@@ -1015,7 +1016,6 @@ class Utils {
             q.appendToBufferListener = null;
             q.lineCount = 0;
             q.depth = 0;
-            q.line = '';
             q.markerInfo.length = 0;
             option.lineMatcher.save();
             option.lastEmptyMarkerPattern = null;

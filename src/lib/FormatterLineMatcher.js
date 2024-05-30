@@ -82,7 +82,9 @@ class FormatterLineMatcher {
      */
     set sourceLine(v) {
         if (v == undefined) throw new Error('value not allowed');
+        // + | setup source file
         this.#m_soureLine = v;
+        this.#m_line = v;
         this.#m_offset = 0;
         this.#m_nextPosition = 0;
     }
