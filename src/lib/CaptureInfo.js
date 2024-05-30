@@ -89,8 +89,8 @@ class CaptureInfo{
             },
             transform,
             captures,
-            matchTransform(){
-                console.log("match transform ..... ");
+            matchTransform(){                
+                throw new Error('match transform not handled');
             }
         };
         let fc = parse[fieldname];

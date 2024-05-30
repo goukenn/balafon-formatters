@@ -1,5 +1,4 @@
-Object.defineProperty(exports, '__esModule', { value: true });
-
+Object.defineProperty(exports, '__esModule', { value: true }); 
 
 const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
@@ -432,6 +431,12 @@ class Utils {
         }
         return false;
     }
+    /**
+     * 
+     * @param {*} s 
+     * @param {FormatterOptions} option 
+     * @returns 
+     */
     static _SkipLine(s, option) {
         let _skip = false;
         if (s.startLine) {
@@ -586,7 +591,7 @@ class Utils {
      * @returns 
      */
     static GetPatternMatcher(patterns, option, parentMatcherInfo = null/*, _line = null, _sub_line_offset = null*/) {
-        const { line, pos, debug, depth, lineCount, lineMatcher } = option;
+        const { line, debug, depth, lineCount, lineMatcher, startLine } = option;
         const { FormatterPatternException } = Utils.Classes;
         let _a = null;
         let _match = 0;
@@ -619,7 +624,8 @@ class Utils {
                 type: _a.matchType == 0 ? "begin/end" : "match",
                 isFromGroupRef: _from != null,
                 parent: _a.parent?.toString(),
-                from: _from?.toString()
+                from: _from?.toString(),
+                startLine
             });
             if (_a.throwError) {
                 let e = _a.throwError;

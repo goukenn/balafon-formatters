@@ -47,7 +47,7 @@ class FormatterLineMatcher {
         this.save = function (new_value) {
             const { sourceLine, line, offset, position } = this;
             MATCHER_STATES.push({ sourceLine, line, offset, position });
-            if (typeof(new_value)=='string') {
+            if (typeof (new_value) == 'string') {
                 this.sourceLine = new_value;
             }
         }
@@ -66,13 +66,13 @@ class FormatterLineMatcher {
     /**
      * get the start line flag
      */
-    get startLine(){
+    get startLine() {
         return this.#m_startLine;
     }
     /**
      * set the start line flag
      */
-    set startLine(v){
+    set startLine(v) {
         this.#m_startLine = v;
     }
 
@@ -102,7 +102,7 @@ class FormatterLineMatcher {
     }
     get nextLine() {
         return this.#m_soureLine.substring(this.#m_nextPosition);
-    } 
+    }
     /**
      * get current offset
      */
@@ -112,7 +112,7 @@ class FormatterLineMatcher {
     get position() {
         return this.#m_nextPosition;
     }
-    set offset(v){
+    set offset(v) {
         this.#m_offset = v;
     }
     /**
@@ -121,29 +121,29 @@ class FormatterLineMatcher {
     set position(v) {
         if (v != this.#m_nextPosition) {
             if (v < this.#m_nextPosition) {
-                throw new Error('next position not allowed '+v+' vs '+this.#m_nextPosition)
+                throw new Error('next position not allowed ' + v + ' vs ' + this.#m_nextPosition)
             }
             this.#m_offset = this.#m_nextPosition;
             this.#m_nextPosition = v;
         }
     }
-    reset(){
+    reset() {
         this.#m_offset = 0;
         this.#m_nextPosition = 0;
     }
-       /**
-     * set position and offset 
-     * @param {number} position 
-     * @param {undefined|number} offset 
-     */
-       setPosition(position, offset){
-        if (offset){
-            if (offset > position){
+    /**
+  * set position and offset 
+  * @param {number} position 
+  * @param {undefined|number} offset 
+  */
+    setPosition(position, offset) {
+        if (offset) {
+            if (offset > position) {
                 throw new Error("offset must not be greater than position");
             }
         } else {
             offset = position;
-        }  
+        }
         this.#m_offset = offset;
         this.#m_nextPosition = position;
     }
@@ -152,15 +152,20 @@ class FormatterLineMatcher {
      * @param {*} regex 
      * @returns {null|IRegexResult} regex result
      */
-    check(regex){
+    check(regex) {
         const _has_movement = RegexUtils.HasBackyardMovementCapture(regex);
         const _has_startLine = RegexUtils.CheckRequestStartLine(regex);
         const { subLine, nextLine, sourceLine, position, startLine, offset } = this;
         let _p = null;
-        if (_has_startLine && startLine && (position == 0)) {
-            _p = regex.exec(sourceLine);
-            if (_p) {
-                _p.move = false;
+        if (_has_startLine) {
+            if (startLine && (position == 0)) {
+                _p = regex.exec(sourceLine);
+                if (_p) {
+                    _p.move = false;
+                    return _p;
+                }
+            }
+            if (!startLine){
                 return _p;
             }
         }
@@ -196,7 +201,7 @@ class FormatterLineMatcher {
                 if (_p) {
                     _p.index += -position;
                 }
-            }  
+            }
         } else if (!_p) {
             _p = regex.exec(nextLine);
         }
@@ -206,7 +211,7 @@ class FormatterLineMatcher {
             if (_p.index < position) {
                 _p = null;
             }
-        } 
+        }
         return _p;
     }
 }

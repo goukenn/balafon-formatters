@@ -1714,7 +1714,40 @@
                 },
                 {
                     "include": "#bcss-media-block"
-                },                
+                },           
+               
+                {
+                    "begin":"(\\s+)(?=(\\w|\\.|#))",
+                    "end":"(?=\\{)", 
+                    "beginCaptures":{
+                        "0":{
+                            "transform":"trim"
+                        }
+                    },
+                    "patterns":[{
+                        "include": "#bcss-sub-property-entry-definition"
+                    }]
+                },
+                {
+                    "begin":"^(\\s*)(?=(\\w|\\.|#))",
+                    "end":"(?=\\{)",
+                    "name":"start.line.selector", 
+                    "beginCaptures":{
+                        "0":{
+                            "transform":"trim"
+                        }
+                    },
+                    "patterns":[{
+                        "include": "#bcss-sub-property-entry-definition"
+                    }]
+                },
+                {
+                    "begin":"(?=(\\.|#))",
+                    "end":"(?=[\\{])", 
+                    "patterns":[{                    
+                        "include": "#bcss-css-glue-id-class"                    
+                    }]
+                },
                 {
                     "include": "#bcss-glue-selector-white-space"
                 },
@@ -1981,9 +2014,9 @@
             "name": "sub-selector",
             "patterns": [
                 {
-                    "matchTransform": "^\\s*(?=\\.|#|[a-zA-Z])",
+                    "matchTransform": "\\s*(?=\\.|#|[a-zA-Z])",
                     "replaceWith": " ",
-                    "name": "prefix.glue-data.bformatter"
+                    "name": "prefix.glue-data.bformatter.bcss"
                 },
                 {                    
                     "include": "#bcss-css-glue-id-class"                    
@@ -2023,12 +2056,13 @@
             }
         },
         "bcss-sub-selection-definition": {
+            "debugName":"subselection",
             "patterns": [
                 {
                     "comment": "operator detection",
                     "begin": "\\s*(\\+|>|~|,)\\s*",
-                    "name": "op.detection",
                     "end": "(?!(\\+|>|~|,))",
+                    "name": "op.detection",
                     "beginCaptures": {
                         "0": {
                             "patterns": [
@@ -2047,9 +2081,6 @@
                 },
                 {
                     "include": "#bcss-selection-definition"
-                },
-                {
-                    "include": "#bcss-sub-property-entry-definition"
                 }
             ]
         },
@@ -2134,7 +2165,7 @@
         "bcss-class-id-root": {
             "begin": "\\.(([a-zA-Z][a-zA-Z]*)(\\\\.[a-zA-Z][a-zA-Z]*)*)?",
             "end": "(?=;|\\s|:|\\+|>|~|#|\\{|\\.)|(?<=})",
-            "name": "-class-id-root-",
+            "name": "meta.css.class-id-root.bcss",
             "beginCaptures": {
                 "0": {
                     "name": "entity.name.function.class.class"

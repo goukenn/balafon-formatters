@@ -455,7 +455,7 @@ class FormatterOptions {
      
         /**
          * append to buffer
-         * @param {string} value 
+         * @param {string|{buffer:string, data:string}} value 
          * @param {PatternMatchInfo} _marker 
          * @param {?boolean} treat render token with listener  
          * @param {*} _marker 

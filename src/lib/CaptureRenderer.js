@@ -234,7 +234,6 @@ class CaptureRenderer{
                         // update parent value.
                         let s =  q.root.start - q.parent.root.start;
                         let e =  q.root.end - q.root.start;
-;
                         // + | transform to range - at [start_index, length] of nv to replace
                         if (rf.length>0){
                             q.parent.output.push({range:[s,e], rf, rd}); 

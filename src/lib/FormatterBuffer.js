@@ -171,7 +171,8 @@ class FormatterBuffer {
             if (dataSegments && bufferSegments) {
                 this._joinWith({ bufferSegment: bufferSegments, dataSegment: dataSegments });
             }
-            else {
+            else //if (buffer && data)
+                {
                 this.bufferSegments.push(buffer);
                 this.appendToData(data);
                 if (marked) {
