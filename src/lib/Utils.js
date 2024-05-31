@@ -633,6 +633,7 @@ class Utils {
                 isRef: _a instanceof RefPatterns,
                 value: _match[0],
                 detectOn: l,
+                offset: lineMatcher.offset,
                 regex: _a.matchRegex,
                 type: _a.matchType == 0 ? "begin/end" : "match",
                 isFromGroupRef: _from != null,

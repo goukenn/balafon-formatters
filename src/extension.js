@@ -40,10 +40,12 @@ function formatAllDocument(document, format){
     );
     const _formatter = GetFormatter(format); 
     if (_formatter){
+        console.log("format of ", {format});
         let _res = _formatter.format(_text.split("\n"));
         if (_res){
             return vscode.TextEdit.replace(_range, _res);``
         }
+        console.log('missing format....', _formatter.error);
     }
 }
 /**
@@ -51,7 +53,8 @@ function formatAllDocument(document, format){
  * @param {vscode.ExtensionContext} context 
  */
 function activate(context){    
-    // + | register language formatters     
+    // + | register language formatters 
+    console.log("activate bformatters");    
     const languageFormatter = new Map();
     ["bcss","bview","phtml","bjs","pcss", "demodata", "bhtml"].forEach((a)=>{;
         let p = vscode.languages.registerDocumentFormattingEditProvider(
