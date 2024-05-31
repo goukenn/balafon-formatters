@@ -1,6 +1,6 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.24",
+    "version": "1.0.25",
     "main": "./src/extension",
     "description": "Javascript Generic Formatters",
     "author": {
@@ -219,14 +219,17 @@
                         "order": 1
                     },
                     "balafon.mysql.dbPort": {
-                        "default": ["3306", "3307"],
+                        "default": [
+                            "3306",
+                            "3307"
+                        ],
                         "type": "string",
-                        "order":2
+                        "order": 2
                     },
                     "balafon.mysql.dbName": {
                         "default": "igkdev.db",
                         "type": "string",
-                        "order":3
+                        "order": 3
                     },
                     "balafon.mysql.dbUser": {
                         "default": "root",
@@ -235,7 +238,7 @@
                     },
                     "balafon.mysql.dbPassword": {
                         "default": "",
-                        "type": "string", 
+                        "type": "string",
                         "order": 102,
                         "description": "for security reason please configure your password."
                     }
@@ -243,13 +246,13 @@
             }
         ],
         "configurationDefaults": {
-            "balafon.workspaceFolder":"${workspaceFolder}",
-            "balafon.defaultAuthor":"C.A.D. BONDJE DOUE",
-            "balafon.mysql.db0Name":"igkdev.db",
-            "balafon.mysql.dbPassword":"",
-            "balafon.mysql.dbPort":"3306",
-            "balafon.mysql.dbServer":"127.0.0.1",
-            "balafon.mysql.dbUser":"root",
+            "balafon.workspaceFolder": "${workspaceFolder}",
+            "balafon.defaultAuthor": "C.A.D. BONDJE DOUE",
+            "balafon.mysql.db0Name": "igkdev.db",
+            "balafon.mysql.dbPassword": "",
+            "balafon.mysql.dbPort": "3306",
+            "balafon.mysql.dbServer": "127.0.0.1",
+            "balafon.mysql.dbUser": "root",
             "html.format.enable": true,
             "javascript.format.enable": true,
             "typescript.format.enable": true,
