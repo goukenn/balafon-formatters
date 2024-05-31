@@ -30,36 +30,37 @@ class bhtml {
         let _is_closed = />\s*$/.test(_lastData) || /^>/.test(_lastData);
         let _close_tag = "</" + target + ">";
         let _is_auto_closed = this.isAutoCloseTag(target, value);
-
-
         if (_is_auto_closed) {
             _close_tag = "/>";
         }
-        let _p = Utils.CreateEndMatch(_close_tag);
-
-        let tp = option.treatEndCaptures(marker, _p, _captures);
-        //let cp = Utils.RenderToBuffer(_close_tag, marker, _captures, option);
         _load_data({ buffer: _lastBuffer, data: _lastData });
-        if (!_is_closed) {
-            if (!_is_auto_closed) {
-                const _tdp = Utils.RenderToBuffer('>', marker, _captures, option);
-                _load_data(_tdp);
+        if (_lastData != _close_tag) { 
+            let _p = Utils.CreateEndMatch(_close_tag); 
+            let tp = option.treatEndCaptures(marker, _p, _captures);
+            //let cp = Utils.RenderToBuffer(_close_tag, marker, _captures, option);
+            // _load_data({ buffer: _lastBuffer, data: _lastData });
+            if (!_is_closed) {
+                if (!_is_auto_closed) {
+                    const _tdp = Utils.RenderToBuffer('>', marker, _captures, option);
+                    _load_data(_tdp);
+                }
+            }
+            if ((marker.childs.length > 0) && this._isChildBlock(marker.childs)) {
+                option.saveBuffer();
+                option.appendExtraOutput();
+                option.appendExtraOutput();
+                let refData = {};
+                const _rbuffer = option.flush(true, refData);
+                option.restoreSavedBuffer();
+                _load_data({ buffer: _rbuffer, data: refData.data });
+            } else {
+                _load_data({ buffer: tp, data: _close_tag });
             }
         }
-        if ((marker.childs.length>0) && this._isChildBlock(marker.childs)) {
-            option.saveBuffer();
-            option.appendExtraOutput();
-            option.appendExtraOutput();
-            let refData={};
-            const _rbuffer = option.flush(true, refData);  
-            option.restoreSavedBuffer();
-            _load_data({ buffer: _rbuffer, data: refData.data });
-        }
-        _load_data({ buffer: tp, data: _close_tag });
         return value.bufferSegment.join('');
     }
-    _isChildBlock(childs){
-        const { Formatters } =  Utils.Classes;
+    _isChildBlock(childs) {
+        const { Formatters } = Utils.Classes;
         return Formatters.IsChildBlock(childs);
     }
 }
