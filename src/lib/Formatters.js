@@ -26,6 +26,7 @@ const { FormatterDebugger } = require("./FormatterDebugger");
 const { FormatterEndMissingExpression } = require("./FormatterEndMissingExpression");
 const { FormatterEndMissingEngine } = require("./FormatterEndMissingEngine");
 const { FormatterSegmentJoin } = require("./FormatterSegmentJoin");
+const { FormatterErrors } = require("./FormatterErrors");
 
 
 // + | --------------------------------------------------------
@@ -143,8 +144,7 @@ class Formatters {
 
     constructor() {
         let m_listener;
-        let m_objClass; 
-        let m_errors = [];
+        let m_objClass;  
         let m_info = {
             isSubFormatting: 0,
             captureGroup: null
@@ -157,8 +157,7 @@ class Formatters {
          * get or set the listener info
          */
         Object.defineProperty(this, 'listener', { get() { return m_listener; }, set(value) { m_listener = value } })
-        Object.defineProperty(this, 'errors', { get() { return m_errors; } })
-        /**
+    /**
          * get format info : use to update some current state
          */
         Object.defineProperty(this, 'info', { get() { return m_info; } })
@@ -167,7 +166,7 @@ class Formatters {
 
         this.pushError = (e) => {
             this.m_errors.push(
-                { 101: 'not in capture.' }[e]
+                FormatterErrors[e] 
             );
         }
         this._storeObjClass = function (s) {
@@ -622,20 +621,22 @@ class Formatters {
                     }
                     pos = objClass.pos;
                     ln = objClass.length;
-                    (() => {
-                        const { loopInfo } = objClass;
+                    ((option) => {
+                        const { loopInfo } = option;
                         if (_lastPost == pos) {
                             // + | possibility of infine loop detection
-                            loopInfo.matcher = _matcherInfo;
+                            if (loopInfo.matcher != _matcherInfo){
+                                loopInfo.matcher = _matcherInfo;
+                            }
                             loopInfo.position = pos;
                             if (loopInfo.count > 1) {
-                                throw new Error('infine loop detected');
+                                throw new Error('infine loop detected'+loopInfo.matcher);
                             }
                             loopInfo.count++
                         } else {
                             loopInfo.count = 0;
                         }
-                    })();
+                    })(objClass);
                     if (this.skip_r) {
                         return;
                     }
@@ -647,6 +648,7 @@ class Formatters {
                 if (_matcherInfo) {
                     if (ln >= pos) {
                         objClass.EOL = true;
+                        objClass.lineMatcher.setPosition(pos,pos);
                         _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
                         objClass.EOL = false;
                     } else {
@@ -2615,6 +2617,7 @@ class Formatters {
         let treat = false;
         let fromChild = info.fromChild;
         let tp = null;
+        let _bckLineOffset = lineMatcher.offset;
         let _end_non_capture = (marker, tp, nextMode) => {
             marker.mode = nextMode;
             let _ret_marker = this._closeMarkerByStop(marker, tp, option, { _line, nextMode });
@@ -2643,10 +2646,14 @@ class Formatters {
                 break;
             }
             if (tp = endRegex.exec(_tcline)) {
-                if (((tp.index + _toffset) == endGroup.index) && (tp[0].length == 0)) {
+                let l = (tp.index + _toffset) ;
+                if ((l == endGroup.index) && (tp[0].length == 0)) {
                     tp.index += _toffset;
                     p = _end_non_capture(p, tp, option.nextMode);
                 } else {
+                    // fix offset parent
+                    if (l<endGroup.index)
+                    _bckLineOffset = _offsetPosition;
                     break;
                 }
                 treat = true;
@@ -2697,11 +2704,11 @@ class Formatters {
         option.line = _bckLine;
         // if (!_start){
         // + | update end lineMatcher offset to next research will start at position
-        option.lineMatcher.offset = _nextPosition;
-
         if (treat) {
+            option.lineMatcher.offset = _nextPosition;
             return p;
         }
+        option.lineMatcher.offset = _bckLineOffset;
         return parent;
     }
 
