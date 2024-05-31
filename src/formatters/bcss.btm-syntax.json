@@ -2519,9 +2519,13 @@
         },
         "bcss-root-media-property": {
             "begin": "(?=(?:-+|\\.|#)?[a-z][a-z0-9\\-]*(?:\\\\.(?:[a-z][a-z0-9\\-]*)*)*(?:(?:\\.|#)(?:[a-z][a-z0-9\\-]*)*)*)",
-            "end": "(?=@)|(?<=;\\s*|\\})",
+            "end": "(?<=;\\s*|\\})",
             "name": "root-media.bcss",
             "patterns": [
+                {
+                    "match":"(?=\\})",
+                    "comment":"stop root media reading."
+                },
                 {
                     "include":"#bcss-single-line-comment-"
                 },
