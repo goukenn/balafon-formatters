@@ -242,7 +242,7 @@ class FormatterBuffer {
                 // + | missing buffer segment
                 this.appendToBuffer(_buffer);
                 return;
-                throw new Error('missing buffer segment');
+                // throw new Error('missing buffer segment');
             }
             let rs = _data.bufferSegment.join('');
             if (_buffer != rs) {
