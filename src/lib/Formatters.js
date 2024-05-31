@@ -648,6 +648,7 @@ class Formatters {
                 if (_matcherInfo) {
                     if (ln >= pos) {
                         objClass.EOL = true;
+                        objClass.lineMatcher.setPosition(pos,pos);
                         _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
                         objClass.EOL = false;
                     } else {
