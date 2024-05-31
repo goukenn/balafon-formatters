@@ -2300,6 +2300,26 @@ class Formatters {
         }
         return { _endCaptureCallback, _checkParentInfo };
     }
+
+    /**
+     * resolv data segments 
+     * @param {*} marker 
+     * @param {*} option 
+     * @param {*} _old 
+     * @returns 
+     */
+    _resolvFoundData(_marker, option, _old){
+        if (option.EOF){
+            if (_old){
+                const c_data = _old.data;
+                if (c_data.bufferSegment.length>0){
+                    return c_data;
+                }
+            }
+            return _marker.startData;
+        }
+        return _old?.data || _marker.startData;
+    }
     /**
      * begin/end end found
      * @param {string} _buffer current buffer presentation
@@ -2322,6 +2342,8 @@ class Formatters {
         const _formatting = q.formatting;
         const _isSkipTreatEnd = option.skipTreatEnd;
         const prependExtra = _old?.prependExtra;
+        let _b = null;
+        let _data = null;
 
         debug?.feature('match/begin-end.end') && Debug.log(`--::: END::Begin/End handleFoundEndPattern ::--#${_marker}`);
 
@@ -2341,15 +2363,20 @@ class Formatters {
             _saved = true;
         }
         this._shiftPatternContentName(_marker, option);
-        let _b = _isSkipTreatEnd ? '' : (() => {
+
+       ({_b,_data} = (()=>{
+            const _empty = {_b:'', _data:''} ;
+            return _isSkipTreatEnd ? _empty : (() => {
             if (_p[0].length > 0) {
                 let __b = option.treatEndCaptures(_marker, _p);
                 if (__b == undefined) {
                     __b = option.treatValueBeforeStoreToBuffer(_marker, _p[0]);
                 }
-                return __b;
+                return {_b:__b, _data:_p[0]};
             }
-        })() || '';
+        })() || _empty; 
+        })());
+
 
         option.skipTreatEnd = false;
         let _close_block = false;
@@ -2360,12 +2387,14 @@ class Formatters {
         // + | update parent host - check update properties for end 
         this._updateMarkerChild(_marker, option);
 
+     
+
         // + | full fill pattern buffer 
         ({ _append, _buffer } = _formatting.onEndUpdateBuffer({
             marker: _marker,
             option,
             _buffer,
-            _data: _old?.data || _marker.startData,
+            _data: this._resolvFoundData(_marker, option, _old),
             update(info) {
                 return q._updateBuffer(_marker, option, { _append, _buffer, ...(info || {}) });
             }
@@ -2379,9 +2408,12 @@ class Formatters {
             _close_block = true;
             //_marker.isBlockDefinition = null;
             if (_marker.isFormattingStartBlockElement) {
-                ({ _b } = _formatting.handleEndFormattingBeforeStore(q, _marker, option, _buffer, { _b }));
-                _buffer = option.getBufferContent(true);
+                ({ _b, _data } = _formatting.handleEndFormattingBeforeStore(q, _marker, option, _buffer, 
+                    { _b, _data }));
+                const _refData = {};
+                _buffer = option.getBufferContent(true, _refData);
                 option.output.push(_buffer);
+                option.dataOutput.push(_refData.buffers.dataSegment.join(''));
             } else {
                 _formatting.handleEndFormattingOnNonStartBlockElement(q, _marker, option);
             }

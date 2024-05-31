@@ -276,7 +276,7 @@ class FormattingBase {
             FormatterSegmentJoin.UpdateSegmentData(segments, {dataSegment, bufferSegment}); 
         };
         
-
+        const _flushData = {};
         switch (mode) {
             case FM_START_LINE:
                 FormatterBuffer.TreatMarkedSegments(bufferData, 'trimmed'); 
@@ -298,7 +298,7 @@ class FormattingBase {
                 ({ value, mode, content } = this.updateMergeEndBlock({ content, marker, extra, buffer, option, _hasBuffer, _hasExtra }));
                 option.formatterBuffer.appendToBuffer(value);
                 option.store();
-                _ld = option.flush(true);
+                _ld = option.flush(true, _flushData);
                 break;
             case FM_START_BLOCK: // every block start with extra output
                 option.appendExtraOutput();
@@ -308,7 +308,7 @@ class FormattingBase {
                     formatterBuffer.appendToBuffer(buffer);
                     option.store();
                 }
-                _ld = option.flush(true);
+                _ld = option.flush(true, _flushData);  
                 if (_append_next_mode == FM_END_BLOCK) {
                     _append_next_mode = FM_START_LINE;
                 }
@@ -385,12 +385,19 @@ class FormattingBase {
                 _append_next_mode = FM_APPEND;
                 break;
             case FM_APPEND_BLOCK:
-                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent));
+                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData));
+                if (!('dataOutput' in _flushData)){
+                    _flushData['dataOutput'] = bufferData.dataSegment.join(''); 
+                }
                 break;
 
             default:
                 throw new Error('mode not handle : ' + mode); 
         }  
+        if ('dataOutput' in _flushData){ 
+            _updateBufferedData({dataSegment:[_flushData.dataOutput], bufferSegment: [_ld]});
+        }
+
         marker.mode = _append_next_mode;
         this._updateGlobalMarkerOptionDefinition(marker, option);
         _props.mode = marker.mode;
@@ -398,8 +405,16 @@ class FormattingBase {
         _props.prependExtra = prependExtra; 
         return content + _ld;
     }
-
-    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra) {
+    /**
+     * append block
+     * @param {*} content 
+     * @param {*} extra 
+     * @param {*} buffer 
+     * @param {*} _hasBuffer 
+     * @param {*} _hasExtra 
+     * @returns 
+     */
+    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData) {
         let _ld = '';
         if (extra.length > 0) {
             _ld += extra;

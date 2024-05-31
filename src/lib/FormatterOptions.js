@@ -733,8 +733,8 @@ class FormatterOptions {
                     l = listener.output.apply(null, [{ buffer, output, dataOutput, lineFeed, _ctx }]);
                 } else {
                     l = output.join(lineFeed);
-                    data = dataOutput.join(lineFeed);
                 }
+                data = dataOutput.join(lineFeed);
                 //+| clear output and buffer 
                 if (clear) {
                     if (refdata){
@@ -949,10 +949,10 @@ class FormatterOptions {
             this.formatterBuffer.appendToBuffer(_buffer);
         }
     }
-    getBufferContent(clear){
+    getBufferContent(clear, refData){
         const option = this;
         let _buffer = option.buffer;
-        let _cm = option.flush(true);
+        let _cm = option.flush(true, refData);
         if (clear){
             option.formatterBuffer.clear();
         }
