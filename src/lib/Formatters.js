@@ -1730,8 +1730,10 @@ class Formatters {
                 idx--;
                 _count++;
             }
-            FormatterBuffer.ReduceBufferSegmentIndex(_count, bufferSegment);
-            FormatterBuffer.TreatMarkedSegments({ dataSegment, bufferSegment }, 'trimmed');
+            if (bufferSegment.marked){
+                FormatterBuffer.ReduceBufferSegmentIndex(_count, bufferSegment);
+                FormatterBuffer.TreatMarkedSegments({ dataSegment, bufferSegment }, 'trimmed');
+            }
         }
 
         _old.useEntry = false;

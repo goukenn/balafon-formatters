@@ -271,7 +271,7 @@ class FormatterBuffer {
     static ReduceBufferSegmentIndex(count, bufferSegment){
           // + | reduce index 
           const TS = [];
-          bufferSegment.marked.forEach(v=>{
+          bufferSegment.marked?.forEach(v=>{
               const _op = bufferSegment.marked.op[v];
               const _new_idx = v-count;
               if (_op){
