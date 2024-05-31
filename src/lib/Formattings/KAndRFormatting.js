@@ -146,7 +146,7 @@ class KAndRFormatting extends FormattingBase {
         _refData._data = sd;
         return _refData;
     }
-    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent) {
+    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData) {
         let _ld = '';
         if (extra.length > 0) {
             _ld += extra;
@@ -159,7 +159,7 @@ class KAndRFormatting extends FormattingBase {
             option.appendExtraOutput();
             option.formatterBuffer.appendToBuffer(_ld.trimStart());
             option.store();
-            _ld = option.flush(true);
+            _ld = option.flush(true, _flushData);
         }
         return { content, _ld };
     }
