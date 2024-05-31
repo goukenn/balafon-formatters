@@ -1,17 +1,117 @@
 "use strict";
-Object.defineProperty(exports, '__esModule', {value:true});
+Object.defineProperty(exports, '__esModule', { value: true });
 
 const START_HERE = "(??)";
-
+const CAPTURE_MOVEMENT =/\(\?((<)?!|(\<)?=)./
 /**
  * regex utility class 
  */
-class RegexUtils{
-     /**
-     * get regex info on start line
-     * @param {string} s regex string expression
+class RegexUtils {
+    /**
+     * to remove [not-]ahead-backyard: matching
      */
-     static RegexInfo(s) { 
+    static get CAPTURE_NOT_AHEAD_BACKYARD() {
+        // not-ahead-backyard : (<)?!
+        // ahead: (=)
+        // backyard: <=
+        return /\(\?([imx]|(<)?!|(\<)?=)./;
+    }
+    static get CAPTURE_MOVEMENT() {
+        return CAPTURE_MOVEMENT;
+    }
+    /**
+     * 
+     */
+    static get CAPTURE_LEAVE_AHEAD_BACKYARD() {
+        // not-ahead-backyard : (<)?!
+        // ahead: (=)
+        // backyard: <=
+        return /\((\?(:|[imx])|(?!\?))./;
+        // return /\((\?(:|[imx]))./;
+    }
+
+    static HasMovementCapture(regex){
+        let rc = RegexUtils.CAPTURE_NOT_AHEAD_BACKYARD;
+        let _ret =  rc.test(regex);
+        return _ret;
+    }
+    /**
+     * check if regex contains backyard movement capture
+     * @param {*} regex 
+     * @returns 
+     */
+    static HasBackyardMovementCapture(regex){
+        const rc = /(\(\?<(!|=))./;
+        return rc.test(regex);
+    }
+  
+    /**
+     * regex parsing
+     * @param {{isReadonly:boolean}} q 
+     * @returns {(str:string)=>string}
+     */
+    static RegexParser(q){
+        const { Utils } = require("./Utils");
+        const { RegexEngine } = require("./RegexEngine");
+        return (s) => {
+            if (s == '(??)') {
+                q.isStartOnly = true;
+                s = '';
+            }
+            let is_empty = false;
+            if (s == '') {
+                is_empty = true;
+            }
+            let g = Utils.RegexParse(s, 'd');
+            g = RegexEngine.Load(g, is_empty);
+            return g;
+        }; 
+    }
+
+    /**
+     * remove regex not-ahead-backyard - group
+     * @param {string} str 
+     * @returns {?string}
+     */
+    static RemoveNotAheadBackyardGroup(str) {
+        let s = RegexUtils.RemoveCapture(str, RegexUtils.CAPTURE_NOT_AHEAD_BACKYARD);
+        if (s) {
+            return RegexUtils._TreatCaptureGroup(s);
+        }
+        return s;
+    }
+    /**
+     * 
+     * @param {*} str 
+     * @returns 
+     */
+    static RemoveCaptureAndLeaveMovementCapture(str) {
+        let s = RegexUtils.RemoveCapture(str, RegexUtils.CAPTURE_LEAVE_AHEAD_BACKYARD);
+        if (s) {
+            return RegexUtils._TreatCaptureGroup(s);
+        }
+        return s;
+    }
+    static _TreatCaptureGroup(s) {
+        if ((s[0]=="/") && (s[s.length-1]=="/")){
+            s = s.slice(1,-1);
+        }
+        return s.split('|').filter(o => o.length > 0).join('|')
+    }
+    /**
+     * regex to string regex
+     * @param {RegExp} s 
+     * @returns 
+     */
+    static RegexToStringRegex(s){
+        s = s.toString();
+        return s.substring(0, s.lastIndexOf('/')+1).slice(1,-1);
+    }
+    /**
+    * get regex info on start line
+    * @param {string} s regex string expression
+    */
+    static RegexInfo(s) {
         let option = '';
         if (s == "(??)") {
             return {
@@ -46,7 +146,7 @@ class RegexUtils{
      * @param {*} reg 
      * @returns 
      */
-    static CheckRequestStartLine(reg){
+    static CheckRequestStartLine(reg) {
         // + | TO CHECK that regex request for start line 
         // - ^ must not be escaped \^
         // - ^ must not be a non validated group [^] 
@@ -57,125 +157,132 @@ class RegexUtils{
      * @param {*} c 
      * @returns 
      */
-    static Stringify(c){
-        return c.toString().slice(1, -1).replace("\\/","/")
+    static Stringify(c) {
+        return c.toString().slice(1, -1).replace("\\/", "/")
     }
-    /**
-     * remove capture brancket
-     * @param {string} str 
-     * @returns 
-     */
-    static RemoveCapture(str){
+ /**
+  * remove capture group
+  * @param {string} str regex data 
+  * @param {*} regex regex that represent the capture
+  * @returns 
+  */
+    static RemoveCapture(str, regex) {
+
+        if (typeof (str) != 'string') {
+            throw new Error('invalid parameter.');
+        }
+
         let l = str;
         let p = 0;
         let ch = '';
-        function rm_brank(l, index, start='(', end=')'){
+        regex = regex || /\(\?(:|(\<)?=)./;
+        function rm_brank(l, index, start = '(', end = ')') {
             let i = 1;
             let ln = l.length;
             const start_index = index;
             let escaped = false;
-            while((i < ln) && (i>0) && (index < ln)){
-    
-                ch = l[index+1];
-                if (ch==start){
-                   if (!escaped){ 
+            while ((i < ln) && (i > 0) && (index < ln)) {
+
+                ch = l[index + 1];
+                if (ch == start) {
+                    if (!escaped) {
                         i++;
-                   }
-                } else if (ch ==end){
+                    }
+                } else if (ch == end) {
                     if (!escaped)
                         i--;
                 }
-                escaped = ch=="\\";
+                escaped = ch == "\\";
                 index++;
             }
             //+ | fix: remove repeating brank symbol
-            if ((index+1<ln)&&(/[\\?\\*]/.test( l[index+1]))){
+            if ((index + 1 < ln) && (/[\\?\\*]/.test(l[index + 1]))) {
                 index++;
             }
-            return l.substring(0, start_index)+l.substring(index+1);
+            return l.substring(0, start_index) + l.substring(index + 1);
         }
         let capture = false;
-        while( p = /\(\?(:|(\<)?=)./.exec(l)){
+        while (p = regex.exec(l)) {
             l = rm_brank(l, p.index);
-            capture= true;
+            capture = true;
         }
         return capture ? l : null;
     }
 
-    static ReadBrank(str, position, count=1, start='(', end=')'){
+    static ReadBrank(str, position, count = 1, start = '(', end = ')') {
         const ln = str.length;
         let ch = null;
         let _stpos = position;
-        while(position<ln){
+        while (position < ln) {
             ch = str[position];
-            if (ch==start){
+            if (ch == start) {
                 count++;
-            }else if (ch==end){
+            } else if (ch == end) {
                 count--;
-                if (count==0){ 
-                    position ++;
+                if (count == 0) {
+                    position++;
                     break;
                 }
             }
-            position ++;
+            position++;
         }
         return str.substring(_stpos, position);
     }
-    
+
     /**
      * check if is captured only regex expression
      * @param {string|RegExp} regex 
      * @returns {bool}
      */
-    static IsCapturedOnlyRegex(regex){
+    static IsCapturedOnlyRegex(regex) {
         let f = false;
         let s = regex.toString();
-        s = s.substring(0, s.lastIndexOf('/')+1).slice(1,-1);
-        s = RegexUtils.RemoveCapture(s);
-        if (s==null){
+        s = s.substring(0, s.lastIndexOf('/') + 1).slice(1, -1);
+        s = RegexUtils.RemoveCapture(s, /\(\?((<)?!|(\<)?=)./);
+        if (s == null) {
             return false;
         }
         s = s.split('|').join('').trim();
 
-        f = s.length==0;  
+        f = s.length == 0;
         return f;
     }
     /**
      * unset capture definition 
      * @param {*} m 
      */
-    static UnsetCapture(m){
+    static UnsetCapture(m) {
         const _regex = /\(\?(:|<|=)/;
         let p = null;
         let s = '';
         let ch = null;
-        while( p = _regex.exec(m)){
+        while (p = _regex.exec(m)) {
             s = m.substring(0, p.index);
             // + | remove branket dans leave content 
             let i = 1;
             let g = m.substring(p.index + p[0].length);
             let ln = g.length;
             let pos = 0;
-            while(pos<ln){
+            while (pos < ln) {
                 ch = g[pos];
-                if (ch==')'){
+                if (ch == ')') {
                     i--;
-                    if (i==0){
-                        if ((pos+1<ln) && /\?|\*/.test(g[pos+1])){
+                    if (i == 0) {
+                        if ((pos + 1 < ln) && /\?|\*/.test(g[pos + 1])) {
                             pos++;
                         }
-                        let end = g.substring(0, pos)+g.substring(pos+1);
-                        s+= end;
+                        let end = g.substring(0, pos) + g.substring(pos + 1);
+                        s += end;
                         break;
                     }
                 }
-                else if (ch=='(') {
+                else if (ch == '(') {
                     i++;
                 }
                 pos++;
-            } 
+            }
             m = s;
-        } 
+        }
         return m;
     }
 }

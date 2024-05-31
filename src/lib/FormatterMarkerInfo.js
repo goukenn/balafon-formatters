@@ -63,11 +63,37 @@ class FormatterMarkerInfo{
         return 'FormatterMarkerInfo#'+this.marker.toString();
     }
 
+    /**
+     * update marker info
+     * @param {*} data 
+     */
     updateDataSegments(data){
-            
+        const {bufferSegment, dataSegment} = data;
+        const _data = this.data;
+        const ic = _data.bufferSegment.length;
+        _data.bufferSegment.push(...bufferSegment);
+        _data.dataSegment.push(...dataSegment);
+
+        const _marked = bufferSegment.marked?.slice(0);
+        if (_marked){
+            for(let c = 0; c <  _marked.length; c++){
+                let _new_id =    _marked[c] + ic;
+                _marked[c] += ic;
+                if (c in bufferSegment.marked.op){
+                    let _op = bufferSegment.marked.op[c];
+                    delete(bufferSegment.marked.op[c]); 
+                    Utils.UpdateSegmentMarkerOperation(bufferSegment.marked, _new_id, _op);  
+                }
+            }
+            if ( !_data.bufferSegment.marked )
+                _data.bufferSegment.marked  = [];
+            _data.bufferSegment.marked.push( ..._marked);
+            _data.bufferSegment.marked.op = { ... _data.bufferSegment.marked.op, ... bufferSegment.marked.op };
+        }
+
     }
     /**
-     * 
+     * create a formatter marker info 
      * @param {*} formatter 
      * @param {*} _marker 
      * @param {*} entry 
@@ -90,8 +116,12 @@ class FormatterMarkerInfo{
         (function (entry, _marker_info) {
             var _content = entry;
             var _isNew  = true;
-            var _data = '';
-            if (option.lastDefineStates?.bufferSegment.join('')==entry){
+            // + | static storage - presentation value 
+            var _data = null;
+
+            _marker_info.updateStore
+
+            if (option?.lastDefineStates?.bufferSegment.join('')==entry){
                 const { dataSegment, bufferSegment } = option.lastDefineStates;
                 _data = { dataSegment, bufferSegment };
             }else{

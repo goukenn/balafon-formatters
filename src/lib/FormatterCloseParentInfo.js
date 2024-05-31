@@ -15,7 +15,7 @@ class FormatterCloseParentInfo{
     type;
 
     /**
-     * define name of
+     * define name of this close parent info
      * @var {?string}
      */
     name;

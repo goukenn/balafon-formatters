@@ -1,0 +1,264 @@
+{
+    "name": "balafon-formatters",
+    "version": "1.0.24",
+    "main": "./src/extension",
+    "description": "Javascript Generic Formatters",
+    "author": {
+        "name": "C.A.D. BONDJE DOUE",
+        "email": "cbondje@igkdev.com"
+    },
+    "icon": "assets/balafon.logo.png",
+    "license": "MIT",
+    "private": true,
+    "repository": "https://cadbondje@dev.azure.com/cadbondje/balafon-formatters/_git/balafon-formatters",
+    "devDependencies": {
+        "@types/mocha": "^10.0.6",
+        "@types/node": "18.x",
+        "@types/vscode": "^1.86.0",
+        "@vscode/l10n": "^0.0.18",
+        "@vscode/test-cli": "^0.0.4",
+        "@vscode/test-electron": "^2.3.8",
+        "dotenv": "^16.4.5",
+        "eslint": "^8.56.0",
+        "mocha": "^10.4.0",
+        "typescript": "^5.3.3",
+        "unit.js": "^2.1.1",
+        "webpack": "^5.90.3",
+        "webpack-cli": "^5.1.4",
+        "cli-color": "^2.0.4"
+    },
+    "scripts": {
+        "build": "webpack",
+        "test": "mocha ./tests/utest.js",
+        "vsce-publish": "vsce publish --yarn",
+        "bcss-build": "bcss build"
+    },
+    "engines": {
+        "vscode": "^1.88.0"
+    },
+    "activationEvents": [],
+    "categories": [
+        "Programming Languages",
+        "Formatters",
+        "Themes",
+        "Other"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "demodata",
+                "extensions": [
+                    ".demodata"
+                ],
+                "aliases": [
+                    "DemoData",
+                    "demodata"
+                ],
+                "configuration": "./languages/bview.language-configuration.json"
+            },
+            {
+                "id": "bview",
+                "extensions": [
+                    ".bview"
+                ],
+                "aliases": [
+                    "Balafon bview",
+                    "bview"
+                ],
+                "configuration": "./languages/bview.language-configuration.json"
+            },
+            {
+                "id": "phtml",
+                "extensions": [
+                    ".phtml"
+                ],
+                "aliases": [
+                    "Balafon phtml",
+                    "phtml"
+                ]
+            },
+            {
+                "id": "bcss",
+                "extensions": [
+                    ".bcss"
+                ],
+                "aliases": [
+                    "Balafon bcss",
+                    "Bcss"
+                ],
+                "configuration": "./languages/bcss.language-configuration.json"
+            },
+            {
+                "id": "bjs",
+                "extensions": [
+                    ".bjs"
+                ],
+                "aliases": [
+                    "Balafon javascript module",
+                    "bjs"
+                ],
+                "configuration": "./languages/bjs.language-configuration.json"
+            },
+            {
+                "id": "pcss",
+                "extensions": [
+                    ".pcss"
+                ],
+                "aliases": [
+                    "Balafon php styles",
+                    "pcss"
+                ],
+                "configuration": "./languages/pcss.language-configuration.json"
+            },
+            {
+                "id": "bhtml",
+                "extensions": [
+                    ".bhtml"
+                ],
+                "aliases": [
+                    "Balafon html",
+                    "bhtml"
+                ],
+                "configuration": "./languages/bhtml.language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "bview",
+                "scopeName": "source.bview",
+                "path": "./src/formatters/bview.btm-syntax.json"
+            },
+            {
+                "language": "bcss",
+                "scopeName": "source.bcss",
+                "path": "./src/formatters/bcss.btm-syntax.json"
+            },
+            {
+                "language": "pcss",
+                "scopeName": "source.pcss",
+                "path": "./src/formatters/pcss.btm-syntax.json",
+                "embeddedLanguages": {
+                    "meta.embedded.php": "php"
+                }
+            },
+            {
+                "language": "phtml",
+                "scopeName": "source.phtml",
+                "path": "./src/formatters/phtml.btm-syntax.json"
+            },
+            {
+                "language": "bhtml",
+                "scopeName": "source.bhtml",
+                "path": "./src/formatters/bhtml.btm-syntax.json",
+                "embeddedLanguages": {
+                    "source.php": "php"
+                }
+            },
+            {
+                "language": "demodata",
+                "scopeName": "source.demodata",
+                "path": "./src/formatters/demodata.btm-syntax.json"
+            },
+            {
+                "language": "bjs",
+                "scopeName": "source.bjs",
+                "path": "./src/formatters/bjs.btm-syntax.json"
+            },
+            {
+                "language": "pcss",
+                "scopeName": "source.pcss",
+                "path": "./src/formatters/pcss.btm-syntax.json"
+            },
+            {
+                "injectTo": [
+                    "source.php",
+                    "text.html.php"
+                ],
+                "scopeName": "source.inline.bcss",
+                "path": "./src/formatters/bcss.inline.btm-syntax.json"
+            }
+        ],
+        "colors": [
+            {
+                "id": "bcss.property",
+                "description": "css-property-color",
+                "defaults": {
+                    "dark": "#FF0000",
+                    "light": "#FF00FF",
+                    "highContrast": "#010203",
+                    "highContrastLight": "#feedc3"
+                }
+            }
+        ],
+        "configuration": [
+            {
+                "title": "balafon",
+                "order": 1,
+                "properties": {
+                    "balafon.workspaceFolder": {
+                        "title": "workspace",
+                        "type": "string",
+                        "default": null,
+                        "description": "setup balafon running workspace"
+                    },
+                    "balafon.defaultAuthor": {
+                        "title": "author",
+                        "type": "string",
+                        "default": "C.A.D BONDJE DOUE",
+                        "description": "set default project author name"
+                    }
+                }
+            },
+            {
+                "title": "mysql",
+                "order": 2,
+                "properties": {
+                    "balafon.mysql.dbServer": {
+                        "default": "0.0.0.0",
+                        "type": "string",
+                        "order": 1
+                    },
+                    "balafon.mysql.dbPort": {
+                        "default": ["3306", "3307"],
+                        "type": "string",
+                        "order":2
+                    },
+                    "balafon.mysql.dbName": {
+                        "default": "igkdev.db",
+                        "type": "string",
+                        "order":3
+                    },
+                    "balafon.mysql.dbUser": {
+                        "default": "root",
+                        "type": "string",
+                        "order": 101
+                    },
+                    "balafon.mysql.dbPassword": {
+                        "default": "",
+                        "type": "string", 
+                        "order": 102,
+                        "description": "for security reason please configure your password."
+                    }
+                }
+            }
+        ],
+        "configurationDefaults": {
+            "balafon.workspaceFolder":"${workspaceFolder}",
+            "balafon.defaultAuthor":"C.A.D. BONDJE DOUE",
+            "balafon.mysql.db0Name":"igkdev.db",
+            "balafon.mysql.dbPassword":"",
+            "balafon.mysql.dbPort":"3306",
+            "balafon.mysql.dbServer":"127.0.0.1",
+            "balafon.mysql.dbUser":"root",
+            "html.format.enable": true,
+            "javascript.format.enable": true,
+            "typescript.format.enable": true,
+            "json.format.enable": true,
+            "[source.bcss]": {
+                "dummy.bcss": true
+            },
+            "editor.tokenColorCustomizations": {}
+        }
+    },
+    "publisher": "CADBONDJEDOUE"
+}

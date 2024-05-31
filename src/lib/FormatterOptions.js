@@ -1,10 +1,19 @@
 "use strict";
-Object.defineProperty(exports, 'enModule', { value: true });
+Object.defineProperty(exports, '__esModule', { value: true });
 
 const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { Utils } = require("./Utils");
 const { Debug } = require("./Debug");
 const { FormatterBuffer } = require("./FormatterBuffer");
+const { FormatterLineMatcher } = require("./FormatterLineMatcher");
+
+/**
+ * @typedef IFormatSourceOption
+ * @type
+ * @property {?string} name
+ * @property {?string} constantName
+ * @property {?number} depth
+ */
 
 /**
  * @typedef IFormatterOptions
@@ -15,22 +24,19 @@ const { FormatterBuffer } = require("./FormatterBuffer");
 /**
  * class used to expose formatter option 
  * @type IFormatterOptions
+ * @property {FormatterLineMatcher} lineMatcher 
  */
 class FormatterOptions {
-    /**
-     * operate line
-     * @var {string}
-     */
-    line = '';
-    /**
-     * store default source line
-     * @var {string}
-     */
-    sourceLine = '';
+    // private 
+    #m_lineSegments;
+
+    // sourceLine;
+    // line;
+
     /**
      * position on operate line 
      */
-    pos = 0;
+    // pos = 0;
     /**
      * current line cursor
      */
@@ -41,7 +47,13 @@ class FormatterOptions {
     skipTreatEnd = false;
     skipTreatWhile = false;
     markerDepth = 0; // store handleMarker stack
+    loopInfo;
 
+    /**
+     * format source option
+     * @var {undefined|IFormatSourceOption}
+     */
+    sourceOption;
     /**
      * join with flag string
      * @var {?string}
@@ -117,18 +129,31 @@ class FormatterOptions {
     lastToken;
 
     /**
+     * last segment
+     */
+    lastSegment;
+
+    /**
      * flag to store last define
      */
     lastDefineStates;
 
     /**
      * flag: use to indicate the line is starting
+     * @var {boolean}
      */
     startLine; 
 
     /**
+     * flag: start line reading 
+     */
+    get startReading(){
+        return this.formatter?.startReading;
+    }
+
+    /**
      * flag: newly block start
-     * @var {null|bolean}
+     * @var {null|undefined|bolean}
      */
     startBlock;
 
@@ -136,7 +161,65 @@ class FormatterOptions {
      * transform marker style
      * @var {*}
      */
-    matchTransformFlag;
+    matchTransformFlag; 
+ 
+    /**
+     * get or set last marker Pattern - to skip for next get global pattern loop. skip only one
+     */
+    lastEmptyMarkerPattern;
+
+    /**
+     * flag: value used to glue with next trimmed line;
+     * @var {undefined|string}
+     */
+    nextGlueValue; 
+
+ 
+    get lineSegments(){
+        return this.#m_lineSegments;
+    }
+
+    /**
+     * 
+     * @param {*} marker 
+     * @returns 
+     */
+    pushConditionalContainer(marker){
+        const { conditionalContainer } = this;
+        if (marker.isBlockConditionalContainer){
+            conditionalContainer.push({marker, start:true});
+            return true;
+        }
+        return false;
+    }
+    popConditionalContainer(){
+        const { conditionalContainer } = this;
+        return conditionalContainer.pop();
+    }
+
+    /**
+     * @var {boolean}
+     */
+    isConditionalBlockStart(){
+        const { conditionalContainer } =  this;
+        if (conditionalContainer.length>0){
+            let i = conditionalContainer[conditionalContainer.length-1];
+            return i.start;
+        }
+        return false;
+    }
+
+    /**
+     * top conditional block container
+     * @returns 
+     */
+    topConditionalBlockContainer(){
+        const { conditionalContainer } =  this;
+        if (conditionalContainer.length>0){
+            return conditionalContainer[conditionalContainer.length-1];
+        }  
+        return null;
+    }
  
     /**
      * .ctr
@@ -149,6 +232,12 @@ class FormatterOptions {
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
         const { lineFeed, tabStop } = _rg;
+        const c_lineMatcher = new FormatterLineMatcher(this);
+        const c_conditionalContainer = [];
+
+        this.#m_lineSegments = [];
+
+        
         let m_depth = _rg.depth || 0;
         let m_pos = 0;
         let _blockStarted = false;
@@ -206,7 +295,15 @@ class FormatterOptions {
             get() {
                 return this.isRootFormatterBuffer(this.formatterBuffer);
             }
-        })
+        });
+        
+
+        Object.defineProperty(option, 'conditionalContainer', {get(){return c_conditionalContainer; }});
+        Object.defineProperty(option, 'lineMatcher', {get(){return c_lineMatcher; }});
+        Object.defineProperty(option, 'sourceLine', {get(){return c_lineMatcher.sourceLine; }});
+        Object.defineProperty(option, 'line', {get(){
+            return c_lineMatcher.line; 
+        }, set(v){ c_lineMatcher.line = v;}});        
         Object.defineProperty(option, '_saveCount', { get: function () { return m_saveCount; } })
         Object.defineProperty(option, 'streamBuffer', { get: function () { return this.stream?.buffer; } })
         Object.defineProperty(option, 'listener', { get: function () { return _listener; } })
@@ -237,8 +334,11 @@ class FormatterOptions {
         Object.defineProperty(option, 'markerInfo', { get: function () { return _markerInfo; } })
         Object.defineProperty(option, 'constants', { get: function () { return m_constants_def; } })
         Object.defineProperty(option, 'pos', {
-            get: function () { return m_pos; }, set(v) {
-                m_pos = v;
+            get: function () { 
+                return c_lineMatcher.position; 
+            }, 
+            set(v){
+                c_lineMatcher.position = v;
             }
         });
         /**
@@ -284,6 +384,9 @@ class FormatterOptions {
         function is_emptyObj(q) {
             return Object.keys(q).length == 0
         }
+        /**
+         * push object state
+         */
         function pushState() {
             let _keys = Object.keys(option);
             let _state = {};
@@ -298,6 +401,9 @@ class FormatterOptions {
             })
             _states.unshift({ ..._state });
         }
+        /**
+         * pop object state
+         */
         function popState() {
             let s = _states.shift();
             if (s) {
@@ -368,14 +474,17 @@ class FormatterOptions {
      
         /**
          * append to buffer
-         * @param {string} value 
+         * @param {string|{buffer:string, data:string}} value 
          * @param {PatternMatchInfo} _marker 
          * @param {?boolean} treat render token with listener  
          * @param {*} _marker 
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
             const { debug } = this;
-            debug?.feature('append-to-buffer') && Debug.log("[append to buffer] - ={" + value + '}');
+            debug?.feature('append-to-buffer') && (()=>{
+                Debug.log("[append to buffer] - ");
+                console.log(value);
+            });
             let _buffer = value;
             let _storeBuffer = (value, data, _marker, treat)=>{
                 let _buffer = value;        
@@ -413,7 +522,7 @@ class FormatterOptions {
             }
             _marker.value = { source: value, value: _buffer };
             if (raise)
-            _formatter.onAppendToBuffer(_marker, _buffer, option);
+                _formatter.onAppendToBuffer(_marker, _buffer, option);
             if (_buffer.trim().length>0){
                 option.glueValue = null;
             }
@@ -501,6 +610,7 @@ class FormatterOptions {
                 );
                 markerInfo.endOutput = _g;
                 this.lastDefineStates = _outdefine;
+                debug?.feature('treat-capture') && Debug.log('--:::Captures result : :::--' + _g);
                 return _g;
             }
             return null; 
@@ -610,12 +720,13 @@ class FormatterOptions {
         option.flush =
            /**
            * flush with what is in the buffer - and clear buffer 
-           * @param {bool} clear 
+           * @param {bool} clear clear buffer list 
+           * @param {{dataOutput:string, buffers: { bufferSegments: [*], dataSegments: [*]} }} refdata reference data return on buffer clear 
            * @returns 
            */
             function (clear, refdata) {
                 const _ctx = this;
-                const { buffer, output, listener, dataOutput} = _ctx;
+                const { buffer, output, listener, dataOutput, formatterBuffer} = _ctx;
                 let l = '';
                 let data = null;
                 if (listener?.output) {
@@ -627,9 +738,10 @@ class FormatterOptions {
                 //+| clear output and buffer 
                 if (clear) {
                     if (refdata){
-                        refdata.data = data;
+                        refdata.dataOutput = data;
+                        refdata.buffers = formatterBuffer.joinSegments();
                     }
-                    this.formatterBuffer.clearAll();
+                    formatterBuffer.clearAll();
                     output.length = 0;
                 }
                 return l;
@@ -676,6 +788,22 @@ class FormatterOptions {
         return {_gbuffer: buffer, _cpos: buffer.length};
     }
     /**
+     * start loop detected 
+     */
+    loopStart(){
+        if (this.loopInfo == null){
+            this.loopInfo = {
+                position: 0,
+                matcher: null,
+                count: 0
+            };
+        } else {
+            this.loopInfo.position = 0;
+            this.loopInfo.matcher= null;
+            this.loopInfo.count = 0;
+        }
+    }
+    /**
      * reset flags definition
      */
     reset(){
@@ -692,11 +820,12 @@ class FormatterOptions {
         this.lineCount = 0;
         this.markerDepth = 0;
         this.nextMode = 1;
-        
+        // reset glue flags
         this.glueValue = null;
         this.joinWith = null;
         this.lastDefineStates = null;
         this.transformMarker = null;
+        this.lastEmptyMarkerPattern = null;
     }
     cleanNewOldBuffers() {
         const option = this;
@@ -718,9 +847,50 @@ class FormatterOptions {
             }
         }
     }
-    onBeginEndFound(){
+    _resetFlags(){
         this.glueValue = null;
+        this.lastEmptyMarkerPattern = null;
+    }
+    /**
+     * set source line 
+     * @param {*} v 
+     * @param {undefined|number} position 
+     * @param {undefined|number} offset 
+     */
+    setSourceLine(v, position, offset){
+        this.lineMatcher.sourceLine = v;
+        if ((position != undefined) && (position>=0)){
+            this.setPosition(position, offset);
+        }
+    }
+
+    /**
+     * set position and offset 
+     * @param {number} position 
+     * @param {undefined|number} offset 
+     */
+    setPosition(position, offset){ 
+        this.lineMatcher.setPosition(position, offset);
+    }
+    /**
+     * 
+     * @param {*} _marker 
+     * @param {*} _old 
+     */
+
+    onBeginEndFound(_marker, _old){
+        this._resetFlags();
         this.cleanNewOldBuffers();
+        // set the nextGlueValue to use.
+        if (_marker.nextGlueValue){
+            this.nextGlueValue = _marker.nextGlueValue;
+        }
+        if (_marker.isBlockConditionalContainer){
+            if (this.topConditionalBlockContainer()==_marker){
+
+                this.popConditionalContainer();
+            }
+        }
     }
     onBeginWhileFound(){
 
@@ -835,7 +1005,7 @@ class FormatterOptions {
     flushAndData(clear){
         const _refData = {};
         const _buffer = this.flush(clear, _refData);
-        return {buffer: _buffer, data: _refData.data };
+        return {buffer: _buffer, data: _refData.dataOutput };
     }
     static AppendExtraLiveOutput({ listener, output, dataOutput }) {
         if (listener?.appendExtraOutput) {
@@ -858,8 +1028,23 @@ class FormatterOptions {
     get bufferState(){
         return {
             buffer: this.buffer,
-            data : this.data
+            data : this.data,
+            output:  this.output.slice(0),
+            dataOutput:  this.dataOutput.slice(0),
+            bufferSegments : this.formatterBuffer.bufferSegments,
+            dataSegments : this.formatterBuffer.dataSegments,
         };
+    }
+
+    constantPattern(){
+        let _c =  this.sourceOption?.constantName || this.sourceOption?.name;
+        if (_c){
+
+            let _g = this.constants.refConstantClass;
+
+            return new _g(_c); 
+        }
+        return this.constants.GlobalConstant; 
     }
 }
 

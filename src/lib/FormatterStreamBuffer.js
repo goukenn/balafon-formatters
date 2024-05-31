@@ -137,8 +137,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         }
 
 
-        option.line = _line;
-        option.pos = 0;
+        option.setSourceLine(_line,0);
 
         if (parent != null) {
             throw new Error("not implement exit parent.");
@@ -147,6 +146,7 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         }
         option.line = bck.line;
         option.pos = bck.pos;
+        if (_old?.marker != from)
         option.shiftAndRestoreFrom(from);
         return ret;
     }
@@ -344,8 +344,10 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
 
     moveToNextPattern(patternInfo, option, _old, markerInfo, next_position, length, _tline) {
         const { parent, hostPatterns, streamAction, indexOf } = patternInfo;
-        const { formatter } = option;
-        option.pos = 0;
+        const { lineMatcher } = option;
+        lineMatcher.reset();
+        lineMatcher.sourceLine = _tline || '';
+
         option.storeRange(option.pos);
         let _patterns = hostPatterns ?
             Utils.GetPatternsList(hostPatterns, indexOf, streamAction) : [];
@@ -387,18 +389,18 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
     }
     static HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState) {
         return (_buffer, _line, patternInfo, _p, option, _old) => {
-            const { parent, streamAction } = patternInfo;
+            const { parent } = patternInfo;
             const { formatter } = option;
             const { endRegex } = markerInfo;
             q.closed = true;
             // + backup line 
-            let _cline = option.line; // all line 
             let _cpos = option.pos;
 
             let _cbuffer = q.buffer;
             let _nextCapture = null;
             let _next_position = 0;
-            option.pos = 0;
+            option.lineMatcher.reset()
+            //option.pos = 0;
             _nextCapture = Utils.GetNextCapture(_line, endRegex, option);
             option.storeRange(option.pos);
             _next_position = _nextCapture.index + _nextCapture.offset;

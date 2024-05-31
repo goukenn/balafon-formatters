@@ -120,9 +120,10 @@ class CaptureRenderer{
      * @param {false|(rf, cap, id, listener):string} end 
      * @param {*} tokens 
      * @param {*|{debug:bool}} option 
+     * @param {*|{treat:bool}} params 
      * @returns 
      */
-    render(listener, captures, end, tokens, option, outdefine){ 
+    render(listener, captures, end, tokens, option, outdefine, treat=true){ 
         if (!captures){
             throw new Error('missing captures info');
         }
@@ -193,7 +194,7 @@ class CaptureRenderer{
                             }
                         } 
                         if (cap.name){
-                            tokens.unshift(cap.name);
+                            Utils.StoreTokens(cap.name, tokens);
                         }
                         if (cap.tokenID){
                             tokenID = cap.tokenID;
@@ -227,13 +228,12 @@ class CaptureRenderer{
                     } 
                     if (listener && !_treat_pattern){
                         rd = rf;
-                        rf = _end ? rf : rf.length>0? listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option) : ''; 
+                        rf = _end || !rf ? rf : rf.length>0? listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option) : ''; 
                     }
                     if (q.parent){
                         // update parent value.
                         let s =  q.root.start - q.parent.root.start;
                         let e =  q.root.end - q.root.start;
-;
                         // + | transform to range - at [start_index, length] of nv to replace
                         if (rf.length>0){
                             q.parent.output.push({range:[s,e], rf, rd}); 
@@ -246,7 +246,7 @@ class CaptureRenderer{
             return rf;
         };
         let treat_constant = function(c, listener){
-            if (c.length>0){
+            if (treat && (c.length>0)){
                 if (listener){
                     c = listener.renderToken(c, ['constant.definition'], 'constant', engine, debug, null, option);
                 }

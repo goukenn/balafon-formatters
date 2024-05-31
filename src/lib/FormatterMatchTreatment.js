@@ -8,7 +8,7 @@ class FormatterMatchTreatment{
         let _data = undefined;
         _op.treatment = new FormatterMatchTreatment;
         Object.defineProperty(_op, 'treated', { get(){
-            return (this.indexOf('replaceWith')!=-1);
+            return (_op.indexOf('replaceWith')!=-1);
         } });
         Object.defineProperty(_op, 'source', { get(){
             return source;

@@ -11,6 +11,7 @@ const FM_START_LINE = 2;
 const FM_START_LINE_NEXT_LINE = 7; 
 const FM_START_LINE_APPEND = 8; // start line then append 
 const FM_APPEND_TO_NEXT = 10;
+const FM_END_LINE = 11; // mark current mode as end of line . used for single line comment
 
 exports.FM_APPEND = FM_APPEND;
 exports.FM_START_LINE = FM_START_LINE; 
@@ -21,6 +22,7 @@ exports.FM_END_INSTRUCTION = FM_END_INSTRUCTION;
 exports.FM_START_LINE_APPEND = FM_START_LINE_APPEND; 
 exports.FM_APPEND_BLOCK = FM_APPEND_BLOCK; 
 exports.FM_APPEND_TO_NEXT = FM_APPEND_TO_NEXT; 
+exports.FM_END_LINE = FM_END_LINE; 
 
 /**
  * configured formatting mode 
