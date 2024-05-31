@@ -129,6 +129,9 @@
             "comment": "css value definition",
             "patterns": [
                 {
+                    "include": "#bcss-single-line-comment"
+                },
+                {
                     "include": "#css-value-definition"
                 },
                 {
@@ -388,7 +391,18 @@
             "match": "\\/\\/(.+)?$",
             "name": "comment.single-line-comment.bcss",
             "formattingMode": 5,
-            "transform": "rtrim"
+            "transform": "rtrim",
+            "captures":{
+                "0":{
+                    "patterns": [
+                        {
+                            "match":"\\s+",
+                            "replaceWith":" ",
+                            "name":"multi-space.bcss"
+                        }
+                    ]
+                }
+            }
         },
         "web-litteral-var": {
             "match": "\\s*(-)+[\\w\\-]+",
@@ -435,12 +449,15 @@
             "name": "value.definition.bcss",
             "patterns": [
                 {
+                    "include": "#bcss-single-line-comment"
+                },
+                {
                     "name": "keyword.operator.punctuation.operator.property.separator.bcss",
                     "match": ","
                 },
                 {
                     "name": "keyword.operator.separator.bcss",
-                    "match": "\\s*(\\/|\\+|-|\\*)\\s*",
+                    "match": "\\s*(\\/(?!\\/)|\\+|-|\\*)\\s*",
                     "transform": [
                         "trim",
                         "[ $0 ]"
