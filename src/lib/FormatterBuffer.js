@@ -238,7 +238,7 @@ class FormatterBuffer {
             }
         } else {
             const { _buffer, _data } = buffer;
-            if (!_data.bufferSegment){
+            if (!_data?.bufferSegment){
                 // + | missing buffer segment
                 this.appendToBuffer(_buffer);
                 return;

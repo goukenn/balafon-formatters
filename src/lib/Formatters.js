@@ -2300,6 +2300,20 @@ class Formatters {
         }
         return { _endCaptureCallback, _checkParentInfo };
     }
+
+    /**
+     * resolv data segments 
+     * @param {*} marker 
+     * @param {*} option 
+     * @param {*} _old 
+     * @returns 
+     */
+    _resolvFoundData(_marker, option, _old){
+        if (option.EOF){
+            return _marker.startData;
+        }
+        return _old?.data || _marker.startData;
+    }
     /**
      * begin/end end found
      * @param {string} _buffer current buffer presentation
@@ -2360,12 +2374,15 @@ class Formatters {
         // + | update parent host - check update properties for end 
         this._updateMarkerChild(_marker, option);
 
+        // + | 
+        const _data = this._resolvFoundData(_marker, option, _old);
+
         // + | full fill pattern buffer 
         ({ _append, _buffer } = _formatting.onEndUpdateBuffer({
             marker: _marker,
             option,
             _buffer,
-            _data: _old?.data || _marker.startData,
+            _data: _data,
             update(info) {
                 return q._updateBuffer(_marker, option, { _append, _buffer, ...(info || {}) });
             }
