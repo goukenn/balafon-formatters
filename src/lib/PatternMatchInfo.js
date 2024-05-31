@@ -125,9 +125,7 @@ class PatternMatchInfo {
             get() { return m_bufferMode; },
             set(v) {
                 if (v != m_bufferMode) {
-                    m_bufferMode = v;
-                    // + | change buffermode 
-                    // console.log('change mode : ', v);
+                    m_bufferMode = v; 
                 }
             }
         });

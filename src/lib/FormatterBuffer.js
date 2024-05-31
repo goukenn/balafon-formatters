@@ -42,6 +42,29 @@ class FormatterBuffer {
     get isEmpty() {
         return this.bufferSegments.length == 0;
     }
+
+    /**
+     * prepend value on segments
+     * @param {string|{buffer:string, data:string}} value 
+     */
+    prepend(value){
+        let buffer = null;
+        let data = null;
+        if (typeof(value)=='object'){
+            ({buffer, data}= value);
+            if (!buffer || !data){
+                throw new Error('invalid data');
+            }
+        } else {
+            if (typeof(value)=='string'){
+            buffer = data = value;
+            }
+            else 
+                throw new Error('not a string data'); 
+        } 
+        this.bufferSegments.unshift(buffer);
+        this.dataSegments.unshift(data); 
+    }
     /**
      * get the buffer offset content
      * @param {number} offset 

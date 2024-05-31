@@ -143,7 +143,7 @@ class Formatters {
 
     constructor() {
         let m_listener;
-        let m_objClass;
+        let m_objClass; 
         let m_errors = [];
         let m_info = {
             isSubFormatting: 0,
@@ -163,7 +163,7 @@ class Formatters {
          */
         Object.defineProperty(this, 'info', { get() { return m_info; } })
         Object.defineProperty(this, 'objClass', { get() { return m_objClass; } })
-
+       
 
         this.pushError = (e) => {
             this.m_errors.push(
@@ -201,13 +201,15 @@ class Formatters {
     onAppendToBuffer(_marker, _buffer, option) {
         this.formatting?.onAppendToBuffer(this, _marker, _buffer, option);
         // + | ---------------------------------------------------------------------
-        // + | reset flag every time something append to buffer
+        // + | reset flag every time something append to buffer - update line segment
         // + |
         option.startLine = false;
         option.lineFeedFlag = false;
         option.blockStart = false;
         option.matchTransform = null;
-        option.lastSegment = option.formatterBuffer.lastSegmentInfo();
+        option.lastSegment = option.formatterBuffer.lastSegmentInfo(); 
+
+        option.lineSegments.push( option.lastSegment);
     }
     /**
      * get the line feed
@@ -466,7 +468,7 @@ class Formatters {
         } else
             debug = null;
         this.debug = debug;
-    }
+    } 
     /**
      * format the data
      * @param {string|string[]} data 
@@ -543,9 +545,10 @@ class Formatters {
                 }
             }
             const _is_sub_formatting = _formatter.info.isSubFormatting > 0;
-            const { lineMatcher } = objClass;
-            data.forEach((line) => {
+            const { lineMatcher, lineSegments } = objClass;
+            data.forEach((line) => { 
                 let _start_line_flag = false; // flag to handle end streaming content
+                lineSegments.length = 0; // reset line segments
                 if (this.skip_r) {
                     return;
                 }
@@ -585,7 +588,7 @@ class Formatters {
                 let pos = objClass.pos;
                 _formatter._updateLineFeed(objClass, (pos==0) && !objClass.lineFeedFlag);
                 objClass.loopStart();
-                let _lastPost = pos;
+                let _lastPost = pos; 
                 while (pos < ln) {
                     objClass.continue = false;
                     _start_line_flag = true;
@@ -1563,8 +1566,8 @@ class Formatters {
 
     /**
      * onMatch handle affect only on content match
-     * @param {*} _marker 
-     * @param {*} option 
+     * @param {PatternMatchInfo} _marker 
+     * @param {FormatterOptions} option 
      * @returns 
      */
     _handleMatchMarker(_marker, option) {
@@ -1572,8 +1575,9 @@ class Formatters {
         option.debug?.feature('match/match') && Debug.log('---::: Handle match marker :::--' + _marker.toString());
         option.state = 'match';
         const { parent, group, match, closeParentData } = _marker;
-        // const _formatting = this.formatting;
-        const _old = option.parentMatcherInfo;
+        const { formatting } = this;
+
+        const _old = option.peekFirstMarkerInfo();// option.parentMatcherInfo;
         let _cm_value = group[0];
         let _next_position = group.index + group.offset;
         let _checkParentInfo, _endCaptureCallback;
@@ -1657,7 +1661,7 @@ class Formatters {
         }
         this._onEndHandler(_marker, option);
 
-        this.formatting.updateMatchNextFormatting(_marker, option);
+        formatting.updateMatchNextFormatting(_marker, option, _old);
 
         if (_marker.closeParent) {
             return this._closeMarker(_marker, parent, option, _marker.closeParentData);
@@ -2460,7 +2464,7 @@ class Formatters {
                 // + | 
                 // + | passing current data to buffer definition so it can be encapsulate
                 // + | 
-                option.appendToBuffer(_buffState, _marker, true, false);
+                option.appendToBuffer(_buffState, _marker, true, true);
             }
             if (!_close_block && (_marker.
                 isFormattingStartBlockElement || _marker.isBlock)) {
@@ -2515,7 +2519,7 @@ class Formatters {
         return { _buffer, _nextBuffer };
 
     }
-    _closeMarkerByStop(marker, tp, option, { _line = '' }) {
+    _closeMarkerByStop(marker, tp, option, { _line = '', nextMode }) {
         let _old = null;
         let _endFound = this._handleFoundEndPattern;
         let _buffer = null;
@@ -2578,6 +2582,7 @@ class Formatters {
         let fromChild = info.fromChild;
         let tp = null;
         let _end_non_capture = (marker, tp, nextMode) => {
+            marker.mode = nextMode;
             let _ret_marker = this._closeMarkerByStop(marker, tp, option, { _line, nextMode });
             this._updateFormatModeFromTo(marker, _ret_marker, option);
             return _ret_marker;

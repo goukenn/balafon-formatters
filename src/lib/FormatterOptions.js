@@ -27,6 +27,9 @@ const { FormatterLineMatcher } = require("./FormatterLineMatcher");
  * @property {FormatterLineMatcher} lineMatcher 
  */
 class FormatterOptions {
+    // private 
+    #m_lineSegments;
+
     // sourceLine;
     // line;
 
@@ -137,8 +140,16 @@ class FormatterOptions {
 
     /**
      * flag: use to indicate the line is starting
+     * @var {boolean}
      */
     startLine; 
+
+    /**
+     * flag: start line reading 
+     */
+    get startReading(){
+        return this.formatter?.startReading;
+    }
 
     /**
      * flag: newly block start
@@ -162,6 +173,11 @@ class FormatterOptions {
      * @var {undefined|string}
      */
     nextGlueValue; 
+
+ 
+    get lineSegments(){
+        return this.#m_lineSegments;
+    }
 
     /**
      * 
@@ -218,6 +234,9 @@ class FormatterOptions {
         const { lineFeed, tabStop } = _rg;
         const c_lineMatcher = new FormatterLineMatcher(this);
         const c_conditionalContainer = [];
+
+        this.#m_lineSegments = [];
+
         
         let m_depth = _rg.depth || 0;
         let m_pos = 0;
@@ -503,7 +522,7 @@ class FormatterOptions {
             }
             _marker.value = { source: value, value: _buffer };
             if (raise)
-            _formatter.onAppendToBuffer(_marker, _buffer, option);
+                _formatter.onAppendToBuffer(_marker, _buffer, option);
             if (_buffer.trim().length>0){
                 option.glueValue = null;
             }

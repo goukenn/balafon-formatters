@@ -126,6 +126,7 @@
                     ]
                 }
             },
+            "comment":"css value definition",
             "patterns": [
                 {
                     "include": "#css-value-definition"
@@ -386,7 +387,7 @@
         "single-line-comment": {
             "match": "\\/\\/(.+)?$",
             "name": "comment.single-line-comment.bcss",
-            "formattingMode": 5,
+            "formattingMode": 5, 
             "transform": "rtrim"
         },
         "web-litteral-var": {
@@ -439,7 +440,7 @@
                 },
                 {
                     "name": "keyword.operator.separator.bcss",
-                    "match": "\\s*(\\/)\\s*",
+                    "match": "\\s*(\\/|\\+|-|\\*)\\s*",
                     "transform": [
                         "trim",
                         "[ $0 ]"
@@ -1101,7 +1102,7 @@
             "begin": "\\*|(?:#|\\.|\\-\\-)?[a-zA-Z][a-zA-Z0-9\\-_]*\\b",
             "end": "\\}|;",
             "endMissingValue": "",
-            "name": "start.selector---",
+            "name": "meta.start.selector.bcss",
             "beginCaptures": {
                 "0": {
                     "patterns": []
@@ -1128,8 +1129,18 @@
         "bcss-operator-split": {
             "patterns": [
                 {
+                    "match": "\\s*(\\+|>|~)\\s*$",
+                    "name": "constant.punctuation.css-join.operator.bcss",
+                    "comment":"join operator at end of line",
+                    "transform": [
+                        "trim",
+                        "[ $0]"
+                    ]
+                },
+                {
                     "match": "\\s*(\\+|>|~)\\s*",
                     "name": "constant.punctuation.css-join.operator.bcss",
+                    "comment":"glue operator on single line",
                     "transform": [
                         "trim",
                         "[ $0 ]"
@@ -1702,6 +1713,7 @@
             ]
         },
         "bcss-selection-definition": {
+            "comment":"sub selection definition",
             "patterns": [
                 {
                     "include": "#capture-speudo-selector"
@@ -1718,7 +1730,8 @@
                
                 {
                     "begin":"(\\s+)(?=(\\w|\\.|#))",
-                    "end":"(?=\\{)", 
+                    "end":"(?=(\\{|\\s))", 
+                    "name":"start.sub.property",
                     "beginCaptures":{
                         "0":{
                             "transform":"trim"
@@ -1750,6 +1763,11 @@
                 },
                 {
                     "include": "#bcss-glue-selector-white-space"
+                },
+                {
+                    "match":"div",
+                    "throwError": "dlj",
+                    "name":"startsub-div"
                 },
                 {
                     "begin": "\\:",
@@ -2009,8 +2027,8 @@
             ]
         },
         "bcss-sub-property-entry-definition": {
-            "begin": "(?=(.|#)?[a-zA-Z][a-zA-Z]*)",
-            "end": "(?<=\\}|;)|(?=;|\\}|\\{|\\s|:)",
+            "begin": "(?=(.|#)?[a-zA-Z][a-zA-Z0-9\\-]*)",
+            "end": "(?<=\\}|;)|(?=;|\\}|\\{|\\s)",
             "name": "sub-selector",
             "patterns": [
                 {
@@ -2024,6 +2042,9 @@
                 {
                     "include": "#bcss-html5-tags"
                 },
+                {
+                    "include": "#capture-speudo-selector"
+                }, 
                 {
                     "name":"entity.name.tag.fallback-tag.bcss",
                     "match":"[a-zA-Z][a-zA-Z0-9\\-]*(\\\\.[a-zA-Z][a-zA-Z0-9\\-]*)*",
@@ -2043,7 +2064,7 @@
             ]
         },
         "bcss-html5-tags":{
-            "match": "\\b(?:a(bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(anvas|aption|enter|ite|ode|ol|olgroup)|d(ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(m|mbed)|f(ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(ead|eader|group|1|2|3|4|5|6|r|tml)|i(frame|mg|nput|ns)?|k(bd|eygen)|l(abel|egend|i|ink)|m(ain|ap|ark|enu|enuitem|eta|eter)|n(av|oframes|oscript)|o(bject|l|ptgroup|ption|utput)|p(aram|icture|re|rogress)?|q|r(p|t|uby)|s(amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(l)?|v(ar|ideo)|w(br))\\b(\\\\.([a-z][a-z0-9\\-]*)*)*",           
+            "match": "\\b(?:a(?:bbr|cronym|ddress|pplet|rea|rticle|side|udio)?|b(?:ase|asefont|di|do|ig|lockquote|ody|r|utton)?|c(?:anvas|aption|enter|ite|ode|ol|olgroup)|d(?:ata|atalist|d|el|etails|fn|ialog|ir|iv|l|t)|e(?:m|mbed)|f(?:ieldset|igcaption|igure|ont|ooter|orm|rame|rameset)|h(?:ead|eader|group|1|2|3|4|5|6|r|tml)|i(?:frame|mg|nput|ns)?|k(?:bd|eygen)|l(?:abel|egend|i|ink)|m(?:ain|ap|ark|enu|enuitem|eta|eter)|n(?:av|oframes|oscript)|o(?:bject|l|ptgroup|ption|utput)|p(?:aram|icture|re|rogress)?|q|r(?:p|t|uby)|s(?:amp|cript|ection|elect|mall|ource|pan|trike|trong|tyle|ub|ummary|up|vg)?|t(?:able|body|d|emplate|extarea|foot|h|head|ime|itle|r|rack|t)|u(?:l)?|v(?:ar|ideo)|w(?:br))\\b(?:\\\\.(?:[a-z][a-z0-9\\-]*)*)*",           
             "name":"entity.name.tag.html5-tag.bcss",
             "captures":{
                 "0":{
@@ -2062,7 +2083,7 @@
                     "comment": "operator detection",
                     "begin": "\\s*(\\+|>|~|,)\\s*",
                     "end": "(?!(\\+|>|~|,))",
-                    "name": "op.detection",
+                    "name": "op.detection.bcss",
                     "beginCaptures": {
                         "0": {
                             "patterns": [
@@ -2314,8 +2335,9 @@
             ]
         },
         "bcss-css-glue-id-class": {
-            "match": "(?:\\.|#)[a-zA-Z][a-zA-Z]*(?:\\\\.[a-zA-Z][a-zA-Z\\-]*)*(?:(?:\\.|#|:)[a-zA-Z][a-zA-Z]*(?:\\\\.[a-zA-Z][a-zA-Z\\-]*)*)*",            
+            "match": "(?:\\.|#)[a-zA-Z][a-zA-Z]*(?:\\\\.[a-zA-Z][a-zA-Z\\-]*)*",            
             "comment":"just glue id or class selection with event",
+            "name":"glue-id-or-class",
             "captures": {
                 "0": {
                     "patterns": [
@@ -2375,7 +2397,10 @@
                     }
                 },
                 {
-                    "include": "#bcss-sub-selection-definition"
+                    "include": "#single-line-comment"
+                },
+                {
+                    "include": "#bcss-sub-selection-definition-"
                 }
             ]
         },
@@ -2454,7 +2479,7 @@
                 },
                 {
                     "begin": "(?!<[\\w\\-])[a-z][a-z0-9\\-]*",
-                    "end": "(?=@|\\})",
+                    "end": "(?=@|\\}|;)",
                     "name": "entity.name.tag.custom-property.name.bcss fallback.prop.bcss",
                     "patterns": [
                         {

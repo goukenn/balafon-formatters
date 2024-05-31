@@ -1,4 +1,4 @@
-Object.defineProperty(exports, '__esModule', { value: true }); 
+Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
 const { PatternMatchInfo } = require("./PatternMatchInfo");
@@ -474,12 +474,15 @@ class Utils {
         let _position = -1; // selected pattern position        
         const { lineMatcher } = option;
         lineMatcher.startLine = option.startLine;
-        const _tloop = [{ patterns: patterns, from: null, ref: parentMatcherInfo, count: 0 }];
+        const _tloop = [{ patterns: patterns, from: null, ref: parentMatcherInfo, count: 0 , slice:0}];
         const ll = l;
         while (_tloop.length > 0) {
             const _m_patterns = _tloop.shift();
             let _count = 0;
-            _m_patterns.patterns.forEach((s) => {
+            let _mpatterns = _m_patterns.patterns.slice(_m_patterns.slice);
+            while (_mpatterns.length > 0) {
+                let s = _mpatterns.shift();
+                //_m_patterns.patterns.forEach((s) => {
                 let p = null;
                 let from = null;
                 let item_index = null;
@@ -500,7 +503,16 @@ class Utils {
                     else {
                         if (patterns) {
                             //_tloop.unshift({ patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });
-                            _tloop.push({ patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });
+                            _tloop.push({ patterns: patterns, from: s, ref: parentMatcherInfo, 
+                                count: _count ,
+                                slice: 0});
+                            if (_mpatterns.length > 0) {
+                                _tloop.push({ patterns: _m_patterns.patterns, from: _m_patterns.from, ref: parentMatcherInfo, 
+                                    count: _count, 
+                                   slice : _m_patterns.patterns.length - _mpatterns.length});
+                                _mpatterns.length = 0;
+                            }
+                            continue;
                         }
                     }
                     if (_d) {
@@ -517,7 +529,8 @@ class Utils {
                     }
                 }
                 _count++;
-            });
+                // });
+            }
         }
 
         // patterns.forEach((s) => {
@@ -642,6 +655,18 @@ class Utils {
         }
         return _a;
     }
+    /**
+     * 
+     * @param {*} _info 
+     * @param {*} _a 
+     * @param {*} _match 
+     * @param {*} parentMatcherInfo 
+     * @param {*} _from 
+     * @param {*} line 
+     * @param {*} patterns 
+     * @param {*} index 
+     * @param {*} formatting 
+     */
     static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1, formatting) {
         _info.use({
             marker: _a,
@@ -989,8 +1014,8 @@ class Utils {
         let _name = null;
         let _value = null;
         // extra name and value
-        if (typeof(value)=='object'){
-            ({value, name}=value);
+        if (typeof (value) == 'object') {
+            ({ value, name } = value);
         } else {
             _value = value;
         }
@@ -1029,7 +1054,7 @@ class Utils {
             _formatter.info.isSubFormatting++;
             _formatter.patterns = patterns;
 
-            value = _formatter.format(_value, {name: _name});
+            value = _formatter.format(_value, { name: _name });
             _formatter.info.isSubFormatting--;
             _formatter.patterns = _bck.patterns;
             // + | restore setting

@@ -219,6 +219,13 @@ class Patterns {
      */
     formattingMode = 0;
 
+
+    /**
+     * prepend value - on formattingMode = 5
+     * @var {string|undefined} - default value is space litteral if undefined
+     */
+    formattingPrependExtra;
+
     /**
      * a glue value - to merge on 
      */
