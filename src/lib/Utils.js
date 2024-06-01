@@ -82,7 +82,7 @@ class Utils {
 
     static UpdateSegmentMarkerOperation(_d, _idx, op) {
         if (!op) {
-            console.log("not op ");
+            console.log("----not op-----", _d);
         }
         _d.op[_idx] = op;
     }

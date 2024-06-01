@@ -183,7 +183,7 @@ class FormatterBuffer {
     }
     /**
      * append value to buffer segment
-     * @param {string|{buffer:string, data: string, marked: boolean}} v 
+     * @param {string|{buffer:string, data: string, marked: boolean|{}}} v 
      */
     appendToBuffer(v) {
         if (typeof (v) == 'string') {

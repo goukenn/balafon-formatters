@@ -21,6 +21,9 @@
             "name": "core.definition.js",
             "patterns": [
                 {
+                    "include": "#single-condition-expression"
+                },
+                {
                     "include": "#reserved-words"
                 },
                 {
@@ -50,6 +53,7 @@
                 {
                     "include": "#single-line-comment"
                 }
+               
             ]
         },
         "single-condition-expression": {
@@ -88,6 +92,9 @@
             "patterns": [
                 {
                     "include": "#reserved-words"
+                },
+                {
+                    "include": "#single-condition-expression"
                 }
             ],
             "endCaptures": {

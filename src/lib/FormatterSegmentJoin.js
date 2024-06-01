@@ -17,7 +17,6 @@ class FormatterSegmentJoin{
     bufferSegment;
 
     constructor(){
-        this.data
     }
 
     /**

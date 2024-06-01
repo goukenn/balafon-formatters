@@ -9,6 +9,8 @@ const { FM_APPEND, FM_START_LINE, FM_START_BLOCK, FM_END_BLOCK,
     FM_START_LINE_APPEND,
     PatternFormattingMode } = require('./FormattingMode');
 
+const { Utils } = require('../Utils');
+
 
 
 
@@ -77,7 +79,7 @@ class KAndRFormatting extends FormattingBase {
         let sd = '';
         let _bbuffer = option.buffer;
         let _bdata = option.data;
-        let _state_saved = option.bufferState;
+        // let _state_saved = option.bufferState;
         const { formatterBuffer, lineFeedFlag } = option;
         let _clean = false;
 
@@ -146,7 +148,20 @@ class KAndRFormatting extends FormattingBase {
         _refData._data = sd;
         return _refData;
     }
-    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData) {
+    /**
+     * 
+     * @param {*} content 
+     * @param {*} extra 
+     * @param {*} buffer 
+     * @param {*} _hasBuffer 
+     * @param {*} _hasExtra 
+     * @param {*} isEntryContent 
+     * @param {*} _flushData reference data to export
+     * @param {*} segments segment that represent the current content
+     * @returns 
+     */
+    onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData, segments) {
+        const { FormatterBuffer } = Utils.Classes;
         let _ld = '';
         if (extra.length > 0) {
             _ld += extra;
@@ -154,7 +169,19 @@ class KAndRFormatting extends FormattingBase {
         if (buffer.length > 0) {
             _ld += buffer;
         }
-        content = !isEntryContent ? content.trimEnd() : content;
+        const _trimEnd = function(){
+            if (segments){
+
+                FormatterBuffer.TreatMarkedSegments(segments, 'trimmed'); 
+                content = segments.bufferSegment.join('');
+
+            }
+            return content.trimEnd();
+            
+        };
+
+
+        content = !isEntryContent ? _trimEnd() : content;
         if (!this.mergeEndBlock) {
             option.appendExtraOutput();
             option.formatterBuffer.appendToBuffer(_ld.trimStart());

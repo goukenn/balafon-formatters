@@ -119,13 +119,19 @@ class FormatterMarkerInfo{
             // + | static storage - presentation value 
             var _data = null;
 
-            _marker_info.updateStore
+            //_marker_info.updateStore
 
             if (option?.lastDefineStates?.bufferSegment.join('')==entry){
                 const { dataSegment, bufferSegment } = option.lastDefineStates;
                 _data = { dataSegment, bufferSegment };
             }else{
-                _data = {dataSegment: [], bufferSegment:[]}
+                let e = [];
+                let d = [];
+                if (entry.length>0){
+                    e.push(entry);
+                    d.push(entry);
+                }
+                _data = {dataSegment: e, bufferSegment:d}
             }
             _marker_info.set = function(){
                 _isNew = false;

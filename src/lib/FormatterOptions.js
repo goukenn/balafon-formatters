@@ -26,6 +26,7 @@ const { FormatterLineSegment } = require("./FormatterLineSegment");
  * class used to expose formatter option 
  * @type IFormatterOptions
  * @property {FormatterLineMatcher} lineMatcher 
+ * @function joinBuffer
  */
 class FormatterOptions {
     // private 
@@ -439,6 +440,12 @@ class FormatterOptions {
             return this.joinBuffer(s, value);
         };
 
+        /**
+         * 
+         * @param {*} buffer 
+         * @param {*} value 
+         * @returns 
+         */
         option.joinBuffer = function (buffer, value) {
             const { lineJoin, noSpaceJoin } = this;
             let s = buffer;
@@ -484,7 +491,7 @@ class FormatterOptions {
          * @param {*} _marker 
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
-            const { debug } = this;
+            const { debug, formatterBuffer } = this;
             debug?.feature('append-to-buffer') && (()=>{
                 Debug.log("[append to buffer] - ");
                 console.log(value);
@@ -500,7 +507,7 @@ class FormatterOptions {
                     if (treat){
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
-                    this.formatterBuffer.appendToBuffer({
+                    formatterBuffer.appendToBuffer({
                         buffer: _buffer, data: _data});
                 }
             };
@@ -520,8 +527,11 @@ class FormatterOptions {
                     if (treat){
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
-                    this.formatterBuffer.appendToBuffer({
-                        buffer: _buffer, data: value});
+                    // TODO: update marker info
+                    const marked = null;//_marker.markedInfo();
+
+                    formatterBuffer.appendToBuffer({
+                        buffer: _buffer, data: value, marked});
                 }
             }
             _marker.value = { source: value, value: _buffer };

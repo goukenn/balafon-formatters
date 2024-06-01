@@ -288,7 +288,8 @@ class FormattingBase {
                 }
                 if (_ld.length <= 0) {
                     _append_next_mode = FM_START_LINE;
-                }
+                }else
+                    _flushData.dataOutput = _ld;
                 break;
             case FM_END_BLOCK:
                 // after end block
@@ -385,7 +386,7 @@ class FormattingBase {
                 _append_next_mode = FM_APPEND;
                 break;
             case FM_APPEND_BLOCK:
-                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData));
+                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData, segments));
                 if (!('dataOutput' in _flushData)){
                     _flushData['dataOutput'] = bufferData.dataSegment.join(''); 
                 }

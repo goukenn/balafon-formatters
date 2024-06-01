@@ -441,6 +441,7 @@ class Formatters {
             GlobalConstant: new GlobalConstantPattern,
             StreamLineConstant: new StreamLineConstantPattern,
             StreamBufferConstant: new StreamBufferConstantPattern,
+            TrimmedPrevLineFeedConstant: new TrimmedPrevLineFeedConstant,
             refConstantClass: RefConstantPattern
         };
         let objClass = new FormatterOptions(this, _formatterBuffer, _listener, m_constants_def, _rg);
@@ -1277,22 +1278,26 @@ class Formatters {
      * @param {string} value 
      * @param {FormatterOptions} option 
      * @param {bool} append_child append to child 
-     * @param {FormatterOptions} option 
+     * @param {*} constant_type_marker type matcher
      */
-    _appendConstant(patternInfo, value, option, append_child = true, constant_type_marker) {
+    _appendConstant(patternInfo, value, option, append_child = true, constant_type_marker=null) {
         let { debug, listener } = option;
         let { formatting } = this;
         debug && Debug.log('--::appendConstant::--[' + value + ']');
-
-        if (option.startBlock && (value.trim().length == 0)) {
+        let _fempty = (value.trim().length == 0);
+        if (option.startBlock && _fempty) {
             return;
         }
 
-
+        let _def_type =  option.constants.PrevLineFeedConstant;
         value = formatting.treatConstantValue(value, patternInfo, option);
-
+        if (_fempty){
+            // + | can be trimmed
+            _def_type = option.constants.TrimmedPrevLineFeedConstant;
+        }
         let _inf = new PatternMatchInfo;
-        _inf.use({ marker: constant_type_marker || option.constants.PrevLineFeedConstant, line: option.line, index: -2, formatting });
+        _inf.use({ marker: constant_type_marker || _def_type, line: option.line, index: -2, formatting });
+
         formattingSetupPatternForBuffer(patternInfo, option);
         const fc_update = () => {
             formatting.updateBufferConstant(value, patternInfo.mode, _inf, option);
@@ -3256,6 +3261,15 @@ class PrevLineFeedConstantPattern extends SystemConstantPattern {
      */
     shiftIdConstant() {
         return false;
+    }
+}
+
+class TrimmedPrevLineFeedConstant extends PrevLineFeedConstantPattern{
+    constructor(){
+        super();
+        this.markedSegment = {
+            trimmed:true
+        }
     }
 }
 
