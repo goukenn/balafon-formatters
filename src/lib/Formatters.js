@@ -208,7 +208,7 @@ class Formatters {
         option.matchTransform = null;
         option.lastSegment = option.formatterBuffer.lastSegmentInfo(); 
 
-        option.lineSegments.push( option.lastSegment);
+        option.lineSegments.push( option.lastSegment, option);
     }
     /**
      * get the line feed
@@ -547,7 +547,7 @@ class Formatters {
             const { lineMatcher, lineSegments } = objClass;
             data.forEach((line) => { 
                 let _start_line_flag = false; // flag to handle end streaming content
-                lineSegments.length = 0; // reset line segments
+                lineSegments.clear(); // reset line segments
                 if (this.skip_r) {
                     return;
                 }

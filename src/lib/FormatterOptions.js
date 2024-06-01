@@ -6,6 +6,7 @@ const { Utils } = require("./Utils");
 const { Debug } = require("./Debug");
 const { FormatterBuffer } = require("./FormatterBuffer");
 const { FormatterLineMatcher } = require("./FormatterLineMatcher");
+const { FormatterLineSegment } = require("./FormatterLineSegment");
 
 /**
  * @typedef IFormatSourceOption
@@ -235,11 +236,11 @@ class FormatterOptions {
         const c_lineMatcher = new FormatterLineMatcher(this);
         const c_conditionalContainer = [];
 
-        this.#m_lineSegments = [];
+        this.#m_lineSegments = new FormatterLineSegment;
+        let m_isCapturing = false;
 
         
         let m_depth = _rg.depth || 0;
-        let m_pos = 0;
         let _blockStarted = false;
         const _bufferState = [];
         const _markerInfo = [];
@@ -313,6 +314,9 @@ class FormatterOptions {
             get: function () { return _blockStarted; }, set(v) {
                 _blockStarted = v;
             }
+        });
+        Object.defineProperty(option, 'isCapturing', {
+            get: function () { return m_isCapturing; }
         });
         Object.defineProperty(option, 'buffer', { get: function () { return _formatterBuffer.buffer; } })
         Object.defineProperty(option, 'data', { get: function () { return _formatterBuffer.data; } })
@@ -628,7 +632,9 @@ class FormatterOptions {
             let q = option;
             let _bck = q.skipEmptyMatchValue;
             q.skipEmptyMatchValue = false;
+            m_isCapturing= true;
             let _g = callback();
+            m_isCapturing = false;
             q.skipEmptyMatchValue = _bck;
             return _g;
         }
@@ -843,6 +849,7 @@ class FormatterOptions {
         this.lastDefineStates = null;
         this.transformMarker = null;
         this.lastEmptyMarkerPattern = null;
+        this.lineSegments.clear();
     }
     cleanNewOldBuffers() {
         const option = this;

@@ -1,3 +1,4 @@
+"use strict";
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
@@ -1050,6 +1051,7 @@ class Utils {
             q.depth = 0;
             q.markerInfo.length = 0;
             option.lineMatcher.save();
+            option.lineSegments.save();
             option.lastEmptyMarkerPattern = null;
             q.newBuffer('_subformat_buffer_');
             _formatter.info.isSubFormatting++;
@@ -1061,6 +1063,7 @@ class Utils {
             // + | restore setting
             q.lineCount = _bck.lineCount;
             option.lineMatcher.restore();
+            option.lineSegments.restore();
             q.line = _bck.line;
             q.depth = _bck.depth;
 
