@@ -570,7 +570,9 @@ class FormatterOptions {
             _s = CaptureRenderer.CreateFromGroup(group, marker.name);
             if (_s) {
                 _outdefine =_outdefine || {};
-                let _g = _s.render(this.listener, _cap, false, this.tokenChains, this, _outdefine);
+                let _g = _renderCaptures( ()=>{
+                    return  _s.render(this.listener, _cap, false, this.tokenChains, this, _outdefine);
+                });
                 patternInfo.startOutput = _g;
                 this.lastDefineStates = _outdefine;
                 return _g;
@@ -605,15 +607,30 @@ class FormatterOptions {
             let _s = CaptureRenderer.CreateFromGroup(def, marker.name);
             if (_s) { 
                 _outdefine = _outdefine || {};
-                let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
-                    q, _outdefine
-                );
+                let _g = _renderCaptures(()=>{
+                    let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
+                        q, _outdefine
+                    );
+                    return _g;
+                }); 
                 markerInfo.endOutput = _g;
                 this.lastDefineStates = _outdefine;
                 debug?.feature('treat-capture') && Debug.log('--:::Captures result : :::--' + _g);
                 return _g;
             }
             return null; 
+        }
+
+        /**
+         * 
+         */
+        function _renderCaptures(callback){
+            let q = option;
+            let _bck = q.skipEmptyMatchValue;
+            q.skipEmptyMatchValue = false;
+            let _g = callback();
+            q.skipEmptyMatchValue = _bck;
+            return _g;
         }
       
     

@@ -1462,7 +1462,7 @@ class Formatters {
         let _cm_value = _e.value;
         let _data = _e.data;
         const q = this;
-        const { debug, formatterBuffer } = option;
+        // const { debug, formatterBuffer } = option;
         const _formatting = this.formatting;
         const b = _e.isInstructionSeparator || false;
         const _is_join = option.joinWith && option.startLine;
