@@ -630,7 +630,7 @@ class Formatters {
                             }
                             loopInfo.position = pos;
                             if (loopInfo.count > 1) {
-                                throw new Error('infine loop detected'+loopInfo.matcher);
+                                throw new Error('infine loop detected : '+ JSON.stringify(loopInfo));
                             }
                             loopInfo.count++
                         } else {
@@ -2614,10 +2614,10 @@ class Formatters {
         const _line = info.line.substring(info.pos);
         const _nextPosition = option.pos;
         const _bckLine = option.line;
+        let _bckLineOffset = lineMatcher.offset;
         let treat = false;
         let fromChild = info.fromChild;
         let tp = null;
-        let _bckLineOffset = lineMatcher.offset;
         let _end_non_capture = (marker, tp, nextMode) => {
             marker.mode = nextMode;
             let _ret_marker = this._closeMarkerByStop(marker, tp, option, { _line, nextMode });
@@ -2647,13 +2647,14 @@ class Formatters {
             }
             if (tp = endRegex.exec(_tcline)) {
                 let l = (tp.index + _toffset) ;
-                if ((l == endGroup.index) && (tp[0].length == 0)) {
+                let _empty_capture = (tp[0].length == 0);
+                if ((l == endGroup.index) && _empty_capture) {
                     tp.index += _toffset;
                     p = _end_non_capture(p, tp, option.nextMode);
                 } else {
                     // fix offset parent
-                    if (l<endGroup.index)
-                    _bckLineOffset = _offsetPosition;
+                    if ((l<endGroup.index)|| !_empty_capture)
+                        _bckLineOffset = _offsetPosition;
                     break;
                 }
                 treat = true;
