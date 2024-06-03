@@ -288,7 +288,8 @@ class FormattingBase {
                 }
                 if (_ld.length <= 0) {
                     _append_next_mode = FM_START_LINE;
-                }
+                }else
+                    _flushData.dataOutput = _ld;
                 break;
             case FM_END_BLOCK:
                 // after end block
@@ -352,10 +353,11 @@ class FormattingBase {
                 if (_hasBuffer) { 
                     // trim end before store 
                    FormatterBuffer.TreatMarkedSegments(bufferData, 'trimmed'); 
-                   this._updateFormatterBufferSegments(formatterBuffer, bufferData);                 
+                   this._updateFormatterBufferSegments(formatterBuffer, bufferData); 
+               
                 } 
-                option.store();
-                _ld = option.flush(true, bufferData);
+                option.store(); 
+                _ld = option.flush(true, _flushData); 
                 if (option.nextMode==mode){
                  _append_next_mode = mode;
                 }
@@ -385,7 +387,7 @@ class FormattingBase {
                 _append_next_mode = FM_APPEND;
                 break;
             case FM_APPEND_BLOCK:
-                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData));
+                ({ content, _ld } = this.onAppendBlock(content, extra, buffer, _hasBuffer, _hasExtra, isEntryContent, _flushData, segments));
                 if (!('dataOutput' in _flushData)){
                     _flushData['dataOutput'] = bufferData.dataSegment.join(''); 
                 }
@@ -742,8 +744,8 @@ class FormattingBase {
     /**
      * on end update buffer
      */
-    onEndUpdateBuffer({ marker, option, update, _buffer, _data }) {
-        return update({ marker, _buffer, _data }, option);
+    onEndUpdateBuffer({ marker, option, update, _buffer, _data , _trimOutput=false}) {
+        return update({ marker, _buffer, _data, _trimOutput }, option);
     }
     /**
      * 

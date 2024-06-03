@@ -427,7 +427,7 @@
             "replaceWith": " ",
             "isGlueValue": " ",
             "markedSegment":{
-                "trimmed":true
+                "trimmed":false
             },
             "debugName": "meta.glue-white-space.bthml",
             "skip": [

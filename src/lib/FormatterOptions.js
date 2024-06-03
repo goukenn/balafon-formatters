@@ -6,6 +6,7 @@ const { Utils } = require("./Utils");
 const { Debug } = require("./Debug");
 const { FormatterBuffer } = require("./FormatterBuffer");
 const { FormatterLineMatcher } = require("./FormatterLineMatcher");
+const { FormatterLineSegment } = require("./FormatterLineSegment");
 
 /**
  * @typedef IFormatSourceOption
@@ -25,6 +26,7 @@ const { FormatterLineMatcher } = require("./FormatterLineMatcher");
  * class used to expose formatter option 
  * @type IFormatterOptions
  * @property {FormatterLineMatcher} lineMatcher 
+ * @function joinBuffer
  */
 class FormatterOptions {
     // private 
@@ -235,11 +237,11 @@ class FormatterOptions {
         const c_lineMatcher = new FormatterLineMatcher(this);
         const c_conditionalContainer = [];
 
-        this.#m_lineSegments = [];
+        this.#m_lineSegments = new FormatterLineSegment;
+        let m_isCapturing = false;
 
         
         let m_depth = _rg.depth || 0;
-        let m_pos = 0;
         let _blockStarted = false;
         const _bufferState = [];
         const _markerInfo = [];
@@ -313,6 +315,9 @@ class FormatterOptions {
             get: function () { return _blockStarted; }, set(v) {
                 _blockStarted = v;
             }
+        });
+        Object.defineProperty(option, 'isCapturing', {
+            get: function () { return m_isCapturing; }
         });
         Object.defineProperty(option, 'buffer', { get: function () { return _formatterBuffer.buffer; } })
         Object.defineProperty(option, 'data', { get: function () { return _formatterBuffer.data; } })
@@ -435,6 +440,12 @@ class FormatterOptions {
             return this.joinBuffer(s, value);
         };
 
+        /**
+         * 
+         * @param {*} buffer 
+         * @param {*} value 
+         * @returns 
+         */
         option.joinBuffer = function (buffer, value) {
             const { lineJoin, noSpaceJoin } = this;
             let s = buffer;
@@ -480,7 +491,7 @@ class FormatterOptions {
          * @param {*} _marker 
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
-            const { debug } = this;
+            const { debug, formatterBuffer } = this;
             debug?.feature('append-to-buffer') && (()=>{
                 Debug.log("[append to buffer] - ");
                 console.log(value);
@@ -496,8 +507,9 @@ class FormatterOptions {
                     if (treat){
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
-                    this.formatterBuffer.appendToBuffer({
-                        buffer: _buffer, data: _data});
+                    const marked = _marker.markedInfo();
+                    formatterBuffer.appendToBuffer({
+                        buffer: _buffer, data: _data, marked});
                 }
             };
 
@@ -516,8 +528,11 @@ class FormatterOptions {
                     if (treat){
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
-                    this.formatterBuffer.appendToBuffer({
-                        buffer: _buffer, data: value});
+                    // TODO: update marker info
+                    const marked =  _marker.markedInfo();
+
+                    formatterBuffer.appendToBuffer({
+                        buffer: _buffer, data: value, marked});
                 }
             }
             _marker.value = { source: value, value: _buffer };
@@ -570,7 +585,9 @@ class FormatterOptions {
             _s = CaptureRenderer.CreateFromGroup(group, marker.name);
             if (_s) {
                 _outdefine =_outdefine || {};
-                let _g = _s.render(this.listener, _cap, false, this.tokenChains, this, _outdefine);
+                let _g = _renderCaptures( ()=>{
+                    return  _s.render(this.listener, _cap, false, this.tokenChains, this, _outdefine);
+                });
                 patternInfo.startOutput = _g;
                 this.lastDefineStates = _outdefine;
                 return _g;
@@ -605,15 +622,32 @@ class FormatterOptions {
             let _s = CaptureRenderer.CreateFromGroup(def, marker.name);
             if (_s) { 
                 _outdefine = _outdefine || {};
-                let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
-                    q, _outdefine
-                );
+                let _g = _renderCaptures(()=>{
+                    let _g = _s.render(this.listener, _cap, fc_handle_end, this.tokenChains,
+                        q, _outdefine
+                    );
+                    return _g;
+                }); 
                 markerInfo.endOutput = _g;
                 this.lastDefineStates = _outdefine;
                 debug?.feature('treat-capture') && Debug.log('--:::Captures result : :::--' + _g);
                 return _g;
             }
             return null; 
+        }
+
+        /**
+         * 
+         */
+        function _renderCaptures(callback){
+            let q = option;
+            let _bck = q.skipEmptyMatchValue;
+            q.skipEmptyMatchValue = false;
+            m_isCapturing= true;
+            let _g = callback();
+            m_isCapturing = false;
+            q.skipEmptyMatchValue = _bck;
+            return _g;
         }
       
     
@@ -826,6 +860,7 @@ class FormatterOptions {
         this.lastDefineStates = null;
         this.transformMarker = null;
         this.lastEmptyMarkerPattern = null;
+        this.lineSegments.clear();
     }
     cleanNewOldBuffers() {
         const option = this;

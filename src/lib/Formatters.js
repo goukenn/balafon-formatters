@@ -208,7 +208,7 @@ class Formatters {
         option.matchTransform = null;
         option.lastSegment = option.formatterBuffer.lastSegmentInfo(); 
 
-        option.lineSegments.push( option.lastSegment);
+        option.lineSegments.push( option.lastSegment, option);
     }
     /**
      * get the line feed
@@ -441,6 +441,7 @@ class Formatters {
             GlobalConstant: new GlobalConstantPattern,
             StreamLineConstant: new StreamLineConstantPattern,
             StreamBufferConstant: new StreamBufferConstantPattern,
+            TrimmedPrevLineFeedConstant: new TrimmedPrevLineFeedConstant,
             refConstantClass: RefConstantPattern
         };
         let objClass = new FormatterOptions(this, _formatterBuffer, _listener, m_constants_def, _rg);
@@ -547,7 +548,7 @@ class Formatters {
             const { lineMatcher, lineSegments } = objClass;
             data.forEach((line) => { 
                 let _start_line_flag = false; // flag to handle end streaming content
-                lineSegments.length = 0; // reset line segments
+                lineSegments.clear(); // reset line segments
                 if (this.skip_r) {
                     return;
                 }
@@ -630,7 +631,7 @@ class Formatters {
                             }
                             loopInfo.position = pos;
                             if (loopInfo.count > 1) {
-                                throw new Error('infine loop detected'+loopInfo.matcher);
+                                throw new Error('infine loop detected : '+ JSON.stringify(loopInfo));
                             }
                             loopInfo.count++
                         } else {
@@ -1277,22 +1278,26 @@ class Formatters {
      * @param {string} value 
      * @param {FormatterOptions} option 
      * @param {bool} append_child append to child 
-     * @param {FormatterOptions} option 
+     * @param {*} constant_type_marker type matcher
      */
-    _appendConstant(patternInfo, value, option, append_child = true, constant_type_marker) {
+    _appendConstant(patternInfo, value, option, append_child = true, constant_type_marker=null) {
         let { debug, listener } = option;
         let { formatting } = this;
         debug && Debug.log('--::appendConstant::--[' + value + ']');
-
-        if (option.startBlock && (value.trim().length == 0)) {
+        let _fempty = (value.trim().length == 0);
+        if (option.startBlock && _fempty) {
             return;
         }
 
-
+        let _def_type =  option.constants.PrevLineFeedConstant;
         value = formatting.treatConstantValue(value, patternInfo, option);
-
+        if (_fempty){
+            // + | can be trimmed
+            _def_type = option.constants.TrimmedPrevLineFeedConstant;
+        }
         let _inf = new PatternMatchInfo;
-        _inf.use({ marker: constant_type_marker || option.constants.PrevLineFeedConstant, line: option.line, index: -2, formatting });
+        _inf.use({ marker: constant_type_marker || _def_type, line: option.line, index: -2, formatting });
+
         formattingSetupPatternForBuffer(patternInfo, option);
         const fc_update = () => {
             formatting.updateBufferConstant(value, patternInfo.mode, _inf, option);
@@ -1462,7 +1467,7 @@ class Formatters {
         let _cm_value = _e.value;
         let _data = _e.data;
         const q = this;
-        const { debug, formatterBuffer } = option;
+        // const { debug, formatterBuffer } = option;
         const _formatting = this.formatting;
         const b = _e.isInstructionSeparator || false;
         const _is_join = option.joinWith && option.startLine;
@@ -1819,6 +1824,9 @@ class Formatters {
                 _startOutput.buffer = patternInfo.startOutput;
                 _startOutput.data = _outdefine;
             }
+            FormatterBuffer.InitBufferMarkedSegment(_startOutput.data.bufferSegment);
+        
+
             patternInfo.start = false;
             if (patternInfo.isBlock) {
                 // - on base start width K_R coding style 
@@ -1889,6 +1897,10 @@ class Formatters {
                         _close_data = this._treatMatchValue(_close_data, patternInfo, option, _op, null, true);
 
                         _buffer += _close_data;
+                        if (_old){
+                            _old.data.bufferSegment.push(_close_data);
+                            _old.data.dataSegment.push(_close_data);
+                        }
                     }
                 }
 
@@ -2129,12 +2141,20 @@ class Formatters {
      * @private
      * @returns 
      */
-    _updateBuffer(_marker, option, { _append, _buffer, _data }) {
+    _updateBuffer(_marker, option, { _append, _buffer, _data, _trimOutput }) {
         const q = this;
         const { parent } = _marker;
-        const { formatting } = q;
         const { formatterBuffer } = option;
         if (_buffer.length > 0) {
+
+            if (_trimOutput){
+                if (_data.bufferSegment.join('')!=_buffer){
+                    throw new Error('trim out buffer not match');
+                }
+                FormatterBuffer.TreatMarkedSegments(_data, 'trimmed'); 
+                _buffer = _data.bufferSegment.join('');
+            }
+
             // + | direct append to buffer
             formatterBuffer.storeToBuffer({ _buffer, _data }, option);
             _buffer = '';
@@ -2397,6 +2417,7 @@ class Formatters {
             option,
             _buffer,
             _data: this._resolvFoundData(_marker, option, _old),
+            _trimOutput:true,
             update(info) {
                 return q._updateBuffer(_marker, option, { _append, _buffer, ...(info || {}) });
             }
@@ -2569,6 +2590,8 @@ class Formatters {
         } else {
             _old = option.shiftFromMarkerInfo(marker, true);
         }
+       
+
         _buffer = _old ? this._updateOldMarkerContent(_old, option) : '';
 
         // let _cline = _line.substring(tp.index);
@@ -2614,10 +2637,10 @@ class Formatters {
         const _line = info.line.substring(info.pos);
         const _nextPosition = option.pos;
         const _bckLine = option.line;
+        let _bckLineOffset = lineMatcher.offset;
         let treat = false;
         let fromChild = info.fromChild;
         let tp = null;
-        let _bckLineOffset = lineMatcher.offset;
         let _end_non_capture = (marker, tp, nextMode) => {
             marker.mode = nextMode;
             let _ret_marker = this._closeMarkerByStop(marker, tp, option, { _line, nextMode });
@@ -2647,13 +2670,14 @@ class Formatters {
             }
             if (tp = endRegex.exec(_tcline)) {
                 let l = (tp.index + _toffset) ;
-                if ((l == endGroup.index) && (tp[0].length == 0)) {
+                let _empty_capture = (tp[0].length == 0);
+                if ((l == endGroup.index) && _empty_capture) {
                     tp.index += _toffset;
                     p = _end_non_capture(p, tp, option.nextMode);
                 } else {
                     // fix offset parent
-                    if (l<endGroup.index)
-                    _bckLineOffset = _offsetPosition;
+                    if ((l<endGroup.index)|| !_empty_capture)
+                        _bckLineOffset = _offsetPosition;
                     break;
                 }
                 treat = true;
@@ -3244,6 +3268,9 @@ class SystemConstantPattern extends SpecialMeaningPatternBase {
     transform = [function (v) {
         if (v.trim().length == 0) return ''; return v;
     }, 'joinSpace']
+    markedInfo(){
+        return Utils.GetMarkedInfo(this);
+    }
 }
 // previous contains before add to buffer 
 class PrevLineFeedConstantPattern extends SystemConstantPattern {
@@ -3258,10 +3285,20 @@ class PrevLineFeedConstantPattern extends SystemConstantPattern {
     }
 }
 
+class TrimmedPrevLineFeedConstant extends PrevLineFeedConstantPattern{
+    constructor(){
+        super();
+        this.markedSegment = {
+            trimmed:true
+        }
+    }
+}
+
 const SYSTEM_MATCH_TYPE = 0x100;
 
 class GlobalConstantPattern extends SystemConstantPattern {
     name = 'system.global.line.constant';
+  
 }
 class StreamLineConstantPattern extends SystemConstantPattern {
     name = 'system.stream.line.constant';
