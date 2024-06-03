@@ -123,7 +123,21 @@ class FormatterMarkerInfo{
 
             if (option?.lastDefineStates?.bufferSegment.join('')==entry){
                 const { dataSegment, bufferSegment } = option.lastDefineStates;
-                _data = { dataSegment, bufferSegment };
+                _data = { dataSegment: dataSegment.slice(0), bufferSegment : bufferSegment.slice(0) };
+                // + | copy marked segment  
+                _data.bufferSegment.marked = FormatterBuffer.CopyMarkedSegment(bufferSegment);
+                
+                // bufferSegment.marked ? ((a)=>{
+                //     let marked = a.slice(0);
+                //     if('op' in a)
+                //         marked.op = JSON.parse(JSON.stringify(a.op));
+                //     else 
+                //         marked.op = FormatterBuffer.InitOpMarkedSegment();
+                //     return marked;
+                // })(bufferSegment.marked) : 
+                //     FormatterBuffer.InitMarkedSegment();
+
+
             }else{
                 let e = [];
                 let d = [];
@@ -133,6 +147,11 @@ class FormatterMarkerInfo{
                 }
                 _data = {dataSegment: e, bufferSegment:d}
             }
+            if (!('marked' in _data.bufferSegment))
+                 _data.bufferSegment.marked = FormatterBuffer.InitMarkedSegment();
+
+
+
             _marker_info.set = function(){
                 _isNew = false;
             };

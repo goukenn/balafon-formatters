@@ -1824,6 +1824,9 @@ class Formatters {
                 _startOutput.buffer = patternInfo.startOutput;
                 _startOutput.data = _outdefine;
             }
+            FormatterBuffer.InitBufferMarkedSegment(_startOutput.data.bufferSegment);
+        
+
             patternInfo.start = false;
             if (patternInfo.isBlock) {
                 // - on base start width K_R coding style 
@@ -1894,6 +1897,10 @@ class Formatters {
                         _close_data = this._treatMatchValue(_close_data, patternInfo, option, _op, null, true);
 
                         _buffer += _close_data;
+                        if (_old){
+                            _old.data.bufferSegment.push(_close_data);
+                            _old.data.dataSegment.push(_close_data);
+                        }
                     }
                 }
 
@@ -2134,12 +2141,20 @@ class Formatters {
      * @private
      * @returns 
      */
-    _updateBuffer(_marker, option, { _append, _buffer, _data }) {
+    _updateBuffer(_marker, option, { _append, _buffer, _data, _trimOutput }) {
         const q = this;
         const { parent } = _marker;
-        const { formatting } = q;
         const { formatterBuffer } = option;
         if (_buffer.length > 0) {
+
+            if (_trimOutput){
+                if (_data.bufferSegment.join('')!=_buffer){
+                    throw new Error('trim out buffer not match');
+                }
+                FormatterBuffer.TreatMarkedSegments(_data, 'trimmed'); 
+                _buffer = _data.bufferSegment.join('');
+            }
+
             // + | direct append to buffer
             formatterBuffer.storeToBuffer({ _buffer, _data }, option);
             _buffer = '';
@@ -2402,6 +2417,7 @@ class Formatters {
             option,
             _buffer,
             _data: this._resolvFoundData(_marker, option, _old),
+            _trimOutput:true,
             update(info) {
                 return q._updateBuffer(_marker, option, { _append, _buffer, ...(info || {}) });
             }
@@ -2574,6 +2590,8 @@ class Formatters {
         } else {
             _old = option.shiftFromMarkerInfo(marker, true);
         }
+       
+
         _buffer = _old ? this._updateOldMarkerContent(_old, option) : '';
 
         // let _cline = _line.substring(tp.index);
@@ -3250,6 +3268,9 @@ class SystemConstantPattern extends SpecialMeaningPatternBase {
     transform = [function (v) {
         if (v.trim().length == 0) return ''; return v;
     }, 'joinSpace']
+    markedInfo(){
+        return Utils.GetMarkedInfo(this);
+    }
 }
 // previous contains before add to buffer 
 class PrevLineFeedConstantPattern extends SystemConstantPattern {
@@ -3277,6 +3298,7 @@ const SYSTEM_MATCH_TYPE = 0x100;
 
 class GlobalConstantPattern extends SystemConstantPattern {
     name = 'system.global.line.constant';
+  
 }
 class StreamLineConstantPattern extends SystemConstantPattern {
     name = 'system.stream.line.constant';

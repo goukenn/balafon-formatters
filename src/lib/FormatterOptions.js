@@ -507,8 +507,9 @@ class FormatterOptions {
                     if (treat){
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
+                    const marked = _marker.markedInfo();
                     formatterBuffer.appendToBuffer({
-                        buffer: _buffer, data: _data});
+                        buffer: _buffer, data: _data, marked});
                 }
             };
 
@@ -528,7 +529,7 @@ class FormatterOptions {
                         _buffer = this.treatValueBeforeStoreToBuffer(_marker, _buffer);
                     } 
                     // TODO: update marker info
-                    const marked = null;//_marker.markedInfo();
+                    const marked =  _marker.markedInfo();
 
                     formatterBuffer.appendToBuffer({
                         buffer: _buffer, data: value, marked});

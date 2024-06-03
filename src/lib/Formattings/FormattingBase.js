@@ -353,10 +353,11 @@ class FormattingBase {
                 if (_hasBuffer) { 
                     // trim end before store 
                    FormatterBuffer.TreatMarkedSegments(bufferData, 'trimmed'); 
-                   this._updateFormatterBufferSegments(formatterBuffer, bufferData);                 
+                   this._updateFormatterBufferSegments(formatterBuffer, bufferData); 
+               
                 } 
-                option.store();
-                _ld = option.flush(true, bufferData);
+                option.store(); 
+                _ld = option.flush(true, _flushData); 
                 if (option.nextMode==mode){
                  _append_next_mode = mode;
                 }
@@ -743,8 +744,8 @@ class FormattingBase {
     /**
      * on end update buffer
      */
-    onEndUpdateBuffer({ marker, option, update, _buffer, _data }) {
-        return update({ marker, _buffer, _data }, option);
+    onEndUpdateBuffer({ marker, option, update, _buffer, _data , _trimOutput=false}) {
+        return update({ marker, _buffer, _data, _trimOutput }, option);
     }
     /**
      * 

@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', { value: true });
 
+const { Utils } = require('./Utils');
+
 /**
  * type checking requirement
  * @param {*} v 
@@ -87,20 +89,8 @@ class PatternMatchInfo {
         return (this.isTrimmedSegment === true) || (this.markedSegment != null);
     }
     markedInfo() {
-        let _info = null;
-        const { isMarkedSegments, isTrimmedSegment, markedSegment } = this;
-        if (isMarkedSegments) {
-            if (typeof (markedSegment) == 'object') {
-                _info = {
-                    trimmed: isTrimmedSegment,
-                    ...markedSegment
-                }
-            }else{
-                _info = {isTrimmed: isTrimmedSegment};
-            }
-            return _info;
-        }
-        return true;
+        //const { Utils } = require('./Utils');
+        return Utils.GetMarkedInfo(this); 
     }
     constructor() {
         var m_parent;

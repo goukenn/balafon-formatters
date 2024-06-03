@@ -2,7 +2,6 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { JSonParser } = require("./JSonParser");
-const { PatternMatchInfo } = require("./PatternMatchInfo");
 const { RegexUtils } = require("./RegexUtils");
 
 /**
@@ -16,6 +15,9 @@ class Utils {
      * @param {*} bufferSegment 
      */
     static TrimBufferSegment(bufferSegment, dataSegment) {
+        if (dataSegment.length != bufferSegment.length){
+            throw new Error('invalid trim operation. length must match');
+        }
         const _tlist = bufferSegment.marked.slice(0);
         let _dir = 0;
         let _idx = 0;
@@ -50,15 +52,35 @@ class Utils {
                 _count++;
             }
         }
+
+        if (dataSegment.length != bufferSegment.length){
+            throw new Error('invalid trim operation');
+        }
+    }
+    static GetMarkedInfo(marker){
+        let _info = null;
+        const { isMarkedSegments, isTrimmedSegment, markedSegment } = marker;
+        if (isMarkedSegments) {
+            if (typeof (markedSegment) == 'object') {
+                _info = {
+                    trimmed: isTrimmedSegment,
+                    ...markedSegment
+                }
+            }else{
+                _info = {isTrimmed: isTrimmedSegment};
+            }
+            return _info;
+        }
+        return false;
     }
     static ReorderBufferSegment(bufferSegment) {
+        const { FormatterBuffer } = Utils.Classes;
         // order 
         const _op = bufferSegment.marked.op;
         const _marked = bufferSegment.marked;
         let _ni = 0;
         let _buff = [];
-        _buff.marked = [];
-        _buff.marked.op = {};
+        _buff.marked = FormatterBuffer.InitMarkedSegment();
         // update buffer marker order 
         for (let ri = 0; ri < bufferSegment.length; ri++) {
             if (bufferSegment[ri] != undefined) {
@@ -80,10 +102,21 @@ class Utils {
 
     }
 
+    /**
+     * 
+     * @param {*} _d 
+     * @param {*} _idx 
+     * @param {*} op operation to do 
+     */
     static UpdateSegmentMarkerOperation(_d, _idx, op) {
-        if (!op) {
-            console.log("----not op-----", _d);
+        if (Array.isArray(_d)==false){
+            throw new Error("required array");
         }
+      
+        // if (!op) {
+        //     console.log("----not op-----", _d);
+        //     return;
+        // }
         _d.op[_idx] = op;
     }
     static UpdateMarkedSegment(s, _marker) {
@@ -1165,4 +1198,10 @@ class Utils {
         return [];
     }
 }
+
+
+
 exports.Utils = Utils;
+
+// + | extra const usage 
+const { PatternMatchInfo } = require("./PatternMatchInfo");

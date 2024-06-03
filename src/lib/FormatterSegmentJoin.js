@@ -43,6 +43,9 @@ class FormatterSegmentJoin{
         const { FormatterBuffer } = Utils.Classes;
 
         if (marked){
+            if(!('op' in marked)){
+                FormatterBuffer.InitOpMarkedSegment(marked);
+            }
             // + | -------------------------
             // + | - to - 
             // + | -------------------------            
@@ -54,10 +57,11 @@ class FormatterSegmentJoin{
             marked.forEach(element => {
                 const _idx = element + _length;
                 if (!('op' in _d)){
-                    _d.op = [];
+                    FormatterBuffer.InitOpMarkedSegment(_d);
                 }
                 _d.push(_idx);
-                Utils.UpdateSegmentMarkerOperation(_d, _idx, marked.op[element]);  
+                let _ts = element in marked.op? marked.op[element] : null;
+                Utils.UpdateSegmentMarkerOperation(_d, _idx, _ts);  
                 _i++;
             });
         }

@@ -123,7 +123,10 @@
                 {
                     "match": "\\s+",
                     "replaceWith": " ",
-                    "isGlue": true
+                    "isGlueValue":" ",
+                    "markedSegment":{
+                        "trimmed":true
+                    }
                 },
                 {
                     "include": "#block-branket-stop"

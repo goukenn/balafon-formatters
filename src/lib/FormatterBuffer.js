@@ -43,6 +43,24 @@ class FormatterBuffer {
         return this.bufferSegments.length == 0;
     }
 
+    static InitBufferMarkedSegment(bufferSegment){ 
+        if (bufferSegment && !('marked' in bufferSegment)){
+            bufferSegment.marked = FormatterBuffer.InitMarkedSegment();
+        } 
+    }
+
+    static CopyMarkedSegment(bufferSegment){
+        return bufferSegment.marked ? ((a)=>{
+            let marked = a.slice(0);
+            if('op' in a)
+                marked.op = JSON.parse(JSON.stringify(a.op));
+            else 
+                marked.op = FormatterBuffer.InitOpMarkedSegment();
+            return marked;
+        })(bufferSegment.marked) : 
+            FormatterBuffer.InitMarkedSegment(); 
+    }
+
     /**
      * prepend value on segments
      * @param {string|{buffer:string, data:string}} value 
@@ -127,13 +145,12 @@ class FormatterBuffer {
         if (bufferSegments.marked) {
             const q = bufferSegments.marked;
             q.sort();
-            const _OP = q.op;
+            const _OP = q.op || {};
             let _call = (tab, q, marked) => {
                 let c = 0;
                 let t = [];
                 const _bufferS = [];
-                const _marked = [];
-                _marked.op = {};
+                const _marked = FormatterBuffer.InitMarkedSegment();
                 tab.forEach(a => {
                     if ((q.length > 0) && (q[0] == c)) {
                         if (t.length > 0) {
@@ -178,8 +195,11 @@ class FormatterBuffer {
      */
     static InitMarkedSegment(){
         const _g = []; 
-        _g.op = {}; 
+        FormatterBuffer.InitOpMarkedSegment(_g);
         return _g;
+    }
+    static InitOpMarkedSegment(d){
+        d.op = {};
     }
     /**
      * append value to buffer segment
@@ -206,7 +226,7 @@ class FormatterBuffer {
                     this.bufferSegments.marked.push(_idx);
                     if (typeof (marked) == 'object') {
                         if (!('op' in this.bufferSegments.marked)){
-                            this.bufferSegments.marked.op = [];
+                            FormatterBuffer.InitOpMarkedSegment(this.bufferSegments.marked);
                         }
                         Utils.UpdateSegmentMarkerOperation( this.bufferSegments.marked, _idx, marked);
                      
@@ -260,7 +280,7 @@ class FormatterBuffer {
         bufferSegment.length = 0;
         if ('marked' in bufferSegment){ 
             bufferSegment.marked.length = 0;
-            bufferSegment.marked.op = []; 
+            FormatterBuffer.InitOpMarkedSegment(bufferSegment.marked);
         }
     }
     /**
@@ -391,10 +411,15 @@ class FormatterBuffer {
      */
     static GetBufferMarkedOperation(bufferSegments, idx){
         let op = null;
-        if (idx in bufferSegments.marked){
-            let l = bufferSegments.marked[idx];
-            if (l in bufferSegments.marked.op){
-                op = bufferSegments.marked.op[l];
+        const { marked } = bufferSegments;
+        if (marked){
+            let _op  = marked.op;
+            if (idx in bufferSegments.marked){
+                let l = bufferSegments.marked[idx];
+
+                if (op && (l in _op)){
+                    op =op[l];
+                }
             }
         }
         return op;
@@ -433,7 +458,7 @@ class FormatterBuffer {
 
                 Utils.TrimBufferSegment(bufferSegment, dataSegment);
                 Utils.ReorderBufferSegment(bufferSegment);
-                let elt = dataSegment.filter(o => o);
+                let elt = dataSegment.filter(o => o!== undefined);
                 dataSegment.length = 0;
                 dataSegment.push(...elt);
                 return dataSegment;
