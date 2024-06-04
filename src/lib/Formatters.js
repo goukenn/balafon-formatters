@@ -796,16 +796,17 @@ class Formatters {
                 // + | priority to pattern info
                 // + | ---------------------
                 let _tpret = this._handleMarker(patternInfo, option);
-                // + | same group end - 
-                // let _tret = this._handleSameGroupMatch(_matcher, option);
-
+                // + | same group end -
                 return _tpret;
-
-            } else {
-                return this._handleMarker(_matcher, option);
-            }
-        } else if (_matcher) {
+            } 
+        }
+        if (_matcher) {
             // + | a matcher that target end on line
+            if (_matcher.isStreamCapture){
+                // + | start new stream capture 
+                const cp =  this._startStreamingPattern(_matcher, '', null, option, null, null, '', true);
+                return cp;
+            }
             return this._handleMarker(_matcher, option);
         }
         return patternInfo;
@@ -1926,11 +1927,7 @@ class Formatters {
                     }
                 }
                 return this._handleFoundEndPattern(_buffer, _line, patternInfo, _p, option, _old);
-            }
-
-            // if (patternInfo.isStreamCapture && _start) {
-            //     return this._startStreamingPattern(patternInfo, _line, _endRegex, option, null, null, _buffer, false);
-            // }
+            } 
             this._updateMarkerOldContentOrSwapBuffer(patternInfo, _old, _buffer, patternInfo.endRegex, option);
             return patternInfo;
         }
@@ -2450,7 +2447,12 @@ class Formatters {
         }
         ));
 
-        // + | node division 
+        // + | node division  
+        if (_marker.isBlock && !_marker.blockStartInfo){
+            // + | for some reason marker block is a block element but not got a blockStartInfo
+           this._closeBlockEntry(option, _marker, null, null, false);
+        }
+
         if (_marker.isBlock && _marker.blockStartInfo) {
             // + | just remove block before store 
             // + | reset block value;
@@ -2470,6 +2472,7 @@ class Formatters {
             // + | just reduce block depth
             this._closeBlockEntry(option, _marker, null, null, false);
         } else {
+           
             ({ _b } = _formatting.handleEndOnNonBlockElement(this, _marker, option,
                 { _b, _old, data: _p[0] }
             ));
