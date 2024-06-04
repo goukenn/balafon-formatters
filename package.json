@@ -1,6 +1,6 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.35",
+    "version": "1.0.36",
     "main": "./src/extension",
     "description": "Javascript Generic Formatters",
     "author": {
@@ -46,12 +46,13 @@
     "contributes": {
         "languages": [
             {
-                "id":"vbmacros",
+                "id": "vbmacros",
                 "extensions": [
                     ".vbmacros"
                 ],
                 "aliases": [
-                    "vbmacros","balafon vb macros"
+                    "vbmacros",
+                    "balafon vb macros"
                 ],
                 "configuration": "./languages/vb-macros.language-configuration.json"
             },
@@ -134,7 +135,7 @@
         ],
         "grammars": [
             {
-                "language":"vbmacros",
+                "language": "vbmacros",
                 "scopeName": "source.vbmacros",
                 "path": "./src/formatters/vbmacros.btm-syntax.json"
             },
