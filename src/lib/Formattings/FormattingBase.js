@@ -711,10 +711,7 @@ class FormattingBase {
                 nextMode = FM_START_LINE;
                 break;
             case PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED:
-                // + | append to extra line comment if possible
-                if (_parentMarker?.isBlock){
-                    console.log("parent is block");
-                }
+                // + | append to extra line comment if possible 
                 if ((content?.length > 0) && (option.lineSegments.length > 1) && (currentMode !== FM_END_LINE) && (currentMode == FM_START_LINE)) {
                     lineFeedFlag = false;
                     currentMode = FM_APPEND;
