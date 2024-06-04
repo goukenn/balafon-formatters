@@ -1393,6 +1393,12 @@ class Formatters {
             else {
                 // handle the next 
                 if (_matcher) {
+                    let _constant_line = option.line.substring(option.pos, _matcher.group.index);
+
+                    if (_constant_line.length>0){
+                        this._appendConstant(patternInfo, _constant_line, option);
+                    }
+                    option.storeRange(option.pos);
                     this._registerTokenName(patternInfo, option);
                     let _ret =  this._handleMarker(_matcher, option); 
                     return _ret;
