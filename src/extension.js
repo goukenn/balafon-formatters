@@ -2,7 +2,7 @@ const vscode = require('vscode');
 // for release 
 const { bformatter } = require('../dist/bformatter/1.0.7/bformatter.cjs');
 const { TransformEngine } = require('./lib/TransformEngine');
-// const { Formatters , Version } = bformatter;
+const cli = require('cli-color'); 
 
 // for debug
 const { Formatters } = require("./formatter");
@@ -31,7 +31,12 @@ function GetFormatter(format){
     sm_FORMATTERS[format] = _formatter; 
     return _formatter;
 } 
-
+/**
+ * 
+ * @param {*} document 
+ * @param {string|{name:string, prefix:string}} format 
+ * @returns 
+ */
 function formatAllDocument(document, format){
     const _text = document.getText();
     const _range = new vscode.Range(
@@ -40,12 +45,14 @@ function formatAllDocument(document, format){
     );
     const _formatter = GetFormatter(format); 
     if (_formatter){
-        console.log("format of ", {format});
+        console.log("format :", {format});
         let _res = _formatter.format(_text.split("\n"));
         if (_res){
-            return vscode.TextEdit.replace(_range, _res);``
+            return vscode.TextEdit.replace(_range, _res);
         }
         console.log('missing format....', _formatter.error);
+    } else{
+        console.log(cli.red('missing formatter: '+format));
     }
 }
 /**
@@ -56,7 +63,7 @@ function activate(context){
     // + | register language formatters 
     console.log("activate bformatters");    
     const languageFormatter = new Map();
-    ["bcss","bview","phtml","bjs","pcss", "demodata", "bhtml"].forEach((a)=>{;
+    ["bcss","bview","phtml","bjs","pcss", "demodata", "bhtml", "vbmacros"].forEach((a)=>{;
         let p = vscode.languages.registerDocumentFormattingEditProvider(
             a,{
                 provideDocumentFormattingEdits(document,options,token){

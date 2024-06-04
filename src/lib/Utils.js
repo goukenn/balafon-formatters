@@ -855,6 +855,13 @@ class Utils {
     }
     static StringValueTransform(v, transform) {
         const _func = {
+            captialize(s){
+                let tb = [];
+                s.split(" ").forEach(a =>{
+                    tb.push(a.charAt(0).toUpperCase()+a.slice(0).toLowerCase());
+                });
+                return tb.join(" ");
+            },
             joinSpace(s) {
                 s = s.replace(/\s+/g, ' ');
                 return s;

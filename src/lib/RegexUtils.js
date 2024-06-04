@@ -81,8 +81,8 @@ class RegexUtils {
         return s;
     }
     /**
-     * 
-     * @param {*} str 
+     * removce capture on regex
+     * @param {string} str 
      * @returns 
      */
     static RemoveCaptureAndLeaveMovementCapture(str) {
@@ -202,11 +202,25 @@ class RegexUtils {
             return l.substring(0, start_index) + l.substring(index + 1);
         }
         let capture = false;
+        let _prev = '';
         while (p = regex.exec(l)) {
+            if (p.index>0){
+                let _escape = l[p.index-1]=="\\";
+                if (_escape){
+                    _prev += l.substring(0, p.index+1);
+                    l = l.substring(p.index+1);
+                    continue;
+                }
+            }
             l = rm_brank(l, p.index);
             capture = true;
         }
-        return capture ? l : null;
+        if (_prev.length>0){
+            if (capture){
+                l = _prev+l;
+            }
+        }
+        return capture ? l : str;
     }
 
     static ReadBrank(str, position, count = 1, start = '(', end = ')') {

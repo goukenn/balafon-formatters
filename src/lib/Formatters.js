@@ -2078,7 +2078,8 @@ class Formatters {
             } else if (option.sourceLine != _line) {
                 const { lineMatcher } = option;
                 // + | possibility to detect a sub line */
-                let c = RegexUtils.RemoveCaptureAndLeaveMovementCapture(RegexUtils.RegexToStringRegex(_endRegex));
+                let _ts = RegexUtils.RegexToStringRegex(_endRegex);
+                let c = RegexUtils.RemoveCaptureAndLeaveMovementCapture(_ts);
                 //
                 let treat = null;
                 if (c && c.length > 0) {
