@@ -46,6 +46,16 @@
     "contributes": {
         "languages": [
             {
+                "id":"vbmacros",
+                "extensions": [
+                    ".vbmacros"
+                ],
+                "aliases": [
+                    "vbmacros","balafon vb macros"
+                ],
+                "configuration": "./languages/vb-macros.language-configuration.json"
+            },
+            {
                 "id": "demodata",
                 "extensions": [
                     ".demodata"
@@ -123,6 +133,11 @@
             }
         ],
         "grammars": [
+            {
+                "language":"vbmacros",
+                "scopeName": "source.vbmacros",
+                "path": "./src/formatters/vbmacros.btm-syntax.json"
+            },
             {
                 "language": "bview",
                 "scopeName": "source.bview",

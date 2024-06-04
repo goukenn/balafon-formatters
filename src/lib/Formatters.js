@@ -59,6 +59,7 @@ let sm_globalEngine;
 let sm_engine_formatter;
 /**
  * formatters entry point
+ * @property {*} listener
  */
 class Formatters {
     /**
@@ -649,7 +650,9 @@ class Formatters {
                 if (_matcherInfo) {
                     if (ln >= pos) {
                         objClass.EOL = true;
-                        objClass.lineMatcher.setPosition(pos,pos);
+                        if (_matcherInfo.isCaptureToEndLine(objClass)){
+                            objClass.lineMatcher.setPosition(pos,pos);
+                        }
                         _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
                         objClass.EOL = false;
                     } else {
@@ -793,16 +796,17 @@ class Formatters {
                 // + | priority to pattern info
                 // + | ---------------------
                 let _tpret = this._handleMarker(patternInfo, option);
-                // + | same group end - 
-                // let _tret = this._handleSameGroupMatch(_matcher, option);
-
+                // + | same group end -
                 return _tpret;
-
-            } else {
-                return this._handleMarker(_matcher, option);
-            }
-        } else if (_matcher) {
+            } 
+        }
+        if (_matcher) {
             // + | a matcher that target end on line
+            if (_matcher.isStreamCapture){
+                // + | start new stream capture 
+                const cp =  this._startStreamingPattern(_matcher, '', null, option, null, null, '', true);
+                return cp;
+            }
             return this._handleMarker(_matcher, option);
         }
         return patternInfo;
@@ -1327,6 +1331,7 @@ class Formatters {
     _startStreamingPattern(patternInfo, _line, _endRegex, option, _error, _old, _buffer, end_line = false) {
         const { debug } = option;
         const { group } = patternInfo;
+        const { formatting } = this;
         let _nextOffset = option.line.length;
 
         debug?.feature('stream-start') && Debug.log("---::: START STREAMING :::--" + patternInfo.toString());
@@ -1340,6 +1345,10 @@ class Formatters {
         }
         // start streaming need to catch startLine before swapping buffer
         let _startLine = option.startLine;
+        let _start_block = patternInfo.isBlock && !patternInfo.isBlockStarted && !patternInfo.blockStartInfo;
+        if (_start_block){ 
+            this._checkStartBlockDefinition(patternInfo, option, true);
+        }
 
         if (_old) {
             const _oldMarker = _old.marker;
@@ -1351,9 +1360,14 @@ class Formatters {
         } else {
             _old = this._updateMarkerOldContentOrSwapBuffer(patternInfo, null, _buffer, _endRegex, option);
         }
+        if(_start_block){
+            formatting.oldStartStreamingBlock(_old);
+        }
         option.startLine = _startLine;
         if (end_line) {
-            option.appendToBuffer(_line, patternInfo);
+            if ((_line.trim().length > 0) || (_old.start)){
+                option.appendToBuffer(_line, patternInfo);
+            }
             option.pos = _nextOffset;
         } else {
             let _p, _matcher;
@@ -1379,8 +1393,15 @@ class Formatters {
             else {
                 // handle the next 
                 if (_matcher) {
+                    let _constant_line = option.line.substring(option.pos, _matcher.group.index);
+
+                    if (_constant_line.length>0){
+                        this._appendConstant(patternInfo, _constant_line, option);
+                    }
+                    option.storeRange(option.pos);
                     this._registerTokenName(patternInfo, option);
-                    return this._handleMarker(_matcher, option);
+                    let _ret =  this._handleMarker(_matcher, option); 
+                    return _ret;
                 }
             }
 
@@ -1583,7 +1604,7 @@ class Formatters {
         option.state = 'match';
         const { parent, group, match, closeParentData } = _marker;
         const { formatting } = this;
-
+        option.lastMarker = _marker;
         const _old = option.peekFirstMarkerInfo();// option.parentMatcherInfo;
         let _cm_value = group[0];
         let _next_position = group.index + group.offset;
@@ -1769,6 +1790,18 @@ class Formatters {
         _old.startBlock = 0;
         formatting.startBlock(_old);
     }
+
+    /**
+     * init block start 
+     * @param {*} marker 
+     * @param {*} param1 
+     */
+    _initBlockStarting(marker, {depth}){
+        marker.isFormattingStartBlockElement = true;
+        marker.blockStartInfo = {
+            depth: depth
+        }
+    }
     /**
      * handle marker info 
      * @param {PatternMatchInfo} patternInfo 
@@ -1824,17 +1857,13 @@ class Formatters {
                 _startOutput.buffer = patternInfo.startOutput;
                 _startOutput.data = _outdefine;
             }
-            FormatterBuffer.InitBufferMarkedSegment(_startOutput.data.bufferSegment);
-        
-
+            FormatterBuffer.InitBufferMarkedSegment(_startOutput.data.bufferSegment); 
             patternInfo.start = false;
             if (patternInfo.isBlock) {
-                // - on base start width K_R coding style 
-                patternInfo.isFormattingStartBlockElement = true;
-                patternInfo.blockStartInfo = {
-                    depth: option.depth
-                }
-                // +| get formatting element type 
+                // +| on base start width K_R coding style 
+                // this._checkStartBlockDefinition(patternInfo, option, false); 
+                if (!patternInfo.isStreamCapture)
+                    this._initBlockStarting(patternInfo, option);
             }
             if (patternInfo.isBlockConditionalContainer) {
                 option.pushConditionalContainer(patternInfo);
@@ -1883,7 +1912,7 @@ class Formatters {
         }
 
         if (_line.length == 0) {
-
+            
             // check for end found - 
             ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option));
             if (_p && ((_matcher == null) || (option.EOL))) {
@@ -1903,9 +1932,8 @@ class Formatters {
                         }
                     }
                 }
-
                 return this._handleFoundEndPattern(_buffer, _line, patternInfo, _p, option, _old);
-            }
+            } 
             this._updateMarkerOldContentOrSwapBuffer(patternInfo, _old, _buffer, patternInfo.endRegex, option);
             return patternInfo;
         }
@@ -1919,7 +1947,7 @@ class Formatters {
         }
         _line = line.substring(_pos);
         // + | start pattern stream capture
-        if (_start && patternInfo.isStreamCapture) {
+        if (patternInfo.isStreamCapture && _start) {
             return this._startStreamingPattern(patternInfo, _line, _endRegex, option, null, null, _buffer, false);
         }
         // + | --------------------------------------------------------        
@@ -1938,7 +1966,7 @@ class Formatters {
                     // + | detect buffer empty - buffer detection 
                     return this._startStreamingPattern(patternInfo, _line, _endRegex, option, _error, _old, _buffer, true);
                 }
-                this._checkStartBlockDefinition(patternInfo, option, _old);
+                this._checkStartBlockDefinition(patternInfo, option);
                 // no end - found 
                 // _continue_with_marker = false;
                 // update cursor - start new marker and update - 
@@ -1968,7 +1996,7 @@ class Formatters {
 
             // compared index and handle child
             if ((_p == null) || (_matcher.group.index < _p.index)) {
-                this._checkStartBlockDefinition(patternInfo, option, _old);
+                this._checkStartBlockDefinition(patternInfo, option);
 
                 if (_matcher.isStreamCapture) {
                     // + | detect buffer empty - buffer detection   
@@ -2078,7 +2106,8 @@ class Formatters {
             } else if (option.sourceLine != _line) {
                 const { lineMatcher } = option;
                 // + | possibility to detect a sub line */
-                let c = RegexUtils.RemoveCaptureAndLeaveMovementCapture(RegexUtils.RegexToStringRegex(_endRegex));
+                let _ts = RegexUtils.RegexToStringRegex(_endRegex);
+                let c = RegexUtils.RemoveCaptureAndLeaveMovementCapture(_ts);
                 //
                 let treat = null;
                 if (c && c.length > 0) {
@@ -2367,8 +2396,8 @@ class Formatters {
         let _b = null;
         let _data = null;
 
-        debug?.feature('match/begin-end.end') && Debug.log(`--::: END::Begin/End handleFoundEndPattern ::--#${_marker}`);
-
+        debug?.feature('match/begin-end.end') && Debug.log(`--::: END::Begin/End handleFoundEndPattern :::--#${_marker}`);
+        option.lastMarker = _marker;
 
         if (prependExtra) {
             let r = _formatting.updatePreprendExtra(prependExtra, null, option);
@@ -2424,10 +2453,15 @@ class Formatters {
         }
         ));
 
-        // + | node division 
+        // + | node division  
+        if (_marker.isBlock && !_marker.blockStartInfo){
+            // + | for some reason marker block is a block element but not got a blockStartInfo
+           this._closeBlockEntry(option, _marker, null, null, false);
+        }
+
         if (_marker.isBlock && _marker.blockStartInfo) {
-            // just remove block before store 
-            // reset block value;
+            // + | just remove block before store 
+            // + | reset block value;
             _close_block = true;
             //_marker.isBlockDefinition = null;
             if (_marker.isFormattingStartBlockElement) {
@@ -2444,6 +2478,7 @@ class Formatters {
             // + | just reduce block depth
             this._closeBlockEntry(option, _marker, null, null, false);
         } else {
+           
             ({ _b } = _formatting.handleEndOnNonBlockElement(this, _marker, option,
                 { _b, _old, data: _p[0] }
             ));
@@ -2941,7 +2976,7 @@ class Formatters {
 
     _handleSameGroup2(_marker, _matcher, _p, _old, _buffer, option, _endRegex) {
         const { formatting } = this;
-        this._checkStartBlockDefinition(_matcher, option, _old);
+        this._checkStartBlockDefinition(_matcher, option);
         if (_matcher.group[0].length == 0) {
             // matcher is empty and must past to end group
             // just invoke the matcher before send to parent 
@@ -3079,10 +3114,17 @@ class Formatters {
         _stream_buffer.start(option);
         return _nPatternInfo;
     }
-    _checkStartBlockDefinition(patternInfo, option) {
+    /**
+     * check and start block definition
+     * @param {*} patternInfo 
+     * @param {*} option 
+     * @param {boolean} init 
+     */
+    _checkStartBlockDefinition(patternInfo, option, init = false) {
         const _formatting = this.formatting;
         // start a new block
         if (patternInfo.isBlock && !patternInfo.isBlockStarted) {
+            init && this._initBlockStarting(patternInfo, option);
             _formatting.startBlockDefinition(this, patternInfo, option);
         }
     }
@@ -3191,9 +3233,11 @@ class Formatters {
     static HandleSameGroup(q, patternInfo, _matcher, _p, _old, _buffer, _endRegex, option, endFound, _line) {
 
         const { debug } = option;
-        const { endMatchLogic } = q.settings;
+        // const { endMatchLogic } = q.settings;
+        debug?.feature('handle-same-group') && (()=>{
 
-        // + | priority to same group
+        })(); 
+        // + | priority end group
         let _ret = null;
         _line = _line || option.line.substring(option.pos);
         let startLine = patternInfo.isStreamCapture ? option.startLine : undefined;

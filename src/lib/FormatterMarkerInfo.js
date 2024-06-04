@@ -6,6 +6,7 @@ const { FormatterBuffer } = require('./FormatterBuffer');
 
 /**
  * formatter marker info setting
+ * @property {number} currentMode
  */
 class FormatterMarkerInfo{
     /**
@@ -26,11 +27,7 @@ class FormatterMarkerInfo{
     blockStarted;
     useEntry = true;
     
-    /**
-     * store marker update mode
-     * @var {number}
-     */
-    currentMode;
+   
 
     /**
      * use to capture entry 
@@ -104,12 +101,23 @@ class FormatterMarkerInfo{
         this.startBlock = _marker.isBlock ? 1 : 0;
         this.oldBlockStart = _marker.isBlock;
         this.blockStarted = false;
-        this.currentMode = _marker.mode;
+        let m_currentMode = _marker.mode;
         
 
         Object.defineProperty(this, 'formatter', {get(){return formatter;}}); 
         Object.defineProperty(this, 'marker', {get(){return _marker;}});
         Object.defineProperty(this, 'endRegex', {get(){return _endRegex;}});
+        Object.defineProperty(this, 'currentMode', {get(){return m_currentMode;},
+        set(v){
+            if (v==2){
+                if (this.marker.name == 'meta.function.sub-definition.vbmacros'){
+                    console.log("changin mode ....");
+                }
+            }
+            m_currentMode = v;
+        }});
+
+
 
         
     
@@ -126,18 +134,6 @@ class FormatterMarkerInfo{
                 _data = { dataSegment: dataSegment.slice(0), bufferSegment : bufferSegment.slice(0) };
                 // + | copy marked segment  
                 _data.bufferSegment.marked = FormatterBuffer.CopyMarkedSegment(bufferSegment);
-                
-                // bufferSegment.marked ? ((a)=>{
-                //     let marked = a.slice(0);
-                //     if('op' in a)
-                //         marked.op = JSON.parse(JSON.stringify(a.op));
-                //     else 
-                //         marked.op = FormatterBuffer.InitOpMarkedSegment();
-                //     return marked;
-                // })(bufferSegment.marked) : 
-                //     FormatterBuffer.InitMarkedSegment();
-
-
             }else{
                 let e = [];
                 let d = [];

@@ -52,6 +52,12 @@ class FormatterOptions {
     loopInfo;
 
     /**
+     * get or set last marker depth
+     * @var {*}
+     */
+    lastMarker;
+
+    /**
      * format source option
      * @var {undefined|IFormatSourceOption}
      */
@@ -347,6 +353,14 @@ class FormatterOptions {
             }
         });
         /**
+         * debug offset 
+         */
+        Object.defineProperty(option, 'offset', {
+            get: function () { 
+                return c_lineMatcher.offset; 
+            }
+        });
+        /**
          * append to buffer listener callback
          * @var {null|(value:string)} 
          */
@@ -630,7 +644,10 @@ class FormatterOptions {
                 }); 
                 markerInfo.endOutput = _g;
                 this.lastDefineStates = _outdefine;
-                debug?.feature('treat-capture') && Debug.log('--:::Captures result : :::--' + _g);
+                debug?.feature('treat-capture') && (()=>{
+                    Debug.log('--::: end captures result :::--');
+                    console.log({endOuput:_g});
+                })();
                 return _g;
             }
             return null; 

@@ -1,0 +1,119 @@
+{
+    "scopeName": "source.vbmacros",
+    "repository": {
+        "vb-macros-root": {
+            "patterns": [
+                {
+                    "include": "#vb-macros-single-line-comment"
+                },
+                {
+                    "include": "#vb-macros-subdefinition"
+                }
+            ]
+        },
+        "vb-macros-single-line-comment": {
+            "match": "\\/\\/(.+)?$",
+            "name": "comment.single-line-comment.vbmacros",
+            "formattingMode": 5,
+            "transform": "rtrim",
+            "captures": {
+                "0": {
+                    "patterns": [
+                        {
+                            "match": "\\s+",
+                            "replaceWith": " ",
+                            "name": "multi-space.vbmacros"
+                        }
+                    ]
+                }
+            }
+        },
+        "vb-macros-subdefinition":{
+            "begin":"(?i)Sub",
+            "end": "(?i)End Sub",
+            "endMissingValue":"// missing close sub.",
+            "formattingMode":1,
+            "beginCaptures":{
+                "0":{
+                    "name":"entity.name.function.begin-definition.vbmacros",
+                    "transform":["captialize"]
+                }
+            },
+            "endCaptures":{
+                "0":{
+                    "name":"entity.name.function.end-definition.vbmacros",
+                    "transform":["captialize"]
+                } 
+            },
+            "name":"meta.function.sub-definition.vbmacros",
+            "patterns":[ 
+                {
+                    "include": "#vb-macros-code-block-container"
+                },
+                {
+                    "include": "#vb-macros-method-params"
+                }, 
+                {
+                    "include": "#vb-macros-method-name"
+                },
+                {
+                    "include": "#vb-macros-glue-white-space"
+                }
+            ]
+        },
+        "vb-macros-glue-white-space":{
+            "debugName":"glue.white-space",
+            "comment":"glue white - space.",
+            "match":"\\s+",
+            "replaceWith":" ",
+            "isGlueValue":" "
+        },
+        "vb-macros-method-name":{
+            "begin":"([a-zA-Z][a-zA-Z_]*)\\s*",
+            "end":"(?=\\()",
+            "beginCaptures":{
+                "1":{
+                    "name":"entity.name.type.class.method-name.vbmacros"
+                }
+            }
+        },
+        "vb-macros-method-params":{
+            "begin":"\\(",
+            "end":"\\)",
+            "name":"param.declaration.vbmacros",
+            "beginCaptures":{
+                "0":{"name":"param.start.vbmacros"}
+            },
+            "endCaptures":{
+                "0":{"name":"param.end.vbmacros"}
+            }
+        },
+        "vb-macros-code-block-container":{
+            "begin":"(?<=\\))",
+            "end":"(?i)(?=End\\s+Sub)",
+            "name":"code.block.container.vbmacros",
+            "isBlock":true,
+            "patterns":[
+                {
+                    "include": "#vb-macros-code-block"
+                }
+            ]
+        },
+        "vb-macros-code-block":{
+            "debugName":"from.code-block",
+            "patterns":[
+                {
+                    "include": "#vb-macros-single-line-comment"
+                },
+                {
+                    "include": "#vb-macros-glue-white-space-"
+                }
+            ]
+        }
+    },
+    "patterns": [
+        {
+            "include": "#vb-macros-root"
+        }
+    ]
+}
