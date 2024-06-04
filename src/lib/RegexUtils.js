@@ -153,6 +153,18 @@ class RegexUtils {
         return /([^\\\\[]|^)\^/.test(reg.toString());
     }
     /**
+     * check regex request on end line
+     * @param {*} reg 
+     * @returns {boolean}
+     */
+    static CheckRequestEndLine(reg) {
+        // + | TO CHECK that regex request for start line 
+        // - ^ must not be escaped \$
+        // - ^ must not be a non validated group [$] 
+        return /([^\\\\[]|$)\$/.test(reg.toString());
+    }
+    /**
+    /**
      * stringify and regex result
      * @param {*} c 
      * @returns 

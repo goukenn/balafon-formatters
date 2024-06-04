@@ -858,7 +858,7 @@ class Utils {
             captialize(s){
                 let tb = [];
                 s.split(" ").forEach(a =>{
-                    tb.push(a.charAt(0).toUpperCase()+a.slice(0).toLowerCase());
+                    tb.push(a.charAt(0).toUpperCase()+a.slice(1).toLowerCase());
                 });
                 return tb.join(" ");
             },

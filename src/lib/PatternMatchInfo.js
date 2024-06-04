@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, '__esModule', { value: true });
 
+const { RegexUtils } = require('./RegexUtils');
 const { Utils } = require('./Utils');
 
 /**
@@ -87,6 +88,29 @@ class PatternMatchInfo {
 
     get isMarkedSegments() {
         return (this.isTrimmedSegment === true) || (this.markedSegment != null);
+    }
+    /**
+     * is capture to end line 
+     * @param {*} line 
+     * @returns 
+     */
+    isCaptureToEndLine({lineMatcher, lastMarker}){
+        const { childs } = this;
+        let lastChild = childs.length>0 ? childs[childs.length-1].marker : null;
+        lastMarker = lastChild || lastMarker;
+        if (lastMarker){
+            const { subLine } = lineMatcher;
+            const { end, matchType, match } = lastMarker;
+            if (matchType==1){
+                // + | match end regex
+                return RegexUtils.CheckRequestEndLine(match) && match.exec(subLine);
+            }
+            else if (matchType==0){
+                // + begin/end
+                return RegexUtils.CheckRequestEndLine(end) &&  end.exec(subLine);
+            }
+        }
+        return false;
     }
     markedInfo() {
         //const { Utils } = require('./Utils');

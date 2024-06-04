@@ -22,7 +22,7 @@
                         {
                             "match": "\\s+",
                             "replaceWith": " ",
-                            "name": "multi-space.bcss"
+                            "name": "multi-space.vbmacros"
                         }
                     ]
                 }
@@ -31,6 +31,8 @@
         "vb-macros-subdefinition":{
             "begin":"(?i)Sub",
             "end": "(?i)End Sub",
+            "endMissingValue":"// missing close sub.",
+            "formattingMode":1,
             "beginCaptures":{
                 "0":{
                     "name":"entity.name.function.begin-definition.vbmacros",
@@ -46,20 +48,22 @@
             "name":"meta.function.sub-definition.vbmacros",
             "patterns":[ 
                 {
-                    "include": "#vg-macros-glue-white-space"
+                    "include": "#vb-macros-code-block-container"
                 },
+                {
+                    "include": "#vb-macros-method-params"
+                }, 
                 {
                     "include": "#vb-macros-method-name"
                 },
                 {
-                    "include": "#vb-macros-method-params"
-                },
-                {
-                    "include": "#vb-macros-code-block-container"
+                    "include": "#vb-macros-glue-white-space"
                 }
             ]
         },
-        "vg-macros-glue-white-space":{
+        "vb-macros-glue-white-space":{
+            "debugName":"glue.white-space",
+            "comment":"glue white - space.",
             "match":"\\s+",
             "replaceWith":" ",
             "isGlueValue":" "
@@ -71,10 +75,7 @@
                 "1":{
                     "name":"entity.name.type.class.method-name.vbmacros"
                 }
-            },
-            "patterns":[
-               
-            ]
+            }
         },
         "vb-macros-method-params":{
             "begin":"\\(",
@@ -91,8 +92,7 @@
             "begin":"(?<=\\))",
             "end":"(?i)(?=End\\s+Sub)",
             "name":"code.block.container.vbmacros",
-            "requestParentBlockCondition":"true",
-            "formattingMode":1,
+            "isBlock":true,
             "patterns":[
                 {
                     "include": "#vb-macros-code-block"
@@ -100,14 +100,13 @@
             ]
         },
         "vb-macros-code-block":{
-            "updateProps":{
-                "isBlock":"true"
-            },
-            "isBlockConditionalContainer":true,
-            "requestParentBlockCondition":"true",
+            "debugName":"from.code-block",
             "patterns":[
                 {
                     "include": "#vb-macros-single-line-comment"
+                },
+                {
+                    "include": "#vb-macros-glue-white-space-"
                 }
             ]
         }
