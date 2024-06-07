@@ -505,6 +505,12 @@ class FormatterOptions {
          * @param {*} _marker 
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
+            
+            if (!value){
+                // buffer is undefined or null
+                return;
+            }
+            
             const { debug, formatterBuffer } = this;
             debug?.feature('append-to-buffer') && (()=>{
                 Debug.log("[append to buffer] - ");
