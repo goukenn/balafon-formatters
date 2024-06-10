@@ -2,11 +2,30 @@
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const START_HERE = "(??)";
-const CAPTURE_MOVEMENT =/\(\?((<)?!|(\<)?=)./
+const CAPTURE_MOVEMENT =/\(\?((<)?!|(\<)?=)./;
+const SKIP_REGEX = {
+    exec(){
+        return null;
+    },
+    test(){
+        return null;
+    },
+    toString(){
+        return '';
+    }
+};
 /**
  * regex utility class 
  */
 class RegexUtils {
+    /**
+     * is skipped end regex
+     * @param {regex} skip 
+     * @returns 
+     */
+    static IsSkipped(skip){
+        return skip === SKIP_REGEX;
+    }
     /**
      * to remove [not-]ahead-backyard: matching
      */
@@ -312,5 +331,7 @@ class RegexUtils {
         return m;
     }
 }
+
+RegexUtils.SKIP_REGEX = SKIP_REGEX;
 
 exports.RegexUtils = RegexUtils;

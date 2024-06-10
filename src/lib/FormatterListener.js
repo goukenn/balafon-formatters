@@ -3,6 +3,19 @@ Object.defineProperty(exports, '__esModule', { value: true });
 const { Debug } = require("./Debug");
 const { Patterns } = require("./Patterns");
 const { Utils } = require("./Utils");
+
+/**
+ * @type IFormatterListener
+ * @method renderToken - render token
+ * @method store - store to buffer
+ * @method onEndHandler - marker end with content value
+ */
+
+
+/**
+ * formatter listener
+ * @extends IFormatterListener
+ */
 class FormatterListener {  
 
     constructor() {
@@ -32,7 +45,7 @@ class FormatterListener {
      * @var {{formatterBuffer: FormatterBuffer, tabStop:string, depth:number}} param
      */
     startNewBlock({formatterBuffer, tabStop, depth}){ 
-         // override to mark start new block
+        // override to mark start new block
     } 
     /**
      * override en output

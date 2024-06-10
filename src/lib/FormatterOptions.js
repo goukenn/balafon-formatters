@@ -505,6 +505,12 @@ class FormatterOptions {
          * @param {*} _marker 
          */
         option.appendToBuffer = function (value, _marker, treat = true, raise=true) {
+            
+            if (!value){
+                // buffer is undefined or null
+                return;
+            }
+            
             const { debug, formatterBuffer } = this;
             debug?.feature('append-to-buffer') && (()=>{
                 Debug.log("[append to buffer] - ");
@@ -526,13 +532,14 @@ class FormatterOptions {
                         buffer: _buffer, data: _data, marked});
                 }
             };
-
+            let _def_value = null;
 
             if (typeof(value) == 'object' ){
                 // passing object 
                 // encapsulate buffer but not data
                 _storeBuffer(value.buffer, value.data, _marker, false); 
                 _buffer = option.buffer;
+                _def_value = {source: value.data, value: value.buffer};
             }
             else if (value.length > 0) {
                 if (m_appendToBufferListener) {
@@ -549,10 +556,10 @@ class FormatterOptions {
                         buffer: _buffer, data: value, marked});
                 }
             }
-            _marker.value = { source: value, value: _buffer };
+            _marker.value = _def_value || { source: value, value: _buffer };
             if (raise)
                 _formatter.onAppendToBuffer(_marker, _buffer, option);
-            if (_buffer.trim().length>0){
+            if (_buffer?.trim().length>0){
                 option.glueValue = null;
             }
         };

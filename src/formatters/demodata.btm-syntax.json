@@ -1,60 +1,79 @@
 {
-   
     "$schema": "https://igkdev.com/schemas/btm-syntax.json",
     "settings": {
         "endMatchLogic": "before"
     },
     "scopeName": "source.demodata",
     "repository": {
-        "pattern-block":{
+        "pattern-block": {
             "isBlock": false,
-            "name":"entity.name.class.root.tag",
-            "begin":"(<)([a-z]+[a-z\\-]+(?::[a-z]+[a-z\\-]+){0,1})",
-            "end":"(?=(\\/\\>|\\<\\/\\2\\>))",
+            "name": "entity.name.class.root.tag",
+            "begin": "(<)([a-z]+[a-z\\-]+(?::[a-z]+[a-z\\-]+){0,1})",
+            "end": "(?=(\\/\\>|\\<\\/\\2\\>))",
             "endCaptures": {
-                "0":{
-                    "name":"end.capture.ddd"
+                "0": {
+                    "name": "end.capture.ddd"
                 }
             },
             "beginCaptures": {
-                "0":{
-                    "name":"start.captures"
+                "0": {
+                    "name": "start.captures"
                 }
             },
             "patterns": [
                 {
-                    "match":"</span>",
-                    "name":"preload.class.def"
-                },{
-                    "include":"#child-block"
+                    "match": "</span>",
+                    "name": "preload.class.def"
+                },
+                {
+                    "include": "#child-block"
                 }
             ]
         },
         "child-block": {
             "isBlock": false,
-            "name":"support.function.child.block.tag",
-            "begin":"(<)([a-z]+[a-z\\-]+(?::[a-z]+[a-z\\-]+){0,1})",
-            "end":"(\\/\\>|\\<\\/\\2\\>)",
+            "name": "support.function.child.block.tag",
+            "begin": "(<)([a-z]+[a-z\\-]+(?::[a-z]+[a-z\\-]+){0,1})",
+            "end": "(\\/\\>|\\<\\/\\2\\>)",
             "endCaptures": {
-                "0":{
-                    "name":"end.capture.ddd"
+                "0": {
+                    "name": "end.capture.ddd"
                 }
             },
             "beginCaptures": {
-                "0":{
-                    "name":"start.captures"
+                "0": {
+                    "name": "start.captures"
                 }
             },
             "patterns": [
                 {
-                    "include":"#child-block"
+                    "include": "#child-block"
                 }
             ]
         }
     },
     "patterns": [
         {
-            "include":"#pattern-block"
+            "include": "#pattern-block-"
+        },
+        {
+            "begin": "\\bclass(Name)?\\b",
+            "end": "(?<=\"|')", 
+            "name":"local.def",
+            "beginCaptures":{
+                "0":{"name":"entity.name.class.definition.class" }
+            },
+            "patterns": [
+                {
+                    "begin": "=",
+                    "end": "(?<=\"|')",
+                    "patterns":[{
+                        "begin": "(\"|')",
+                        "end": "\\1",
+                        "name": "string.litteral.demodata"
+                    }]
+                }
+            ]
         }
     ]
 }

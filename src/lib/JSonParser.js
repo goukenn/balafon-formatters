@@ -27,6 +27,10 @@ class JSonParser{
         this.throwOnError = true;
     }
 
+    /**
+     * initialize object to registry
+     * @param {*} _o 
+     */
     initialize(_o){
         if (this.registry){
             this.registry.initialize(_o);

@@ -1,0 +1,57 @@
+{
+    "scopeName":"source.feature",
+    "patterns":[
+        {
+            "include":"#skip-class-attrib"
+        },
+        {
+            "include":"#skip-class-line-attrib"
+        }
+    ],
+    "repository":{
+        "skip-class-attrib":{
+            "begin":"\\bclass\\b",
+            "end":"",
+            "name":"class-detection",
+            "patterns":[
+                {
+                    "begin":"=",
+                    "end":"(?<=\"|')",
+                    "name":"detect-litteral-value",
+                    "patterns":[
+                        {
+                            "begin":"(\"|')",
+                            "end":"\\1",
+                            "name":"litteral-string"
+                        }
+                    ]
+
+                }
+            ]
+        },
+        "skip-class-line-attrib":{
+            "begin":"\\bskip\\b",
+            "name":"skip-line-check",
+            "patterns":[
+                {
+                    "begin":"=",
+                    "end":"",
+                    "patterns":[
+                        {
+                            "begin":"(\"|')",
+                            "end":"\\1",
+                            "name":"litteral-string"
+                        },
+                        {
+                            "match":"(?<=\"|')",
+                            "name":"capture.after-litteral-string",
+                            "throwError-":"after litteral string",
+                            "comment":"end on detect litteral string."
+                        }
+                    ]
+
+                }
+            ]
+        }
+    }
+}
