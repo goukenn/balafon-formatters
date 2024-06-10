@@ -1651,7 +1651,7 @@ class Formatters {
             }
             // + |
             // + | if stop en match empty value then - return null
-            // + |
+            // + | + macromate definitiont
             if (_ret) {
                 _ret = this._justCloseMarker(_ret, option);
                 option.lineFeedFlag = true;
