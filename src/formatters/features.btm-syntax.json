@@ -31,7 +31,6 @@
         },
         "skip-class-line-attrib":{
             "begin":"\\bskip\\b",
-            "end":"",
             "name":"skip-line-check",
             "patterns":[
                 {

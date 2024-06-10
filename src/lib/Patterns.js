@@ -16,7 +16,7 @@ const PTN_MATCH = 1;
 const PTN_BEGIN_WHILE = 2;
 const PTN_MATCH_TRANSFORM = 3;
 
- 
+
 
 /**
  * @typedef IFormatterReplaceWithCondition
@@ -328,7 +328,7 @@ class Patterns {
             }
         });
     }
-    static IsSkipped(skip){
+    static IsSkipped(skip) {
         return RegexUtils.IsSkipped(skip);
     }
     json_parse(parser, fieldname, data, refKey, refObj) {
@@ -406,18 +406,18 @@ class Patterns {
                 return d;
             }, // update with parent
             begin: _regex_parser,
-            end: function(n, parser, refKey, refObj){
-                if (typeof(n)=='string'){ 
+            end: function (n, parser, refKey, refObj) {
+                if (typeof (n) == 'string') {
                     // skip end matching 
-                    if (n.length==0){
+                    if (n.length == 0) {
                         return RegexUtils.SKIP_REGEX;
                     }
-                }  
-                return _regex_parser(n, parser,refKey, refObj);
+                }
+                return _regex_parser(n, parser, refKey, refObj);
             },
             while: _regex_parser,
             match: _regex_parser,
-            matchTransform:_regex_parser,
+            matchTransform: _regex_parser,
             replaceWith: _replace_with,
             transformMatch: _regex_parser,
             lintError: function (n, parser) {
@@ -570,11 +570,17 @@ class Patterns {
         return true;
     }
     static Init(_o) {
+        if (_o.begin && !_o.end && !_o.while) {
+            // + | force begin/end
+            _o.end = RegexUtils.SKIP_REGEX;
+        }
+
         if ((_o.matchType == -1) && (_o.patterns?.length > 0)) {
             _o.patterns.forEach(s => {
                 _o._initRef(s);
             });
         }
+         
     }
     /**
      * initialize reference
@@ -585,14 +591,14 @@ class Patterns {
             a.tokenID = this.tokenID;
         }
     }
-    getEntryRegex(){
-        const { begin, match , matchTransform} = this;
+    getEntryRegex() {
+        const { begin, match, matchTransform } = this;
         //const _while = this.while;
-        switch(this.matchType){
-            case PTN_BEGIN_END: 
+        switch (this.matchType) {
+            case PTN_BEGIN_END:
             case PTN_BEGIN_WHILE:
                 return begin;
-            case PTN_MATCH: 
+            case PTN_MATCH:
                 return match;
             case PTN_MATCH_TRANSFORM: return matchTransform;
         }
@@ -607,7 +613,7 @@ class Patterns {
      */
     check(l, option, parentMatcherInfo, regex) {
         let p = null;
-        const { patterns} = this;
+        const { patterns } = this;
         regex = regex || this.getEntryRegex();
         if (regex) {
             p = regex.exec(l);
@@ -627,10 +633,10 @@ class Patterns {
 
     get matchRegex() {
         const rgs = {
-            "0":this.begin,
-            "1":this.match,
-            "2":this.while,
-            "3":this.matchTransform
+            "0": this.begin,
+            "1": this.match,
+            "2": this.while,
+            "3": this.matchTransform
         };
         return rgs[this.matchType]; //  this.matchType == 0 ? this.begin : this.match;
     }
@@ -642,8 +648,7 @@ class Patterns {
     endRegex(p) {
         const { end } = this;
         if (!end || ((this.end instanceof RegexEngine) && end.isEmpty)
-            || Patterns.IsSkipped(end))
-        {
+            || Patterns.IsSkipped(end)) {
             return null;
         }
 
@@ -680,7 +685,7 @@ class Patterns {
     toString() {
         let { name, begin, end, match, debugName, matchType } = this;
         const _while = this.while;
-        name = (debugName ? "["+debugName+"]" : null)|| name;
+        name = (debugName ? "[" + debugName + "]" : null) || name;
         function getMatchInfo() {
             switch (matchType) {
                 case PTN_BEGIN_END:
