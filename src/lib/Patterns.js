@@ -16,6 +16,7 @@ const PTN_MATCH = 1;
 const PTN_BEGIN_WHILE = 2;
 const PTN_MATCH_TRANSFORM = 3;
 
+ 
 
 /**
  * @typedef IFormatterReplaceWithCondition
@@ -327,6 +328,9 @@ class Patterns {
             }
         });
     }
+    static IsSkipped(skip){
+        return RegexUtils.IsSkipped(skip);
+    }
     json_parse(parser, fieldname, data, refKey, refObj) {
 
         // if (!PatternParsing.init) {
@@ -402,7 +406,15 @@ class Patterns {
                 return d;
             }, // update with parent
             begin: _regex_parser,
-            end: _regex_parser,
+            end: function(n, parser, refKey, refObj){
+                if (typeof(n)=='string'){ 
+                    // skip end matching 
+                    if (n.length==0){
+                        return RegexUtils.SKIP_REGEX;
+                    }
+                }  
+                return _regex_parser(n, parser,refKey, refObj);
+            },
             while: _regex_parser,
             match: _regex_parser,
             matchTransform:_regex_parser,
@@ -628,9 +640,13 @@ class Patterns {
      * @returns 
      */
     endRegex(p) {
-        if (!this.end || ((this.end instanceof RegexEngine) && this.end.isEmpty)) {
+        const { end } = this;
+        if (!end || ((this.end instanceof RegexEngine) && end.isEmpty)
+            || Patterns.IsSkipped(end))
+        {
             return null;
         }
+
 
 
         if (this.matchType == 0) {

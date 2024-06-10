@@ -2075,7 +2075,8 @@
                 {
                     "matchTransform": "\\s*(?=\\.|#|[a-zA-Z])",
                     "replaceWith": " ",
-                    "name": "prefix.glue-data.bformatter.bcss"
+                    "name": "prefix.glue-data.bformatter.bcss",
+                    "comment": "prepend white space on sub transform"
                 },
                 {
                     "include": "#bcss-css-glue-id-class"
