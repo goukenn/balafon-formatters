@@ -1,0 +1,298 @@
+{
+    "scopeName": "css-transform",
+    "repository": {
+        "css-property": {
+            "begin": "(-*)?[a-z][a-z0-9\\-]*(\\\\.[a-z][a-z0-9\\-]*)*",
+            "end": "(?=:)",
+            "tokenID": "css-property",
+            "name": "css.property"
+        },
+        "css-value": {
+            "begin": ":",
+            "end": "(?=;|\\})",
+            "name": "value-definition",
+            "tokenID": "value-definition",
+            "patterns": [
+                {
+                    "match":"\\s*,\\s*",
+                    "tokenID": "css-value", 
+                    "transform":["trim", "[$0 ]"]
+                },
+                {
+                    "match": "[^\"!;\\},]+",
+                    "tokenID": "css-value"
+                },
+                {
+                    "begin": "(\"|')",
+                    "end": "\\1",
+                    "name": "litteral-string",
+                    "tokenID": "css-value",
+                    "patterns": [
+                        {
+                            "match": "\\\\."
+                        }
+                    ]
+                }, 
+                {
+                    "match": "\\s+",
+                    "replaceWith": " ",
+                    "isGlueValue": " "
+                }
+            ]
+        },
+        "css-glue-white-space": {
+            "match": "\\s+",
+            "replaceWith": " ",
+            "isGlueValue": " "
+        },
+        "css-sub-selector-reading": {
+            "begin": "(?=\\s+|\\+|>|~|,|$)",
+            "end": "(?=\\{)",
+            "name": "sub-selector.css",
+            "patterns": [
+                {
+                    "match": "\\s*(\\+|>|~)\\s*",
+                    "transform": [
+                        "trim",
+                        "[ $0]"
+                    ],
+                    "name": "operator",
+                    "markedSegment": {
+                        "trimmed": false
+                    }
+                },
+                {
+                    "match": "\\s*(,)\\s*",
+                    "transform": [
+                        "trim",
+                        "[$0]"
+                    ],
+                    "name": "separator",
+                    "markedSegment": {
+                        "trimmed": false,
+                        "next": "{"
+                    }
+                },
+                {
+                    "include": "#css-trim-white-space"
+                },
+                {
+                    "begin": "(?=[\\w]||\\*)",
+                    "end": "(?=\\{)",
+                    "name": "matching-subpattern",
+                    "patterns": [
+                        {
+                            "matchTransform": "\\s*(?=\\.|#|[a-zA-Z]|\\*)",
+                            "replaceWith": " ",
+                            "comment": "match transform data"
+                        },
+                        {
+                            "include": "#css-read-selection-definition"
+                        }
+                    ]
+                }
+            ]
+        },
+        "css-read-selector": {
+            "patterns": [
+                {
+                    "include": "#css-read-class-or-id"
+                },
+                {
+                    "include": "#css-read-tag"
+                }
+            ]
+        },
+        "css-read-tag": {
+            "begin": "(\\*|[a-z][a-z0-9\\-]*)(\\\\.[a-z][a-z0-9\\-]*)*",
+            "end": "(?=\\s|{|:)",
+            "name": "tag-reading",
+            "beginCaptures": {
+                "0": {}
+            }
+        },
+        "css-trim-white-space": {
+            "match": "\\s+",
+            "transform": "trim"
+        },
+        "css-read-class-or-id": {
+            "match": "(\\.|#)[a-zA-Z][a-zA-Z]*(\\\\.[a-z][a-z0-9\\-]*)*",
+            "name": "class-or-id.bcss",
+            "comment": "detect attached class or id"
+        },
+        "css-read-selection-definition": {
+            "patterns": [
+                {
+                    "include": "#css-sub-selector-reading"
+                },
+                {
+                    "include": "#css-read-class-or-id"
+                },
+                {
+                    "include": "#css-read-speudo-class"
+                },
+                {
+                    "begin": "\\[",
+                    "end": "\\]",
+                    "tokenID": "arraydefinition"
+                },
+                {
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "tokenID": "function-definition"
+                }
+            ]
+        },
+        "css-read-speudo-class": {
+            "begin": ":(:)?(\\b(active|any-link|autofill|blank|checked|current|default|defined|dir|disabled|empty|enabled|first|first-child|first-of-type|focus|focus-visible|focus-within|fullscreen|future|has|host|host|host-context|hover|indeterminate|in-range|invalid|is|lang|last-child|last-of-type|left|link|local-link|modal|not|nth-child|nth-last-child|nth-last-of-type|nth-of-type|only-child|only-of-type|optional|out-of-range|past|paused|picture-in-picture|placeholder-shown|playing|read-only|read-write|required|right|root|scope|state|target|target-within|user-invalid|valid|visited|where)\\b)",
+            "end": "(?=\\s|\\{|\\[|\\+|>|~)",
+            "beginCaptures": {
+                "0": {}
+            }
+        },
+        "css-directive-read-definition": {
+            "begin": "(@\\b[a-zA-Z][a-zA-Z0-9\\-]*\\b)",
+            "end": "(?=$|;)",
+            "name": "css-directive"
+        },
+        "css-param-media-condition": {
+            "begin": "\\(",
+            "end": "\\)",
+            "patterns": [
+                {
+                    "include": "#css-param-media-condition"
+                }
+            ]
+        },
+        "css-media-directive": {
+            "begin": "@\\bmedia\\b",
+            "end": "(?<=\\})",
+            "tokenID": "css-media",
+            "name":"meta.css.media.directive.css-transform",
+            "patterns": [
+                {
+                    "begin": "(?=[^\\{\\s])",
+                    "end": "(?=\\{)",
+                    "name":"litteral.condition",
+                    "tokenID": "css-media-condition",
+                    "patterns": [
+                        {
+                            "match": "\\b(not|and|only|screen|printer|speech)\\b",
+                            "captures": {
+                                "1": {
+                                    "patterns": [
+                                        {
+                                            "match": "\\bscreen|printer|speech\\b",
+                                            "name": "entity.type.name.media.type.css-transform"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "match":"\\s*,\\s*",
+                            "name":"separator",
+                            "transform":["trim","[$0 ]"]
+                        },
+                        {
+                            "match":"\\s+",
+                            "replaceWith":" ",
+                            "isGlueValue": " "
+                        },
+                        {
+                            "begin": "\\(",
+                            "end": "\\)",
+                            "name": "meta.css.media.block.condition.css-transform", 
+                            "isSingle": true,
+                            "patterns": [
+                                {
+                                    "match": "\\s+",
+                                    "replaceWith": " ",
+                                    "isGlueValue": " ",
+                                    "marked":{
+                                        "trimmed":true
+                                    }
+                                },
+                                {
+                                    "include": "#css-param-media-condition"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "begin": "\\{",
+                    "end": "\\}",
+                    "name": "media-block-definition.css-transform",
+                    "patterns": [
+                        {
+                            "include": "#css-global-definition"
+                        }
+                    ]
+                }
+            ]
+        },
+        "css-import-directive":{
+            
+                "begin": "@\\bimport\\b",
+                "end": "(?<=;)",
+                "tokenID":"css-import",
+                "patterns":[
+                    {
+                        "include":"#css-uri-string"
+                    },
+                    {
+                        "include":"#css-uri-method"
+                    }
+                ]
+        },
+        "css-global-definition": {
+            "patterns": [
+                {
+                    "include": "#css-selector-read"
+                },
+                {
+                    "include": "#css-selector-block"
+                }
+            ]
+        },
+        "css-selector-block": {
+            "begin": "\\{",
+            "end": "\\}",
+            "tokenID": "selector-block",
+            "patterns": [
+                {
+                    "include": "#css-property"
+                },
+                {
+                    "include": "#css-value"
+                }
+            ]
+        },
+        "css-selector-read": {
+            "begin": "(\\*)|(\\.|#)?[a-z][a-z0-9\\-]*(\\\\.[a-z][a-z0-9\\-]*)*",
+            "end": "(?=\\{)",
+            "tokenID": "css-selector",
+            "name": "css.selector",
+            "patterns": [
+                {
+                    "include": "#css-read-selection-definition"
+                }
+            ]
+        }
+    },
+    "patterns": [
+        {
+            "include":"#css-import-directive"
+        },
+        {
+            "include": "#css-media-directive"
+        },
+        {
+            "include": "#css-directive-read-definition"
+        },
+        {
+            "include": "#css-global-definition"
+        }
+    ]
+}

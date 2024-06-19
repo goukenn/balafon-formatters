@@ -53,6 +53,12 @@ class Patterns {
     end;
 
     /**
+     * pattern cardinality in list. 
+     * @var {number} 
+     */
+    cardinality;
+
+    /**
      * use for begin/while . to implement
      * @var {string|Regex}
      */
@@ -304,11 +310,15 @@ class Patterns {
      */
     nextGlueValue;
 
+    /**
+     * .ctr
+     */
     constructor() {
         this.patterns = [];
         this.isBlock = false;
         this.allowMultiline = true;
         this.preserveLineFeed = false;
+        this.cardinality = 0;
         var m_parent = null;
         var m_startOnly = false;
 

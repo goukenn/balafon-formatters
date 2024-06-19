@@ -239,15 +239,16 @@ class FormatterOptions {
      */
     constructor(_formatter, _formatterBuffer, _listener, m_constants_def, _rg) {
         const { debug } = _formatter;
-        const { lineFeed, tabStop } = _rg;
         const c_lineMatcher = new FormatterLineMatcher(this);
         const c_conditionalContainer = [];
-
+        // initialize conditional field
+        let { lineFeed, tabStop } = {lineFeed:_rg?.lineFeed || _formatter.info.lineFeed || "\n", 
+            tabStop: _rg?.tabStop || _formatter.info.tabStop || "\t"};
         this.#m_lineSegments = new FormatterLineSegment;
         let m_isCapturing = false;
 
         
-        let m_depth = _rg.depth || 0;
+        let m_depth = _rg?.depth || 0;
         let _blockStarted = false;
         const _bufferState = [];
         const _markerInfo = [];
@@ -280,7 +281,7 @@ class FormatterOptions {
         let m_saveCount = 0;
         // inject setting property
         for (let i in _rg) {
-            if (['depth', 'line'].indexOf(i) != -1) {
+            if (['depth', 'line', 'tabStop', 'lineFeed'].indexOf(i) != -1) {
                 continue;
             }
             Object.defineProperty(this, i, {
@@ -339,8 +340,6 @@ class FormatterOptions {
             }
         });
         Object.defineProperty(option, 'length', { get: function () { return this.line.length; } })
-        // Object.defineProperty(objClass, 'tabStop', { get: function () { return tabStop; } })
-        // Object.defineProperty(objClass, 'lineFeed', { get: function () { return lineFeed; } })
         Object.defineProperty(option, 'debug', { get: function () { return debug; } })
         Object.defineProperty(option, 'markerInfo', { get: function () { return _markerInfo; } })
         Object.defineProperty(option, 'constants', { get: function () { return m_constants_def; } })
@@ -396,6 +395,10 @@ class FormatterOptions {
             return _markerInfo.shift();
         };
         option.empty = empty;
+
+        Object.defineProperty(option, 'lineFeed', {get(){
+            return lineFeed;
+        }});
 
         function empty(l) {
             return (!l && l.length == 0)

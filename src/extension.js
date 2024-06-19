@@ -1,14 +1,20 @@
+// author: C.A.D. BONDJE DOUE
+// file: extension.js
+// @date: 20240618 21:32:54
+// @desc: bformatter vscode extension
+
+const fs = require('fs')
 const vscode = require('vscode');
 // for release 
-const { bformatter } = require('../dist/bformatter/1.0.7/bformatter.cjs');
+// const { bformatter } = require('../dist/bformatter/1.0.39/bformatter.cjs');
 const { TransformEngine } = require('./lib/TransformEngine');
-const cli = require('cli-color'); 
+const cli = require('cli-color');
 
 // for debug
 const { Formatters } = require("./formatter");
 const Version = 'debug.0.0.1';
- 
-class VSCodeTransformEngine extends TransformEngine{
+
+class VSCodeTransformEngine extends TransformEngine {
 
 }
 
@@ -16,66 +22,105 @@ class VSCodeTransformEngine extends TransformEngine{
 TransformEngine.Register('vscode', VSCodeTransformEngine);
 const sm_FORMATTERS = {};
 let _formatter = null;
-function GetFormatter(format){
-    if (format in sm_FORMATTERS){
+function GetFormatter(format) {
+    if (format in sm_FORMATTERS) {
         return sm_FORMATTERS[format];
     }
-    try{
-    _formatter = Formatters.Load(format);
-    if (!_formatter){ 
-        throw new Error("formatter is missing["+format+"]");
+    try {
+        _formatter = Formatters.Load(format);
+        if (!_formatter) {
+            throw new Error("formatter is missing[" + format + "]");
+        }
+    } catch (e) {
+        console.log("error", e);
     }
-}catch(e){
-    console.log("error", e);
-}
-    sm_FORMATTERS[format] = _formatter; 
+    sm_FORMATTERS[format] = _formatter;
     return _formatter;
-} 
+}
 /**
  * 
  * @param {*} document 
  * @param {string|{name:string, prefix:string}} format 
  * @returns 
  */
-function formatAllDocument(document, format){
+function formatAllDocument(document, format) {
     const _text = document.getText();
     const _range = new vscode.Range(
         document.lineAt(0).range.start,
-        document.lineAt(document.lineCount-1).range.end
+        document.lineAt(document.lineCount - 1).range.end
     );
-    const _formatter = GetFormatter(format); 
-    if (_formatter){
-        console.log("format :", {format});
+    const _formatter = GetFormatter(format);
+    if (_formatter) {
+        console.log("format :", { format });
         let _res = _formatter.format(_text.split("\n"));
-        if (_res){
+        if (_res) {
             return vscode.TextEdit.replace(_range, _res);
         }
         console.log('missing format....', _formatter.error);
-    } else{
-        console.log(cli.red('missing formatter: '+format));
+    } else {
+        console.log(cli.red('missing formatter: ' + format));
     }
 }
 /**
  * 
  * @param {vscode.ExtensionContext} context 
  */
-function activate(context){    
+function activate(context) {
     // + | register language formatters 
-    console.log("activate bformatters");    
+    console.log("activate bformatters");
     const languageFormatter = new Map();
-    ["bcss","bview","phtml","bjs","pcss", "demodata", "bhtml", "vbmacros"].forEach((a)=>{;
+    ["bcss", "bview", "phtml", "bjs", "pcss", "demodata", "bhtml", "vbmacros"].forEach((a) => {
+        ;
         let p = vscode.languages.registerDocumentFormattingEditProvider(
-            a,{
-                provideDocumentFormattingEdits(document,options,token){
-                    return [formatAllDocument(document, a,options, token)];
-                }
+            a, {
+            provideDocumentFormattingEdits(document, options, token) {
+                return [formatAllDocument(document, a, options, token)];
             }
+        }
         );
         context.subscriptions.push(p);
         languageFormatter.set(a, p);
     });
-    // + | register extension command
 
+    // + |
+    // + | register extension command
+    const _commands = {
+        "css.transform.toJSON": async () => {
+           
+            const { document } = vscode.window.activeTextEditor;
+            if (!document){
+                return;
+            }
+            let {fsPath, scheme} = document.uri;
+            if (scheme != 'file'){
+                return;
+            }
+            // determine if the document match the language
+            let _match = vscode.languages.match({language:'css'}, document);
+
+            console.log(_match);
+           if (_match==0){
+             throw new Error('document is not a valid css document')
+           }
+            // let _fname = await vscode.window.showInputBox({
+            //     placeHolder: 'file Name'
+            // })
+            
+            console.log(`transform css to json`);
+            vscode.workspace.openTextDocument({
+                "language":"json",
+                "content":"{}",
+            }).then((a)=>{
+                vscode.window.showTextDocument(a);
+            });
+        }
+    };
+    // + | subscribe command
+    for (let _key in _commands) {
+        let _fc = _commands[_key];
+        let c = vscode.commands.registerCommand(_key,  _fc);
+        context.subscriptions.push(c);
+    }
 
     // + get workspace configuration 
     // let config = vscode.workspace.getConfiguration("editor.tokenColorCustomizations");
@@ -102,7 +147,7 @@ function activate(context){
 /**
  * 
  */
-function deactivate(){
+function deactivate() {
 
 }
 

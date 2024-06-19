@@ -485,7 +485,7 @@ class Formatters {
     /**
      * format the data
      * @param {string|string[]} data 
-     * @param {null|undefined|{name:string, constantName:string, depth:number}} option format option 
+     * @param {null|undefined|{name:string, constantName:string, depth:number, complete: null|()=>* = null}} option format option 
      * @returns 
      */
     format(data, option) {
@@ -753,6 +753,9 @@ class Formatters {
         let _output = null;
         try {
             _output = _output_fc();
+            if ((this.info.isSubFormatting == 0) && (typeof(option.complete) == 'function')) {
+                option.complete({formatter:this});
+            }
         } catch (e) {
             if (this.error) {
                 if (!Array.isArray(this.error)) {
@@ -762,7 +765,6 @@ class Formatters {
             }
             else {
                 this.error = e.message;
-
             }
             debug && console.error('Error : ' + e.message);
         }
@@ -1112,7 +1114,7 @@ class Formatters {
      * @returns 
      */
     _handleCallback(type, option) {
-        // console.log("handle ::::::::::::::::::::::::::::::::::::"+type);
+        // + handle callback
         return {
             "0": option.listener?.handleBeginEndMarker || this._handleBeginEndMarker,
             "1": option.listener?.handleMatchMarker || this._handleMatchMarker,
@@ -1137,6 +1139,12 @@ class Formatters {
         }
         option.matchTransform = marker;
         return parent;
+
+    }
+    _onStartMarker(markerInfo, option, {type}){
+        const { listener } = this;
+        if (listener?.onStartHandler)
+            listener.onStartHandler(markerInfo, option, {type, formatter:this});
 
     }
     /**
@@ -1950,6 +1958,7 @@ class Formatters {
             this._unshiftPatternContentName(patternInfo, option);
             patternInfo.startOutput = _startOutput.buffer;
             patternInfo.startData = _startOutput.data;
+            this._onStartMarker(patternInfo, option, {type:'begin/end'});
         } else {
             throw new Error("missing logic for : " + patternInfo);
         }
@@ -3307,7 +3316,7 @@ class Formatters {
         const { debug } = option;
         // const { endMatchLogic } = q.settings;
         debug?.feature('handle-same-group') && (() => {
-
+            Debug.log('-:::handle same group:::-');
         })();
         // + | priority end group
         let _ret = null;
@@ -3325,7 +3334,7 @@ class Formatters {
                 option.skipUpdateStartLine = true;
             }
         }
-        return _ret; v
+        return _ret;
     }
     isSpecialMarker(marker) {
         return marker instanceof SpecialMeaningPatternBase
