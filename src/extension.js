@@ -81,40 +81,14 @@ function activate(context) {
         context.subscriptions.push(p);
         languageFormatter.set(a, p);
     });
-
+    const { commands }  = require('./vscode/command')
     // + |
     // + | register extension command
     const _commands = {
-        "css.transform.toJSON": async () => {
-           
-            const { document } = vscode.window.activeTextEditor;
-            if (!document){
-                return;
-            }
-            let {fsPath, scheme} = document.uri;
-            if (scheme != 'file'){
-                return;
-            }
-            // determine if the document match the language
-            let _match = vscode.languages.match({language:'css'}, document);
-
-            console.log(_match);
-           if (_match==0){
-             throw new Error('document is not a valid css document')
-           }
-            // let _fname = await vscode.window.showInputBox({
-            //     placeHolder: 'file Name'
-            // })
-            
-            console.log(`transform css to json`);
-            vscode.workspace.openTextDocument({
-                "language":"json",
-                "content":"{}",
-            }).then((a)=>{
-                vscode.window.showTextDocument(a);
-            });
-        }
+        ...commands
     };
+
+
     // + | subscribe command
     for (let _key in _commands) {
         let _fc = _commands[_key];

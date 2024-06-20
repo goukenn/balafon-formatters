@@ -14,6 +14,9 @@
             "tokenID": "value-definition",
             "patterns": [
                 {
+                    "include": "#comment"
+                },
+                {
                     "match":"\\s*,\\s*",
                     "tokenID": "css-value", 
                     "transform":["trim", "[$0 ]"]
@@ -111,6 +114,12 @@
                 "0": {}
             }
         },
+        "comment":{
+            "begin":"/\\*",
+            "end":"\\*/",
+            "name":"comment.css-transform",
+            "tokenID":"css-comment"
+        },
         "css-trim-white-space": {
             "match": "\\s+",
             "transform": "trim"
@@ -200,17 +209,22 @@
                             "isGlueValue": " "
                         },
                         {
-                            "begin": "\\(",
-                            "end": "\\)",
+                            "begin": "\\(\\s*",
+                            "end": "\\s*\\)",
                             "name": "meta.css.media.block.condition.css-transform", 
-                            "isSingle": true,
+                            "beginCaptures":{"0":{
+                                "transform":"trim"
+                            }},
+                            "endCaptures":{"0":{
+                                "transform":"trim"
+                            }},
                             "patterns": [
                                 {
-                                    "match": "\\s+",
+                                    "match": "( )+",
                                     "replaceWith": " ",
                                     "isGlueValue": " ",
-                                    "marked":{
-                                        "trimmed":true
+                                    "markedSegment":{
+                                        "trimmed":false
                                     }
                                 },
                                 {
@@ -253,6 +267,9 @@
                 },
                 {
                     "include": "#css-selector-block"
+                },
+                {
+                    "include": "#comment"
                 }
             ]
         },
@@ -261,6 +278,9 @@
             "end": "\\}",
             "tokenID": "selector-block",
             "patterns": [
+                {
+                    "include": "#comment"
+                },
                 {
                     "include": "#css-property"
                 },
@@ -293,6 +313,9 @@
         },
         {
             "include": "#css-global-definition"
+        },
+        {
+            "include": "#comment"
         }
     ]
 }

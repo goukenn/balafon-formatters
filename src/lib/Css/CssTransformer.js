@@ -1,5 +1,5 @@
 'use strict';
-Object.defineProperty(exports, '__ESModule', {value:true});
+Object.defineProperty(exports, '__ESModule', { value: true });
 
 const { FormatterListener } = require('../FormatterListener');
 const { Formatters } = require('../Formatters');
@@ -7,7 +7,7 @@ const { CssStyleDefinitions } = require('./CssStyleDefinitions');
 const json_data = require("../../formatters/css-transform.btm-syntax.json");
 
 const _formatter = Formatters.CreateFrom(json_data);
-const _baseFormatterListener = new FormatterListener; 
+const _baseFormatterListener = new FormatterListener;
 
 /**
  * store style definition property
@@ -24,6 +24,11 @@ class SelectorDefinition {
     property;
     key;
     definitions;
+    mergeDefinitions;
+    /**
+     * build style listener
+     * @param {*} listener 
+     */
     constructor(listener) {
         if (!listener) {
             throw new Error('invalid parameters');
@@ -33,15 +38,15 @@ class SelectorDefinition {
     }
     initDefinition(def) {
         const _init_style = () => new CssStyles();
-        if (def){
-            const { key } = this; 
-            this.definitions = ((key in def)? def[key] : null) || _init_style();
-        }else {
+        if (def) {
+            const { key } = this;
+            this.definitions = ((key in def) ? def[key] : null) || _init_style();
+        } else {
             this.definitions = this.getStylesDefinition(this.key) || _init_style();
         }
         this.store(def);
     }
-    start(){
+    start() {
         this.property = '';
         this.key = '';
         this.value = '';
@@ -54,16 +59,85 @@ class SelectorDefinition {
             this.value = '';
         }
     }
+    /**
+     * store key definition. div property 
+     * @param {*} def 
+     */
     store(def) {
+        /** */
         this.update();
-        const { listener, key, value, definitions } = this;
+        const { listener, key, definitions } = this;
         if (key) {
-            if (def){
+            if (def) {
                 def[key] = definitions;
-            }else{
+                this._loadSeparator(def, key, definitions);
+            } else {
                 listener.styles[key] = definitions;
+                this._loadSeparator(listener.styles, key, definitions);
             }
         }
+    }
+    _loadSeparator(def, key, definitions) {
+        const _tab = key.split(',');
+        if (_tab.length > 1) {
+            this._mergeFromDefinition(def);
+            if (!(key in this.mergeDefinitions.keys) || (this.mergeDefinitions.keys[key].indexOf(def) == -1)) {
+                if (!(key in this.mergeDefinitions.keys)) {
+                    this.mergeDefinitions.keys[key] = [];
+                }
+                this.mergeDefinitions.keys[key].push(def);
+            }
+        }
+    }
+    _mergeDefinition(style, definitions) {
+        for (let key in definitions) {
+            style[key] = definitions[key];
+        }
+    }
+    _mergeDefinitionComplete() {
+        const list = Object.keys(this.mergeDefinitions.keys);
+        while (list.length > 0) {
+            let q = list.shift();
+            const _tab = q.split(/\s*,\s*/);
+            const _tdef = this.mergeDefinitions.keys[q];
+            while (_tdef.length > 0) {
+                const definitions = _tdef.shift()[q];
+
+
+                _tab.forEach(o => {
+                    o = o.trim();
+                    if (o in def) {
+                        this._mergeDefinition(def[o], definitions);
+                    } else {
+                        if (o in pdef) {
+                        }
+
+                    }
+                    //     pdef[o] = ;
+                    // }
+                });
+            }
+        }
+    }
+    complete() {
+        this._mergeDefinitionComplete();
+    }
+    _mergeFromDefinition(def) {
+        if (!this.mergeDefinitions) {
+            this.mergeDefinitions = [];
+            this.mergeDefinitions.styles = {};
+            this.mergeDefinitions.keys = {};
+
+        }
+        const { mergeDefinitions } = this;
+        let _index = this.mergeDefinitions.indexOf(def);
+        if (_index == -1) {
+            this.mergeDefinitions.push(def);
+            _index = this.mergeDefinitions.length - 1;
+            this.mergeDefinitions.styles[_index] = new CssStyles;
+        }
+        const pdef = this.mergeDefinitions.styles[_index];
+        return pdef;
     }
     getStylesDefinition(key) {
         const { listener } = this;
@@ -82,8 +156,8 @@ class CssSelectorStyles {
 
 }
 
-function _initListener(_formatter, _selectorDefinition, callBacks){
-    const { _updateMediaDefinition, _updatePropertyDefinition,_css_definition} = callBacks;
+function _initListener(_formatter, _selectorDefinition, callBacks) {
+    const { _updateMediaDefinition, _updatePropertyDefinition, _css_definition } = callBacks;
     const _listener = {
         mode: null,
         medias_definition: null,
@@ -99,7 +173,7 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
                 case "css-media":
                     _updatePropertyDefinition();
                     _updateMediaDefinition();
-                    this.mode = 'media'; 
+                    this.mode = 'media';
                     _selectorDefinition.start();
                     _selectorDefinition.store();
                     break;
@@ -109,22 +183,22 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
             }
         },
         _handleMedia(data, marker, tokenID, tokenList, _handle) {
-    
+
             // console.log("on media ::::: ", tokenID);
             let _condition = null;
-    
+
             switch (tokenID) {
                 case 'css-media-condition':
-                    
+
                     // retrieve media definitions to merge keys
                     _condition = data.value;
-                    if (!this.media_states){
-                        this.media_states = {condition:_condition}
-                    } else { 
+                    if (!this.media_states) {
+                        this.media_states = { condition: _condition }
+                    } else {
                         this.media_states.condition += _condition;
                     }
-                    
-                  
+
+
                     _handle.handle = true;
                     break;
                 case 'css-media':
@@ -133,7 +207,7 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
                     this.medias_definition = null;
                     this.mode = null;
                     _handle.handle = true;
-                    
+
                     break;
                 case 'css-selector':
                     _handle.handle = true;
@@ -141,18 +215,18 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
                     _condition = this.media_states.condition?.trim();
                     const _src = _css_definition.medias[_condition];
                     this.medias_definition = {
-                            'condition': _condition,
-                            'styles': _src || new CssSelectorStyles() 
+                        'condition': _condition,
+                        'styles': _src || new CssSelectorStyles()
                     };
                     this.media_states = null;
                     _selectorDefinition.key = data.value?.trim();
                     _selectorDefinition.property = '';
                     _selectorDefinition.value = '';
                     _selectorDefinition.initDefinition(this.medias_definition.styles);
-        
+
                     break;
             }
-    
+
         },
         onEndHandler(marker, option, isSubFormatting = false) {
             if (isSubFormatting) {
@@ -163,7 +237,7 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
             // for matchType = 0
             const _value = marker.value || (() => ({ value: option.buffer, source: option.data }))();
             const { mode } = this;
-    
+
             if (mode) {
                 const _mfc = this['_handle' + mode[0].toUpperCase() + mode.substring(1)];
                 if (_mfc) {
@@ -174,14 +248,11 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
                     }
                 }
             }
-    
-    
-    
-    
+
             switch (tokenID) {
                 case 'css-media':
                     // close media definition 
-    
+
                     break;
                 case 'css-value':
                     _selectorDefinition.value += _value.value;
@@ -192,7 +263,7 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
                     _selectorDefinition.value = '';
                     break;
                 case 'css-selector':
-                    _updatePropertyDefinition(); 
+                    _updatePropertyDefinition();
                     _selectorDefinition.key = _value.value?.trim();
                     _selectorDefinition.property = '';
                     _selectorDefinition.value = '';
@@ -216,10 +287,10 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
         store() {
             _baseFormatterListener.store.apply(_baseFormatterListener, arguments);
         }
-    
-    }; 
-    _formatter.listener = _listener; 
-    
+
+    };
+    _formatter.listener = _listener;
+
 }
 
 
@@ -228,7 +299,7 @@ function _initListener(_formatter, _selectorDefinition, callBacks){
  * @typedef {undefined|boolean|string|string[]} IDebugFeatures 
  */
 
-class CssTransformer{
+class CssTransformer {
 
     /**
      * 
@@ -236,18 +307,18 @@ class CssTransformer{
      * @param {undefined|{debug:IDebugFeatures}} option 
      * @returns 
      */
-    static ToJSON(src, option){
+    static ToJSON(src, option) {
         const _css_definition = new CssStyleDefinitions();
         const _selectorDefinition = new SelectorDefinition(_css_definition);
 
-      
+
         function _updatePropertyDefinition() {
             _selectorDefinition.update();
         }
         function _updateMediaDefinition() {
             // console.log("update media definition : ");
             if (_listener.medias_definition) {
-                if(!_css_definition.medias){
+                if (!_css_definition.medias) {
                     _css_definition.initMedia();
                 }
                 _css_definition.medias[_listener.medias_definition.condition] =
@@ -256,19 +327,22 @@ class CssTransformer{
         }
         let _debug = false;
 
-        if(option){
-            (()=>{
+        if (option) {
+            (() => {
                 const { debug } = option;
                 _debug = debug;
             })();
         }
         _formatter.debug = _debug;
-        _initListener(_formatter,_selectorDefinition, { _updatePropertyDefinition, 
-            _updateMediaDefinition, _css_definition});
+        _initListener(_formatter, _selectorDefinition, {
+            _updatePropertyDefinition,
+            _updateMediaDefinition, _css_definition
+        });
         const _listener = _formatter.listener;
         _formatter.format(src, {
             complete() {
                 _selectorDefinition.store();
+                _selectorDefinition.complete();
             }
         }
         );

@@ -57,6 +57,11 @@ class Utils {
             throw new Error('invalid trim operation');
         }
     }
+    /**
+     * get marked segment setting
+     * @param {*} marker 
+     * @returns 
+     */
     static GetMarkedInfo(marker){
         let _info = null;
         const { isMarkedSegments, isTrimmedSegment, markedSegment } = marker;
