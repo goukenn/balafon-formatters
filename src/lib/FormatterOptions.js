@@ -153,6 +153,11 @@ class FormatterOptions {
     startLine; 
 
     /**
+     * flag : skip end of line
+     */
+    skipEndOfLine;
+
+    /**
      * flag: start line reading 
      */
     get startReading(){
@@ -569,7 +574,7 @@ class FormatterOptions {
 
         option.useGlue = (_marker, _cm_value)=>{
              // + | update or reset glue value
-             if (_marker.isGlueValue) {
+             if (_marker.isGlueValue && _cm_value) {
                 option.glueValue = _cm_value;
             } else {
                 option.glueValue = null;
@@ -882,12 +887,11 @@ class FormatterOptions {
         this.markerDepth = 0;
         this.nextMode = 1;
         // reset glue flags
-        this.glueValue = null;
         this.joinWith = null;
         this.lastDefineStates = null;
         this.transformMarker = null;
-        this.lastEmptyMarkerPattern = null;
         this.lineSegments.clear();
+        this._resetFlags();
     }
     cleanNewOldBuffers() {
         const option = this;
@@ -912,6 +916,7 @@ class FormatterOptions {
     _resetFlags(){
         this.glueValue = null;
         this.lastEmptyMarkerPattern = null;
+        this.skipEndOfLine = false;
     }
     /**
      * set source line 

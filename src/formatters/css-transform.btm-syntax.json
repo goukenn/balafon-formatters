@@ -46,7 +46,8 @@
         "css-glue-white-space": {
             "match": "\\s+",
             "replaceWith": " ",
-            "isGlueValue": " "
+            "isGlueValue": " ",
+            "name":"meta.glue.white-space.css-transform"
         },
         "css-sub-selector-reading": {
             "begin": "(?=\\s+|\\+|>|~|,|$)",
@@ -172,7 +173,7 @@
                     "include": "#css-param-media-condition"
                 }
             ]
-        },
+        }, 
         "css-media-directive": {
             "begin": "@\\bmedia\\b",
             "end": "(?<=\\})",
@@ -204,10 +205,8 @@
                             "transform":["trim","[$0 ]"]
                         },
                         {
-                            "match":"\\s+",
-                            "replaceWith":" ",
-                            "isGlueValue": " "
-                        },
+                            "include":"#css-glue-white-space"
+                        }, 
                         {
                             "begin": "\\(\\s*",
                             "end": "\\s*\\)",
@@ -218,17 +217,32 @@
                             "endCaptures":{"0":{
                                 "transform":"trim"
                             }},
+                            "formattingOptions":{
+                                "trimmedContainer":true
+                            },
                             "patterns": [
+                                
+                               
                                 {
-                                    "match": "( )+",
+                                    "include": "#css-param-media-condition"
+                                },
+                                {
+                                    "match": "\\s*$",
+                                    "name":"glue.white.end-line.space.css-transform",
+                                    "replaceWith": " ",
+                                    "isGlueValue": " ",
+                                    "markedSegment":{
+                                        "trimmed":true
+                                    }
+                                }
+                                ,{
+                                    "match": "\\s+|$",
+                                    "name":"glue.white.space.css-transform",
                                     "replaceWith": " ",
                                     "isGlueValue": " ",
                                     "markedSegment":{
                                         "trimmed":false
                                     }
-                                },
-                                {
-                                    "include": "#css-param-media-condition"
                                 }
                             ]
                         }

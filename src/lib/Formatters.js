@@ -661,12 +661,18 @@ class Formatters {
                 objClass.lineJoin = true;
                 if (_matcherInfo) {
                     if (ln >= pos) {
-                        objClass.EOL = true;
-                        if (_matcherInfo.isCaptureToEndLine(objClass)) {
-                            objClass.lineMatcher.setPosition(pos, pos);
+                        if (1 || !objClass.skipEndOfLine){
+
+                            objClass.EOL = true;
+                            if (_matcherInfo.isCaptureToEndLine(objClass)) {
+                                objClass.lineMatcher.setPosition(pos, pos);
+                            }
+                            _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
+                            objClass.EOL = false;
+                        } else{
+
+                            objClass.skipEndOfLine = false;
                         }
-                        _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
-                        objClass.EOL = false;
                     } else {
                         this._updateMarkerFormatting(_matcherInfo, objClass);
                     }
@@ -1166,6 +1172,10 @@ class Formatters {
             Utils.UnshiftTokens(markerInfo.name, tokenList);
             markerInfo.isShiftenName = false;
         }
+        // reset option flag
+        if (option.isGlueValue){
+            console.log("glue value");
+        }
     }
     /**
      * 
@@ -1623,7 +1633,7 @@ class Formatters {
      */
     _handleMatchMarker(_marker, option) {
         // + | - handle :match/match
-        option.debug?.feature('match/match') && Debug.log('---::: Handle match marker :::--' + _marker.toString());
+        option.debug?.feature('match/match') && Debug.log('--::: Handle match marker :::--' + _marker.toString());
         option.state = 'match';
         const { parent, group, match, closeParentData } = _marker;
         const { formatting } = this;
@@ -1633,9 +1643,13 @@ class Formatters {
         let _next_position = group.index + group.offset;
         let _checkParentInfo, _endCaptureCallback;
         // TODO: skip entired line
+        const _handle_EOL = !option.EOL && (option.line.length == _next_position);
 
+        if (_handle_EOL){
+            option.skipEndOfLine = true;
+        }
 
-        if ((option.pos == _next_position) && (!_marker.closeParent)) {
+        if (!_handle_EOL && (option.pos == _next_position) && (!_marker.closeParent)) {
             // + | not move update marker formatting
             if (_marker.formattingMode) {
                 this._updateMarkerFormatting(_marker, option, true);
@@ -1692,9 +1706,12 @@ class Formatters {
                     parent, _marker, _p, _old, option, '', '', group.index, "match"));
             }
         }
-        // + | inject loging 
+        // + | inject argurment  
         let _e_args = {
-            handle: false, value: _cm_value, 'state': 'match', udpateChild: true,
+            handle: false, 
+            value: _cm_value, 
+            state: 'match', 
+            udpateChild: true,
             _skip_value,
             isInstructionSeparator: false,
             data: _op.data
@@ -2957,7 +2974,7 @@ class Formatters {
      * @param {string|RegExp} _endRegex 
      */
     _backupMarkerSwapBuffer(option, _marker, entry, _endRegex) {
-        option.debug?.feature('backup-swap-buffer') && Debug.log('--:backup and swap buffer.[' + entry + ']');
+        option.debug?.feature('backup-swap-buffer') && Debug.log('--::: backup and swap buffer.[' + entry + ']');
         let _u_content = null;
         const _formatting = this.formatting;
         if (_marker.isBlock && _marker.isCaptureOnly && !_marker.isStreamCapture) {
@@ -2992,6 +3009,9 @@ class Formatters {
             _inf.captureEntry = _u_content;
             option.nextMode = _formatting.appendMode;
         }
+        // update glue flags
+        // if (entry=='(')
+        option.useGlue(_marker, '');
 
         return _inf;
     }

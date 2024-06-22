@@ -8,6 +8,7 @@ const { RegexUtils } = require('./RegexUtils');
 const { BlockInfo } = require('./BlockInfo');
 const { PatterMatchErrorInfo } = require('./PatterMatchErrorInfo');
 const { RegexEngine } = require('./RegexEngine');
+const { PatternFormattingOptions } = require('./PatternFormattingOptions');
 
 
 const PatternParsing = { init: false };
@@ -29,6 +30,10 @@ const PTN_MATCH_TRANSFORM = 3;
  * 
  */
 class Patterns {
+    /**
+     * @var {undefined|?PatternFormattingOption} 
+     */
+    formattingOptions;
     /**
      * @var {undefined|null|string|{message:string, code: number}} lint error 
      */
@@ -463,6 +468,13 @@ class Patterns {
             streamCaptures: _capture_parser,
             transformCaptures: _capture_parser,
             transform,
+            formattingOptions(d, parser){
+                if (typeof(d)=='object'){
+                const l = new PatternFormattingOptions;
+                JSonParser._LoadData(parser, l, d);
+                return d;
+                }
+            },
             lineFeed(d, parser) {
                 return typeof (d) == 'boolean' ? d : false;
             },

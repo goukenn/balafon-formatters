@@ -95,7 +95,9 @@ class SelectorDefinition {
         }
     }
     _mergeDefinitionComplete() {
-        const list = Object.keys(this.mergeDefinitions.keys);
+        const {mergeDefinitions} = this;
+        if (!mergeDefinitions) return;
+        const list = Object.keys(mergeDefinitions.keys);
         while (list.length > 0) {
             let q = list.shift();
             const _tab = q.split(/\s*,\s*/);
