@@ -44,6 +44,22 @@
         "Other"
     ],
     "contributes": {
+        "menus": {
+            "editor/title": [
+                {
+                    "command": "css.transform.toJSON",
+                    "group": "navigation",
+                    "when": "1"
+                }
+            ]
+        },
+        "commands":[
+            {
+                "category": "Bformatter",
+                "command":"css.transform.toJSON",
+                "title": "Css -> json"
+            }
+        ],
         "languages": [
             {
                 "id": "vbmacros",

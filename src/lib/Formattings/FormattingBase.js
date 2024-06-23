@@ -278,12 +278,27 @@ class FormattingBase {
         const _updateBufferedData = ({ dataSegment, bufferSegment }) => {
             FormatterSegmentJoin.UpdateSegmentData(segments, { dataSegment, bufferSegment });
         };
+        let _treat_buffer_data = false;
+
+        const _treat_buffer_data_fc = (op='trimmed')=>{
+            if (_treat_buffer_data)return;
+            FormatterBuffer.TreatMarkedSegments(bufferData, op);
+            buffer = bufferData.bufferSegment.join('');
+            _treat_buffer_data = true;
+        };
+
+        //+ || handle trimmed container
+        if ((marker.formattingOptions?.trimmedContainer || /\(|\[|\{/.test(content)) && (marker.childs.length < 2)){
+            _treat_buffer_data_fc();
+        }
+
+
+
 
         const _flushData = {};
         switch (mode) {
             case FM_START_LINE:
-                FormatterBuffer.TreatMarkedSegments(bufferData, 'trimmed');
-                buffer = bufferData.bufferSegment.join('');
+                _treat_buffer_data_fc(); 
                 if (joinWith) {
                     _ld = buffer;
                 } else {
@@ -487,7 +502,10 @@ class FormattingBase {
         const { debug } = option;
         if (option.markerInfo.length > 0) {
             const _old = option.markerInfo[0];
-            debug?.feature('on-append-to-buffer') && Debug.log("onAppend to buffer - value={" + value + "}");
+            debug?.feature('on-append-to-buffer') && (()=>{
+                Debug.log("onAppend to buffer - value=");
+                console.log( value );
+            })()
             // + | change current mode according to formatting rule
             if (marker.formattingMode == PatternFormattingMode.PFM_APPEND_THEN_LINE_FEED) {
 

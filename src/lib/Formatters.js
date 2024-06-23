@@ -485,7 +485,7 @@ class Formatters {
     /**
      * format the data
      * @param {string|string[]} data 
-     * @param {null|undefined|{name:string, constantName:string, depth:number}} option format option 
+     * @param {null|undefined|{name:string, constantName:string, depth:number, complete: null|()=>* = null}} option format option 
      * @returns 
      */
     format(data, option) {
@@ -661,12 +661,18 @@ class Formatters {
                 objClass.lineJoin = true;
                 if (_matcherInfo) {
                     if (ln >= pos) {
-                        objClass.EOL = true;
-                        if (_matcherInfo.isCaptureToEndLine(objClass)) {
-                            objClass.lineMatcher.setPosition(pos, pos);
+                        if (1 || !objClass.skipEndOfLine){
+
+                            objClass.EOL = true;
+                            if (_matcherInfo.isCaptureToEndLine(objClass)) {
+                                objClass.lineMatcher.setPosition(pos, pos);
+                            }
+                            _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
+                            objClass.EOL = false;
+                        } else{
+
+                            objClass.skipEndOfLine = false;
                         }
-                        _matcherInfo = _formatter._handleCheckCloseMarker(_matcherInfo, objClass);
-                        objClass.EOL = false;
                     } else {
                         this._updateMarkerFormatting(_matcherInfo, objClass);
                     }
@@ -753,6 +759,9 @@ class Formatters {
         let _output = null;
         try {
             _output = _output_fc();
+            if ((this.info.isSubFormatting == 0) && (typeof(option.complete) == 'function')) {
+                option.complete({formatter:this});
+            }
         } catch (e) {
             if (this.error) {
                 if (!Array.isArray(this.error)) {
@@ -762,7 +771,6 @@ class Formatters {
             }
             else {
                 this.error = e.message;
-
             }
             debug && console.error('Error : ' + e.message);
         }
@@ -1112,7 +1120,7 @@ class Formatters {
      * @returns 
      */
     _handleCallback(type, option) {
-        // console.log("handle ::::::::::::::::::::::::::::::::::::"+type);
+        // + handle callback
         return {
             "0": option.listener?.handleBeginEndMarker || this._handleBeginEndMarker,
             "1": option.listener?.handleMatchMarker || this._handleMatchMarker,
@@ -1139,6 +1147,12 @@ class Formatters {
         return parent;
 
     }
+    _onStartMarker(markerInfo, option, {type}){
+        const { listener } = this;
+        if (listener?.onStartHandler)
+            listener.onStartHandler(markerInfo, option, {type, formatter:this});
+
+    }
     /**
      * on end handler
      * @param {PatternMatchInfo} markerInfo 
@@ -1157,6 +1171,10 @@ class Formatters {
         if ((markerInfo.isShiftenName) && (tokenList.length > 0)) {
             Utils.UnshiftTokens(markerInfo.name, tokenList);
             markerInfo.isShiftenName = false;
+        }
+        // reset option flag
+        if (option.isGlueValue){
+            console.log("glue value");
         }
     }
     /**
@@ -1615,7 +1633,7 @@ class Formatters {
      */
     _handleMatchMarker(_marker, option) {
         // + | - handle :match/match
-        option.debug?.feature('match/match') && Debug.log('---::: Handle match marker :::--' + _marker.toString());
+        option.debug?.feature('match/match') && Debug.log('--::: Handle match marker :::--' + _marker.toString());
         option.state = 'match';
         const { parent, group, match, closeParentData } = _marker;
         const { formatting } = this;
@@ -1625,9 +1643,13 @@ class Formatters {
         let _next_position = group.index + group.offset;
         let _checkParentInfo, _endCaptureCallback;
         // TODO: skip entired line
+        const _handle_EOL = !option.EOL && (option.line.length == _next_position);
 
+        if (_handle_EOL){
+            option.skipEndOfLine = true;
+        }
 
-        if ((option.pos == _next_position) && (!_marker.closeParent)) {
+        if (!_handle_EOL && (option.pos == _next_position) && (!_marker.closeParent)) {
             // + | not move update marker formatting
             if (_marker.formattingMode) {
                 this._updateMarkerFormatting(_marker, option, true);
@@ -1684,9 +1706,12 @@ class Formatters {
                     parent, _marker, _p, _old, option, '', '', group.index, "match"));
             }
         }
-        // + | inject loging 
+        // + | inject argurment  
         let _e_args = {
-            handle: false, value: _cm_value, 'state': 'match', udpateChild: true,
+            handle: false, 
+            value: _cm_value, 
+            state: 'match', 
+            udpateChild: true,
             _skip_value,
             isInstructionSeparator: false,
             data: _op.data
@@ -1950,6 +1975,7 @@ class Formatters {
             this._unshiftPatternContentName(patternInfo, option);
             patternInfo.startOutput = _startOutput.buffer;
             patternInfo.startData = _startOutput.data;
+            this._onStartMarker(patternInfo, option, {type:'begin/end'});
         } else {
             throw new Error("missing logic for : " + patternInfo);
         }
@@ -2948,7 +2974,7 @@ class Formatters {
      * @param {string|RegExp} _endRegex 
      */
     _backupMarkerSwapBuffer(option, _marker, entry, _endRegex) {
-        option.debug?.feature('backup-swap-buffer') && Debug.log('--:backup and swap buffer.[' + entry + ']');
+        option.debug?.feature('backup-swap-buffer') && Debug.log('--::: backup and swap buffer.[' + entry + ']');
         let _u_content = null;
         const _formatting = this.formatting;
         if (_marker.isBlock && _marker.isCaptureOnly && !_marker.isStreamCapture) {
@@ -2983,6 +3009,9 @@ class Formatters {
             _inf.captureEntry = _u_content;
             option.nextMode = _formatting.appendMode;
         }
+        // update glue flags
+        // if (entry=='(')
+        option.useGlue(_marker, '');
 
         return _inf;
     }
@@ -3307,7 +3336,7 @@ class Formatters {
         const { debug } = option;
         // const { endMatchLogic } = q.settings;
         debug?.feature('handle-same-group') && (() => {
-
+            Debug.log('-:::handle same group:::-');
         })();
         // + | priority end group
         let _ret = null;
@@ -3325,7 +3354,7 @@ class Formatters {
                 option.skipUpdateStartLine = true;
             }
         }
-        return _ret; v
+        return _ret;
     }
     isSpecialMarker(marker) {
         return marker instanceof SpecialMeaningPatternBase
