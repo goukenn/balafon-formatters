@@ -690,6 +690,8 @@ class Formatters {
                         debug && Debug.log('...EOF...' + _matcherInfo.toString());
                         option.EOF = true;
                         option.lineMatcher.reset();
+                        // option.lineMatcher.offset = 61;
+                        //option.lineMatcher.setPosition(option.length);
                         while (_matcherInfo) {
                             //
                             // + | close matcher - handle 
@@ -759,7 +761,7 @@ class Formatters {
         let _output = null;
         try {
             _output = _output_fc();
-            if ((this.info.isSubFormatting == 0) && (typeof(option.complete) == 'function')) {
+            if ((this.info.isSubFormatting == 0) && (typeof(option?.complete) == 'function')) {
                 option.complete({formatter:this});
             }
         } catch (e) {
@@ -855,13 +857,19 @@ class Formatters {
         _buffer = option.flush(true);
         option.formatterBuffer.appendToBuffer(_buffer, _marker);
     }
+    /**
+     * check for last missing value - 
+     * @param {*} marker 
+     * @param {*} option 
+     * @param {*} _old 
+     * @returns 
+     */
     _lastExpectedMatchResult(marker, option, _old) {
-        const _formatting = this.formatting;
+        // + | check for last missing value
+        // const _formatting = this.formatting;
         const { endMissingValue, group, isEndCaptureOnly } = marker;
         let _p = [];
         let regex = '';
-
-
         if (!isEndCaptureOnly) {
             if ((endMissingValue != undefined) && (endMissingValue !== null)) {
 
@@ -881,7 +889,7 @@ class Formatters {
                     regex = Utils.ReplaceRegexGroup(endMissingValue, group);
                 }
             } else {
-                if (_old && _old.marker.end.toString() != "/$/d")
+                if (_old && (_old.marker.end.toString() != "/$/d"))
                     regex = Utils.ReplaceRegexGroup(Utils.RegExToString(marker.end), group);
             }
             //remove escaped litteral
@@ -1319,8 +1327,8 @@ class Formatters {
      */
     _appendConstant(patternInfo, value, option, append_child = true, constant_type_marker = null) {
         let { debug, listener } = option;
-        let { formatting } = this;
-        debug && Debug.log('--::appendConstant::--[' + value + ']');
+        let { formatting } = this; 
+        debug?.feature('render/constant') && Debug.log('--::appendConstant::--[' + value + ']');
         let _fempty = (value.trim().length == 0);
         if (option.startBlock && _fempty) {
             return;
@@ -2000,18 +2008,19 @@ class Formatters {
 
         if (_line.length == 0) {
 
-            // check for end found - 
+            // + | check for end found - 
             ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option));
-            if (_p && ((_matcher == null) || (option.EOL))) {
-                option.lineMatcher.reset();
-                option.pos = _p.index;
+            const _eol = option.EOL;
+            if (_p && ((_matcher == null) || (_eol))) {
+                let _nextPos = Math.max(option.pos, _p.index);
+                // + | update the next position hosting
+                option.pos = _nextPos; 
                 // 
                 if (_p[0].length == 0) {
                     let _close_data = patternInfo.closeParentData;
                     if (_close_data) {
                         const _op = [];
                         _close_data = this._treatMatchValue(_close_data, patternInfo, option, _op, null, true);
-
                         _buffer += _close_data;
                         if (_old) {
                             _old.data.bufferSegment.push(_close_data);
@@ -2263,6 +2272,7 @@ class Formatters {
         const q = this;
         const { parent } = _marker;
         const { formatterBuffer } = option;
+        let _skipOffset = 0;
         if (_buffer.length > 0) {
 
             if (_trimOutput) {
@@ -2296,11 +2306,12 @@ class Formatters {
             }
             else {
                 q._appendConstant(_marker, _append, option);
+                _skipOffset = _append.length;
             }
             _append = '';
         }
         option.nextMode = _marker.mode;
-        return { _append, _buffer };
+        return { _append, _buffer, _skipOffset };
     }
     /**
      * use to handle close parent
@@ -2432,6 +2443,7 @@ class Formatters {
                 buffer: _buffer,
                 pos: _next_position,
                 line: option.line,
+                offset : option.offset,
                 endGroup: _p,
                 fromChild: (!parent.isEndCaptureOnly && _marker.isEndCaptureOnly),
                 state
@@ -2475,6 +2487,7 @@ class Formatters {
         const { debug } = option;
         const { parent } = _marker;
         let _next_position = _p.index + _p[0].length; // do not move cursor until condition meet
+        let _next_offset = option.offset;
         let _append = option.pos < _p.index ? option.line.substring(option.pos, _p.index) : '';
         let _checkParentInfo = null;
         let _endCaptureCallback = null;
@@ -2520,6 +2533,7 @@ class Formatters {
 
         option.skipTreatEnd = false;
         let _close_block = false;
+        let _skipOffset = 0;
 
 
         //const _debug_parent_is_capture_only = parent?.isEndCaptureOnly;
@@ -2530,7 +2544,7 @@ class Formatters {
 
 
         // + | full fill pattern buffer 
-        ({ _append, _buffer } = _formatting.onEndUpdateBuffer({
+        ({ _append, _buffer, _skipOffset } = _formatting.onEndUpdateBuffer({
             marker: _marker,
             option,
             _buffer,
@@ -2541,6 +2555,9 @@ class Formatters {
             }
         }
         ));
+        if (_skipOffset){
+            _next_offset = Math.min(_next_position, option.offset + _skipOffset + 1); 
+        }
 
         // + | node division  
         if (_marker.isBlock && !_marker.blockStartInfo) {
@@ -2635,7 +2652,7 @@ class Formatters {
             _next_position = Math.max(option.pos, _next_position);
         }
         // + | update position
-        option.moveTo(_next_position);
+        option.moveTo(_next_position, _next_offset);
         // + | restore backup buffer
         if (_saved) {
             const _buffState = option.bufferState;
@@ -2682,6 +2699,14 @@ class Formatters {
         // + invoke check parent
         return this._invokeCheckParent(_checkParentInfo, _endCaptureCallback, option, parent);
     }
+    /**
+     * 
+     * @param {*} _checkParentInfo 
+     * @param {*} _endCaptureCallback 
+     * @param {*} option global option context
+     * @param {*} fallbackMarker fallback
+     * @returns 
+     */
     _invokeCheckParent(_checkParentInfo, _endCaptureCallback, option, fallbackMarker) {
         if (_checkParentInfo && _endCaptureCallback) {
             return _endCaptureCallback.apply(this, [_checkParentInfo, option]);
