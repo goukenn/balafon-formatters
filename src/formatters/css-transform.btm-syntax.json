@@ -306,6 +306,7 @@
             "begin": "\\{",
             "end": "\\}",
             "tokenID": "selector-block",
+            "name":"meta.css.selector.block.css-transform",
             "patterns": [
                 {
                     "include": "#comment"
@@ -573,7 +574,44 @@
             "begin": "\\{",
             "end": "\\}",
             "name": "meta.scope.block",
-            "tokenID":"scope-block"
+            "tokenID":"scope-block",
+            "patterns":[{
+                "include":"#css-at-rule-scope-definition"
+            }]
+        },
+        "css-at-rule-scope-definition":{
+            "patterns":[
+                {
+                    "include": "#comment"
+                },
+                {
+                    "include": "#css-scope-selector-read"
+                },
+                {
+                    "include": "#css-selector-block"
+                }
+            ]
+        },
+        "css-scope-selector-read":{
+            "begin": ":scope\\b|&\\s*|(\\*)|(\\.|#)?[a-z][a-z0-9\\-]*(\\\\.[a-z][a-z0-9\\-]*)*",
+            "end": "(?=\\{)",
+            "tokenID": "css-selector",
+            "name": "css.selector",
+            "beginCaptures":{
+                "0":{
+                    "patterns":[
+                        {
+                            "match":"&\\s*",
+                            "transform":["trim","[$0 ]"]
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#css-read-selection-definition"
+                }
+            ]
         },
         "css-at-rule-scope-condition": {
             "begin": "\\(",
@@ -649,7 +687,10 @@
         "css-scope-block": {
             "begin": "\\{",
             "end": "\\}",
-            "tokenID":"scope-block"
+            "tokenID":"scope-block",
+            "patterns":[  {
+                "include": "#comment"
+            }]
         }, 
         "css-at-rule-keyframes": {
             "begin": "@\\bkeyframes\\b",

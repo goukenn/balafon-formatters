@@ -80,10 +80,15 @@ class SelectorDefinition {
         this.value = '';
         this.definitions = null;
     }
+    /**
+     * update property value
+     */
     update() {
         const { property, value, definitions } = this;
         if (property) {
-            definitions[property] = value?.trim();
+            let c = value?.trim().replace(/^('|")(.*)\1$/g, '$2');
+            definitions[property] = c;
+            console.log("value : ", {c, value});
             this.value = '';
         }
     }
@@ -410,6 +415,57 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                     _handle.handle = false;
                     break;
             }
+        },
+        _onStartScope(){ 
+            this._resetSelectorDefinition();
+            this.objDef = {type:'scope', condition:null, selector:null, def:{}};
+            if (!_css_definition.scope){
+                _css_definition.scope = {};
+            }
+            _selectorDefinition.definitions = null;
+
+        },
+        _handleScope(data, marker, tokenID, tokenList, _handle){
+            let _h= true; 
+            let _obj = this.objDef;
+            let _value = data.value;
+            function get_scope_id(obj){
+                let r = [];
+                if (obj.condition){
+                    r.push(obj.condition);
+                }
+                return r.length>0? r.join(' '): '$global';
+            }
+            let _id = '';
+            switch(tokenID){
+                case 'scope-condition':
+                    if (_obj.condition){
+                        _obj.condition+= _value; 
+                    } else
+                    _obj.condition = _value; 
+                    break;
+                case 'css-scope': 
+                    _selectorDefinition.definitions = null;
+                    this.objDef = null;
+                    break;
+                case 'css-selector':
+                    _id = get_scope_id(_obj);
+                    if (!_css_definition.scope[_id]){
+                        _css_definition.scope[_id] = {};
+                    }
+                    let _def = _css_definition.scope[_id] ? _css_definition.scope[_id][_value] : null;
+                    if (!_def){
+                        _def = new CssStyle; 
+                        _css_definition.scope[_id][_value] = _def;
+                    }  
+                    _selectorDefinition.definitions = _def;
+                    _obj.selector = _value;
+                    break;
+                default:
+                    _h= false;
+                    break;
+            }
+            _handle.handle = _h;
         },
         _handleContainer(data, marker, tokenID, tokenList, _handle) {
             const inf = this.objDef; //._onStartContainer();

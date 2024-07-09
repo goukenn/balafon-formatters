@@ -2487,7 +2487,7 @@ class Formatters {
         const { debug } = option;
         const { parent } = _marker;
         let _next_position = _p.index + _p[0].length; // do not move cursor until condition meet
-        let _next_offset = option.offset;
+        let _next_offset = undefined; //option.offset;
         let _append = option.pos < _p.index ? option.line.substring(option.pos, _p.index) : '';
         let _checkParentInfo = null;
         let _endCaptureCallback = null;

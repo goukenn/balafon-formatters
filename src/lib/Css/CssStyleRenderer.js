@@ -33,6 +33,7 @@ class CssStyleRenderer{
     render(obj){
         const objKeys = Object.keys(obj);
         let s = '';
+        const _multi_def = ['scope'];
         objKeys.forEach(o=>{
             if (/\b(charset|frames|medias|styles)\b/.test(o)){
                 return;
@@ -43,7 +44,8 @@ class CssStyleRenderer{
 
                 let _fc = this['_render_'+o.toLowerCase().replace('-','_')];
                 if (typeof(_fc)=='function'){
-                    s+= '@'+_k+' ';
+                    if (_multi_def.indexOf(_k)==-1)
+                        s+= '@'+_k+' ';
                     s += _fc.apply(this, [_f]);
                 }else{
                     s += '/* missing rendering for ['+o+"] */";
@@ -100,6 +102,15 @@ class CssStyleRenderer{
     }
     _render_property(d){
         return CssStyleRenderer.RenderRule(d, this);
+    }
+    _render_scope(d){
+        let s = [];
+        for(let i in d){
+            s.push('@scope '+i);
+            s.push('{');
+            s.push('}');
+        }
+        return s.join('');
     }
 }
 exports.CssStyleRenderer = CssStyleRenderer;
