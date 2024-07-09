@@ -49,6 +49,11 @@ class RegexUtils {
         // return /\((\?(:|[imx]))./;
     }
 
+    /**
+     * check if has selection movement capture
+     * @param {*} regex 
+     * @returns 
+     */
     static HasMovementCapture(regex){
         let rc = RegexUtils.CAPTURE_NOT_AHEAD_BACKYARD;
         let _ret =  rc.test(regex);

@@ -2816,7 +2816,8 @@ class Formatters {
         // + | element do not  capture data 
         let _start = endGroup[0].length == 0;
         // + | loop thru end captured data to close 
-        while (_start && info.parent && (fromChild || info.parent.isEndCaptureOnly)) {
+        let _supportCapture = false;
+        while (_start && info.parent && (fromChild || _supportCapture || info.parent.isEndCaptureOnly)) {
             p = info.parent;
             const { endRegex } = p;
             _loopCounter++;
@@ -2828,11 +2829,16 @@ class Formatters {
             }
             if (tp = endRegex.exec(_tcline)) {
                 let l = (tp.index + _toffset);
-                let _empty_capture = (tp[0].length == 0);
-                if ((l == endGroup.index) && _empty_capture) {
-                    tp.index += _toffset;
+                let _ln = tp[0].length;
+                let _empty_capture = (_ln == 0);
+                if (((l == endGroup.index) && _empty_capture) || (!_empty_capture && (endGroup.index == l+_ln))){
+                    if (!_empty_capture && (endGroup.index == l+_ln)){
+                        tp.index += _toffset+_ln;
+                    }else
+                        tp.index += _toffset;
                     p = _end_non_capture(p, tp, option.nextMode);
                 } else {
+                  
                     // fix offset parent
                     if ((l < endGroup.index) || !_empty_capture)
                         _bckLineOffset = _offsetPosition;
@@ -2870,6 +2876,11 @@ class Formatters {
             }
             info.parent = p;
             fromChild = false;
+            if (p ){
+                _supportCapture = ((p)=>{ const { endRegex } = p; 
+                    return RegexUtils.HasMovementCapture(endRegex);
+                })(p);
+            }
         }
 
         if (_is_match && (treat) && p) {

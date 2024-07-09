@@ -358,7 +358,7 @@
         },
         "css-global-directive": {
             "begin": "(?=@\\b(?:charset|color-profile|container|counter-style|font-face|font-feature-values|font-palette-values|import|keyframes|layer|media|namespace|page|property|scope|starting-style|supports)\\b)",
-            "end": ";|(?<=})",
+            "end": ";|(?<=}|\\s*;\\s*)",
             "name": "meta.css.global.at-rule.css-transform",
             "tokenID": "css-global-directive",
             "patterns": [
@@ -682,7 +682,9 @@
             ]
         },
         "css-end-instruction": {
-            "match": "\\s*;\\s*"
+            "match": "\\s*;\\s*",
+            "tokenID":"end.instruction",
+            "transform":"trim"
         },
         "css-scope-block": {
             "begin": "\\{",

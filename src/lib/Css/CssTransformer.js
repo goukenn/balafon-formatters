@@ -258,9 +258,9 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                             _mfc.apply(this);
                         }
                     }
+                    this._auto = _auto;
                     break;
             }
-            this._auto = _auto;
         },
         _handleColorprofile(data, marker, tokenID, tokenList, _handle) {
             _handle.handle = true;
@@ -418,12 +418,17 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
         },
         _onStartScope(){ 
             this._resetSelectorDefinition();
-            this.objDef = {type:'scope', condition:null, selector:null, def:{}};
+            this.objDef = {type:'scope', condition:null, selector:null};
             if (!_css_definition.scope){
                 _css_definition.scope = {};
             }
             _selectorDefinition.definitions = null;
 
+        },
+        _closeAutoHandle(){
+            _selectorDefinition.definitions = null;
+            this.objDef = null;
+            this._auto = true;
         },
         _handleScope(data, marker, tokenID, tokenList, _handle){
             let _h= true; 
@@ -445,8 +450,9 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                     _obj.condition = _value; 
                     break;
                 case 'css-scope': 
-                    _selectorDefinition.definitions = null;
-                    this.objDef = null;
+                    // - close and auto
+                    this._closeAutoHandle(); 
+                    _h = false;
                     break;
                 case 'css-selector':
                     _id = get_scope_id(_obj);
@@ -466,6 +472,23 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                     break;
             }
             _handle.handle = _h;
+        },
+        _handleLayer(data, marker, tokenID, tokenList, _handle){
+            let _h = false;
+            let _v = data.value;
+
+            switch(tokenID){
+                case 'css-layer':
+                    this._closeAutoHandle();
+                break;
+                default:
+                    _h = false;
+                    break;
+            }
+            _handle.handle = _h;
+        },
+        _onStartLayer(){
+            this.objDef = {type:'layer', selector:''}
         },
         _handleContainer(data, marker, tokenID, tokenList, _handle) {
             const inf = this.objDef; //._onStartContainer();

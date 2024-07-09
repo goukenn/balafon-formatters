@@ -570,66 +570,7 @@ class Utils {
                 _count++;
                 // });
             }
-        }
-
-        // patterns.forEach((s) => {
-        //     let _ts = s;
-        //     let p = null;
-        //     let from = null;
-        //     let item_index = null;
-        //     let skip = Utils._SkipLine(s, option); 
-
-        //     if (!skip) {
-        //         const { patterns } = s;
-        //         const _regex = s.getEntryRegex();
-        //         if (_regex){
-        //             p = lineMatcher.check(_regex);
-        //             _d = { p, s: s, index: -1, regex: _regex };
-        //         }
-        //         else{
-        //             if (patterns){
-        //                 const cp = Utils.GetMatchInfo(patterns, l, option, parentMatcherInfo);
-        //                 if (cp) {
-        //                     return { p: cp._match, s: cp._a, from: this, patterns: patterns, index: cp.index, regex: cp.regex };
-        //                 }
-        //                 return false;
-        //             }
-        //         }
-
-        //         // let _d = _ts.check(l, option, parentMatcherInfo);
-        //         // if ((_d.regex) && (l.length > 0) && (option.sourceLine != l) && (!option.startLine) && RegexUtils.CheckRequestStartLine(_d.regex)) {
-        //         //     const _td = _ts.check(option.sourceLine, option, parentMatcherInfo, _d.regex);
-        //         //     // ignore start line
-        //         //     if (_td && (_td.index == -1)) {
-        //         //         _d = null;
-        //         //     }
-        //         // } else if ((_d.p == null) && ((l != subLine) && RegexUtils.HasMovementCapture(_d.regex))) {
-        //         //     const _cd = _ts.check(subLine, option, parentMatcherInfo);
-        //         //     if (_cd && _cd.p) {
-        //         //         // update index
-        //         //         _d = _cd;
-        //         //         _d.p.index = lineMatcher.position - (lineMatcher.offset + _d.p.index);
-        //         //         _d.p.input = l;
-        //         //         _d.p.move = true;
-        //         //     }
-
-        //         // }
-        //         if (_d) {
-        //             ({ p, s, from, patterns } = _d);
-        //             item_index = _d.index == -1 ? _count : _d.index;
-        //         }
-        //         if (p && ((_index == -1) || (_index > p.index))) {
-        //             _index = p.index;
-        //             _a = s;
-        //             _match = p;
-        //             _from = from;
-        //             _patterns = patterns || _patterns;
-        //             _position = item_index || _count;
-        //         }
-        //     }
-        //     _count++;
-        // });
-
+        } 
         if (_match === 0) {
             return false;
         }

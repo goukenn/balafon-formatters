@@ -106,8 +106,12 @@ class CssStyleRenderer{
     _render_scope(d){
         let s = [];
         for(let i in d){
+            let l = d[i];
             s.push('@scope '+i);
             s.push('{');
+       
+                s.push(CssStyleRenderer.RenderRule(l, this));
+            
             s.push('}');
         }
         return s.join('');
