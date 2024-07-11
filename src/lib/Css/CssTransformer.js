@@ -7,6 +7,11 @@ const { CssStyleDefinitions } = require('./CssStyleDefinitions');
 const { CssStyle } = require('./CssStyle');
 const { CssAtRuleProperty } = require('./CssAtRuleProperty');
 const json_data = require("../../formatters/css-transform.btm-syntax.json");
+const { CssAtLayerDefinition } = require('./CssAtLayerDefinition');
+const { CssLayerStyle } = require('./CssLayerStyle');
+const { CssCounterStyle } = require('./CssCounterStyle');
+const { CssFontFaceStyle } = require('./CssFontFaceStyle');
+const { CssImports } = require('./CssImports');
 
 const _formatter = Formatters.CreateFrom(json_data);
 const _baseFormatterListener = new FormatterListener;
@@ -16,18 +21,18 @@ const _baseFormatterListener = new FormatterListener;
  * @param {string} n 
  * @returns 
  */
-function methodSuffixName(n){
-    n = n.replace(/(-|_)[a-z]/g, (o)=>o[1].toUpperCase()).replace(/(^-)|_/g,'');
-    n = n[0].toUpperCase()+n.substring(1);
+function methodSuffixName(n) {
+    n = n.replace(/(-|_)[a-z]/g, (o) => o[1].toUpperCase()).replace(/(^-)|_/g, '');
+    n = n[0].toUpperCase() + n.substring(1);
     return n;
 }
 
-function get_container_id(inf){
+function get_container_id(inf) {
     const tab = [];
-    if (inf.name){
+    if (inf.name) {
         tab.push(inf.name);
     }
-    if (inf.condition){
+    if (inf.condition) {
         tab.push(inf.condition);
     }
     return tab.length > 0 ? tab.join(' ') : '$global';
@@ -49,6 +54,10 @@ class SelectorDefinition {
     key;
     definitions;
     mergeDefinitions;
+    /**
+     * storage of global propertiy to by pass listener 
+     */
+    styleStore;
     /**
      * build style listener
      * @param {*} listener 
@@ -85,10 +94,27 @@ class SelectorDefinition {
      */
     update() {
         const { property, value, definitions } = this;
-        if (property) {
-            let c = value?.trim().replace(/^('|")(.*)\1$/g, '$2');
+        let c = '';
+        function litteralString(n) {
+            this.toJSON = () => {
+                return n;
+            }
+            this.toString = () => {
+                return n;
+            }
+        }
+        if (property && definitions) {
+            const _regex = /^('|")(.*)\1$/g;
+            const _is_litteral = _regex.test(value?.trim());
+
+            if (_is_litteral) {
+                c = new litteralString(value?.trim().replace(_regex, '$2'));
+
+            }
+            else {
+                c = (value.trim().length == 0) && (value.length > 0) ? value : value?.trim().replace(_regex, '$2');
+            }
             definitions[property] = c;
-            console.log("value : ", {c, value});
             this.value = '';
         }
     }
@@ -99,13 +125,14 @@ class SelectorDefinition {
     store(def) {
         /** */
         this.update();
-        const { listener, key, definitions } = this;
+        const { listener, key, definitions, styleStore } = this;
         if (key) {
             if (def) {
                 def[key] = definitions;
                 this._loadSeparator(def, key, definitions);
             } else {
-                listener.styles[key] = definitions;
+                const _def= styleStore || listener.styles;
+                _def[key] = definitions;
                 this._loadSeparator(listener.styles, key, definitions);
             }
         }
@@ -237,14 +264,14 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                     _selectorDefinition.start();
                     _selectorDefinition.store();
                     break;
-                case "css-import":
-                    this.mode = 'import';
-                    break;
                 case "css-value":
                 case "css-selector":
                 case "css-property":
                     break;
                 default:
+                    if (tokenID && /^invalid./.test(tokenID)) {
+                        throw new Error(`invalid syntax.${tokenID}`);
+                    }
                     if (tokenID && /^css-/.test(tokenID)) {
                         const _mode = tokenID.toLowerCase().replace(/-/g, '_').substring(4);
                         // save old mode
@@ -378,10 +405,10 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                 // check is nested container - if $global not a named container
                 if (objDef.type != 'container') {
                     throw new Error('container not allowed in ' + objDef.type);
-                } 
+                }
             }
             const inf = (() => {
-                let _ref = { type: 'container', name: '', list: null, condition: null, parent: null , childs:[], def:null};
+                let _ref = { type: 'container', name: '', list: null, condition: null, parent: null, childs: [], def: null };
                 this._resetSelectorDefinition();
                 _selectorDefinition.initDefinition(null);
                 _ref.def = _selectorDefinition.definitions;
@@ -392,15 +419,15 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
             }
             return { inf };
         },
-        _onStartAtRuleProperty(){
+        _onStartAtRuleProperty() {
             this._resetSelectorDefinition();
             _selectorDefinition.definitions = new CssAtRuleProperty;
-            this.objDef = {type:'property',name:'', def:_selectorDefinition.definitions}; 
-            if (!_css_definition.property){
+            this.objDef = { type: 'property', name: '', def: _selectorDefinition.definitions };
+            if (!_css_definition.property) {
                 _css_definition.property = {};
             }
         },
-        _handleAtRuleProperty(data, marker, tokenID, tokenList, _handle){
+        _handleAtRuleProperty(data, marker, tokenID, tokenList, _handle) {
             _handle.handle = true;
             switch (tokenID) {
                 case 'css-property-name':
@@ -410,85 +437,200 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                     _css_definition.property[this.objDef.name] = this.objDef.def;
                     this.objDef = null;
                     _selectorDefinition.definitions = null;
-                    break; 
+                    break;
                 default:
                     _handle.handle = false;
                     break;
             }
         },
-        _onStartScope(){ 
+        _onStartScope() {
             this._resetSelectorDefinition();
-            this.objDef = {type:'scope', condition:null, selector:null};
-            if (!_css_definition.scope){
+            this.objDef = { type: 'scope', condition: null, selector: null };
+            if (!_css_definition.scope) {
                 _css_definition.scope = {};
             }
             _selectorDefinition.definitions = null;
 
         },
-        _closeAutoHandle(){
+        _closeAutoHandle() {
             _selectorDefinition.definitions = null;
             this.objDef = null;
             this._auto = true;
         },
-        _handleScope(data, marker, tokenID, tokenList, _handle){
-            let _h= true; 
+        _handleScope(data, marker, tokenID, tokenList, _handle) {
+            let _h = true;
             let _obj = this.objDef;
             let _value = data.value;
-            function get_scope_id(obj){
+            function get_scope_id(obj) {
                 let r = [];
-                if (obj.condition){
+                if (obj.condition) {
                     r.push(obj.condition);
                 }
-                return r.length>0? r.join(' '): '$global';
+                return r.length > 0 ? r.join(' ') : '$global';
             }
             let _id = '';
-            switch(tokenID){
+            switch (tokenID) {
                 case 'scope-condition':
-                    if (_obj.condition){
-                        _obj.condition+= _value; 
+                    if (_obj.condition) {
+                        _obj.condition += _value;
                     } else
-                    _obj.condition = _value; 
+                        _obj.condition = _value;
                     break;
-                case 'css-scope': 
+                case 'css-scope':
                     // - close and auto
-                    this._closeAutoHandle(); 
+                    this._closeAutoHandle();
                     _h = false;
                     break;
                 case 'css-selector':
                     _id = get_scope_id(_obj);
-                    if (!_css_definition.scope[_id]){
+                    if (!_css_definition.scope[_id]) {
                         _css_definition.scope[_id] = {};
                     }
                     let _def = _css_definition.scope[_id] ? _css_definition.scope[_id][_value] : null;
-                    if (!_def){
-                        _def = new CssStyle; 
+                    if (!_def) {
+                        _def = new CssStyle;
                         _css_definition.scope[_id][_value] = _def;
-                    }  
+                    }
                     _selectorDefinition.definitions = _def;
                     _obj.selector = _value;
                     break;
-                default:
-                    _h= false;
-                    break;
-            }
-            _handle.handle = _h;
-        },
-        _handleLayer(data, marker, tokenID, tokenList, _handle){
-            let _h = false;
-            let _v = data.value;
-
-            switch(tokenID){
-                case 'css-layer':
-                    this._closeAutoHandle();
-                break;
                 default:
                     _h = false;
                     break;
             }
             _handle.handle = _h;
         },
-        _onStartLayer(){
-            this.objDef = {type:'layer', selector:''}
+        /**
+         * pop auto mode
+         * @param {*} tokenID 
+         * @returns 
+         */
+        _popMode(tokenID, force = false) {
+            if ((force || this._auto) && /^css-/.test(tokenID)) {
+                const g = this.ref_mode.pop();
+                if (g) {
+                    this.mode = g[0];
+                    this._auto = g[1];
+                } else {
+                    this.mode = undefined;
+                    this._auto = false;
+                }
+                return true;
+            }
+        },
+        _handleLayer(data, marker, tokenID, tokenList, _handle) {
+            let _h = true;
+            let _v = data.value;
+            const _obj = this.objDef;
+            function _store_style(_obj, def, key) {
+                if (_obj.store) {
+                    return;
+                }
+                const _key = key || _selectorDefinition.key;
+                const _id = _obj.names.join(', ') || '@global';
+
+                if (!(def instanceof CssLayerStyle) && _key && _obj.def) {
+                    _obj.def[_key] = def;
+                    def = _obj.def;
+                    _css_definition.layer.styles[_id] = def;
+                }
+                else {
+                    if (!_css_definition.layer.styles[_id]) {
+                        _css_definition.layer.styles[_id] = {};
+                    }
+                    if (_key !== null) {
+                        _css_definition.layer.styles[_id][_key] = def;
+                    } else {
+                        _css_definition.layer.styles[_id] = def;
+                    }
+                }
+                _obj.store = true;
+            }
+
+            switch (tokenID) {
+                case 'layer-name':
+                    _obj.names.push(_v);
+                    break;
+                case 'end.instruction':
+                    if (_css_definition.layer.list.length > 0) {
+                        throw new Error("already declared a list layer tree");
+                    }
+                    if (_obj.parent) {
+                        throw new Error("layer declaration not allowed in parent layer");
+                    }
+                    _css_definition.layer.list.push(..._obj.names);
+                    this._closeAutoHandle();
+                    this._popMode();
+                    _h = false;
+                    break;
+                case 'css-selector':
+                    _selectorDefinition.key = _v;
+                    _selectorDefinition.definitions = new CssStyle;
+                    break;
+                case 'css-layer':
+                    let _p = _obj?.parent;
+                    if (!_p) {
+
+                        // store childs
+                        _store_style(_obj, _selectorDefinition.definitions)
+                        this._closeAutoHandle();
+                        _h = false;
+                    }
+                    this.objDef = _p;
+                    _selectorDefinition.definitions = _p?.def;
+                    _selectorDefinition.key = null;
+                    break;
+                // case 'css-selector':
+                //     break;
+                case 'selector-block':
+                    let _id = null;
+                    let def = _selectorDefinition.definitions;
+                    let _key = _selectorDefinition.key;
+                    if (_obj.parent) {
+                        _id = _obj.names.join(', ');
+                        const _pdef = _obj.parent.def;
+                        if (!_pdef.childs[_id]) {
+                            _pdef.childs[_id] = {};
+                        }
+                        _pdef.childs[_id][_key] = def;
+                        def = _pdef;
+                    } else {
+                        _store_style(_obj, def);
+                        // _obj.def = def;
+                        def = _obj.def;
+                    }
+                    _selectorDefinition.definitions = def;
+                    _selectorDefinition.key = null;
+
+                    break;
+                default:
+                    _h = false;
+                    break;
+            }
+            _handle.handle = _h;
+        },
+        _onStartLayer() {
+            const _obj = this.objDef;
+            let _parent = null;
+
+            if (_obj) {
+                if (_obj.type != 'layer') {
+                    throw new Error('layer not allowed in ' + _obj.type);
+                }
+                _parent = _obj;
+                if (!_parent.def) {
+                    _parent.def = new CssLayerStyle;
+                }
+                //  _def = _selectorDefinition.definitions;
+            }
+
+            let _ndef = _parent?.def;//  || new CssLayerStyle;
+            this.objDef = { type: 'layer', names: [], parent: _parent, def: _ndef, store: false };
+            if (!_css_definition.layer) {
+                // + | create layer definitions
+                _css_definition.layer = new CssAtLayerDefinition;
+            }
+            _selectorDefinition.definitions = _ndef;
         },
         _handleContainer(data, marker, tokenID, tokenList, _handle) {
             const inf = this.objDef; //._onStartContainer();
@@ -497,12 +639,12 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
             _handle.handle = true;
             switch (tokenID) {
                 case 'container-condition':
-                    let _op =  /\s*,\s*/g.test(_value)
+                    let _op = /\s*,\s*/g.test(_value)
                     _value = _op ? _value.replace(/\s*,\s*/g, ',') : _value;
-                    if (inf.condition){
-                        inf.condition += (_op?'':' ')+_value;
-                    } else{
-                        if (/^\s*\b(and|or)\b/.test(_value)){
+                    if (inf.condition) {
+                        inf.condition += (_op ? '' : ' ') + _value;
+                    } else {
+                        if (/^\s*\b(and|or)\b/.test(_value)) {
                             throw new Error('start with boolean operator not allowed');
                         }
                         inf.condition = _value;
@@ -515,36 +657,36 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                 case 'css-container':
                     // + | end css container 
                     const def = _selectorDefinition.definitions;
-                    if (def) { 
-                        const _container_name = get_container_id(inf); 
+                    if (def) {
+                        const _container_name = get_container_id(inf);
                         if (!_css_definition.container) {
                             _css_definition.container = {};
                         }
-                        if (inf.parent){
-                            inf.childs.push(def); 
-                            if (!('$container' in inf.parent.def )){
-                                inf.parent.def["$container"]  = {};
+                        if (inf.parent) {
+                            inf.childs.push(def);
+                            if (!('$container' in inf.parent.def)) {
+                                inf.parent.def["$container"] = {};
                             }
                             let _p = inf.parent.def["$container"][_container_name];
-                            if (_p){
+                            if (_p) {
                                 CssStyle.AppendDef(_p, def);
-                            }else
-                                 inf.parent.def["$container"][_container_name] = def; 
-                        }else{
-                           let _p = _css_definition.container[_container_name];
-                           if (_p){
-                             CssStyle.AppendDef(_p, def);
-                           } else{
-                             _css_definition.container[_container_name] = def;
-                           }
+                            } else
+                                inf.parent.def["$container"][_container_name] = def;
+                        } else {
+                            let _p = _css_definition.container[_container_name];
+                            if (_p) {
+                                CssStyle.AppendDef(_p, def);
+                            } else {
+                                _css_definition.container[_container_name] = def;
+                            }
                         }
-                            
+
                     }
                     this._resetSelectorDefinition();
-                    if (inf.parent){
+                    if (inf.parent) {
                         this.objDef = inf.parent;
                         _selectorDefinition.definitions = inf.parent.def;
-                    } else { 
+                    } else {
                         // reset contener reference
                         this.objDef = null;
                     }
@@ -560,11 +702,12 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
             }
             let tokenList = option.tokenChains;
             let tokenID = marker.tokenID;
-            console.log("************* end **************", tokenID);
-
             // for matchType = 0
             const _value = marker.value || (() => ({ value: option.buffer, source: option.data }))();
             const { mode } = this;
+
+            console.log("************* end **************", tokenID, _value.source);
+
 
             if (mode) {
                 const _mfc = this['_handle' + methodSuffixName(mode)];
@@ -576,15 +719,7 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
                     }
                 }
                 // if auto register
-                if (this._auto && /^css-/.test(tokenID)) {
-                    const g = this.ref_mode.pop();
-                    if (g) {
-                        this.mode = g[0];
-                        this._auto = g[1];
-                    } else {
-                        this.mode = undefined;
-                        this._auto = false;
-                    }
+                if (this._popMode(tokenID)) {
                     return;
                 }
             }
@@ -622,8 +757,395 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
         },
         store() {
             _baseFormatterListener.store.apply(_baseFormatterListener, arguments);
-        }
+        },
 
+
+        // counter-style
+        _onStartCounterStyle() {
+            this._resetSelectorDefinition();
+        },
+        _handleCounterStyle(data, marker, tokenID, tokenList, _handle) {
+
+            _handle.handle = (() => {
+                let _h = true;
+                let _v = data.value;
+                switch (tokenID) {
+                    case 'counter-style-name':
+                        _selectorDefinition.key = _v;
+                        _selectorDefinition.definitions = new CssCounterStyle;
+                        break;
+                    case 'css-counter-style':
+                        const _key = _selectorDefinition.key;
+                        if (!_css_definition.counterStyles) {
+                            _css_definition.counterStyles = {};
+                        }
+                        _css_definition.counterStyles[_key] = _selectorDefinition.definitions;
+                        this._resetSelectorDefinition();
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+
+        // font-face
+        _onStartFontFace() {
+            this._resetSelectorDefinition();
+            _selectorDefinition.definitions = new CssFontFaceStyle;
+        },
+        _handleFontFace(data, marker, tokenID, tokenList, _handle) {
+            _handle.handle = (() => {
+                let _h = true;
+                let _v = data.value;
+                switch (tokenID) {
+                    case 'css-font-face':
+                        if (!_css_definition.fontFace) {
+                            _css_definition.fontFace = []
+                        }
+                        _css_definition.fontFace.push(_selectorDefinition.definitions);
+                        this._resetSelectorDefinition();
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+        // font-feature-values
+        _onStartFontFeatureValues() {
+            this._resetSelectorDefinition();
+            this.objDef = { type: 'font-feature-values', key: null, ident: null, names: [] }
+        },
+        _handleFontFeatureValues(data, marker, tokenID, tokenList, _handle) {
+            _handle.handle = (() => {
+                let _h = true;
+                let _v = data.value;
+                let _obj = this.objDef;
+                switch (tokenID) {
+                    case 'ftv-name':
+                        if (!_css_definition.fontFeatureValues) {
+                            _css_definition.fontFeatureValues = {};
+                        }
+                        _obj.names.push(_v);
+                        break;
+                    case 'ftv-type':
+                        this.objDef.key = _v;
+                        const _id = _obj.names.join(' ');
+                        const _ref = _css_definition.fontFeatureValues;
+                        this._resetSelectorDefinition();
+                        if (!_ref[_id]) {
+                            _ref[_id] = {};
+                        }
+                        _ndef = _ref[_id][_v] || (() => {
+                            const c = new CssStyle;
+                            _ref[_id][_v] = c;
+                            return c;
+                        });
+                        _selectorDefinition.definitions = _ndef;
+                        break;
+                    case 'ftv-ident':
+                        this.objDef.ident = _v;
+                        break;
+                    case 'css-font-feature-values':
+                        this._resetSelectorDefinition();
+                        this.objDef = null;
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+        // font-feature-values
+        _onStartFontPaletteValues() {
+            this._resetSelectorDefinition();
+            this.objDef = { type: 'font-palette-values', key: null, ident: null, names: [] }
+        },
+        _handleFontPaletteValues(data, marker, tokenID, tokenList, _handle) {
+            _handle.handle = (() => {
+                let _h = true;
+                let _v = data.value;
+                let _obj = this.objDef;
+                switch (tokenID) {
+                    case 'ftp-name':
+                        if (!_css_definition.fontPaletteValues) {
+                            _css_definition.fontPaletteValues = {};
+                        }
+                        _obj.names.push(_v);
+                        const _id = _obj.names.join(' ');
+                        let _ndef = _css_definition.fontPaletteValues[_id] || (() => {
+                            let c = new CssStyle;
+                            _css_definition.fontPaletteValues[_id] = c;
+                            return c;
+                        })();
+                        _selectorDefinition.definitions = _ndef;
+
+                        break;
+                    case 'css-font-palette-values':
+                        this._resetSelectorDefinition();
+                        this.objDef = null;
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+
+        // imports
+        _onStartImport() {
+            this._resetSelectorDefinition();
+            this.objDef = {
+                type: 'imports', key: null, ident: null, names: [],
+                url: null, layer: null, supports: null, queries: null
+            }
+        },
+        _handleImport(data, marker, tokenID, tokenList, _handle) {
+            const q = this;
+            _handle.handle = (() => {
+                let _h = true;
+                let _v = data.value;
+                let _obj = q.objDef;
+                if (!_css_definition.imports) {
+                    _css_definition.imports = new CssImports;
+                }
+                switch (tokenID) {
+                    case 'url':
+                        _obj.url = _v;
+                        break;
+                    case 'media-queries':
+                        _obj.queries = _v;
+                        break;
+                    case 'method-call':
+                        if (/^layer/.test(_v)) {
+                            _obj.layer = _v;
+                        }
+                        if (/^supports/.test(_v)) {
+                            _obj.supports = _v;
+                        }
+                        break;
+                    case 'css-import':
+                        _css_definition.imports.store(_obj);
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+        // namespace
+        _onStartNamespace() {
+            this._resetSelectorDefinition();
+            this.objDef = {
+                type: 'namespace', prefix: null, url: null
+            }
+        },
+        _handleNamespace(data, marker, tokenID, tokenList, _handle) {
+            const q = this;
+            _handle.handle = (() => {
+                let _h = true;
+                let _v = data.value;
+                let _obj = q.objDef;
+                if (!_css_definition.namespace) {
+                    _css_definition.namespace = []
+                }
+                switch (tokenID) {
+                    case 'ns-prefix':
+                        _obj.prefix = _v;
+                        break;
+                    case 'url':
+                        _obj.url = _v;
+                        break;
+                    case 'css-namespace':
+                        this._resetSelectorDefinition();
+                        this.objDef = null;
+                        const { prefix, url } = _obj;
+                        _css_definition.namespace.push({ prefix, url })
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+
+        // page
+        _onStartPage() {
+            this._resetSelectorDefinition();
+            this.objDef = {
+                type: 'page', selector: [],
+                def: new CssStyle
+            };
+            _selectorDefinition.definitions = this.objDef.def;
+            if (!_css_definition.pages) {
+                _css_definition.pages = {};
+            }
+        },
+        _handlePage(data, marker, tokenID, tokenList, _handle) {
+            const q = this;
+            _handle.handle = (() => {
+                let _h = true;
+                let _v = data.value;
+                let _obj = q.objDef;
+                switch (tokenID) {
+                    case 'page-selector':
+                        _obj.selector.push(_v);
+                        break;
+                    case 'url':
+                        _obj.url = _v;
+                        break;
+                    case 'css-page':
+                        const _def = _obj.def;
+                        const _id = (_obj.selector.length > 0 ? _obj.selector.join(', ') : null) || '$global';
+                        let _inf = _css_definition.pages[_id];
+                        if (_inf) {
+                            CssStyle.AppendDef(_inf, _def);
+                        } else {
+                            _css_definition.pages[_id] = _def;
+                        }
+                        this._resetSelectorDefinition();
+                        this.objDef = null;
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+
+        // starting-style
+        _onStartStartingStyle() {
+            this._resetSelectorDefinition();
+            this.objDef = {
+                type: 'starting-style',
+                current: _selectorDefinition.listener.styles
+            };
+            _selectorDefinition.definitions = new CssStyle;
+            if (!_css_definition.startingStyle) {
+                _css_definition.startingStyle = {};
+            }
+            _selectorDefinition.styleStore = _css_definition.startingStyle;
+             
+        },
+        _handleStartingStyle(data, marker, tokenID, tokenList, _handle) {
+            const q = this;
+            _handle.handle = (() => {
+                let _h = true; 
+                let _obj = q.objDef;
+                switch (tokenID) {
+                    case 'css-starting-style':
+                        // const _gdef = _selectorDefinition.definitions;
+                        // const _def = _obj.def;
+                        this._resetSelectorDefinition();
+                        this.objDef = null;
+                        _selectorDefinition.styleStore = _obj.current;
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+
+         // supports
+         _onStartSupports() {
+            this._resetSelectorDefinition();
+            this.objDef = {
+                type: 'supports', 
+                key : '$global',
+                storage: null
+            };
+            _selectorDefinition.definitions = new CssStyle;
+            if (!_css_definition.supports) {
+                _css_definition.supports = {};
+            }
+            this.objDef.storage = _css_definition.supports[this.objDef.key] || {};
+            _selectorDefinition.styleStore = this.objDef.storage;
+            _selectorDefinition.key = this.objDef.key;
+             
+        },
+        _handleSupports(data, marker, tokenID, tokenList, _handle) {
+            const q = this;
+            _handle.handle = (() => {
+                let _h = true; 
+                let _obj = q.objDef;
+                let _v = data.value;
+                let _g = null;
+                switch (tokenID) {
+                    case 'support-condition':
+                        _obj.key = _v;
+                        _g = _css_definition.supports[_v];
+                        if (_g){
+                            this.objDef.storage = _g;
+                            _selectorDefinition.styleStore = this.objDef.storage;
+                             
+                        } else{
+                            _g = {};
+                            this.objDef.storage = _g;
+                            _selectorDefinition.styleStore = this.objDef.storage;
+                            _css_definition.supports[_v] = _g;
+                        }
+                        break;
+                    case 'css-supports':
+                        // const _gdef = _selectorDefinition.definitions;
+                        // const _def = _obj.def;
+                        let _key = _obj.key;
+                        if (_key=='$global'){
+                            _css_definition.supports[_key] = _obj.storage; // selectorDefinition.definitions;
+                        } 
+
+                        this._resetSelectorDefinition();
+                        this.objDef = null;
+                        _selectorDefinition.styleStore = _obj.current;
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
+
+        _onStartViewTransition() {
+            this._resetSelectorDefinition();
+            this.objDef = {
+                type: 'view-transition',  
+                storage: null
+            };
+            // + | direct style properties definition 
+            _selectorDefinition.definitions = new CssStyle;
+            if (!_css_definition.viewTransition) {
+                _css_definition.viewTransition = _selectorDefinition.definitions ;
+            }
+             
+        },
+        _handleViewTransition(data, marker, tokenID, tokenList, _handle) {
+            const q = this;
+            _handle.handle = (() => {
+                let _h = true; 
+                let _obj = q.objDef; 
+                switch (tokenID) { 
+                    case 'css-view-transition':  
+                        this._resetSelectorDefinition();
+                        this.objDef = null;
+                        _selectorDefinition.styleStore = _obj.current;
+                        break;
+                    default:
+                        _h = false;
+                        break;
+                }
+                return _h
+            })();
+        },
     };
     _formatter.listener = _listener;
 

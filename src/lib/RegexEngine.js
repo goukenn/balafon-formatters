@@ -45,12 +45,12 @@ class RegexEngine{
             expression = expression.substring(0, ind+1).slice(1,-1);
             if (option){
                 let moption = [];
-                if (option.indexOf('i')!=-1) moption['i'] = 'i';
-                if (option.indexOf('m')!=-1) moption['m'] = 'm';
+                if (option.indexOf('i')!=-1) moption.push('i');
+                if (option.indexOf('m')!=-1) moption.push('m');
                 if (option.indexOf('d')!=-1) _flag = 'd';
                 // - //
                 if (moption.length>0){
-                    expression = "(?"+moption.join("|")+")"+expression;
+                    expression = "(?"+moption.join("")+")"+expression;
                 }
             }
             //expression = expression.slice(1,-1);

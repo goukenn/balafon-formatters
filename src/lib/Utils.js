@@ -766,7 +766,7 @@ class Utils {
     static RegexParseInfo(s, flag) {
         let _info = Utils.RegexInfo(s);
         if (flag && ((_info.option.length == 0) || (_info.option.indexOf(flag) == -1))) {
-            _info.option = flag;
+            _info.option += flag;
         }
         return _info;
     }

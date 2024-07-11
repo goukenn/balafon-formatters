@@ -117,6 +117,8 @@ class CssStyleDefinitions{
             ref.styles = styles;
         } 
         if(medias && (Object.keys(medias).length>0)){
+            // get only non null medias
+
             ref.medias = medias;
         }
         return ref;
@@ -130,7 +132,13 @@ class CssStyleDefinitions{
             let p = [];
             let sep = '';
             for(let i in m){
-                p.push(i+":"+sep+m[i]);
+                let j = m[i];
+                if (j !== null){
+                    if (typeof(j)=='object'){
+                        j = "'"+j+"'";
+                    }
+                    p.push(i+":"+sep+j);
+                }
             }
             return p.join(";");
         }
@@ -139,20 +147,12 @@ class CssStyleDefinitions{
         if (this.charset){
             res.push('@charset '+this.charset);
         } 
-        if (this.imports){ 
-            res.push('@imports '+this.imports);
-        }
-
-        const render = new CssStyleRenderer;
-
         
+        const render = new CssStyleRenderer;   
         let s = render.render(this);
         if (s && s.length>0){
             res.push(s);
-        }
-
-
-
+        } 
         if (this.frames){
             for(let i in this.frames){
                 let s = "@keyframes "+i;
@@ -172,17 +172,21 @@ class CssStyleDefinitions{
         if (this.styles){
             for (let i in this.styles){
                 let m = this.styles[i];
-                res.push(i+"{"+ _glueStyle(m)+"}");
+                let l = _glueStyle(m);
+                if (l && (l.length>0))
+                res.push(i+"{"+ l +"}");
             }
         }
         if (this.medias){
-
-        }
-
+            let s = render.renderMedias(this.medias);
+            if (s){
+            res.push(s);
+            }
+        } 
         return res.join(sep);
     }
     initMedia(){
-       // this.medias = {};
+        this.medias = {};
     }
 }
 

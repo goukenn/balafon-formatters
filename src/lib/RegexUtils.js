@@ -45,8 +45,7 @@ class RegexUtils {
         // not-ahead-backyard : (<)?!
         // ahead: (=)
         // backyard: <=
-        return /\((\?(:|[imx])|(?!\?))./;
-        // return /\((\?(:|[imx]))./;
+        return /\((\?(:|[imx])|(?!\?))./; 
     }
 
     /**

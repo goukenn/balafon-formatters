@@ -9,9 +9,16 @@
         },
         "css-value": {
             "begin": ":",
-            "end": "(?=;|\\})",
+            "end": "(?=;|\\}|\\))",
             "name": "value-definition",
             "tokenID": "value-definition",
+            "patterns": [
+                {
+                    "include": "#css-value-definition"
+                }
+            ]
+        },
+        "css-value-definition": {
             "patterns": [
                 {
                     "include": "#comment"
@@ -25,7 +32,7 @@
                     ]
                 },
                 {
-                    "match": "[^\"!;\\},]+",
+                    "match": "[^\"!;\\},\\)]+",
                     "tokenID": "css-value"
                 },
                 {
@@ -99,8 +106,15 @@
                 },
                 {
                     "include": "#css-read-tag"
+                },
+                {
+                    "include":"#css-read-attrib"
                 }
             ]
+        },  
+        "css-read-attrib":{
+            "match":"\\[(-)*[a-z][a-z0-9\\-]*\\]",
+            "tokenID":"selector-attrib"
         },
         "css-read-tag": {
             "begin": "(\\*|[a-z][a-z0-9\\-]*)(\\\\.[a-z][a-z0-9\\-]*)*",
@@ -128,6 +142,20 @@
         "css-read-selection-definition": {
             "patterns": [
                 {
+                    "begin": "\\s+(\\[|\\])",
+                    "end": "",
+                    "name": "invalid.array.transform-css",
+                    "tokenID": "invalid.selector-attribute-definition",
+                    "-throwError": "array spec"
+                },
+                {
+                    "begin": "\\s+(\\(|\\))",
+                    "end": "",
+                    "name": "invalid.method.transform-css",
+                    "tokenID": "invalid.selector-method-definition",
+                    "-throwError": "array spec"
+                },
+                {
                     "include": "#css-sub-selector-reading"
                 },
                 {
@@ -145,6 +173,12 @@
                     "begin": "\\(",
                     "end": "\\)",
                     "tokenID": "function-definition"
+                },
+                {
+                    "begin": ":",
+                    "end": "",
+                    "name": "invalid.speudo-class-definition.transform-css",
+                    "tokenID": "invalid.speudo-class"
                 }
             ]
         },
@@ -153,7 +187,27 @@
             "end": "(?=\\s|\\{|\\[|\\+|>|~)",
             "beginCaptures": {
                 "0": {}
-            }
+            },
+            "patterns": [
+                {
+                    "include": "#css-read-speudo-function"
+                }
+            ]
+        },
+        "css-read-speudo-function": {
+            "begin": "\\(",
+            "end": "\\)",
+            "patterns": [
+                {
+                    "include": "#css-litteral-string"
+                },
+                {
+                    "include": "#css-trim-white-space"
+                },
+                {
+                    "include": "#comment"
+                }
+            ]
         },
         "css-directive-read-definition": {
             "begin": "(@\\b[a-zA-Z][a-zA-Z0-9\\-]*\\b)",
@@ -249,21 +303,25 @@
                     ]
                 },
                 {
-                    "begin": "\\{",
-                    "end": "\\}",
-                    "name": "media-block-definition.css-transform",
-                    "patterns": [
-                        {
-                            "include": "#css-global-definition"
-                        }
-                    ]
+                    "include": "#css-block-selector-rule"
+                }
+            ]
+        },
+        "css-block-selector-rule": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "media-block-definition.css-transform",
+            "comment":"ruleset",
+            "patterns": [
+                {
+                    "include": "#css-global-definition"
                 }
             ]
         },
         "css-litteral-string": {
             "begin": "(\"|')",
             "end": "\\1",
-            "name": "litteral-string",
+            "name": "litteral-string.css-transform",
             "tokenID": "css-value",
             "patterns": [
                 {
@@ -275,19 +333,6 @@
             "begin": "('|\")",
             "end": "\\1",
             "name": "litteral-string"
-        },
-        "css-import-directive": {
-            "begin": "@\\bimport\\b",
-            "end": "(?<=;)",
-            "tokenID": "css-import",
-            "patterns": [
-                {
-                    "include": "#css-uri-string"
-                },
-                {
-                    "include": "#css-uri-method"
-                }
-            ]
         },
         "css-global-definition": {
             "patterns": [
@@ -306,7 +351,7 @@
             "begin": "\\{",
             "end": "\\}",
             "tokenID": "selector-block",
-            "name":"meta.css.selector.block.css-transform",
+            "name": "meta.css.selector.block.css-transform",
             "patterns": [
                 {
                     "include": "#comment"
@@ -316,7 +361,17 @@
                 },
                 {
                     "include": "#css-value"
+                },
+                {
+                    "include": "#css-inline-directive"
                 }
+            ]
+        },
+        "css-inline-directive":{
+            "begin":"(?=@\\b(starting-style)\\b)",
+            "end":"(?<=\\}|\\s*;\\s*)",
+            "patterns":[
+                {"include":"#css-inline-directive-definition"}
             ]
         },
         "css-property-value": {
@@ -346,10 +401,10 @@
             ]
         },
         "css-selector-read": {
-            "begin": "(\\*)|(\\.|#)?[a-z][a-z0-9\\-]*(\\\\.[a-z][a-z0-9\\-]*)*",
+            "begin": "(?:\\*)|(?:\\.|#)?[a-z][a-z0-9\\-]*(?:\\\\.[a-z][a-z0-9\\-]*)*|\\[(-)*[a-z][a-z0-9\\-]*\\]",
             "end": "(?=\\{)",
             "tokenID": "css-selector",
-            "name": "css.selector",
+            "name": "css.selector", 
             "patterns": [
                 {
                     "include": "#css-read-selection-definition"
@@ -357,7 +412,7 @@
             ]
         },
         "css-global-directive": {
-            "begin": "(?=@\\b(?:charset|color-profile|container|counter-style|font-face|font-feature-values|font-palette-values|import|keyframes|layer|media|namespace|page|property|scope|starting-style|supports)\\b)",
+            "begin": "(?=@\\b(?:charset|color-profile|container|counter-style|font-face|font-feature-values|font-palette-values|import|keyframes|layer|media|namespace|page|property|scope|starting-style|supports|view-transition)\\b)",
             "end": ";|(?<=}|\\s*;\\s*)",
             "name": "meta.css.global.at-rule.css-transform",
             "tokenID": "css-global-directive",
@@ -406,6 +461,9 @@
                 },
                 {
                     "include": "#css-at-rule-supports"
+                },
+                {
+                    "include": "#css-at-rule-view-transition"
                 }
             ]
         },
@@ -569,18 +627,19 @@
                 }
             ]
         },
-      
         "css-at-rule-scope-block": {
             "begin": "\\{",
             "end": "\\}",
             "name": "meta.scope.block",
-            "tokenID":"scope-block",
-            "patterns":[{
-                "include":"#css-at-rule-scope-definition"
-            }]
+            "tokenID": "scope-block",
+            "patterns": [
+                {
+                    "include": "#css-at-rule-scope-definition"
+                }
+            ]
         },
-        "css-at-rule-scope-definition":{
-            "patterns":[
+        "css-at-rule-scope-definition": {
+            "patterns": [
                 {
                     "include": "#comment"
                 },
@@ -592,17 +651,20 @@
                 }
             ]
         },
-        "css-scope-selector-read":{
-            "begin": ":scope\\b|&\\s*|(\\*)|(\\.|#)?[a-z][a-z0-9\\-]*(\\\\.[a-z][a-z0-9\\-]*)*",
+        "css-scope-selector-read": {
+            "begin": ":scope\\b|&\\s*|(\\*)|(\\.|#)?[a-z][a-z0-9\\-]*(\\\\.[a-z][a-z0-9\\-]*)*|\\[(-)*[a-z][a-z0-9\\-]*\\]",
             "end": "(?=\\{)",
             "tokenID": "css-selector",
             "name": "css.selector",
-            "beginCaptures":{
-                "0":{
-                    "patterns":[
+            "beginCaptures": {
+                "0": {
+                    "patterns": [
                         {
-                            "match":"&\\s*",
-                            "transform":["trim","[$0 ]"]
+                            "match": "&\\s*",
+                            "transform": [
+                                "trim",
+                                "[$0 ]"
+                            ]
                         }
                     ]
                 }
@@ -667,8 +729,8 @@
         "css-at-rule-scope": {
             "begin": "@\\bscope\\b",
             "end": "(?<=\\})",
-            "tokenID": "css-scope", 
-            "name":"meta.css.directive.at-rule.scope.css-transform",
+            "tokenID": "css-scope",
+            "name": "meta.css.directive.at-rule.scope.css-transform",
             "patterns": [
                 {
                     "include": "#css-at-rule-scope-block"
@@ -683,17 +745,19 @@
         },
         "css-end-instruction": {
             "match": "\\s*;\\s*",
-            "tokenID":"end.instruction",
-            "transform":"trim"
+            "tokenID": "end.instruction",
+            "transform": "trim"
         },
         "css-scope-block": {
             "begin": "\\{",
             "end": "\\}",
-            "tokenID":"scope-block",
-            "patterns":[  {
-                "include": "#comment"
-            }]
-        }, 
+            "tokenID": "scope-block",
+            "patterns": [
+                {
+                    "include": "#comment"
+                }
+            ]
+        },
         "css-at-rule-keyframes": {
             "begin": "@\\bkeyframes\\b",
             "end": "(?<=\\}|\\s*;\\s*)",
@@ -719,17 +783,43 @@
                     "include": "#css-end-instruction"
                 }
             ]
-        }, 
+        },
         "css-at-rule-counter-style": {
             "begin": "@\\bcounter-style\\b",
             "end": "(?<=\\}|\\s*;\\s*)",
             "tokenID": "css-counter-style",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
+                    "match": "\\b[a-z][a-z\\-]*\\b",
+                    "tokenID": "counter-style-name"
+                },
+                {
+                    "include": "#css-counter-style-block"
+                }
+            ]
+        },
+        "css-counter-style-block": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "meta.css.counter-style.block.css-transform",
+            "patterns": [
+                {
+                    "begin": "\\b(speak-as|additive-symbols|system|symbols|negative|prefix|suffix|range|pad|fallback)\\b",
+                    "end": "(?=:)",
+                    "tokenID": "css-property",
+                    "name": "css.property"
+                },
+                {
+                    "include": "#css-value"
                 },
                 {
                     "include": "#css-end-instruction"
+                },
+                {
+                    "begin": "[^\\s|}]",
+                    "end": "",
+                    "tokenID": "invalid.property-definition",
+                    "throwError": "expected property:value definition"
                 }
             ]
         },
@@ -739,10 +829,38 @@
             "tokenID": "css-font-face",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
+                    "include": "#css-font-face-block"
+                }
+            ]
+        },
+        "css-font-face-block": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "meta.css.font-face.block.css-transform",
+            "patterns": [
+                {
+                    "begin": "\\b(ascent-override|descent-override|font-display|font-family|font-stretch|font-style|font-weight|font-feature-settings|font-variation-settings|line-gap-override|size-adjust|src|unicode-range)\\b",
+                    "end": "(?=:)",
+                    "tokenID": "css-property",
+                    "name": "css.property"
+                },
+                {
+                    "begin": "\\b(author|type|version)\\b",
+                    "end": "(?=:)",
+                    "tokenID": "css-property",
+                    "name": "css.property"
+                },
+                {
+                    "include": "#css-value"
                 },
                 {
                     "include": "#css-end-instruction"
+                },
+                {
+                    "begin": "[^\\s|}]",
+                    "end": "",
+                    "tokenID": "invalid.property-definition",
+                    "throwError": "expected property:value definition"
                 }
             ]
         },
@@ -752,10 +870,62 @@
             "tokenID": "css-font-feature-values",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
+                    "tokenID": "ftv-name",
+                    "match": "(?i)\\b[a-z][a-z\\-]*\\b",
+                    "name": "ftv-name"
+                },
+                {
+                    "tokenID": "ftv-name",
+                    "begin": "(?='|\")",
+                    "end": "(?<='|\")",
+                    "patterns": [
+                        {
+                            "include": "#css-litteral-string"
+                        }
+                    ]
+                },
+                {
+                    "include": "#css-font-feature-values-block"
                 },
                 {
                     "include": "#css-end-instruction"
+                }
+            ]
+        },
+        "css-font-feature-values-block": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "meta.css.font-face.block.css-transform",
+            "patterns": [
+                {
+                    "begin": "@\\b(annotation|character-variant|ornaments|stylistic|styleset|swash)\\b",
+                    "end": "(?=\\{)",
+                    "tokenID": "ftv-type"
+                },
+                {
+                    "begin": "\\{",
+                    "end": "\\}",
+                    "patterns": [
+                        {
+                            "begin": "\\b([a-z][a-z0-9\\-]*)\\b",
+                            "end": "(?=:)",
+                            "tokenID": "css-property",
+                            "name": "css.property",
+                            "comment": "custom indent"
+                        },
+                        {
+                            "include": "#css-value"
+                        },
+                        {
+                            "include": "#css-end-instruction"
+                        },
+                        {
+                            "begin": "[^\\s\\}@]",
+                            "end": "",
+                            "tokenID": "invalid.property-definition",
+                            "throwError": "expected property:value definition in block definition"
+                        }
+                    ]
                 }
             ]
         },
@@ -765,10 +935,90 @@
             "tokenID": "css-font-palette-values",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
+                    "tokenID": "ftp-name",
+                    "match": "(?i)(-)*\\b[a-z][a-z\\-]*\\b",
+                    "name": "entity.type.class.font-palette-name.css-transform"
+                },
+                {
+                    "include": "#css-font-palette-block"
                 },
                 {
                     "include": "#css-end-instruction"
+                }
+            ]
+        },
+        "css-dashed-ident": {
+            "match": "(?i)(-)*\\b[a-z][a-z\\-]*\\b"
+        },
+        "css-font-palette-block": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "meta.css.font-palette-block.css-transform",
+            "patterns": [
+                {
+                    "begin": "\\b(font-family|base-palette|override-colors)\\b",
+                    "end": "(?=:)",
+                    "tokenID": "css-property",
+                    "name": "css.property",
+                    "comment": "custom indent"
+                },
+                {
+                    "include": "#css-value"
+                },
+                {
+                    "include": "#css-end-instruction"
+                },
+                {
+                    "begin": "[^\\s\\}@]",
+                    "end": "",
+                    "tokenID": "invalid.property-definition",
+                    "throwError": "expected property:value definition in block definition"
+                }
+            ]
+        },
+        "css-import-url-definition": {
+            "patterns": [
+              
+                {
+                    "tokenID": "url",
+                    "begin": "('|\")",
+                    "end": "\\1",
+                    "patterns": [
+                        {
+                            "match": "\\\\."
+                        }
+                    ]
+                },
+                {
+                    "tokenID": "url",
+                    "begin": "\\b(url|local)\\b",
+                    "end": "(?<=\\))",
+                    "name":"meta.css.url-method.css-transform",
+                    "patterns": [
+                        {
+                            "begin": "\\(",
+                            "end": "\\)",
+                            "name": "op.func",
+                            "patterns": [
+                                {
+                                    "include": "#css-litteral-string"
+                                },
+                                {
+                                    "include": "#css-trim-white-space"
+                                },
+                                {
+                                    "match": "[^\\s\\)]+",
+                                    "tokenID": "constant-url"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "match": "(?:http(s)|ftp:[^\\s\\)\\(;]+)|[^\\s\\)\\(;]+",
+                    "tokenID": "url",
+                    "comment":"url constant",
+                    "name":"meta.css.url-constant.css-transform"
                 }
             ]
         },
@@ -778,10 +1028,92 @@
             "tokenID": "css-import",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
+                    "begin": "(?='|\"|\\b(url|[^\\s\\)]+)\\b)",
+                    "end": "(?=;)",
+                    "tokenID": "start-url",
+                    "patterns": [
+                        {
+                            "include": "#css-list-medias-queries"
+                        },
+                        {
+                            "begin": "\\b(supports|layer)\\b",
+                            "end": "(?<=\\))",
+                            "tokenID": "method-call",
+                            "patterns": [
+                                {
+                                    "begin": "\\(",
+                                    "end": "\\)",
+                                    "name": "op.func",
+                                    "patterns": [
+                                        {
+                                            "include": "#css-glue-white-space"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "include": "#css-import-url-definition"
+                        }
+                    ]
                 },
                 {
                     "include": "#css-end-instruction"
+                }
+            ]
+        },
+        "css-list-medias-queries": {
+            "begin": "(?=\\b(not|print(er)?|all|screen|only)\\b)",
+            "end": "(?=;|\\{)",
+            "tokenID": "media-queries",
+            "patterns": [
+                {
+                    "match": "\\b(not|print(er)?|all|screen|only|and|or)\\b",
+                    "transform": [
+                        "trim",
+                        "[$0 ]"
+                    ]
+                },
+                {
+                    "include": "#css-trim-white-space"
+                },
+                {
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "tokenID": "condition",
+                    "patterns": [
+                        {
+                            "begin": "\\b(any-hover|any-pointer|aspect-ratio|color|color-gamut|color-index|device-aspect-ratio Deprecated|device-height Deprecated|device-width Deprecated|display-mode|dynamic-range|forced-colors|grid|height|hover|inverted-colors|monochrome|orientation|overflow-block|overflow-inline|pointer|prefers-color-scheme|prefers-contrast|prefers-reduced-motion|prefers-reduced-transparency|resolution|scripting|update|video-dynamic-range|width)\b",
+                            "end": "(?=\\s*(:|(<|>)?=)\\s*)",
+                            "comment": "properties",
+                            "tokenID": "media-property"
+                        },
+                        {
+                            "include": "#css-value"
+                        },
+                        {
+                            "begin": "\\s*((<|>)?=)\\s*",
+                            "end": "(?=\\)|\\s*,\\s*)",
+                            "tokenID": "with-op",
+                            "beginCaptures": {
+                                "0": {
+                                    "transform": "trim"
+                                }
+                            },
+                            "patterns": [
+                                {
+                                    "include": "#css-value-definition"
+                                }
+                            ]
+                        },
+                        {
+                            "match": "\\s*,\\s*",
+                            "transform": [
+                                "trim",
+                                "[$0 ]"
+                            ]
+                        }
+                    ]
                 }
             ]
         },
@@ -791,10 +1123,44 @@
             "tokenID": "css-layer",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
+                    "match": "\\b[a-z][a-z\\-]*\\b(\\.\\b[a-z][a-z\\-]*\\b)*",
+                    "tokenID": "layer-name"
+                },
+                {
+                    "match": "\\s*,\\s*",
+                    "tokenID": "layer-operator-separator"
+                },
+                {
+                    "include": "#css-block-layer-selector-rule"
                 },
                 {
                     "include": "#css-end-instruction"
+                }
+            ]
+        },
+        "css-block-layer-selector-rule": {
+            "begin": "\\{",
+            "end": "\\}",
+            "name": "media-block-definition.at-rule.layer.css-transform",
+            "patterns": [
+                {
+                    "include": "#css-global-definition"
+                },
+                {
+                    "include": "#css-at-rule-layer"
+                }
+            ]
+        },
+        "css-method-url-detection":{
+            "patterns":[
+                {
+                    "begin":"\\s*(?='|\"|\\b(?:url)\\b)",
+                    "end":"(?=;|\\))",
+                    "patterns":[
+                        {
+                            "include": "#css-import-url-definition"
+                        }
+                    ]
                 }
             ]
         },
@@ -802,19 +1168,46 @@
             "begin": "@\\bnamespace\\b",
             "end": "(?<=\\}|\\s*;\\s*)",
             "tokenID": "css-namespace",
-            "patterns": [
+            "patterns": [ 
                 {
-                    "include": "#css-scope-block"
+                    "begin": "\\s(?=\\b[a-z][a-z0-9\\-]*\\b)",
+                    "tokenID": "ns-prefix-data",
+                    "end":"(?=;)",
+                    "patterns":[ 
+                        {"include":"#css-method-url-detection"},
+                        {
+                            "match":"\\b[a-z][a-z0-9\\-]*\\b",
+                            "tokenID":"ns-prefix"
+                        }
+                    ]
+                },
+                {
+                    "include": "#css-import-url-definition"
                 },
                 {
                     "include": "#css-end-instruction"
                 }
+                
             ]
         },
         "css-at-rule-page": {
             "begin": "@\\bpage\\b",
-            "end": "(?<=\\}|\\s*;\\s*)",
+            "end": "(?<=\\})",
             "tokenID": "css-page",
+            "patterns": [
+                {
+                    "tokenID":"page-selector",
+                    "match":":\\b(blank|first|left|right|recto|verso)\\b" 
+                },
+                {
+                    "include": "#css-selector-block"
+                }
+            ]
+        },
+        "-css-at-rule-property": {
+            "begin": "@\\bproperty*\\b",
+            "end": "(?<=\\}|\\s*;\\s*)",
+            "tokenID": "css-property",
             "patterns": [
                 {
                     "include": "#css-scope-block"
@@ -824,52 +1217,88 @@
                 }
             ]
         },
-        "css-at-rule-property*": {
-            "begin": "@\\bproperty*\\b",
-            "end": "(?<=\\}|\\s*;\\s*)",
-            "tokenID": "css-property*",
-            "patterns": [
-                {
-                    "include": "#css-scope-block"
-                },
-                {
-                    "include": "#css-end-instruction"
-                }
-            ]
-        }, 
         "css-at-rule-starting-style": {
             "begin": "@\\bstarting-style\\b",
-            "end": "(?<=\\}|\\s*;\\s*)",
+            "end": "(?<=\\})",
             "tokenID": "css-starting-style",
+            "comment":"global starting style ruleset",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
-                },
-                {
-                    "include": "#css-end-instruction"
+                    "include": "#css-block-selector-rule"
                 }
+            ]
+        },
+        "css-at-rule-starting-def-style": {
+            "begin": "@\\bstarting-style\\b",
+            "end": "(?<=\\})",
+            "tokenID": "css-property-starting-style",
+            "comment":"global starting style ruleset",
+            "patterns": [ 
+                {
+                    "include": "#css-selector-block"
+                } 
             ]
         },
         "css-at-rule-supports": {
             "begin": "@\\bsupports\\b",
-            "end": "(?<=\\}|\\s*;\\s*)",
+            "end": "(?<=\\})",
             "tokenID": "css-supports",
             "patterns": [
                 {
-                    "include": "#css-scope-block"
+                    "tokenID":"support-condition",
+                    "begin":"\\(",
+                    "end":"\\)",
+                    "patterns":[
+                        {"include":"#css-glue-white-space"}
+                    ]
                 },
                 {
-                    "include": "#css-end-instruction"
+                    "include": "#css-block-selector-rule"
+                } 
+            ]
+        },
+        "css-at-rule-view-transition": {
+            "begin": "@\\bview-transition\\b",
+            "end": "(?<=\\})",
+            "tokenID": "css-view-transition",
+            "patterns": [  
+                {
+                    "begin": "\\{",
+                    "end": "\\}",
+                    "comment": "color profile block",
+                    "name": "color.profile.block.css-transform",
+                    "patterns": [
+                        {
+                            "begin": "\\b(navigation)\\b",
+                            "end": "(?=:)",
+                            "tokenID": "css-property"
+                        },
+                        {
+                            "include": "#css-value"
+                        },
+                        {
+                            "include":"#css-end-instruction"
+                        }
+                    ]
+                } 
+            ]
+        },
+        "css-inline-directive-definition":{
+            "patterns":[
+                {
+                    "include":"#css-at-rule-starting-def-style"
                 }
             ]
         }
     },
+    "patterns---": [
+        {
+            "include": "#css-list-medias-queries"
+        }
+    ],
     "patterns": [
         {
             "include": "#css-at-rule-charset"
-        },
-        {
-            "include": "#css-import-directive"
         },
         {
             "include": "#css-media-directive"
