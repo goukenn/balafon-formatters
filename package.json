@@ -1,6 +1,6 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.39",
+    "version": "1.0.40",
     "main": "./src/extension",
     "description": "Javascript Generic Formatters",
     "author": {
@@ -53,10 +53,10 @@
                 }
             ]
         },
-        "commands":[
+        "commands": [
             {
                 "category": "Bformatter",
-                "command":"css.transform.toJSON",
+                "command": "css.transform.toJSON",
                 "title": "Css -> json"
             }
         ],
