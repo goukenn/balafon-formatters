@@ -728,7 +728,7 @@
         },
         "bcss-multi-line-comment": {
             "begin": "(?=/\\*(?!\\*))",
-            "end": "(?<=(\\*/))",
+            "end": "(?<=(?:\\*/))",
             "name": "comment.multiline.block.bcss",
             "formattingMode": 5,
             "patterns": [

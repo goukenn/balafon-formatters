@@ -503,7 +503,7 @@ class FormattingBase {
         if (option.markerInfo.length > 0) {
             const _old = option.markerInfo[0];
             debug?.feature('on-append-to-buffer') && (()=>{
-                Debug.log("onAppend to buffer - value=");
+                Debug.log("---::: onAppend to buffer - value :::---");
                 console.log( value );
             })()
             // + | change current mode according to formatting rule

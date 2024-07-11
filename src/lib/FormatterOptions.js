@@ -728,8 +728,12 @@ class FormatterOptions {
          * move to this location
          * @param {number} newPosition 
          */
-        option.moveTo = function (newPosition) {
-            this.pos = newPosition;
+        option.moveTo = function (newPosition, newOffset) { 
+            if (newOffset){
+                this.lineMatcher.setPosition(newPosition, newOffset)
+            } else {
+                this.pos = newPosition;
+            }
         }
         /**
          * restore buffer 

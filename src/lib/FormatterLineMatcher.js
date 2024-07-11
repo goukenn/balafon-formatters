@@ -119,9 +119,10 @@ class FormatterLineMatcher {
      * chang the position
      */
     set position(v) {
-        if (v != this.#m_nextPosition) {
-            if (v < this.#m_nextPosition) {
-                throw new Error('next position not allowed ' + v + ' vs ' + this.#m_nextPosition)
+        const _np = this.#m_nextPosition;
+        if (v != _np) {
+            if (v < _np) {
+                throw new Error('next position not allowed ' + v + ' < ' + _np);
             }
             this.#m_offset = this.#m_nextPosition;
             this.#m_nextPosition = v;
