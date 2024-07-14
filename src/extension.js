@@ -11,10 +11,8 @@ const  cli = require('cli-color');
 const { TransformEngine } = require('./lib/TransformEngine');
 const { utils } = require('./vscode'); 
 const { Formatters } = require("./formatter");
-//import  cjs  from '../dist/bformatter/1.0.40/bformatter.cjs';
-//const { Formatters } = cjs.bformatter;
 const Version = 'debug.0.0.1';
-//console.log(cjs);
+
 
 class VSCodeTransformEngine extends TransformEngine {
 
