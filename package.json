@@ -1,7 +1,8 @@
 {
     "name": "balafon-formatters",
     "version": "1.0.40",
-    "main": "./src/extension",
+    "--main": "./src/extension",
+    "main": "./dist/extension/1.0.40/extension.js",
     "description": "Javascript Generic Formatters",
     "author": {
         "name": "C.A.D. BONDJE DOUE",
@@ -18,25 +19,32 @@
         "@vscode/l10n": "^0.0.18",
         "@vscode/test-cli": "^0.0.4",
         "@vscode/test-electron": "^2.3.8",
+        "cli-color": "^2.0.4",
         "dotenv": "^16.4.5",
         "eslint": "^8.56.0",
+        "fs": "^0.0.1-security",
         "mocha": "^10.4.0",
         "typescript": "^5.3.3",
         "unit.js": "^2.1.1",
         "webpack": "^5.90.3",
-        "webpack-cli": "^5.1.4",
-        "cli-color": "^2.0.4"
+        "webpack-cli": "^5.1.4"
     },
     "scripts": {
         "build": "webpack",
         "test": "mocha ./tests/utest.js",
         "vsce-publish": "vsce publish --yarn",
-        "bcss-build": "bcss build"
+        "bcss-build": "bcss build",
+        "wp-compile": "webpack --mode development",
+        "wp-watch": "webpack --mode development --watch",
+        "wp-vscode:prepublish": "npm run package",
+        "wp-package": "webpack --mode production --devtool hidden-source-map"
     },
     "engines": {
         "vscode": "^1.88.0"
     },
-    "activationEvents": [],
+    "activationEvents": [
+        "onLanguage:bcolor"
+    ],
     "categories": [
         "Programming Languages",
         "Formatters",
@@ -61,6 +69,15 @@
             }
         ],
         "languages": [
+            {
+                "id": "bcolor",
+                "aliases": [
+                    "bcolor"
+                ],
+                "extensions": [
+                    ".bcolor"
+                ]
+            },
             {
                 "id": "vbmacros",
                 "extensions": [
@@ -150,6 +167,11 @@
             }
         ],
         "grammars": [
+            {
+                "language": "bcolor",
+                "scopeName": "source.bcolor",
+                "path": "./src/formatters/fbcolor.btm-syntax.json"
+            },
             {
                 "language": "vbmacros",
                 "scopeName": "source.vbmacros",

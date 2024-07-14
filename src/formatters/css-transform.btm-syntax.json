@@ -119,10 +119,7 @@
         "css-read-tag": {
             "begin": "(\\*|[a-z][a-z0-9\\-]*)(\\\\.[a-z][a-z0-9\\-]*)*",
             "end": "(?=\\s|{|:)",
-            "name": "tag-reading",
-            "beginCaptures": {
-                "0": {}
-            }
+            "name": "tag-reading"
         },
         "comment": {
             "begin": "/\\*",
@@ -401,10 +398,22 @@
             ]
         },
         "css-selector-read": {
-            "begin": "(?:\\*)|(?:\\.|#)?[a-z][a-z0-9\\-]*(?:\\\\.[a-z][a-z0-9\\-]*)*|\\[(-)*[a-z][a-z0-9\\-]*\\]",
+            "begin": "(?:\\*)|(?:\\.|#|([a-z][a-z0-9\\-]*\\|))?[a-z][a-z0-9\\-]*(?:\\\\.[a-z][a-z0-9\\-]*)*|\\[(-)*[a-z][a-z0-9\\-]*\\]",
             "end": "(?=\\{)",
             "tokenID": "css-selector",
             "name": "css.selector", 
+            "comment":"start tag with namespace support",
+            "beginCaptures":{
+                "0":{ 
+                    "patterns":[
+                        {
+                            "match":"[a-z][a-z0-9\\-]*\\|[a-z][a-z0-9\\-]*",
+                            "comment":"tag with namespace",
+                            "name":"entity.type.tag.namespace-tag.css-transform"
+                        }
+                    ]
+                }
+            },
             "patterns": [
                 {
                     "include": "#css-read-selection-definition"

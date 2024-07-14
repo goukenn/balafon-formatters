@@ -2,17 +2,19 @@
 // file: extension.js
 // @date: 20240618 21:32:54
 // @desc: bformatter vscode extension
+Object.defineProperty(exports, '__ESModule', {value:true});
 
-const fs = require('fs')
 const vscode = require('vscode');
-// for release 
-// const { bformatter } = require('../dist/bformatter/1.0.39/bformatter.cjs');
-const { TransformEngine } = require('./lib/TransformEngine');
-const cli = require('cli-color');
 
-// for debug
+// for release 
+const  cli = require('cli-color');
+const { TransformEngine } = require('./lib/TransformEngine');
+const { utils } = require('./vscode'); 
 const { Formatters } = require("./formatter");
+//import  cjs  from '../dist/bformatter/1.0.40/bformatter.cjs';
+//const { Formatters } = cjs.bformatter;
 const Version = 'debug.0.0.1';
+//console.log(cjs);
 
 class VSCodeTransformEngine extends TransformEngine {
 
@@ -81,7 +83,7 @@ function activate(context) {
         context.subscriptions.push(p);
         languageFormatter.set(a, p);
     });
-    const { commands }  = require('./vscode/command')
+    const { commands } = require('./vscode/command')
     // + |
     // + | register extension command
     const _commands = {
@@ -92,37 +94,62 @@ function activate(context) {
     // + | subscribe command
     for (let _key in _commands) {
         let _fc = _commands[_key];
-        let c = vscode.commands.registerCommand(_key,  _fc);
+        let c = vscode.commands.registerCommand(_key, _fc);
         context.subscriptions.push(c);
     }
 
-    // + get workspace configuration 
-    // let config = vscode.workspace.getConfiguration("editor.tokenColorCustomizations");
-    // let { textMateRules } = config;
-    // if (!textMateRules){
-    //     textMateRules = {};
-    //     config.textMateRules = textMateRules;
-    // }
-    // textMateRules.push({
-    //     "scope":["property.bcss"],
-    //     "settings":{
-    //         "foreground":"#CCCCC"
-    //     }
-    // });
-
-    // textMateRules.push({
-    //     "scope":["word"],
-    //     "settings":{
-    //         "foreground":"#0000FF"
-    //     }
-    // });
-    // console.log("init configuration ", JSON.stringify(config.textMateRules));
+    // + | register color provider 
+    const _clprofiles =
+    {
+        "bcolor": {
+            /**
+             * 
+             * @param {vscode.TextDocument} document 
+             * @param {vscode.CancellationToken} token 
+             * @returns {vscode.ColorInformation[]}
+             */
+            provideDocumentColors(document, token) {
+                const _text = document.getText();
+                const _formatter = Formatters.Load('fbcolor');
+                const _colors_lists = utils.ExtractColors(_formatter, _text);
+                const _colors = []; 
+                if (_colors_lists) {
+                    try{
+                    _colors_lists.forEach(i => {
+                        let x = document.positionAt(i.sourceOffset*1.0);
+                        let y = document.positionAt( i.sourceOffset + i.value.length);
+                        const _range = new vscode.Range(x,y);
+                        const _color = utils.GetColor(i.type == 'webcolor' ? utils.ReverseColor(i.value) : i.value, vscode);
+                        const _clinfo = new vscode.ColorInformation(_range, _color);
+                        _colors.push(_clinfo);
+                    });
+                    } catch(ex){
+                        console.debug("error ", ex);
+                    }
+                } 
+                return _colors;
+            }
+        }
+    }
+        ;
+    for (let i in _clprofiles) {
+        const _provider = _clprofiles[i] || {};
+        if (!('provideColorPresentations' in _provider)){
+            const { provideColorPresentations } = utils.GetProviderPresentation(i,vscode);
+            _provider.provideColorPresentations = provideColorPresentations;
+        }
+        const c = vscode.languages.registerColorProvider({ scheme: 'file', language: i },
+            _provider
+        );
+        context.subscriptions.push(c);
+    }
+    console.log("activated");
 }
 /**
  * 
  */
 function deactivate() {
-
+    console.log("deactivated");
 }
 
 // export extension method

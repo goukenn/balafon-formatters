@@ -511,7 +511,7 @@ class Utils {
         let _index = -1;
         let _patterns = patterns;
         let _position = -1; // selected pattern position        
-        const { lineMatcher } = option;
+        const { lineMatcher, debug } = option;
         lineMatcher.startLine = option.startLine;
         const _tloop = [{ patterns: patterns, from: null, ref: parentMatcherInfo, count: 0 , slice:0}];
         const ll = l;
@@ -532,7 +532,7 @@ class Utils {
                     const _regex = s.getEntryRegex();
                     let _d = null;
                     if (_regex) {
-                        p = lineMatcher.check(_regex);
+                        p = lineMatcher.check(_regex, option);
                         _d = {
                             p, s: s, index: -1, regex: _regex, from: _m_patterns.from,
                             patterns: _m_patterns.patterns,

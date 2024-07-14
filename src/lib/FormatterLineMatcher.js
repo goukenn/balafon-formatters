@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, '__ESModule', { value: true });
 
+const { Debug } = require('./Debug');
 const { RegexUtils } = require('./RegexUtils')
 /**
  * use to operate on line matching 
@@ -153,10 +154,11 @@ class FormatterLineMatcher {
      * @param {*} regex 
      * @returns {null|IRegexResult} regex result
      */
-    check(regex) {
+    check(regex, option) {
         const _has_movement = RegexUtils.HasBackyardMovementCapture(regex);
         const _has_startLine = RegexUtils.CheckRequestStartLine(regex);
         const { subLine, nextLine, sourceLine, position, startLine, offset } = this;
+        const { debug } = option || {debug:false};
         let _p = null;
         if (_has_startLine) {
             if (startLine && (position == 0)) {
@@ -167,6 +169,7 @@ class FormatterLineMatcher {
                 }
             }
             if (!startLine){
+                debug && Debug.log('skip: not on start line')
                 return _p;
             }
         }

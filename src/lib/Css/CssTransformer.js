@@ -705,8 +705,9 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
             // for matchType = 0
             const _value = marker.value || (() => ({ value: option.buffer, source: option.data }))();
             const { mode } = this;
+            const { debug } = option;
 
-            console.log("************* end **************", tokenID, _value.source);
+            debug && console.log("************* end **************", tokenID, _value.source);
 
 
             if (mode) {

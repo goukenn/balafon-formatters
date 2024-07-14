@@ -341,7 +341,17 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         };
     }
 
-
+    /**
+     * 
+     * @param {*} patternInfo 
+     * @param {*} option 
+     * @param {*} _old 
+     * @param {*} markerInfo 
+     * @param {*} next_position 
+     * @param {*} length 
+     * @param {*} _tline 
+     * @returns 
+     */
     moveToNextPattern(patternInfo, option, _old, markerInfo, next_position, length, _tline) {
         const { parent, hostPatterns, streamAction, indexOf } = patternInfo;
         const { lineMatcher } = option;
@@ -387,6 +397,16 @@ class FormatterStreamBuffer extends SpecialMeaningPatternBase {
         }
         return parent;
     }
+    /**
+     * get marker end buffers 
+     * @param {*} q 
+     * @param {*} markerInfo 
+     * @param {*} _bck 
+     * @param {*} _formatter 
+     * @param {*} _restoreState 
+     * @param {*} _restoreBackupState 
+     * @returns 
+     */
     static HandleStreamEndFound(q, markerInfo, _bck, _formatter, _restoreState, _restoreBackupState) {
         return (_buffer, _line, patternInfo, _p, option, _old) => {
             const { parent } = patternInfo;

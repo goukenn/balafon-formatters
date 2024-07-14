@@ -149,6 +149,15 @@ class Formatters {
     static set GlobalEngine(v) {
         sm_globalEngine = v;
     }
+    static EndListenerArguments(marker, option){
+        return {
+            tokenID: marker.tokenID,
+            tokenList: option.tokenChains,
+            offset: option.offset,
+            sourceOffset: option.sourceOffset,
+            value: marker.value || (() => ({ value: option.buffer, source: option.data }))()
+        };
+    }
     /**
      * .ctr
      */
@@ -559,7 +568,13 @@ class Formatters {
             }
             const _is_sub_formatting = _formatter.info.isSubFormatting > 0;
             const { lineMatcher, lineSegments } = objClass;
+            let _nextLineOffset = 0;
+
             data.forEach((line) => {
+                // + | update next line offset
+                objClass.lineOffset = _nextLineOffset;
+                _nextLineOffset += line.length + 1; 
+                // + | start 
                 let _start_line_flag = false; // flag to handle end streaming content
                 lineSegments.clear(); // reset line segments
                 if (this.skip_r) {

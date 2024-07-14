@@ -226,7 +226,8 @@ class CaptureRenderer{
                             }
                         }
                     } 
-                    if (listener && !_treat_pattern){
+                    if (listener && !_treat_pattern && listener.renderToken){
+                        
                         rd = rf;
                         rf = _end || !rf ? rf : rf.length>0? listener.renderToken(rf, tokens, tokenID, engine, debug, cap, option) : ''; 
                     }

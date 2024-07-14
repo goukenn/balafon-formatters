@@ -42,7 +42,13 @@ class RefPatterns extends Patterns {
         return this.pattern.getEntryRegex();
     }
     toString(){
-        return `RefPatterns[#${this.pattern.name}]`;
+        let n = this.pattern.name;
+        if (!n){
+            if (this.patterns.matchType == -1){
+                n = 'groups'
+            };
+        }
+        return `RefPatterns[#${n}]`;
     }   
     endRegex(p){
         return this.pattern.endRegex(p);

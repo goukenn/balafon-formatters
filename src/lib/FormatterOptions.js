@@ -7,6 +7,7 @@ const { Debug } = require("./Debug");
 const { FormatterBuffer } = require("./FormatterBuffer");
 const { FormatterLineMatcher } = require("./FormatterLineMatcher");
 const { FormatterLineSegment } = require("./FormatterLineSegment");
+const { FormatterListener } = require("./FormatterListener");
 
 /**
  * @typedef IFormatSourceOption
@@ -43,6 +44,11 @@ class FormatterOptions {
      * current line cursor
      */
     lineCount = 0;
+
+    /**
+     * line offset
+     */
+    lineOffset = 0;
     
     continue = false;
     lineJoin = false;
@@ -284,6 +290,7 @@ class FormatterOptions {
         }
         const option = this;
         let m_saveCount = 0;
+        let m_formatterListener = null;
         // inject setting property
         for (let i in _rg) {
             if (['depth', 'line', 'tabStop', 'lineFeed'].indexOf(i) != -1) {
@@ -781,8 +788,14 @@ class FormatterOptions {
             function (startBlock = false){
                 const _ctx = this;
                 const { buffer, data, output, dataOutput, depth, formatterBuffer, listener } = _ctx;
+                const _args = { buffer, output,data, dataOutput, depth, tabStop, formatterBuffer, _ctx, startBlock };
                 if (listener?.store) {
-                    listener.store.apply(null, [{ buffer, output,data, dataOutput, depth, tabStop, formatterBuffer, _ctx, startBlock }]);
+                    listener.store.apply(null, [_args]);
+                } else {
+                    if (!m_formatterListener){
+                        m_formatterListener = new FormatterListener;
+                    }
+                    m_formatterListener.store(_args);
                 }
                 _formatterBuffer.clear();
             };
@@ -872,6 +885,9 @@ class FormatterOptions {
             this.loopInfo.matcher= null;
             this.loopInfo.count = 0;
         }
+    }
+    get sourceOffset(){
+        return this.lineOffset + this.offset;
     }
     /**
      * reset flags definition
