@@ -1,7 +1,7 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.42",
-    "main": "./dist/extension/1.0.42/extension.js",
+    "version": "1.0.43",
+    "main": "./dist/extension/1.0.43/extension.js",
     "description": "Javascript Generic Formatters",
     "author": {
         "name": "C.A.D. BONDJE DOUE",
