@@ -605,6 +605,10 @@ class Formatters {
                         _nextLine = objClass.nextGlueValue + _nextLine;
                         objClass.nextGlueValue = null;
                     }
+                    // + | update offset line 
+                    let _nextPosOffset = objClass.line.length - _nextLine.length;
+                    //_nextLineOffset+= _nextPosOffset;
+                    objClass.lineOffset += _nextPosOffset;
                     // update the source line
                     lineMatcher.sourceLine = _nextLine;
                     _trimStart = true;
@@ -659,7 +663,8 @@ class Formatters {
                             }
                             loopInfo.position = pos;
                             if (loopInfo.count > 1) {
-                                throw new Error('infine loop detected : ' + JSON.stringify(loopInfo));
+                               throw new Error('infine loop detected : ' + JSON.stringify(loopInfo));
+                               //console.log("apply ... ", {ln, pos,  count: loopInfo.count });
                             }
                             loopInfo.count++
                         } else {
@@ -1721,6 +1726,13 @@ class Formatters {
             (_option_glue && (_option_glue == _cm_value)) ||
             (_cm_value == '');
 
+        // + | -----------------------------------
+        // + | skip value on non empty glue values
+        // + |
+        if (!_skip_value && _marker.isGlueValue && _marker.skipGlueOnLineEnd && option.isEOL){
+            _skip_value =  true;
+        }
+
         if (parent && !_skip_value && parent.isEndCaptureOnly) {
             // passing to parent 
             let _p = parent.endGroup;
@@ -2064,7 +2076,7 @@ class Formatters {
         // + | --------------------------------------------------------        
         // + | DETECT: core match
         // + | --------------------------------------------------------
-        ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option));
+        ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option)); 
 
         if (_error) {
             throw new Error(_error);
@@ -2241,10 +2253,12 @@ class Formatters {
                     _p.index += lineMatcher.offset;
                     _call_update_regex(_p, _endRegex);
                 }
-            }
-
+            } 
             patternInfo.endGroup = _p;
-        }
+        } 
+        if (_p && patternInfo.checkMoveEndRegex(_p, option)){ 
+            _p = null;
+        } 
         return { _p, _matcher, _error };
     }
     _updatePatternPrevConstant(_marker, option, _prev, offset, append_child = true) {

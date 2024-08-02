@@ -7,5 +7,5 @@
         "module": "CommonJS"
     },
     "exclude": ["node_modules"],
-    "include": ["src/**/*", "tests/stringformatter.js"]
+    "include": ["src/**/*", "tests/stringformatter.js", "tests/treat.token.js"]
 }

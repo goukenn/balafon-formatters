@@ -67,9 +67,9 @@ function formatAllDocument(document, format) {
  */
 function activate(context) {
     // + | register language formatters 
-    console.log("activate bformatters");
+    // console.log("activate bformatters");
     const languageFormatter = new Map();
-    ["bcss", "bview", "phtml", "bjs", "pcss", "demodata", "bhtml", "vbmacros"].forEach((a) => {
+    ["bcss", "bview", "phtml", "bjs", "pcss", "bhtml", "vbmacros"].forEach((a) => {
         ;
         let p = vscode.languages.registerDocumentFormattingEditProvider(
             a, {
@@ -99,6 +99,9 @@ function activate(context) {
     // + | register color provider 
     const _clprofiles =
     {
+        'bcss':{
+            ...utils.LoadProvideDocumentColor('bcss-provide-colors', vscode)
+        },
         "bcolor": {
             /**
              * 
@@ -141,13 +144,13 @@ function activate(context) {
         );
         context.subscriptions.push(c);
     }
-    console.log("activated");
+    // console.log("activated");
 }
 /**
  * 
  */
 function deactivate() {
-    console.log("deactivated");
+    // console.log("deactivated");
 }
 
 // export extension method

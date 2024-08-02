@@ -629,9 +629,13 @@ class Utils {
             }
             // + | add property to offset 
             _match.offset = _match[0].length;
-            // +| treat begin captures must be at corresponding data  
+            // + | treat begin captures must be at corresponding data  
             let _info = new PatternMatchInfo;
-            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index, option.formatter.formatting);
+            Utils.InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index, option.formatter.formatting,
+                {
+                    lineCount: option.lineCount
+                }
+            );
             return _info;
         }
         return _a;
@@ -647,8 +651,9 @@ class Utils {
      * @param {*} patterns 
      * @param {*} index 
      * @param {*} formatting 
+     * @param {{lineCount: number}} state state info
      */
-    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1, formatting) {
+    static InitPatternMatchInfo(_info, _a, _match, parentMatcherInfo, _from, line, patterns, index = -1, formatting=null, state = null) {
         _info.use({
             marker: _a,
             endRegex: _a.endRegex(_match),
@@ -658,7 +663,8 @@ class Utils {
             patterns,
             fromGroup: _from,
             index,
-            formatting
+            formatting,
+            state
         });
     }
     /**

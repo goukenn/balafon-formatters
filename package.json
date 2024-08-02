@@ -1,8 +1,11 @@
 {
     "name": "balafon-formatters",
     "version": "1.0.40",
-    "main": "./dist/extension/1.0.40/extension.js",
+    "main":"./src/extension.js",
     "description": "Javascript Generic Formatters",
+    "bin":{
+        "bformatter":"./src/bin/bformatter.js"
+    },
     "author": {
         "name": "C.A.D. BONDJE DOUE",
         "email": "cbondje@igkdev.com"
@@ -229,6 +232,14 @@
                 ],
                 "scopeName": "source.inline.bcss",
                 "path": "./src/formatters/bcss.inline.btm-syntax.json"
+            },
+            {
+                "injectTo": [ 
+                    "markdown",
+                    "text.html.markdown"
+                ],
+                 "scopeName": "source.inline.makrdown.bcss",
+                "path": "./src/formatters/bcss-inline.markdown.btm-syntax.json"
             }
         ],
         "colors": [

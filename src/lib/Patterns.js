@@ -315,6 +315,12 @@ class Patterns {
      */
     nextGlueValue;
 
+
+    /**
+     * skip value on line end.
+     */
+    skipGlueOnLineEnd;
+
     /**
      * .ctr
      */
@@ -728,6 +734,7 @@ class Patterns {
         }
         return `Patterns[#${name}]`;
     }
+
 }
 
 

@@ -1,0 +1,22 @@
+{
+    "injectionSelector":"L:text.html.markdown",
+    "$schema": "https://igkdev.com/schemas/btm-syntax.json",
+    "scopeName":"source.inline.makrdown.bcss",
+    "patterns":[ 
+        {
+            "include":"#bcss-here-doc"
+        }
+    ],
+    "repository":{
+        "bcss-here-doc":{
+            "begin":"(?i)```\\b(bcss)\\b$",
+            "end":"^```$", 
+            "name":"meta.embeded.bcss",
+            "patterns":[
+                {
+                    "include":"source.bcss"
+                }
+            ]
+        } 
+    }
+}

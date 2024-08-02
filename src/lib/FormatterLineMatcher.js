@@ -169,7 +169,7 @@ class FormatterLineMatcher {
                 }
             }
             if (!startLine){
-                debug && Debug.log('skip: not on start line')
+                debug && Debug.log('--::: skip: not on start line :::--')
                 return _p;
             }
         }

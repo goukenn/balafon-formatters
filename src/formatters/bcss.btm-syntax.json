@@ -93,7 +93,7 @@
             ]
         },
         "media-directive": {
-            "begin": "(?=\\s*(@\\b(?:def|(x(x)?)?(sm|lg)(-screen)?))\\b)",
+            "begin": "(?=(?:\\s*)(@\\b(?:def|(?:x(?:x)?)?(?:sm|lg)(?:-screen)?))\\b)",
             "end": "(?<=\\})",
             "debugName": "detect-media-directive",
             "patterns": [
@@ -181,8 +181,17 @@
         "bcss-glue-white-space": {
             "match": "\\s+|$",
             "name": "glue.skip.white-space.bcss",
+            "comment":"glue white space and join line with end comment",
             "isGlueValue": " ",
             "replaceWith": " "
+        },
+        "bcss-glue-inline-white-space": {
+            "match": "\\s+",
+            "name": "glue.skip.white-space.bcss",
+            "comment":"glue inline white space",
+            "isGlueValue": " ",
+            "replaceWith": " ",
+            "skipGlueOnLineEnd":true
         },
         "bcss-glue-selector-white-space": {
             "match": "(\\s+)",
@@ -1634,6 +1643,18 @@
             "match": "accent",
             "name": "page.region.block.bcss"
         },
+        "mark-comment":{
+            "match":"^\\s*#(.)+$",
+            "name":"meta.global.mark-comment",
+            "lineFeed":true,
+            "captures":{
+                "0":{
+                    "patterns":[
+                        {"include":"#bcss-glue-inline-white-space"}
+                    ]
+                }
+            } 
+        },
         "bcss-root-definition": {
             "patterns": [
                 {
@@ -1641,6 +1662,9 @@
                 },
                 {
                     "include": "#describ-comment"
+                },
+                {
+                    "include":"#mark-comment-"
                 },
                 {
                     "include": "#bcss-multi-line-comment"
@@ -1752,8 +1776,7 @@
                 }
             ]
         },
-        "bcss-selection-definition": {
-            "comment": "sub selection definition",
+        "bcss-selection-definition": { 
             "patterns": [
                 {
                     "include": "#capture-speudo-selector"
@@ -1777,7 +1800,7 @@
                     ]
                 },
                 {
-                    "begin": "(\\s*)(?=(\\w|\\.|#))",
+                    "begin": "(?:\\s*)(?=(?:\\w|\\.|#))",
                     "end": "(?=(\\{|\\s))",
                     "name": "start.sub.property",
                     "beginCaptures": {
@@ -2071,6 +2094,7 @@
             "begin": "(?=(.|#)?[a-zA-Z][a-zA-Z0-9\\-]*)",
             "end": "(?<=\\}|;)|(?=;|\\}|\\{|\\s)",
             "name": "sub-selector",
+            "comment":"sub selector entry",
             "patterns": [
                 {
                     "matchTransform": "\\s*(?=\\.|#|[a-zA-Z])",
