@@ -1,0 +1,11 @@
+{
+    "id":"bcss",
+    "triggerChars":["."],
+    "completionItems":[
+        {
+            "label":"@tailwindcss",
+            "kind":"Module",
+            "insertText": "@tailwindcss"
+        }
+    ]
+}

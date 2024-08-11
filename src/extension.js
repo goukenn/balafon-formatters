@@ -11,9 +11,8 @@ const  cli = require('cli-color');
 const { TransformEngine } = require('./lib/TransformEngine');
 const { utils } = require('./vscode'); 
 const { Formatters } = require("./formatter");
-const Version = 'debug.0.0.1';
-
-
+const completion = require("./vscode/completion");
+const Version = 'debug.0.0.1';  
 class VSCodeTransformEngine extends TransformEngine {
 
 }
@@ -145,6 +144,8 @@ function activate(context) {
         context.subscriptions.push(c);
     } 
 
+
+
     // register hightight definition 
     context.subscriptions.push(vscode.languages.registerCompletionItemProvider({
         scheme: 'file',
@@ -158,16 +159,15 @@ function activate(context) {
          * @param {{triggerCharacter:number, triggerKind:number}} context 
          * @returns 
          */
-        provideCompletionItems(document, position, token, context){
-            console.log("provide document");
+        provideCompletionItems(document, position, token, context){            
             const _provide_items =  [];
             // init media 
-            '@def|@xsm-screen|@sm-screen|@lg-screen|@xlg-screen|@xxlg-screen'.split('|').sort().forEach(o=>{
+            '@balafon|@def|@xsm-screen|@sm-screen|@lg-screen|@xlg-screen|@xxlg-screen'.split('|').sort().forEach(o=>{
                 const _item =  new vscode.CompletionItem(o);
                 _item.commitCharacters = ["\t"];
                 _item.documentation = new vscode.MarkdownString('define screen - type');
                 _item.insertText = o+"{\n}";
-                _item.kind = vscode.CompletionItemKind.TypeParameter;
+                _item.kind = vscode.CompletionItemKind.Module;
                 // _item.command = { command: 'editor.action.triggerSuggest', title: 'Re-trigger completions...' };
                 _provide_items.push(_item);
             });
