@@ -385,6 +385,9 @@
                             ]
                         }
                     }
+                },
+                {
+                    "include":"#bcss-single-line-comment"
                 }
             ],
             "endCaptures": {
@@ -2250,7 +2253,7 @@
             "patterns": []
         },
         "bcss-class-id-root": {
-            "begin": "\\.(([a-zA-Z][a-zA-Z]*)(\\\\.[a-zA-Z][a-zA-Z]*)*)?",
+            "begin": "\\.(?:(?:[a-zA-Z][a-zA-Z0-9]*)(?:\\\\.[a-zA-Z][a-zA-Z0-9\\-]*)*)?",
             "end": "(?=;|\\s|:|\\+|>|~|#|\\{|\\.)|(?<=})",
             "name": "meta.css.class-id-root.bcss",
             "beginCaptures": {

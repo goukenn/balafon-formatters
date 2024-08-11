@@ -213,6 +213,9 @@ function _clamp(v, max) {
 	return Math.min(max, Math.max(0, v));
 }
 
+function _round_colorf(cl , p=100.0){
+	return Math.round(cl * p) / p;
+}
 
 
 class utils {
@@ -272,6 +275,7 @@ class utils {
 				if (color.alpha == 1)
 					_p.push(new vscode.ColorPresentation(`rgb(${cl.R}, ${cl.G}, ${cl.B})`));
 				_p.push(new vscode.ColorPresentation(`rgba(${cl.R}, ${cl.G}, ${cl.B}, ${cl.a})`));
+				_p.push(new vscode.ColorPresentation(`/* {${_round_colorf(color.red)}, ${_round_colorf(color.green)}, ${_round_colorf(color.blue)}, ${_round_colorf(color.alpha)}} */`));
 				return _p;
 			}
 		};
@@ -279,6 +283,12 @@ class utils {
 	static ReverseColor(color) {
 		return webcolor[color] || "#000";
 	}
+	/**
+	 * get color utility
+	 * @param {string} hexColor 
+	 * @param {*} vscode vscode lib
+	 * @returns 
+	 */
 	static GetColor(hexColor, vscode) {
 		let _red = 0, _green = 0, _blue = 0;
 		let _alpha = 1;
@@ -304,10 +314,22 @@ class utils {
 
 	}
 
-
+	/**
+	 * 
+	 * @param {*} formatter 
+	 * @param {*} src 
+	 * @returns 
+	 */
 	static ExtractColors(formatter, src) {
 		const _color_lists = [];
 		const _listener = {
+			/**
+			 * 
+			 * @param {*} marker 
+			 * @param {*} option 
+			 * @param {*} isSubFormatting 
+			 * @returns 
+			 */
 			onEndHandler(marker, option, isSubFormatting = false) {
 				if (isSubFormatting) {
 					return;

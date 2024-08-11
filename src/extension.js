@@ -143,8 +143,43 @@ function activate(context) {
             _provider
         );
         context.subscriptions.push(c);
-    }
-    // console.log("activated");
+    } 
+
+    // register hightight definition 
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider({
+        scheme: 'file',
+        language: 'bcss'
+    }, {
+        /**
+         * 
+         * @param {*} document 
+         * @param {*} position 
+         * @param {*} token 
+         * @param {{triggerCharacter:number, triggerKind:number}} context 
+         * @returns 
+         */
+        provideCompletionItems(document, position, token, context){
+            console.log("provide document");
+            const _provide_items =  [];
+            // init media 
+            '@def|@xsm-screen|@sm-screen|@lg-screen|@xlg-screen|@xxlg-screen'.split('|').sort().forEach(o=>{
+                const _item =  new vscode.CompletionItem(o);
+                _item.commitCharacters = ["\t"];
+                _item.documentation = new vscode.MarkdownString('define screen - type');
+                _item.insertText = o+"{\n}";
+                _item.kind = vscode.CompletionItemKind.TypeParameter;
+                // _item.command = { command: 'editor.action.triggerSuggest', title: 'Re-trigger completions...' };
+                _provide_items.push(_item);
+            });
+
+            'display|background-color'.split('|').sort().forEach(o=>{
+                const _item =  new vscode.CompletionItem(o);
+                _provide_items.push(_item);
+            }); 
+            return _provide_items;
+        }
+
+    }, '.'));
 }
 /**
  * 
