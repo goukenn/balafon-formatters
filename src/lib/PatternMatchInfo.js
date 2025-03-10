@@ -132,6 +132,7 @@ class PatternMatchInfo {
         var m_patterns = null;
         var m_fromGroup = null; // store pattern group - to dected token id
         var m_index = -1;
+        var m_state = null; // store use state
         /**
         * get or set the buffer mode. 0 - add a line before add go to 1 just append to buffer, 2 add a line after
         */
@@ -178,7 +179,10 @@ class PatternMatchInfo {
         });
         Object.defineProperty(this, 'marker', { get() { return m_marker; } });
         Object.defineProperty(this, 'endRegex', { get() { return m_endRegex; } });
+        // group info
         Object.defineProperty(this, 'group', { get() { return m_group; } });
+        Object.defineProperty(this, 'state', { get() { return m_state; } });
+
         Object.defineProperty(this, 'line', { get() { return m_line; } });
         Object.defineProperty(this, 'startOutput', {
             get() {
@@ -230,10 +234,11 @@ class PatternMatchInfo {
          * 
          * @param {*} marker 
          */
-        this.use = function ({ marker, endRegex, group, line, parent, patterns, formatting, fromGroup, index = -1 }) {
+        this.use = function ({ marker, endRegex, group, line, parent, patterns, formatting, fromGroup, index = -1 , state}) {
             m_marker = marker;
             m_endRegex = endRegex;
             m_group = group;
+            m_state = state;
             m_line = line;
             m_parent = parent;
             // setup configurable properties
@@ -371,10 +376,37 @@ class PatternMatchInfo {
     get debug() {
         return this.marker?.debug;
     }
+    /**
+     * 
+     * @returns 
+     */
     toString() {
         return "[PatternMatchInfo: " + this.marker?.toString() + "]";
     }
 
+    /**
+     * match type with glue type 
+     */
+    get skipGlueOnLineEnd(){
+        const b = this.isGlueValue;
+        if (typeof(b) == 'object'){
+            let { skipGlueOnLineEnd } = b || {skipGlueOnLineEnd:false};
+            return skipGlueOnLineEnd; 
+        }
+        return this.skipGlueOnLineEnd;
+
+    }
+
+    /**
+     * 
+     * @param {*} end 
+     * @param {*} param1 
+     * @returns 
+     */
+    checkMoveEndRegex(end, {lineCount}){
+        return (this.group.index == end.index) && 
+           (this.state.lineCount == lineCount);
+    }
 }
 
 exports.PatternMatchInfo = PatternMatchInfo;

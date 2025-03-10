@@ -2,18 +2,17 @@
 // file: extension.js
 // @date: 20240618 21:32:54
 // @desc: bformatter vscode extension
-Object.defineProperty(exports, '__ESModule', {value:true});
+Object.defineProperty(exports, '__ESModule', { value: true });
 
 const vscode = require('vscode');
 
 // for release 
-const  cli = require('cli-color');
+const cli = require('cli-color');
 const { TransformEngine } = require('./lib/TransformEngine');
-const { utils } = require('./vscode'); 
+const { utils } = require('./vscode');
 const { Formatters } = require("./formatter");
+const completion = require("./vscode/completion");
 const Version = 'debug.0.0.1';
-
-
 class VSCodeTransformEngine extends TransformEngine {
 
 }
@@ -69,7 +68,7 @@ function activate(context) {
     // + | register language formatters 
     console.log("activate bformatters");
     const languageFormatter = new Map();
-    ["bcss", "bview", "phtml", "bjs", "pcss", "demodata", "bhtml", "vbmacros"].forEach((a) => {
+    ["bcss", "bview", "phtml", "bjs", "pcss", "bhtml", "vbmacros"].forEach((a) => {
         ;
         let p = vscode.languages.registerDocumentFormattingEditProvider(
             a, {
@@ -99,6 +98,9 @@ function activate(context) {
     // + | register color provider 
     const _clprofiles =
     {
+        'bcss': {
+            ...utils.LoadProvideDocumentColor('bcss-provide-colors', vscode)
+        },
         "bcolor": {
             /**
              * 
@@ -110,21 +112,21 @@ function activate(context) {
                 const _text = document.getText();
                 const _formatter = Formatters.Load('fbcolor');
                 const _colors_lists = utils.ExtractColors(_formatter, _text);
-                const _colors = []; 
+                const _colors = [];
                 if (_colors_lists) {
-                    try{
-                    _colors_lists.forEach(i => {
-                        let x = document.positionAt(i.sourceOffset*1.0);
-                        let y = document.positionAt( i.sourceOffset + i.value.length);
-                        const _range = new vscode.Range(x,y);
-                        const _color = utils.GetColor(i.type == 'webcolor' ? utils.ReverseColor(i.value) : i.value, vscode);
-                        const _clinfo = new vscode.ColorInformation(_range, _color);
-                        _colors.push(_clinfo);
-                    });
-                    } catch(ex){
+                    try {
+                        _colors_lists.forEach(i => {
+                            let x = document.positionAt(i.sourceOffset * 1.0);
+                            let y = document.positionAt(i.sourceOffset + i.value.length);
+                            const _range = new vscode.Range(x, y);
+                            const _color = utils.GetColor(i.type == 'webcolor' ? utils.ReverseColor(i.value) : i.value, vscode);
+                            const _clinfo = new vscode.ColorInformation(_range, _color);
+                            _colors.push(_clinfo);
+                        });
+                    } catch (ex) {
                         console.debug("error ", ex);
                     }
-                } 
+                }
                 return _colors;
             }
         }
@@ -132,8 +134,8 @@ function activate(context) {
         ;
     for (let i in _clprofiles) {
         const _provider = _clprofiles[i] || {};
-        if (!('provideColorPresentations' in _provider)){
-            const { provideColorPresentations } = utils.GetProviderPresentation(i,vscode);
+        if (!('provideColorPresentations' in _provider)) {
+            const { provideColorPresentations } = utils.GetProviderPresentation(i, vscode);
             _provider.provideColorPresentations = provideColorPresentations;
         }
         const c = vscode.languages.registerColorProvider({ scheme: 'file', language: i },
@@ -141,13 +143,63 @@ function activate(context) {
         );
         context.subscriptions.push(c);
     }
-    console.log("activated");
+
+
+
+    // register hightight definition 
+    context.subscriptions.push(vscode.languages.registerCompletionItemProvider({
+        scheme: 'file',
+        language: 'bcss'
+    }, {
+        /**
+         * 
+         * @param {*} document 
+         * @param {*} position 
+         * @param {*} token 
+         * @param {{triggerCharacter:number, triggerKind:number}} context 
+         * @returns 
+         */
+        provideCompletionItems(document, position, token, context) {
+            const _provide_items = [];
+            // init media 
+            '@balafon|@def|@xsm-screen|@sm-screen|@lg-screen|@xlg-screen|@xxlg-screen'.split('|').sort().forEach(o => {
+                const _item = new vscode.CompletionItem(o);
+                _item.commitCharacters = ["\t"];
+                _item.documentation = new vscode.MarkdownString('define screen - type');
+                _item.insertText = o + "{\n}";
+                _item.kind = vscode.CompletionItemKind.Module;
+                // _item.command = { command: 'editor.action.triggerSuggest', title: 'Re-trigger completions...' };
+                _provide_items.push(_item);
+            });
+            const properties = require('../src/lib/Css/CssProperties')
+            properties.sort().forEach(o => {
+                const _item = new vscode.CompletionItem(o);
+                _provide_items.push(_item);
+            });
+            const { GetProvideList } = completion.bcss;
+            const { colorList, rootList } = GetProvideList(document.getText());
+            const li = [colorList, rootList];
+            while (li.length > 0) {
+                const _m = li.shift()
+                // load color 
+                for (let i in _m) {
+                    const _item = new vscode.CompletionItem(i);
+                    _item.insertText = 'var('+i+')';
+                    _item.kind = vscode.CompletionItemKind.Property;
+                    _provide_items.push(_item);
+                }
+            }
+
+            return _provide_items;
+        }
+
+    }, '.'));
 }
 /**
  * 
  */
 function deactivate() {
-    console.log("deactivated");
+    // console.log("deactivated");
 }
 
 // export extension method

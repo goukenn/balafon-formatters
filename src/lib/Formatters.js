@@ -66,11 +66,11 @@ let sm_globalEngine;
 let sm_engine_formatter;
 /**
  * formatters entry point
- * @property {*} listener
  */
 class Formatters {
     /**
      * store object reference of lint errors
+     * @type {any}
      */
     lintErrors;
     /**
@@ -82,33 +82,35 @@ class Formatters {
      */
     repository;
     /**
-     * @var {?string}
+     * @type {?string}
      */
     scopeName;
 
     /**
      * selector definition to implements
-     * @var {?string}
+     * @type {?string}
      * "L:source.language"
      */
     injectionSelector;
     /**
-    * @var {?bool}
+    * @type {?boolean}
     */
     debug; // allow debug
     /**
      * use to configure general setting
+     * @type {{}| undefined | null}
      */
     settings;
 
     /**
      * comment description 
+     * @type {string}
      */
     comment;
 
     /**
      * array to declare used token id.
-     * @var {?string[]}
+     * @type {?string[]}
      */
     tokens;
 
@@ -118,9 +120,25 @@ class Formatters {
 
     fileTypes;
 
+    /**
+     * @type {string?}
+     */
     uuid;
 
+    /**
+     * @type {string?}
+     */
     firstLineMatch;
+
+    /**
+     * @type {?string}
+     */
+    data;
+
+    /**
+     * @type {?string}
+     */
+    buffer;
 
 
     /**
@@ -159,6 +177,23 @@ class Formatters {
         };
     }
     /**
+     * @type {IFormattersListener | undefined }
+     */
+    listener;
+
+    /**
+     * object setting definition 
+     * @type {null| {}} 
+     */
+    objClass;
+
+    /**
+     * info definition 
+     * @type {null|{isSubFormatting:number, captureGroup:[]}}
+     */
+    info;
+
+    /**
      * .ctr
      */
     constructor() {
@@ -177,6 +212,7 @@ class Formatters {
 
         /**
          * get or set the listener info
+         * @type {*}
          */
         Object.defineProperty(this, 'listener', { get() { return m_listener; }, set(value) { m_listener = value } })
         /**
@@ -195,6 +231,7 @@ class Formatters {
             m_objClass = s;
             delete this._storeObjClass;//  = null;
         };
+
 
     }
 
@@ -497,9 +534,10 @@ class Formatters {
      * @param {null|undefined|{name:string, constantName:string, depth:number, complete: null|()=>* = null}} option format option 
      * @returns 
      */
-    format(data, option) {
+    format(data, option=null) {
         this._initDebug();
         NativeRegExp.Save();
+        
 
         if (!Array.isArray(data)) {
             if (typeof (data) == 'string') {
@@ -510,14 +548,15 @@ class Formatters {
         if (typeof (this.scopeName) == 'undefined') {
             throw new Error('scopeName is not defined');
         }
+        let { objClass, info} = this;
         /**
          * @type {FormatterOptions}
          */
-        let objClass = this.objClass;
+        //let objClass = this.objClass;
         if (!objClass) {
             objClass = this.#initDefinition(option);
         } else {
-            if (this.info.isSubFormatting == 0) {
+            if (info.isSubFormatting == 0) {
                 objClass.reset();
             }
         }
@@ -605,6 +644,10 @@ class Formatters {
                         _nextLine = objClass.nextGlueValue + _nextLine;
                         objClass.nextGlueValue = null;
                     }
+                    // + | update offset line 
+                    let _nextPosOffset = objClass.line.length - _nextLine.length;
+                    //_nextLineOffset+= _nextPosOffset;
+                    objClass.lineOffset += _nextPosOffset;
                     // update the source line
                     lineMatcher.sourceLine = _nextLine;
                     _trimStart = true;
@@ -659,7 +702,8 @@ class Formatters {
                             }
                             loopInfo.position = pos;
                             if (loopInfo.count > 1) {
-                                throw new Error('infine loop detected : ' + JSON.stringify(loopInfo));
+                               throw new Error('infine loop detected : ' + JSON.stringify(loopInfo));
+                               //console.log("apply ... ", {ln, pos,  count: loopInfo.count });
                             }
                             loopInfo.count++
                         } else {
@@ -1173,7 +1217,9 @@ class Formatters {
     _onStartMarker(markerInfo, option, { type }) {
         const { listener } = this;
         if (listener?.onStartHandler)
-            listener.onStartHandler(markerInfo, option, { type, formatter: this });
+            listener.onStartHandler(markerInfo, option, { type,
+         formatter: this ,
+         isSubFormatting: this.info.isSubFormatting > 0});
 
     }
     /**
@@ -1186,7 +1232,10 @@ class Formatters {
         const { listener } = this;
 
         if (listener?.onEndHandler)
-            listener.onEndHandler(markerInfo, option, this.info.isSubFormatting > 0, this);
+            listener.onEndHandler(markerInfo, option,{
+        isSubFormatting: this.info.isSubFormatting > 0,
+        ...Formatters.EndListenerArguments(markerInfo, option)
+        }, this);
 
         if (markerInfo.isShiftenContentName) {
             this._shiftPatternContentName(markerInfo, option);
@@ -1331,6 +1380,24 @@ class Formatters {
             op.push('startLineTransform');
         }
         return c;
+    }
+    treatEndMarkerValue(marker, option ){
+        const c = marker.value.source;
+        const group = [c];
+        const op = [];
+        if (marker.replaceWith){
+
+            let r = this.treatMarkerValue(marker, c, op, option, group, true);
+
+           // console.log("sample ", c, r);
+            // marker.value = {
+            //     'source':r,
+            //     'data':r
+            // };
+            option.formatterBuffer.clear(); 
+            option.formatterBuffer.appendToBuffer(r);
+            
+        }
     }
     /**
      * append constant
@@ -1721,6 +1788,13 @@ class Formatters {
             (_option_glue && (_option_glue == _cm_value)) ||
             (_cm_value == '');
 
+        // + | -----------------------------------
+        // + | skip value on non empty glue values
+        // + |
+        if (!_skip_value && _marker.isGlueValue && _marker.skipGlueOnLineEnd && option.isEOL){
+            _skip_value =  true;
+        }
+
         if (parent && !_skip_value && parent.isEndCaptureOnly) {
             // passing to parent 
             let _p = parent.endGroup;
@@ -2064,7 +2138,7 @@ class Formatters {
         // + | --------------------------------------------------------        
         // + | DETECT: core match
         // + | --------------------------------------------------------
-        ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option));
+        ({ _p, _matcher, _error } = this.detectPatternInfo(_line, patternInfo, option)); 
 
         if (_error) {
             throw new Error(_error);
@@ -2241,10 +2315,12 @@ class Formatters {
                     _p.index += lineMatcher.offset;
                     _call_update_regex(_p, _endRegex);
                 }
-            }
-
+            } 
             patternInfo.endGroup = _p;
-        }
+        } 
+        if (_p && patternInfo.checkMoveEndRegex(_p, option)){ 
+            _p = null;
+        } 
         return { _p, _matcher, _error };
     }
     _updatePatternPrevConstant(_marker, option, _prev, offset, append_child = true) {
@@ -2690,16 +2766,15 @@ class Formatters {
         }
 
         if (!_marker.value && _old) {
-            // + | update marker value fallback
-            // _marker.value = {
-            //     source: _old.data.dataSegment.join(''),
-            //     value: _old.content
-            // }
+            // + | update marker value fallback 
             _marker.value = {
                 source: option.data,
                 value: option.buffer
             }
         }
+
+        // + | streat value berfore end 
+        this.treatEndMarkerValue(_marker, option);
 
 
         this._onEndHandler(_marker, option);

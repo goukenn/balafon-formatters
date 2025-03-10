@@ -175,7 +175,7 @@ const _is_web_color =
 	 * @returns 
 	 */
 	(color, ref) => {
-		 
+
 		let _key = _hex_color(color).toUpperCase();
 		if (ref) {
 			ref.hexColor = _key;
@@ -204,18 +204,50 @@ const _is_web_color =
  * @param {vscode.Color} color 
  */
 function _hex_color(color) {
-	let _a = color.alpha != 1 ? parseInt(_clamp(Math.round(color.alpha *255.0), 255)).toString(16).padStart(2, '0') : "";
+	let _a = color.alpha != 1 ? parseInt(_clamp(Math.round(color.alpha * 255.0), 255)).toString(16).padStart(2, '0') : "";
 	return "#" + (color.red * 255.0).toString(16).padStart(2, '0') +
 		(color.green * 255.0).toString(16).padStart(2, '0') +
 		(color.blue * 255.0).toString(16).padStart(2, '0') + _a;
 }
-function _clamp(v, max){
+function _clamp(v, max) {
 	return Math.min(max, Math.max(0, v));
 }
 
+function _round_colorf(cl , p=100.0){
+	return Math.round(cl * p) / p;
+}
 
 
 class utils {
+	static LoadProvideDocumentColor(name, vscode) {
+		const _formatter = Formatters.Load(name);
+		if (!_formatter) {
+			throw new Error('missing formatter ');
+		}
+		return {
+			provideDocumentColors(document, token) {
+				const _text = document.getText();
+
+				const _colors_lists = utils.ExtractColors(_formatter, _text);
+				const _colors = [];
+				if (_colors_lists) {
+					try {
+						_colors_lists.forEach(i => {
+							let x = document.positionAt(i.sourceOffset * 1.0);
+							let y = document.positionAt(i.sourceOffset + i.value.length);
+							const _range = new vscode.Range(x, y);
+							const _color = utils.GetColor(i.type == 'webcolor' ? utils.ReverseColor(i.value) : i.value, vscode);
+							const _clinfo = new vscode.ColorInformation(_range, _color);
+							_colors.push(_clinfo);
+						});
+					} catch (ex) {
+						console.debug("error ", ex);
+					}
+				}
+				return _colors;
+			}
+		};
+	}
 	static GetProviderPresentation(id, vscode) {
 		return {
 			/**
@@ -240,9 +272,10 @@ class utils {
 				cl.B = (color.blue * 255.0);
 				cl.A = (color.alpha * 100.0);
 				cl.a = color.alpha;
-				if (color.alpha==1)
+				if (color.alpha == 1)
 					_p.push(new vscode.ColorPresentation(`rgb(${cl.R}, ${cl.G}, ${cl.B})`));
 				_p.push(new vscode.ColorPresentation(`rgba(${cl.R}, ${cl.G}, ${cl.B}, ${cl.a})`));
+				_p.push(new vscode.ColorPresentation(`/* {${_round_colorf(color.red)}, ${_round_colorf(color.green)}, ${_round_colorf(color.blue)}, ${_round_colorf(color.alpha)}} */`));
 				return _p;
 			}
 		};
@@ -250,6 +283,12 @@ class utils {
 	static ReverseColor(color) {
 		return webcolor[color] || "#000";
 	}
+	/**
+	 * get color utility
+	 * @param {string} hexColor 
+	 * @param {*} vscode vscode lib
+	 * @returns 
+	 */
 	static GetColor(hexColor, vscode) {
 		let _red = 0, _green = 0, _blue = 0;
 		let _alpha = 1;
@@ -261,8 +300,8 @@ class utils {
 				_red = parseInt(_v.substring(0, 1).repeat(2), 16) / 255.0;
 				_green = parseInt(_v.substring(1, 2).repeat(2), 16) / 255.0;
 				_blue = parseInt(_v.substring(2, 3).repeat(2), 16) / 255.0;
-				if (_type==4){
-					_alpha = (parseInt(_v.substring(3, 4).repeat(2), 16) / 255.0);	
+				if (_type == 4) {
+					_alpha = (parseInt(_v.substring(3, 4).repeat(2), 16) / 255.0);
 				}
 				break;
 			case 6:
@@ -275,10 +314,22 @@ class utils {
 
 	}
 
-
+	/**
+	 * 
+	 * @param {*} formatter 
+	 * @param {*} src 
+	 * @returns 
+	 */
 	static ExtractColors(formatter, src) {
 		const _color_lists = [];
 		const _listener = {
+			/**
+			 * 
+			 * @param {*} marker 
+			 * @param {*} option 
+			 * @param {*} isSubFormatting 
+			 * @returns 
+			 */
 			onEndHandler(marker, option, isSubFormatting = false) {
 				if (isSubFormatting) {
 					return;

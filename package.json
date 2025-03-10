@@ -3,6 +3,9 @@
     "version": "1.0.44",
     "main": "./dist/extension/1.0.44/extension.js",
     "description": "Javascript Generic Formatters",
+    "bin":{
+        "bformatter":"./src/bin/bformatter.js"
+    },
     "author": {
         "name": "C.A.D. BONDJE DOUE",
         "email": "cbondje@igkdev.com"
@@ -126,9 +129,13 @@
                     ".bcss"
                 ],
                 "aliases": [
-                    "Balafon bcss",
-                    "Bcss"
+                    "Balafon Stylesheet",
+                    "bcss"
                 ],
+                "icon": {
+                    "dark": "./assets/icons/bcss-dark.png",
+                    "light": "./assets/icons/bcss-light.png"
+                },
                 "configuration": "./languages/bcss.language-configuration.json"
             },
             {
@@ -229,6 +236,14 @@
                 ],
                 "scopeName": "source.inline.bcss",
                 "path": "./src/formatters/bcss.inline.btm-syntax.json"
+            },
+            {
+                "injectTo": [ 
+                    "markdown",
+                    "text.html.markdown"
+                ],
+                 "scopeName": "source.inline.makrdown.bcss",
+                "path": "./src/formatters/bcss-inline.markdown.btm-syntax.json"
             }
         ],
         "colors": [

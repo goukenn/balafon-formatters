@@ -5,8 +5,7 @@ match : string or regex data - if string will be converted to regex.
 ## usage
 
 - create a formatter with a json settings
-- inspired from [marcomates.com](https://macromates.com/manual/en/language_grammars)
-- inspired from [marcomates.com](https://macromates.com/manual/en/language_grammars)
+- inspired by [marcomates.com](https://macromates.com/manual/en/language_grammars) 
 
 ```js
 const { Formatters } = require('./src/lib/Formatters')

@@ -756,11 +756,9 @@ function _initListener(_formatter, _selectorDefinition, callBacks) {
             }
             //console.log("|*********** end handling *************|" + marker, marker.value, _value, { tokenList, tokenID })
         },
-        store() {
+        store(){
             _baseFormatterListener.store.apply(_baseFormatterListener, arguments);
         },
-
-
         // counter-style
         _onStartCounterStyle() {
             this._resetSelectorDefinition();

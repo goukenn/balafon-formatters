@@ -4,8 +4,10 @@
         "declaration": true,
         "outDir": "/dist",
         "target": "ES6",
-        "module": "CommonJS"
+        "module": "CommonJS",
+        "checkJs": false,
+        "strict": false
     },
     "exclude": ["node_modules"],
-    "include": ["src/**/*", "tests/stringformatter.js"]
+    "include": ["src/**/*", "./**/*.js"]
 }

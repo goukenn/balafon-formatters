@@ -21,6 +21,7 @@ const { FormatterListener } = require("./FormatterListener");
  * @typedef IFormatterOptions
  * @funcion newBuffer 
  * @property {string} line current line definition
+ * @property { boolean } isEOL detect that is end off line; 
  */
 
 /**
@@ -335,9 +336,15 @@ class FormatterOptions {
                 _blockStarted = v;
             }
         });
+        Object.defineProperty(option, 'isEOL', { 
+            get(){
+                return this.pos >= this.length;
+            }
+        } );
         Object.defineProperty(option, 'isCapturing', {
             get: function () { return m_isCapturing; }
         });
+
         Object.defineProperty(option, 'buffer', { get: function () { return _formatterBuffer.buffer; } })
         Object.defineProperty(option, 'data', { get: function () { return _formatterBuffer.data; } })
         Object.defineProperty(option, 'outputBufferInfo', { get() { return _outputBufferInfo; } })
@@ -875,12 +882,14 @@ class FormatterOptions {
      */
     loopStart(){
         if (this.loopInfo == null){
+            // + | init loop start
             this.loopInfo = {
                 position: 0,
                 matcher: null,
                 count: 0
             };
         } else {
+            // + | reset loop start
             this.loopInfo.position = 0;
             this.loopInfo.matcher= null;
             this.loopInfo.count = 0;

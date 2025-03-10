@@ -1,8 +1,9 @@
 # handle desctructuration 
 in Javascript the desctructuration is a block of code that match
 ```json
-{"begin" : "(?={)",;
-"end" : "}=" 
+{
+    "begin" : "(?={)",
+    "end" : "}=" 
 }
 ```
 

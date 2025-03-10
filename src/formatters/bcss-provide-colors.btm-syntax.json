@@ -1,5 +1,5 @@
 {
-    "scopeName":"source.bcolor",  
+    "scopeName":"source.provide.bcss-color",
     "repository":{
         "color-detection-hexcolor":{
             "match":"(?i)#\\b((?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3}))\\b",
