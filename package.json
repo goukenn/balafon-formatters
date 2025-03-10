@@ -1,10 +1,10 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.44",
-    "main": "./dist/extension/1.0.44/extension.js",
+    "version": "1.0.45",
+    "main": "./dist/extension/1.0.45/extension.js",
     "description": "Javascript Generic Formatters",
-    "bin":{
-        "bformatter":"./src/bin/bformatter.js"
+    "bin": {
+        "bformatter": "./src/bin/bformatter.js"
     },
     "author": {
         "name": "C.A.D. BONDJE DOUE",
@@ -238,11 +238,11 @@
                 "path": "./src/formatters/bcss.inline.btm-syntax.json"
             },
             {
-                "injectTo": [ 
+                "injectTo": [
                     "markdown",
                     "text.html.markdown"
                 ],
-                 "scopeName": "source.inline.makrdown.bcss",
+                "scopeName": "source.inline.makrdown.bcss",
                 "path": "./src/formatters/bcss-inline.markdown.btm-syntax.json"
             }
         ],
