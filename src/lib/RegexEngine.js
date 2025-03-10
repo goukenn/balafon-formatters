@@ -69,7 +69,9 @@ class RegexEngine{
         if (_flag){
             inf.option+= _flag;
         }
-
+        // + | -------------------------------------------------
+        // + | JS: load extended data 
+        // + |--------------------------------------------------
         if (_is_extended){
             let lit = inf.s.split("\n");
             let _gt = [];
@@ -81,8 +83,7 @@ class RegexEngine{
                 //
             })
             _s = _gt.join('');
-            inf.s = _s; 
-
+            inf.s = _s;  
         }
 
 

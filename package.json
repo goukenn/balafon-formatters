@@ -129,9 +129,13 @@
                     ".bcss"
                 ],
                 "aliases": [
-                    "Balafon bcss",
-                    "Bcss"
+                    "Balafon Stylesheet",
+                    "bcss"
                 ],
+                "icon": {
+                    "dark": "./assets/icons/bcss-dark.png",
+                    "light": "./assets/icons/bcss-light.png"
+                },
                 "configuration": "./languages/bcss.language-configuration.json"
             },
             {

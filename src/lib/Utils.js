@@ -541,8 +541,7 @@ class Utils {
                     }
                     else {
                         if (patterns) {
-                            //_tloop.unshift({ patterns: patterns, from: s, ref: parentMatcherInfo, count: _count });
-                            _tloop.push({ patterns: patterns, from: s, ref: parentMatcherInfo, 
+                             _tloop.push({ patterns: patterns, from: s, ref: parentMatcherInfo, 
                                 count: _count ,
                                 slice: 0});
                             if (_mpatterns.length > 0) {
@@ -957,8 +956,7 @@ class Utils {
             //
             m = Utils.ReplaceRegexGroup(_rp, g); // check for regex presentation
             let check = m.replace(/(?<=(^|[^\\]))(\(|\))/g, ''); // remove capture brackets
-            // escape range
-            // m = m.replace(/\\/g, '\\\\');
+            // escape range 
             // ------------------------
             // consider escape to check
             //

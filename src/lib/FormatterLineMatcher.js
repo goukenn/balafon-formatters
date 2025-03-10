@@ -14,7 +14,7 @@ class FormatterLineMatcher {
     #m_startLine;
 
     /**
-     * flag: middel pos when ending - must consider hown element
+     * flag: middle pos when ending - must consider hown element
      */
     #m_middelPos;
     /**
@@ -158,7 +158,7 @@ class FormatterLineMatcher {
         const _has_movement = RegexUtils.HasBackyardMovementCapture(regex);
         const _has_startLine = RegexUtils.CheckRequestStartLine(regex);
         const { subLine, nextLine, sourceLine, position, startLine, offset } = this;
-        const { debug } = option || {debug:false};
+        const { debug } = option || { debug: false };
         let _p = null;
         if (_has_startLine) {
             if (startLine && (position == 0)) {
@@ -168,7 +168,7 @@ class FormatterLineMatcher {
                     return _p;
                 }
             }
-            if (!startLine){
+            if (!startLine) {
                 debug && Debug.log('--::: skip: not on start line :::--')
                 return _p;
             }

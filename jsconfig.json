@@ -5,7 +5,7 @@
         "outDir": "/dist",
         "target": "ES6",
         "module": "CommonJS",
-        "checkJs": true,
+        "checkJs": false,
         "strict": false
     },
     "exclude": ["node_modules"],

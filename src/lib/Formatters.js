@@ -189,7 +189,7 @@ class Formatters {
 
     /**
      * info definition 
-     * @type {null|{}}
+     * @type {null|{isSubFormatting:number, captureGroup:[]}}
      */
     info;
 
@@ -1217,7 +1217,9 @@ class Formatters {
     _onStartMarker(markerInfo, option, { type }) {
         const { listener } = this;
         if (listener?.onStartHandler)
-            listener.onStartHandler(markerInfo, option, { type, formatter: this });
+            listener.onStartHandler(markerInfo, option, { type,
+         formatter: this ,
+         isSubFormatting: this.info.isSubFormatting > 0});
 
     }
     /**
