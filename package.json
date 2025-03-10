@@ -1,7 +1,7 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.49",
-    "main": "./dist/extension/1.0.49/extension.js",
+    "version": "1.0.50",
+    "main": "./dist/extension/1.0.50/extension.js",
     "description": "Javascript Generic Formatters",
     "bin": {
         "bformatter": "./src/bin/bformatter.js"
@@ -42,7 +42,7 @@
         "wp-package": "webpack --mode production --devtool hidden-source-map"
     },
     "engines": {
-        "vscode": "^1.22.0"
+        "vscode": "^1.86.0"
     },
     "activationEvents": [
         "onLanguage:bcolor"
