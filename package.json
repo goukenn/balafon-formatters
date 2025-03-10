@@ -1,8 +1,13 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.50",
-    "main": "./dist/extension/1.0.50/extension.js",
+    "version": "1.0.51",
+    "main": "./dist/extension/1.0.51/extension.js",
     "description": "Javascript Generic Formatters",
+    "files": [
+        "./dist/extension/1.0.50",
+        "README.md",
+        "package.json"
+    ],
     "bin": {
         "bformatter": "./src/bin/bformatter.js"
     },
@@ -314,13 +319,6 @@
             }
         ],
         "configurationDefaults": {
-            "balafon.workspaceFolder": "${workspaceFolder}",
-            "balafon.defaultAuthor": "C.A.D. BONDJE DOUE",
-            "balafon.mysql.db0Name": "igkdev.db",
-            "balafon.mysql.dbPassword": "",
-            "balafon.mysql.dbPort": "3306",
-            "balafon.mysql.dbServer": "127.0.0.1",
-            "balafon.mysql.dbUser": "root",
             "html.format.enable": true,
             "javascript.format.enable": true,
             "typescript.format.enable": true,
