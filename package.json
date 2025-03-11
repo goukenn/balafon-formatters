@@ -1,7 +1,7 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.52",
-    "main": "./dist/extension/1.0.52/extension.js",
+    "version": "1.0.53",
+    "main": "./dist/extension/1.0.53/extension.js",
     "description": "Javascript Generic Formatters",
     "files": [
         "./dist/extension/1.0.50",
