@@ -2,9 +2,11 @@
 // file: extension.js
 // @date: 20240618 21:32:54
 // @desc: bformatter vscode extension
+'use strict';
 Object.defineProperty(exports, '__ESModule', { value: true });
 
 const vscode = require('vscode');
+const APP_NAME = '@igkdev/vscode-extension-bformatter';
 
 // for release 
 const cli = require('cli-color');
@@ -13,6 +15,12 @@ const { utils } = require('./vscode');
 const { Formatters } = require("./formatter");
 const completion = require("./vscode/completion");
 const Version = 'debug.0.0.1';
+
+function debug(){
+    //if (env.debug){
+        console.log(...arguments);
+    //}
+}
 class VSCodeTransformEngine extends TransformEngine {
 
 }
@@ -66,7 +74,8 @@ function formatAllDocument(document, format) {
  */
 function activate(context) {
     // + | register language formatters 
-    console.log("activate bformatters");
+    debug(`activate ${APP_NAME}`);
+
     const languageFormatter = new Map();
     ["bcss", "bview", "phtml", "bjs", "pcss", "bhtml", "vbmacros"].forEach((a) => {
         ;
@@ -193,7 +202,7 @@ function activate(context) {
             return _provide_items;
         }
 
-    }, '.'));
+    }, '.')); 
 }
 /**
  * 

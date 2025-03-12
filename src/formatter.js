@@ -1,6 +1,6 @@
 "use strict";
-const { Formatters, Utils, Patterns } = require("./lib/Formatters");
 Object.defineProperty(exports, '__esModule', {value:true});
+const { Formatters, Utils, Patterns } = require("./lib/Formatters");
 
 exports.Formatters = Formatters; 
 exports.Patterns = Patterns; 
