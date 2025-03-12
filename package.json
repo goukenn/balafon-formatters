@@ -1,12 +1,12 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.58",
+    "version": "1.0.59",
     "command-production": [
         {
             "main": "./dist/extension/1.0.57/extension.js"
         }
     ],
-    "main": "./dist/extension/1.0.58/extension.js",
+    "main": "./dist/extension/1.0.59/extension.js",
     "description": "Javascript Generic Formatters",
     "bin": {
         "bformatter": "./src/bin/bformatter.js"
