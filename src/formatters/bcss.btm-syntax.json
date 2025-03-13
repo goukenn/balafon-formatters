@@ -991,7 +991,7 @@
             "className": "property"
         },
         "css-properties-a": {
-            "match": "\\b(accent-color|all|animation-composition|aspect-ratio)\\b",
+            "match": "\\b(accent-color|all|animation-composition|animation|aspect-ratio)\\b",
             "name": "support.type.property-name.property.bcss",
             "tokenID": "property",
             "className": "property"

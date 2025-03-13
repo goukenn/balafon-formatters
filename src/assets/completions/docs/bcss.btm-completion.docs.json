@@ -4,72 +4,95 @@
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/accent-color)"
     ],
     "align-content": [
+        "The CSS `align-content` property sets the distribution of space between and around content items along a flexbox's cross axis, or a grid or block-level element's block axis. The interactive example below uses grid layout to demonstrate some of the values of this property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/align-content)"
     ],
     "align-items": [
+        "The CSS `align-items` property sets the align-self value on all direct children as a group. In flexbox, it controls the alignment of items on the cross axis. In grid layout, it controls the alignment of items on the block axis within their grid areas.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/align-items)"
     ],
     "align-self": [
+        "The `align-self` CSS property overrides a grid or flex item's align-items value. In grid, it aligns the item inside the grid area. In flexbox, it aligns the item on the cross axis.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/align-self)"
     ],
     "all": [
+        "The `all` shorthand CSS property resets `all` of an element's properties except unicode-bidi, direction, and CSS Custom Properties. It can set properties to their initial or inherited values, or to the values specified in another cascade layer or stylesheet origin.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/all)"
     ],
     "animation": [
+        "The `animation` shorthand CSS property applies an `animation` between styles. It is a shorthand for `animation`-name, `animation`-duration, `animation`-timing-function, `animation`-delay, `animation`-iteration-count, `animation`-direction, `animation`-fill-mode, `animation`-play-state, and `animation`-timeline.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation)"
     ],
     "animation-composition": [
+        "The `animation-composition` CSS property specifies the composite operation to use when multiple animations affect the same property simultaneously.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-composition)"
     ],
     "animation-delay": [
+        "The `animation-delay` CSS property specifies the amount of time to wait from applying the animation to an element before beginning to perform the animation. The animation can start later, immediately from its beginning, or immediately and partway through the animation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-delay)"
     ],
     "animation-direction": [
+        "The `animation-direction` CSS property sets whether an animation should play forward, backward, or alternate back and forth between playing the sequence forward and backward.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-direction)"
     ],
     "animation-duration": [
+        "The `animation-duration` CSS property sets the length of time that an animation takes to complete one cycle.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-duration)"
     ],
     "animation-fill-mode": [
+        "The `animation-fill-mode` CSS property sets how a CSS animation applies styles to its target before and after its execution.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-fill-mode)"
     ],
     "animation-iteration-count": [
+        "The `animation-iteration-count` CSS property sets the number of times an animation sequence should be played before stopping.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-iteration-count)"
     ],
     "animation-name": [
+        "The `animation-name` CSS property specifies the names of one or more @keyframes at-rules that describe the animation to apply to an element. Multiple @keyframe at-rules are specified as a comma-separated list of names. If the specified name does not match any @keyframe at-rule, no properties are animated.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-name)"
     ],
     "animation-play-state": [
+        "The `animation-play-state` CSS property sets whether an animation is running or paused.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-play-state)"
     ],
     "animation-timing-function": [
+        "The `animation-timing-function` CSS property sets how an animation progresses through the duration of each cycle.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/animation-timing-function)"
     ],
     "appearance": [
+        "The `appearance` CSS property is used to display UI elements with platform-specific styling, based on the operating system's theme.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/appearance)"
     ],
     "aspect-ratio": [
+        "The `aspect-ratio` CSS property allows you to define the desired width-to-height ratio of an element's box. This means that even if the parent container or viewport size changes, the browser will adjust the element's dimensions to maintain the specified width-to-height ratio. The specified aspect ratio is used in the calculation of auto sizes and some other layout functions. At least one of the box's sizes needs to be automatic in order for `aspect-ratio` to have any effect. If neither the width nor height is an automatic size, then the provided aspect ratio has no effect on the box's preferred sizes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/aspect-ratio)"
     ],
     "backdrop-filter": [
+        "The `backdrop-filter` CSS property lets you apply graphical effects such as blurring or color shifting to the area behind an element. Because it applies to everything behind the element, to see the effect the element or its background needs to be transparent or partially transparent.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/backdrop-filter)"
     ],
     "backface-visibility": [
+        "The `backface-visibility` CSS property sets whether the back face of an element is visible when turned towards the user.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/backface-visibility)"
     ],
     "background": [
+        "The `background` shorthand CSS property sets all `background` style properties at once, such as color, image, origin and size, or repeat method. Component properties not set in the `background` shorthand property value declaration are set to their default values.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background)"
     ],
     "background-attachment": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-attachment)"
     ],
     "background-blend-mode": [
+        "The `background-blend-mode` CSS property sets how an element's background images should blend with each other and with the element's background color.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-blend-mode)"
     ],
     "background-clip": [
+        "The `background-clip` CSS property sets whether an element's background extends underneath its border box, padding box, or content box.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-clip)"
     ],
     "background-color": [
+        "The `background-color` CSS property sets the background color of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-color)"
     ],
     "background-image": [
@@ -77,1229 +100,1825 @@
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-image)"
     ],
     "background-origin": [
+        "The `background-origin` CSS property sets the background's origin: from the border start, inside the border, or inside the padding.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-origin)"
     ],
     "background-position": [
+        "The `background-position` CSS property sets the initial position for each background image. The position is relative to the position layer set by background-origin.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-position)"
     ],
     "background-position-x": [
+        "The `background-position-x` CSS property sets the initial horizontal position for each background image. The position is relative to the position layer set by background-origin.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-position-x)"
     ],
     "background-position-y": [
+        "The `background-position-y` CSS property sets the initial vertical position for each background image. The position is relative to the position layer set by background-origin.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-position-y)"
     ],
     "background-repeat": [
+        "The `background-repeat` CSS property sets how background images are repeated. A background image can be repeated along the horizontal and vertical axes, or not repeated at all.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-repeat)"
     ],
     "background-size": [
+        "The `background-size` CSS property sets the size of the element's background image. The image can be left to its natural size, stretched, or constrained to fit the available space.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/background-size)"
     ],
     "baseline-source": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/baseline-source)"
     ],
     "block-size": [
+        "The `block-size` CSS property defines the horizontal or vertical size of an element's block, depending on its writing mode. It corresponds to either the width or the height property, depending on the value of writing-mode. If the writing mode is vertically oriented, the value of `block-size` relates to the width of the element; otherwise, it relates to the height of the element. A related property is inline-size, which defines the other dimension of the element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/block-size)"
     ],
     "border": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border)"
     ],
     "border-block": [
+        "The `border-block` CSS property is a shorthand property for setting the individual logical block border property values in a single place in the style sheet.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block)"
     ],
     "border-block-color": [
+        "The `border-block-color` CSS property defines the color of the logical block borders of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-color and border-bottom-color, or border-right-color and border-left-color property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-color)"
     ],
     "border-block-end": [
+        "The `border-block-end` CSS property is a shorthand property for setting the individual logical block-end border property values in a single place in the style sheet.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-end)"
     ],
     "border-block-end-color": [
+        "The `border-block-end-color` CSS property defines the color of the logical block-end border of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-color, border-right-color, border-bottom-color, or border-left-color property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-end-color)"
     ],
     "border-block-end-style": [
+        "The `border-block-end-style` CSS property defines the style of the logical block-end border of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-style, border-right-style, border-bottom-style, or border-left-style property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-end-style)"
     ],
     "border-block-end-width": [
+        "The `border-block-end-width` CSS property defines the width of the logical block-end border of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-width, border-right-width, border-bottom-width, or border-left-width property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-end-width)"
     ],
     "border-block-start": [
+        "The `border-block-start` CSS property is a shorthand property for setting the individual logical block-start border property values in a single place in the style sheet.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-start)"
     ],
     "border-block-start-color": [
+        "The `border-block-start-color` CSS property defines the color of the logical block-start border of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-color, border-right-color, border-bottom-color, or border-left-color property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-start-color)"
     ],
     "border-block-start-style": [
+        "The `border-block-start-style` CSS property defines the style of the logical block start border of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-style, border-right-style, border-bottom-style, or border-left-style property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-start-style)"
     ],
     "border-block-start-width": [
+        "The `border-block-start-width` CSS property defines the width of the logical block-start border of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-width, border-right-width, border-bottom-width, or border-left-width property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-start-width)"
     ],
     "border-block-style": [
+        "The `border-block-style` CSS property defines the style of the logical block borders of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-style and border-bottom-style, or border-left-style and border-right-style properties depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-style)"
     ],
     "border-block-width": [
+        "The `border-block-width` CSS property defines the width of the logical block borders of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-width and border-bottom-width, or border-left-width, and border-right-width property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-block-width)"
     ],
     "border-bottom": [
+        "The `border-bottom` shorthand CSS property sets an element's bottom border. It sets the values of `border-bottom`-width, `border-bottom`-style and `border-bottom`-color.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-bottom)"
     ],
     "border-bottom-color": [
+        "The `border-bottom-color` CSS property sets the color of an element's bottom border. It can also be set with the shorthand CSS properties border-color or border-bottom.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-bottom-color)"
     ],
     "border-bottom-left-radius": [
+        "The `border-bottom-left-radius` CSS property rounds the bottom-left corner of an element by specifying the radius (or the radius of the semi-major and semi-minor axes) of the ellipse defining the curvature of the corner.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-bottom-left-radius)"
     ],
     "border-bottom-right-radius": [
+        "The `border-bottom-right-radius` CSS property rounds the bottom-right corner of an element by specifying the radius (or the radius of the semi-major and semi-minor axes) of the ellipse defining the curvature of the corner.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-bottom-right-radius)"
     ],
     "border-bottom-style": [
+        "The `border-bottom-style` CSS property sets the line style of an element's bottom border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-bottom-style)"
     ],
     "border-bottom-width": [
+        "The `border-bottom-width` CSS property sets the width of the bottom border of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-bottom-width)"
     ],
     "border-collapse": [
+        "The `border-collapse` CSS property sets whether cells inside a &lt;table&gt; have shared or separate borders.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-collapse)"
     ],
     "border-color": [
+        "The `border-color` shorthand CSS property sets the color of an element's border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-color)"
     ],
     "border-end-end-radius": [
+        "The `border-end-end-radius` CSS property defines a logical border radius on an element, which maps to a physical border radius that depends on the element's writing-mode, direction, and text-orientation. This is useful when building styles to work regardless of the text orientation and writing mode.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-end-end-radius)"
     ],
     "border-end-start-radius": [
+        "The `border-end-start-radius` CSS property defines a logical border radius on an element, which maps to a physical border radius depending on the element's writing-mode, direction, and text-orientation. This is useful when building styles to work regardless of the text orientation and writing mode.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-end-start-radius)"
     ],
     "border-image": [
+        "The `border-image` CSS property draws an image around a given element. It replaces the element's regular border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-image)"
     ],
     "border-image-outset": [
+        "The `border-image-outset` CSS property sets the distance by which an element's border image is set out from its border box. The parts of the border image that are rendered outside the element's border box with `border-image-outset` do not trigger overflow scrollbars and don't capture mouse events.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-image-outset)"
     ],
     "border-image-repeat": [
+        "The `border-image-repeat` CSS property defines how the edge regions and middle region of a source image are adjusted to fit the dimensions of an element's border image. The middle region can be displayed by using the keyword \"fill\" in the border-image-slice property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-image-repeat)"
     ],
     "border-image-slice": [
+        "The `border-image-slice` CSS property divides the image specified by border-image-source into regions. These regions form the components of an element's border image.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-image-slice)"
     ],
     "border-image-source": [
+        "The `border-image-source` CSS property sets the source image used to create an element's border image.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-image-source)"
     ],
     "border-image-width": [
+        "The `border-image-width` CSS property sets the width of an element's border image.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-image-width)"
     ],
     "border-inline": [
+        "The `border-inline` CSS property is a shorthand property for setting the individual logical inline border property values in a single place in the style sheet.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline)"
     ],
     "border-inline-color": [
+        "The `border-inline-color` CSS property defines the color of the logical inline borders of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-color and border-bottom-color, or border-right-color and border-left-color property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-color)"
     ],
     "border-inline-end": [
+        "The `border-inline-end` CSS property is a shorthand property for setting the individual logical inline-end border property values in a single place in the style sheet.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-end)"
     ],
     "border-inline-end-color": [
+        "The `border-inline-end-color` CSS property defines the color of the logical inline-end border of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-color, border-right-color, border-bottom-color, or border-left-color property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-end-color)"
     ],
     "border-inline-end-style": [
+        "The `border-inline-end-style` CSS property defines the style of the logical inline end border of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-style, border-right-style, border-bottom-style, or border-left-style property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-end-style)"
     ],
     "border-inline-end-width": [
+        "The `border-inline-end-width` CSS property defines the width of the logical inline-end border of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-width, border-right-width, border-bottom-width, or border-left-width property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-end-width)"
     ],
     "border-inline-start": [
+        "The `border-inline-start` CSS property is a shorthand property for setting the individual logical inline-start border property values in a single place in the style sheet.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-start)"
     ],
     "border-inline-start-color": [
+        "The `border-inline-start-color` CSS property defines the color of the logical inline start border of an element, which maps to a physical border color depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-color, border-right-color, border-bottom-color, or border-left-color property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-start-color)"
     ],
     "border-inline-start-style": [
+        "The `border-inline-start-style` CSS property defines the style of the logical inline start border of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-style, border-right-style, border-bottom-style, or border-left-style property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-start-style)"
     ],
     "border-inline-start-width": [
+        "The `border-inline-start-width` CSS property defines the width of the logical inline-start border of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-width, border-right-width, border-bottom-width, or border-left-width property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-start-width)"
     ],
     "border-inline-style": [
+        "The `border-inline-style` CSS property defines the style of the logical inline borders of an element, which maps to a physical border style depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-style and border-bottom-style, or border-left-style and border-right-style properties depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-style)"
     ],
     "border-inline-width": [
+        "The `border-inline-width` CSS property defines the width of the logical inline borders of an element, which maps to a physical border width depending on the element's writing mode, directionality, and text orientation. It corresponds to the border-top-width and border-bottom-width, or border-left-width, and border-right-width property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-inline-width)"
     ],
     "border-left": [
+        "The `border-left` shorthand CSS property sets all the properties of an element's left border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-left)"
     ],
     "border-left-color": [
+        "The `border-left-color` CSS property sets the color of an element's left border. It can also be set with the shorthand CSS properties border-color or border-left.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-left-color)"
     ],
     "border-left-style": [
+        "The `border-left-style` CSS property sets the line style of an element's left border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-left-style)"
     ],
     "border-left-width": [
+        "The `border-left-width` CSS property sets the width of the left border of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-left-width)"
     ],
     "border-radius": [
+        "The `border-radius` CSS property rounds the corners of an element's outer border edge. You can set a single radius to make circular corners, or two radii to make elliptical corners.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-radius)"
     ],
     "border-right": [
+        "The `border-right` shorthand CSS property sets all the properties of an element's right border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-right)"
     ],
     "border-right-color": [
+        "The `border-right-color` CSS property sets the color of an element's right border. It can also be set with the shorthand CSS properties border-color or border-right.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-right-color)"
     ],
     "border-right-style": [
+        "The `border-right-style` CSS property sets the line style of an element's right border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-right-style)"
     ],
     "border-right-width": [
+        "The `border-right-width` CSS property sets the width of the right border of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-right-width)"
     ],
     "border-spacing": [
+        "The `border-spacing` CSS property sets the distance between the borders of adjacent cells in a &lt;table&gt;. This property applies only when border-collapse is separate.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-spacing)"
     ],
     "border-start-end-radius": [
+        "The `border-start-end-radius` CSS property defines a logical border radius on an element, which maps to a physical border radius depending on the element's writing-mode, direction, and text-orientation. This is useful when building styles to work regardless of the text orientation and writing mode.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-start-end-radius)"
     ],
     "border-start-start-radius": [
+        "The `border-start-start-radius` CSS property defines a logical border radius on an element, which maps to a physical border radius that depends on the element's writing-mode, direction, and text-orientation. This is useful when building styles to work regardless of the text orientation and writing mode.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-start-start-radius)"
     ],
     "border-style": [
+        "The `border-style` shorthand CSS property sets the line style for all four sides of an element's border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-style)"
     ],
     "border-top": [
+        "The `border-top` shorthand CSS property sets all the properties of an element's top border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-top)"
     ],
     "border-top-color": [
+        "The `border-top-color` CSS property sets the color of an element's top border. It can also be set with the shorthand CSS properties border-color or border-top.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-top-color)"
     ],
     "border-top-left-radius": [
+        "The `border-top-left-radius` CSS property rounds the top-left corner of an element by specifying the radius (or the radius of the semi-major and semi-minor axes) of the ellipse defining the curvature of the corner.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-top-left-radius)"
     ],
     "border-top-right-radius": [
+        "The `border-top-right-radius` CSS property rounds the top-right corner of an element by specifying the radius (or the radius of the semi-major and semi-minor axes) of the ellipse defining the curvature of the corner.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-top-right-radius)"
     ],
     "border-top-style": [
+        "The `border-top-style` CSS property sets the line style of an element's top border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-top-style)"
     ],
     "border-top-width": [
+        "The `border-top-width` CSS property sets the width of the top border of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-top-width)"
     ],
     "border-width": [
+        "The `border-width` shorthand CSS property sets the width of an element's border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/border-width)"
     ],
     "bottom": [
+        "The `bottom` CSS property participates in setting the vertical position of a positioned element. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/bottom)"
     ],
     "box-decoration-break": [
+        "The `box-decoration-break` CSS property specifies how an element's fragments should be rendered when broken across multiple lines, columns, or pages.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/box-decoration-break)"
     ],
     "box-shadow": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/box-shadow)"
     ],
     "box-sizing": [
+        "The `box-sizing` CSS property sets how the total width and height of an element is calculated.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/box-sizing)"
     ],
     "break-after": [
+        "The `break-after` CSS property sets how page, column, or region breaks should behave after a generated box. If there is no generated box, the property is ignored.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/break-after)"
     ],
     "break-before": [
+        "The `break-before` CSS property sets how page, column, or region breaks should behave before a generated box. If there is no generated box, the property is ignored.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/break-before)"
     ],
     "break-inside": [
+        "The `break-inside` CSS property sets how page, column, or region breaks should behave inside a generated box. If there is no generated box, the property is ignored.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/break-inside)"
     ],
     "caption-side": [
+        "The `caption-side` CSS property puts the content of a table's &lt;caption&gt; on the specified side. The values are relative to the writing-mode of the table.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/caption-side)"
     ],
     "caret-color": [
+        "The `caret-color` CSS property sets the color of the insertion caret, the visible marker where the next character typed will be inserted. This is sometimes referred to as the text input cursor. The caret appears in elements such as &lt;input&gt; or those with the contenteditable attribute. The caret is typically a thin vertical line that flashes to help make it more noticeable. By default, it is black, but its color can be altered with this property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/caret-color)"
     ],
     "clear": [
+        "The `clear` CSS property sets whether an element must be moved below (cleared) floating elements that precede it. The `clear` property applies to floating and non-floating elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/clear)"
     ],
     "clip": [
+        "Deprecated: This feature is no longer recommended. Though some browsers might still support it, it may have already been removed from the relevant web standards, may be in the process of being dropped, or may only be kept for compatibility purposes. Avoid using it, and update existing code if possible; see the compatibility table at the bottom of this page to guide your decision. Be aware that this feature may cease to work at any time.  Warning: Where possible, authors are encouraged to use the newer `clip`-path property instead.  The `clip` CSS property defines a visible portion of an element. The `clip` property applies only to absolutely positioned elements \u2014 that is, elements with position:absolute or position:fixed.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/clip)"
     ],
     "clip-path": [
+        "The `clip-path` CSS property creates a clipping region that sets what part of an element should be shown. Parts that are inside the region are shown, while those outside are hidden.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/clip-path)"
     ],
     "clip-rule": [
+        "The `clip-rule` CSS property defines how to determine which pixels in a mask's box are inside the clipping shape defined by a clip path, and which are outside, when parts of the path overlap other parts. Specifically, it chooses between the \"non-zero\" and \"even-odd\" methods of determining inclusion. `clip-rule` can be applied to all SVG elements, but only has an effect on those which are part of a clipping path. CSS values of the `clip-rule` property can override SVG values of the `clip-rule` attribute.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/clip-rule)"
     ],
     "color": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/color)"
     ],
     "color-adjust": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/color-adjust)"
     ],
     "color-interpolation": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation)"
     ],
     "color-interpolation-filters": [
+        "The `color-interpolation-filters` CSS property specifies the color space for imaging operations performed via SVG filter effects. If explicitly declared, the value of the CSS property overrides any value given in the element's `color-interpolation-filters` attribute.  Note: The `color-interpolation-filters` property is only relevant to SVG filter operations. It has no effect on filter primitives like &lt;feOffset&gt;, &lt;feImage&gt;, &lt;feTile&gt;, and &lt;feFlood&gt;, but instead applies to the various filter effect elements (e.g., &lt;feBlend&gt;); see the SVG `color-interpolation-filters` page for a full list.   Note: It is important to remember that the SVG color-interpolation attribute has an initial value of sRGB, while `color-interpolation-filters` has an initial value of linearRGB. This means, in the default case, filter effect interpolations occur in a different color space than all other color interpolations. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/color-interpolation-filters)"
     ],
     "color-scheme": [
+        "The `color-scheme` CSS property allows an element to indicate which color schemes it can comfortably be rendered in. User agents change the following aspects of the UI chrome to match the used color scheme:  The color of the canvas surface. The default colors of scrollbars and other interaction UI. The default colors of form controls. The default colors of other browser-provided UI, such as \"spellcheck\" underlines.  Component authors must use the prefers-`color-scheme` media feature to support the color schemes on the rest of the elements. Common choices for operating system color schemes are \"light\" and \"dark\", or \"day mode\" and \"night mode\". When a user selects one of these color schemes, the operating system makes adjustments to the user interface. This includes form controls, scrollbars, and the used values of CSS system colors.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/color-scheme)"
     ],
     "column-count": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-count)"
     ],
     "column-fill": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-fill)"
     ],
     "column-gap": [
+        "The `column-gap` CSS property sets the size of the gap (gutter) between an element's columns. Initially a part of Multi-column Layout, the definition of `column-gap` has been broadened to include multiple layout methods. Now specified in CSS box alignment, it may be used in multi-column, flexible box, and grid layouts. Early versions of the specification called this property grid-`column-gap`, and to maintain compatibility with legacy websites, browsers will still accept grid-`column-gap` as an alias for `column-gap`.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-gap)"
     ],
     "column-rule": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-rule)"
     ],
     "column-rule-color": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-rule-color)"
     ],
     "column-rule-style": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-rule-style)"
     ],
     "column-rule-width": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-rule-width)"
     ],
     "column-span": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-span)"
     ],
     "column-width": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/column-width)"
     ],
     "columns": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/columns)"
     ],
     "contain": [
+        "The `contain` CSS property indicates that an element and its contents are, as much as possible, independent from the rest of the document tree. Containment enables isolating a subsection of the DOM, providing performance benefits by limiting calculations of layout, style, paint, size, or any combination to a DOM subtree rather than the entire page. Containment can also be used to scope CSS counters and quotes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/contain)"
     ],
     "contain-intrinsic-block-size": [
+        "The `contain-intrinsic-block-size` CSS logical property defines the block size of an element that a browser can use for layout when the element is subject to size containment. Block size is the size of an element in the dimension perpendicular to the flow of text within a line. In a horizontal writing mode like standard English, block size is the vertical dimension (height); in a vertical writing mode, block size is the horizontal dimension.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/contain-intrinsic-block-size)"
     ],
     "contain-intrinsic-height": [
+        "The `contain-intrinsic-height` CSS property sets the height of an element that a browser can use for layout when the element is subject to size containment.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/contain-intrinsic-height)"
     ],
     "contain-intrinsic-inline-size": [
+        "The `contain-intrinsic-inline-size` CSS logical property defines the inline-size of an element that a browser can use for layout when the element is subject to size containment. Inline-size is the size of the element in the dimension parallel to the flow of text within a line. In a horizontal writing mode like standard English, inline size is the horizontal dimension (width); for a vertical writing mode, inline size is the vertical dimension.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/contain-intrinsic-inline-size)"
     ],
     "contain-intrinsic-size": [
+        "The `contain-intrinsic-size` CSS shorthand property sets the size of an element that a browser will use for layout when the element is subject to size containment.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/contain-intrinsic-size)"
     ],
     "contain-intrinsic-width": [
+        "The `contain-intrinsic-width` CSS property sets the width of an element that a browser will use for layout when the element is subject to size containment.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/contain-intrinsic-width)"
     ],
     "container": [
+        "The `container` shorthand CSS property establishes the element as a query `container` and specifies the name and type of the containment context used in a `container` query.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/container)"
     ],
     "container-name": [
+        "The `container-name` CSS property specifies a list of query container names used by the @container at-rule in a container query. A container query will apply styles to elements based on the size or scroll-state of the nearest ancestor with a containment context. When a containment context is given a name, it can be specifically targeted using the @container at-rule instead of the nearest ancestor with containment.  Note: When using the container-type and `container-name` properties, the style and layout values of the contain property are automatically applied. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/container-name)"
     ],
     "container-type": [
+        "An element can be established as a query container using the `container-type` CSS property. `container-type` is used to define the type of container context used in a container query. The available container contexts are:  Size: Enable selectively applying CSS rules to a container's children based on a general size or inline size condition such as a maximum or minimum dimension, aspect ratio, or orientation. Scroll-state: Enable selectively applying CSS rules to a container's children based on a scroll-state condition such as whether the container is a scroll container that is partially scrolled or whether the container is a snap target that is snapped to its scroll snap container.   Note: When using the `container-type` and container-name properties, the style and layout values of the contain property are automatically applied. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/container-type)"
     ],
     "content": [
+        "The `content` CSS property replaces `content` with a generated value. It can be used to define what is rendered inside an element or pseudo-element. For elements, the `content` property specifies whether the element renders normally (normal or none) or is replaced with an image (and associated \"alt\" text). For pseudo-elements and margin boxes, `content` defines the `content` as images, text, both, or none, which determines whether the element renders at all. Objects inserted using the `content` property are anonymous replaced elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/content)"
     ],
     "content-visibility": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/content-visibility)"
     ],
     "counter-increment": [
+        "The `counter-increment` CSS property can be used to increase or decrease the value of the named CSS counters by the specified values, or to prevent all counters or an individual counter's value from being changed. If a named counter in the list of space-separated counters and values doesn't exist, it will be created. If no value is provided for a counter in the list of counters, the counter will be increased by 1. The counter's value can be reset to any integer value with the counter-reset CSS property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/counter-increment)"
     ],
     "counter-reset": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/counter-reset)"
     ],
     "counter-set": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/counter-set)"
     ],
     "css-float": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/css-float)"
     ],
     "cursor": [
+        "The `cursor` CSS property sets the mouse `cursor`, if any, to show when the mouse pointer is over an element. The `cursor` setting should inform users of the mouse operations that can be performed at the current location, including: text selection, activating help or context menus, copying content, resizing tables, and so on. You can specify either the type of `cursor` using a keyword, or load a specific icon to use (with optional fallback images and mandatory keyword as a final fallback).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/cursor)"
     ],
     "cx": [
+        "The `cx` CSS property defines the x-axis center point of an SVG &lt;circle&gt; or &lt;ellipse&gt; element. If present, it overrides the element's `cx` attribute.  Note: While SVG the `cx` attribute is relevant to the SVG &lt;radialGradient&gt; element, the `cx` property only applies to &lt;circle&gt; and &lt;ellipse&gt; elements nested in an &lt;svg&gt;. It doesn't apply to &lt;radialGradient&gt; or other SVG elements nor to HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/cx)"
     ],
     "cy": [
+        "The `cy` CSS property defines the y-axis center point of an SVG &lt;circle&gt; or &lt;ellipse&gt; elements. If present, it overrides the element's `cy` attribute.  Note: While the SVG &lt;radialGradient&gt; element supports the `cy` attribute, the `cy` property only applies to &lt;circle&gt; and &lt;ellipse&gt; elements nested in an &lt;svg&gt;. This attribute does not apply to &lt;radialGradient&gt; or other SVG elements nor to HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/cy)"
     ],
     "d": [
+        "The `d` CSS property defines a path to be drawn by the SVG &lt;path&gt; element. If present, it overrides the element's `d` attribute.  Note: The `d` property only applies to &lt;path&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG elements nor to HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/d)"
     ],
     "direction": [
+        " Warning: Where possible, authors are encouraged to avoid using the `direction` CSS property and use the HTML dir global attribute instead.  The `direction` CSS property sets the `direction` of text, table and grid columns, and horizontal overflow. Use rtl for languages written from right to left (like Hebrew or Arabic), and ltr for those written from left to right (like English and most other languages).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/direction)"
     ],
     "display": [
+        "The `display` CSS property sets whether an element is treated as a block or inline box and the layout used for its children, such as flow layout, grid or flex. Formally, the `display` property sets an element's inner and outer `display` types. The outer type sets an element's participation in flow layout; the inner type sets the layout of children. Some values of `display` are fully defined in their own individual specifications; for example the detail of what happens when `display`: flex is declared is defined in the CSS Flexible Box Model specification.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/display)"
     ],
     "dominant-baseline": [
+        "The `dominant-baseline` CSS property specifies the specific baseline used to align the box's text and inline-level contents. It also indicates the default alignment baseline of any boxes participating in baseline alignment in the box's alignment context. If present, it overrides the shape's `dominant-baseline` attribute. Baselines are selected from the font baseline table. If there is no baseline table in the nominal font, or if the baseline table lacks an entry for the desired baseline, then the browser may use heuristics to determine the position of the desired baseline. The `dominant-baseline` property is used to determine or re-determine a scaled-baseline-table. A scaled-baseline-table is a compound value with three components:  a baseline-identifier for the `dominant-baseline`, a baseline-table, and a baseline-table font-size.  Some values of `dominant-baseline` re-determine all three values. Others only re-establish the baseline-table font-size. When the initial value, auto, would give an undesired result, this property can be used to explicitly set the desired scaled-baseline-table.  Note: The `dominant-baseline` property only has an effect on the &lt;text&gt;, &lt;textPath&gt;, &lt;tref&gt;, and &lt;tspan&gt; SVG elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/dominant-baseline)"
     ],
     "empty-cells": [
+        "The `empty-cells` CSS property sets whether borders and backgrounds appear around &lt;table&gt; cells that have no visible content.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/empty-cells)"
     ],
     "fill": [
+        "The `fill` CSS property defines how SVG text content and the interior canvas of SVG shapes are filled or painted. If present, it overrides the element's `fill` attribute. The areas inside the outline of the SVG shape or text are painted. What is \"inside\" a shape may not always be clear. The paths defining a shape may overlap. The areas considered \"inside\" these complex shapes are clarified by the `fill`-rule property or attribute. If subpaths are open, `fill` closes the path before painting, as if a \"closepath\" command were included connecting the last point of the subpath with the first point of the subpath. In other words, `fill` applies to open subpaths within path elements (i.e., subpaths without a closepath command) and polyline elements.  Note: The `fill` property only applies to &lt;circle&gt;, &lt;ellipse&gt;, &lt;path&gt;, &lt;polygon&gt;, &lt;polyline&gt;, &lt;rect&gt;, &lt;text&gt;, &lt;textPath&gt;, &lt;tref&gt;, and &lt;tspan&gt; elements nested in an &lt;svg&gt;. It doesn't apply other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/fill)"
     ],
     "fill-opacity": [
+        "The `fill-opacity` CSS property defines the opacity of the painting operation (color, gradient, pattern, etc.) applied to SVG shapes or text content elements to fill the element. The property defines the opacity of the element's fill only; it does not affect the stroke. If present, it overrides the element's `fill-opacity` attribute.  Note: The `fill-opacity` property only applies to &lt;circle&gt;, &lt;ellipse&gt;, &lt;path&gt;, &lt;polygon&gt;, &lt;polyline&gt;, &lt;rect&gt;, &lt;text&gt;, &lt;textPath&gt;, and &lt;tspan&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/fill-opacity)"
     ],
     "fill-rule": [
+        "The `fill-rule` CSS property defines the rule used to determine which parts of the SVG shape's canvas are included inside a shape to be filled. If present, it overrides the element's `fill-rule` attribute. The `fill-rule` clarifies which areas of a shape should be considered \"inside\" the shape. It provides two values you can set to tell the browser how the inside of a shape should be determined. For shapes that don't have intersecting paths, like a circle, the bounds of what is inside a shape to be filled are intuitively clear. With complex shapes that include intersecting paths (such as a Venn diagram) or paths enclosing other paths (such as a donut), the interpretation of which sections of the shape are \"inside\" the shape and should be filled by the fill property, may not be obvious.  Note: The `fill-rule` property only applies to &lt;path&gt;, &lt;polygon&gt;, &lt;polyline&gt;, &lt;text&gt;, &lt;textPath&gt;, and &lt;tspan&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/fill-rule)"
     ],
     "filter": [
+        "The `filter` CSS property applies graphical effects like blur or color shift to an element. Filters are commonly used to adjust the rendering of images, backgrounds, and borders. Several functions, such as blur() and contrast(), are available to help you achieve predefined effects.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/filter)"
     ],
     "flex": [
+        "The `flex` CSS shorthand property sets how a `flex` item will grow or shrink to fit the space available in its `flex` container.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flex)"
     ],
     "flex-basis": [
+        "The `flex-basis` CSS property sets the initial main size of a flex item. It sets the size of the content box unless otherwise set with box-sizing.  Note: It is recommended to use the flex shorthand instead of separate flex-grow, flex-shrink, and `flex-basis` declarations. We have separated them here as this document is about one of the shorthand components: the `flex-basis` property. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-basis)"
     ],
     "flex-direction": [
+        "The `flex-direction` CSS property sets how flex items are placed in the flex container defining the main axis and the direction (normal or reversed).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-direction)"
     ],
     "flex-flow": [
+        "The `flex-flow` CSS shorthand property specifies the direction of a flex container, as well as its wrapping behavior.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-flow)"
     ],
     "flex-grow": [
+        "The `flex-grow` CSS property sets the flex grow factor, which specifies how much of the flex container's positive free space, if any, should be assigned to the flex item's main size. When the flex-container's main size is larger than the combined main sizes of its flex items, this positive free space can be distributed among the flex items, with each item's growth being their growth factor value as a proportion of the sum total of all the flex items' flex grow factors.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-grow)"
     ],
     "flex-shrink": [
+        "The `flex-shrink` CSS property sets the flex shrink factor of a flex item. If the size of all flex items is larger than the flex container, the flex items can shrink to fit according to their `flex-shrink` value. Each flex line's negative free space is distributed between the line's flex items that have a `flex-shrink` value greater than .  Note: It is recommended to use the flex shorthand instead of separate `flex-shrink`, flex-grow and flex-basis declarations. We have separated them here as this document covers one of the flex shorthand components: the `flex-shrink` property. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-shrink)"
     ],
     "flex-wrap": [
+        "The `flex-wrap` CSS property sets whether flex items are forced onto one line or can wrap onto multiple lines. If wrapping is allowed, it sets the direction that lines are stacked.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flex-wrap)"
     ],
     "float": [
+        "The `float` CSS property places an element on the left or right side of its container, allowing text and inline elements to wrap around it. The element is removed from the normal flow of the page, though still remaining a part of the flow (in contrast to absolute positioning).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/float)"
     ],
     "flood-color": [
+        "The `flood-color` CSS property defines the color of the current filter primitive subregion in &lt;feFlood&gt; and &lt;feDropShadow&gt; elements within a &lt;filter&gt;. If present, it overrides the element's `flood-color` attribute.  Note: The `flood-color` property only applies to &lt;feFlood&gt; and &lt;feDropShadow&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flood-color)"
     ],
     "flood-opacity": [
+        "The `flood-opacity` CSS property defines the opacity of the current filter primitive subregion in &lt;feFlood&gt; and &lt;feDropShadow&gt; elements within a &lt;filter&gt;. If present, it overrides the element's `flood-opacity` attribute. The property value impacts the flood-color's alpha channel; it can increase the transparency of a flood-color but can not make the color defined by the flood-color property more opaque.  Note: The `flood-opacity` property only applies to &lt;feFlood&gt; and &lt;feDropShadow&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/flood-opacity)"
     ],
     "font": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font)"
     ],
     "font-family": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-family)"
     ],
     "font-feature-settings": [
+        "The `font-feature-settings` CSS property controls advanced typographic features in OpenType fonts.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-feature-settings)"
     ],
     "font-kerning": [
+        "The `font-kerning` CSS property sets the use of the kerning information stored in a font.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-kerning)"
     ],
     "font-language-override": [
+        "The `font-language-override` CSS property controls the use of language-specific glyphs in a typeface. By default, HTML's lang attribute tells browsers to display glyphs designed specifically for that language. For example, a lot of fonts have a special character for the digraph fi that merge the dot on the \"i\" with the \"f.\" However, if the language is set to Turkish the typeface will likely know not to use the merged glyph; Turkish has two versions of the \"i,\" one with a dot (i) and one without (\u0131), and using the ligature would incorrectly transform a dotted \"i\" into a dotless \"i.\" The `font-language-override` property lets you override the typeface behavior for a specific language. This is useful, for example, when the typeface you're using lacks proper support for the language. For instance, if a typeface doesn't have proper rules for the Azeri language, you can force the font to use Turkish glyphs, which follow similar rules.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-language-override)"
     ],
     "font-optical-sizing": [
+        "The `font-optical-sizing` CSS property sets whether text rendering is optimized for viewing at different sizes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-optical-sizing)"
     ],
     "font-palette": [
+        "The `font-palette` CSS property allows specifying one of the many palettes contained in a color font that a user agent may use for the font. Users can also override the values in a palette or create a new palette by using the @`font-palette`-values at-rule.  Note: A `font-palette` palette takes precedence when coloring a font. The color property will not override a font palette, even if specified with important. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-palette)"
     ],
     "font-size": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-size)"
     ],
     "font-size-adjust": [
+        "The `font-size-adjust` CSS property provides a way to modify the size of lowercase letters relative to the size of uppercase letters, which defines the overall font-size. This property is useful for situations where font fallback can occur. Legibility can become an issue when the first-choice font-family is unavailable and its replacement fallback font has a significantly different aspect value (height of lowercase letters divided by font size). Legibility of fonts, especially at small font sizes, is determined more by the size of lowercase letters than by the size of uppercase letters. The `font-size-adjust` property is useful for adjusting the font size of fallback fonts to keep the aspect value across fonts consistent, ensuring that the text appears similar regardless of the font used.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-size-adjust)"
     ],
     "font-stretch": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-stretch)"
     ],
     "font-style": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-style)"
     ],
     "font-synthesis": [
+        "The `font-synthesis` shorthand CSS property lets you specify whether or not the browser may synthesize the bold, italic, small-caps, and/or subscript and superscript typefaces when they are missing in the specified font-family.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-synthesis)"
     ],
     "font-synthesis-position": [
+        "Experimental: This is an experimental technologyCheck the Browser compatibility table carefully before using this in production. The `font-synthesis-position` CSS property lets you specify whether or not a browser may synthesize the subscript and superscript \"position\" typefaces when they are missing in a font family, while using font-variant-position to set the positions. The `font-synthesis-position` property has no effect when using the &lt;sup&gt; and &lt;sub&gt; elements. It is often convenient to use the shorthand property font-synthesis to control all typeface synthesis values.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-synthesis-position)"
     ],
     "font-synthesis-small-caps": [
+        "The `font-synthesis-small-caps` CSS property lets you specify whether or not the browser may synthesize small-caps typeface when it is missing in a font family. Small-caps glyphs typically use the form of uppercase letters but are reduced to the size of lowercase letters. It is often convenient to use the shorthand property font-synthesis to control all typeface synthesis values.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-synthesis-small-caps)"
     ],
     "font-synthesis-style": [
+        "The `font-synthesis-style` CSS property lets you specify whether or not the browser may synthesize the oblique typeface when it is missing in a font family. It is often convenient to use the shorthand property font-synthesis to control all typeface synthesis values.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-synthesis-style)"
     ],
     "font-synthesis-weight": [
+        "The `font-synthesis-weight` CSS property lets you specify whether or not the browser may synthesize the bold typeface when it is missing in a font family. It is often convenient to use the shorthand property font-synthesis to control all typeface synthesis values.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-synthesis-weight)"
     ],
     "font-variant": [
+        "The `font-variant` CSS shorthand property allows you to set all the font variants for a font. You can also set the &lt;`font-variant`-css2&gt; values of `font-variant` defined in CSS Level 2.1, (that is, normal or small-caps), by using the font shorthand.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant)"
     ],
     "font-variant-alternates": [
+        "The `font-variant-alternates` CSS property controls the usage of alternate glyphs. These alternate glyphs may be referenced by alternative names defined in @font-feature-values. The @font-feature-values at-rule can be used to associate, for a given font face, a human-readable name with a numeric index that controls a particular OpenType font feature. For features that select alternative glyphs (stylistic, styleset, character-variant, swash, ornament or annotation), the `font-variant-alternates` property can then reference the human-readable name in order to apply the associated feature. This allows CSS rules to enable alternative glyphs without needing to know the specific index values that a particular font uses to control them.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-alternates)"
     ],
     "font-variant-caps": [
+        "The `font-variant-caps` CSS property controls the use of alternate glyphs used for small or petite capitals or for titling.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-caps)"
     ],
     "font-variant-east-asian": [
+        "The `font-variant-east-asian` CSS property controls the use of alternate glyphs for East Asian scripts, like Japanese and Chinese.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-east-asian)"
     ],
     "font-variant-ligatures": [
+        "The `font-variant-ligatures` CSS property controls which ligatures and contextual forms are used in the textual content of the elements it applies to. This leads to more harmonized forms in the resulting text.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-ligatures)"
     ],
     "font-variant-numeric": [
+        "The `font-variant-numeric` CSS property controls the usage of alternate glyphs for numbers, fractions, and ordinal markers.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-numeric)"
     ],
     "font-variant-position": [
+        "The `font-variant-position` CSS property controls the use of alternate, smaller glyphs that are positioned as superscript or subscript. The glyphs are positioned relative to the baseline of the font, which remains unchanged. These glyphs are typically used in &lt;sub&gt; and &lt;sup&gt; elements. When the usage of these alternate glyphs is activated, if one character in the run doesn't have such a typographically-enhanced glyph, the whole set of characters of the run is rendered using a fallback method, synthesizing these glyphs. These alternate glyphs share the same em-box and the same baseline as the rest of the font. They are merely graphically enhanced, and have no effect on the line-height and other box characteristics.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variant-position)"
     ],
     "font-variation-settings": [
+        "The `font-variation-settings` CSS property provides low-level control over variable font characteristics by letting you specify the four letter axis names of the characteristics you want to vary along with their values.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-variation-settings)"
     ],
     "font-weight": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight)"
     ],
     "forced-color-adjust": [
+        "The `forced-color-adjust` CSS property allows authors to opt certain elements out of forced colors mode. This then restores the control of those values to CSS.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/forced-color-adjust)"
     ],
     "gap": [
+        "The `gap` CSS shorthand property sets the gaps (also called gutters) between rows and columns. This property applies to multi-column, flex, and grid containers.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/gap)"
     ],
     "grid": [
+        "The `grid` CSS property is a shorthand property that sets all of the explicit and implicit `grid` properties in a single declaration. Using `grid` you specify one axis using `grid`-template-rows or `grid`-template-columns, you then specify how content should auto-repeat in the other axis using the implicit `grid` properties: `grid`-auto-rows, `grid`-auto-columns, and `grid`-auto-flow.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid)"
     ],
     "grid-area": [
+        "The `grid-area` CSS shorthand property specifies a grid item's size and location within a grid by contributing a line, a span, or nothing (automatic) to its grid placement, thereby specifying the edges of its grid area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-area)"
     ],
     "grid-auto-columns": [
+        "The `grid-auto-columns` CSS property specifies the size of an implicitly-created grid column track or pattern of tracks.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-columns)"
     ],
     "grid-auto-flow": [
+        "The `grid-auto-flow` CSS property controls how the auto-placement algorithm works, specifying exactly how auto-placed items get flowed into the grid.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-flow)"
     ],
     "grid-auto-rows": [
+        "The `grid-auto-rows` CSS property specifies the size of an implicitly-created grid row track or pattern of tracks.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-auto-rows)"
     ],
     "grid-column": [
+        "The `grid-column` CSS shorthand property specifies a grid item's size and location within a grid column by contributing a line, a span, or nothing (automatic) to its grid placement, thereby specifying the inline-start and inline-end edge of its grid area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column)"
     ],
     "grid-column-end": [
+        "The `grid-column-end` CSS property specifies a grid item's end position within the grid column by contributing a line, a span, or nothing (automatic) to its grid placement, thereby specifying the block-end edge of its grid area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column-end)"
     ],
     "grid-column-gap": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column-gap)"
     ],
     "grid-column-start": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column-start)"
     ],
     "grid-gap": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-gap)"
     ],
     "grid-row": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-row)"
     ],
     "grid-row-end": [
+        "The `grid-row-end` CSS property specifies a grid item's end position within the grid row by contributing a line, a span, or nothing (automatic) to its grid placement, thereby specifying the inline-end edge of its grid area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-row-end)"
     ],
     "grid-row-gap": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-row-gap)"
     ],
     "grid-row-start": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-row-start)"
     ],
     "grid-template": [
+        "The `grid-template` CSS property is a shorthand property for defining grid columns, grid rows, and grid areas.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template)"
     ],
     "grid-template-areas": [
+        "The `grid-template-areas` CSS property specifies named grid areas, establishing the cells in the grid and assigning them names.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-areas)"
     ],
     "grid-template-columns": [
+        "The `grid-template-columns` CSS property defines the line names and track sizing functions of the grid columns.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns)"
     ],
     "grid-template-rows": [
+        "The `grid-template-rows` CSS property defines the line names and track sizing functions of the grid rows.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-rows)"
     ],
     "height": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/height)"
     ],
     "hyphenate-character": [
+        "The `hyphenate-character` CSS property sets the character (or string) used at the end of a line before a hyphenation break. Both automatic and soft hyphens are displayed according to the specified `hyphenate-character` value.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/hyphenate-character)"
     ],
     "hyphens": [
+        "The `hyphens` CSS property specifies how words should be hyphenated when text wraps across multiple lines. It can prevent hyphenation entirely, hyphenate at manually-specified points within the text, or let the browser automatically insert `hyphens` where appropriate.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/hyphens)"
     ],
     "image-orientation": [
+        "The `image-orientation` CSS property specifies a layout-independent correction to the orientation of an image.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/image-orientation)"
     ],
     "image-rendering": [
+        "The `image-rendering` CSS property sets an image scaling algorithm. The property applies to an element itself, to any images set in its other properties, and to its descendants.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/image-rendering)"
     ],
     "ime-mode": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/ime-mode)"
     ],
     "inline-size": [
+        "The `inline-size` CSS property defines the horizontal or vertical size of an element's block, depending on its writing mode. It corresponds to either the width or the height property, depending on the value of writing-mode. If the writing mode is vertically oriented, the value of `inline-size` relates to the height of the element; otherwise, it relates to the width of the element. A related property is block-size, which defines the other dimension of the element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inline-size)"
     ],
     "inset": [
+        "The `inset` CSS property is a shorthand that corresponds to the top, right, bottom, and/or left properties. It has the same multi-value syntax of the margin shorthand. This `inset` properties, including `inset`, have no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inset)"
     ],
     "inset-block": [
+        "The `inset-block` CSS property defines the logical block start and end offsets of an element, which maps to physical offsets depending on the element's writing mode, directionality, and text orientation. It corresponds to the top and bottom, or right and left properties depending on the values defined for writing-mode, direction, and text-orientation. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inset-block)"
     ],
     "inset-block-end": [
+        "The `inset-block-end` CSS property defines the logical block end offset of an element, which maps to a physical inset depending on the element's writing mode, directionality, and text orientation. It corresponds to the top, right, bottom, or left property depending on the values defined for writing-mode, direction, and text-orientation. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inset-block-end)"
     ],
     "inset-block-start": [
+        "The `inset-block-start` CSS property defines the logical block start offset of an element, which maps to a physical inset depending on the element's writing mode, directionality, and text orientation. It corresponds to the top, right, bottom, or left property depending on the values defined for writing-mode, direction, and text-orientation. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inset-block-start)"
     ],
     "inset-inline": [
+        "The `inset-inline` CSS property defines the logical start and end offsets of an element in the inline direction, which maps to physical offsets depending on the element's writing mode, directionality, and text orientation. It corresponds to the top and bottom, or right and left properties depending on the values defined for writing-mode, direction, and text-orientation. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inset-inline)"
     ],
     "inset-inline-end": [
+        "The `inset-inline-end` CSS property defines the logical inline end inset of an element, which maps to a physical offset depending on the element's writing mode, directionality, and text orientation. It corresponds to the top, right, bottom, or left property depending on the values defined for writing-mode, direction, and text-orientation. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inset-inline-end)"
     ],
     "inset-inline-start": [
+        "The `inset-inline-start` CSS property defines the logical inline start inset of an element, which maps to a physical offset depending on the element's writing mode, directionality, and text orientation. It corresponds to the top, right, bottom, or left property depending on the values defined for writing-mode, direction, and text-orientation. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/inset-inline-start)"
     ],
     "isolation": [
+        "The `isolation` CSS property determines whether an element must create a new stacking context.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/isolation)"
     ],
     "justify-content": [
+        "The CSS `justify-content` property defines how the browser distributes space between and around content items along the main axis of a flex container and the inline axis of grid and multicol containers. The interactive example below demonstrates some `justify-content` values using grid layout.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-content)"
     ],
     "justify-items": [
+        "The CSS `justify-items` property defines the default justify-self for all items of the box, giving them all a default way of justifying each box along the appropriate axis.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-items)"
     ],
     "justify-self": [
+        "The CSS `justify-self` property sets the way a box is justified inside its alignment container along the appropriate axis.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/justify-self)"
     ],
     "left": [
+        "The `left` CSS property participates in specifying the horizontal position of a positioned element. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/left)"
     ],
     "letter-spacing": [
+        "The `letter-spacing` CSS property sets the horizontal spacing behavior between text characters. This value is added to the natural spacing between characters while rendering the text. Positive values of `letter-spacing` causes characters to spread farther apart, while negative values of `letter-spacing` bring characters closer together.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/letter-spacing)"
     ],
     "lighting-color": [
+        "The `lighting-color` CSS property defines the color of the light source for the &lt;feDiffuseLighting&gt; and &lt;feSpecularLighting&gt; SVG lighting filter primitives within an SVG &lt;filter&gt;. If present, it overrides the element's `lighting-color` attribute.  Note: The `lighting-color` property only applies to &lt;feDiffuseLighting&gt; and &lt;feSpecularLighting&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/lighting-color)"
     ],
     "line-break": [
+        "The `line-break` CSS property sets how to break lines of Chinese, Japanese, or Korean (CJK) text when working with punctuation and symbols.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/line-break)"
     ],
     "line-height": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/line-height)"
     ],
     "list-style": [
+        "The `list-style` CSS shorthand property allows you to set all the list style properties at once.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/list-style)"
     ],
     "list-style-image": [
+        "The `list-style-image` CSS property sets an image to be used as the list item marker. It is often more convenient to use the shorthand list-style.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-image)"
     ],
     "list-style-position": [
+        "The `list-style-position` CSS property sets the position of the ::marker relative to a list item.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-position)"
     ],
     "list-style-type": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/list-style-type)"
     ],
     "margin": [
+        "The `margin` CSS shorthand property sets the `margin` area on all four sides of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin)"
     ],
     "margin-block": [
+        "The `margin-block` CSS shorthand property defines the logical block start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-block)"
     ],
     "margin-block-end": [
+        "The `margin-block-end` CSS property defines the logical block end margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-block-end)"
     ],
     "margin-block-start": [
+        "The `margin-block-start` CSS property defines the logical block start margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-block-start)"
     ],
     "margin-bottom": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-bottom)"
     ],
     "margin-inline": [
+        "The `margin-inline` CSS shorthand property is a shorthand property that defines both the logical inline start and end margins of an element, which maps to physical margins depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-inline)"
     ],
     "margin-inline-end": [
+        "The `margin-inline-end` CSS property defines the logical inline end margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation. In other words, it corresponds to the margin-top, margin-right, margin-bottom or margin-left property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-inline-end)"
     ],
     "margin-inline-start": [
+        "The `margin-inline-start` CSS property defines the logical inline start margin of an element, which maps to a physical margin depending on the element's writing mode, directionality, and text orientation. It corresponds to the margin-top, margin-right, margin-bottom, or margin-left property depending on the values defined for writing-mode, direction, and text-orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-inline-start)"
     ],
     "margin-left": [
+        "The `margin-left` CSS property sets the margin area on the left side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-left)"
     ],
     "margin-right": [
+        "The `margin-right` CSS property sets the margin area on the right side of an element. A positive value places it farther from its neighbors, while a negative value places it closer.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-right)"
     ],
     "margin-top": [
+        "The `margin-top` CSS property sets the margin area on the top of an element. A positive value places it farther from its neighbors, while a negative value places it closer.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/margin-top)"
     ],
     "marker": [
+        "The `marker` CSS property points to a `marker` that will be drawn on the first, middle, and last vertices of the element's path; that is, at all of its vertices. The `marker` must have been defined using an SVG &lt;`marker`&gt; element, and can only be referenced with a &lt;url&gt; value. The value of the CSS property overrides any values of the `marker`-start, `marker`, and `marker`-end attributes in the SVG. For many `marker`-supporting shapes, the first and last vertices are in the same place: for example, the top left corner of a &lt;rect&gt;. In such shapes, if both the first and last markers are defined, two markers will be drawn at that point, though they may not point in the same direction. For the middle vertices, the direction each `marker` points is defined as the direction halfway between the direction at the end of the preceding path segment and the direction of the start of the following path segment. This can be thought of as the cross product of the vectors defined by the two path directions.  Note: The `marker` property will only have an effect for elements that can use SVG markers. See `marker`-start for a list. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/marker)"
     ],
     "marker-end": [
+        "The `marker-end` CSS property points to a marker that will be drawn on the last vertex of the element's path; that is, at its ending vertex. The marker must have been defined using an SVG &lt;marker&gt; element, and can only be referenced with a &lt;url&gt; value. The value of the CSS property overrides any values of the `marker-end` attribute in the SVG. For many marker-supporting shapes, the first and last vertices are the same point: for example, the top left corner of a &lt;rect&gt;. In such shapes, if both the first and last markers are defined, two markers will be drawn at that point, though they may not face the same direction.  Note: The `marker-end` property will only have an effect for elements that can use SVG markers. See `marker-end` for a list. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/marker-end)"
     ],
     "marker-mid": [
+        "The `marker-mid` CSS property points to a marker that will be drawn on the middle vertices of the element's path; that is, at each of its vertices between the start and end vertices. The marker must have been defined using an SVG &lt;marker&gt; element, and can only be referenced with a &lt;url&gt; value. The value of the CSS property overrides any values of the `marker-mid` attribute in the SVG. The direction each marker points is defined as the direction halfway between the direction at the end of the preceding path segment and the direction of the start of the following path segment. This can be thought of as the cross product of the vectors defined by the two path directions.  Note: The `marker-mid` property will only have an effect for elements that can use SVG markers. See `marker-mid` for a list. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/marker-mid)"
     ],
     "marker-start": [
+        "The `marker-start` CSS property points to a marker that will be drawn on the first vertex of the element's path; that is, at its starting vertex. The marker must have been defined using an SVG &lt;marker&gt; element, and can only be referenced with a &lt;url&gt; value. The value of the CSS property overrides any values of the `marker-start` attribute in the SVG. For many marker-supporting shapes, the first and last vertices are in the same place: for example, the top left corner of a &lt;rect&gt;. In such shapes, if both the first and last markers are defined, two markers will be drawn at that point, though they may not point in the same direction.  Note: The `marker-start` property will only have an effect for elements that can use SVG markers. See `marker-start` for a list. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/marker-start)"
     ],
     "mask": [
+        "The `mask` CSS shorthand property hides an element (partially or fully) by masking or clipping the image at specific points.  Note: As well as the properties listed below, the `mask` shorthand also resets `mask`-border to its initial value. It is therefore recommended to use the `mask` shorthand rather than other shorthands or the individual properties to override any `mask` settings earlier in the cascade. This will ensure that `mask`-border has also been reset to allow the new styles to take effect. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask)"
     ],
     "mask-clip": [
+        "The `mask-clip` CSS property determines the area which is affected by a mask. The painted content of an element must be restricted to this area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-clip)"
     ],
     "mask-composite": [
+        "The `mask-composite` CSS property represents a compositing operation used on the current mask layer with the mask layers below it.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-composite)"
     ],
     "mask-image": [
+        "The `mask-image` CSS property sets the image that is used as mask layer for an element. By default this means the alpha channel of the mask image will be multiplied with the alpha channel of the element. This can be controlled with the mask-mode property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-image)"
     ],
     "mask-mode": [
+        "The `mask-mode` CSS property sets whether the mask reference defined by mask-image is treated as a luminance or alpha mask.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-mode)"
     ],
     "mask-origin": [
+        "The `mask-origin` CSS property sets the origin of a mask. For elements rendered as a single box, this property specifies the mask positioning area. In other words, this property specifies the origin position of an image specified by the mask-image CSS property. For elements rendered as multiple boxes, such as inline boxes on several lines or boxes on several pages, it specifies which boxes box-decoration-break operates upon to determine the mask positioning area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-origin)"
     ],
     "mask-position": [
+        "The `mask-position` CSS property sets the initial position, relative to the mask position layer set by mask-origin, for each defined mask image.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-position)"
     ],
     "mask-position-x": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-position-x)"
     ],
     "mask-position-y": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-position-y)"
     ],
     "mask-repeat": [
+        "The `mask-repeat` CSS property sets how mask images are repeated. A mask image can be repeated along the horizontal axis, the vertical axis, both axes, or not repeated at all. By default, the repeated images are clipped to the size of the element, but they can be scaled to fit (using round) or evenly distributed from end to end (using space).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-repeat)"
     ],
     "mask-size": [
+        "The `mask-size` CSS property specifies the sizes of the mask images. The size of the image can be fully or partially constrained in order to preserve its intrinsic ratio.  Note: If the value of this property is not set in a mask shorthand property that is applied to the element after the `mask-size` CSS property, the value of this property is then reset to its initial value by the shorthand property. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-size)"
     ],
     "mask-type": [
+        "The `mask-type` CSS property sets whether an SVG &lt;mask&gt; element is used as a luminance or an alpha mask. It applies to the &lt;mask&gt; element itself. This property may be overridden by the mask-mode property, which has the same effect but applies to the element where the mask is used. Alpha masks will generally be faster to render.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mask-type)"
     ],
     "math-depth": [
+        "The `math-depth` property describes a notion of depth for each element of a mathematical formula, with respect to the top-level container of that formula. This is used to scale the computed value of the font-size of elements when font-size: math is applied.  Note: font-size: math is the default for &lt;math&gt; elements in the MathML Core User Agent stylesheet, so it's not necessary to specify it explicitly. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/math-depth)"
     ],
     "math-style": [
+        "The `math-style` property indicates whether MathML equations should render with normal or compact height.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/math-style)"
     ],
     "max-block-size": [
+        "The `max-block-size` CSS property specifies the maximum size of an element in the direction opposite that of the writing direction as specified by writing-mode. That is, if the writing direction is horizontal, then `max-block-size` is equivalent to max-height; if the writing direction is vertical, `max-block-size` is the same as max-width. The other dimension's maximum length is specified using the max-inline-size property. This is useful because the max-width is always used for horizontal sizes and max-height is always used for vertical sizes, and if you need to set lengths based on the size of your text content, you need to be able to do so with the writing direction in mind. Any time you would normally use max-height or max-width, you should instead use `max-block-size` to set the maximum \"height\" of the content (even though this may not be a vertical value) and max-inline-size to set the maximum \"width\" of the content (although this may instead be vertical rather than horizontal). See writing-mode examples, which show the different writing modes in action.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/max-block-size)"
     ],
     "max-height": [
+        "The `max-height` CSS property sets the maximum height of an element. It prevents the used value of the height property from becoming larger than the value specified for `max-height`.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/max-height)"
     ],
     "max-inline-size": [
+        "The `max-inline-size` CSS property defines the horizontal or vertical maximum size of an element's block, depending on its writing mode. It corresponds to either the max-width or the max-height property, depending on the value of writing-mode. If the writing mode is vertically oriented, the value of `max-inline-size` relates to the maximal height of the element; otherwise, it relates to the maximal width of the element. A related property is max-block-size, which defines the other dimension of the element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/max-inline-size)"
     ],
     "max-width": [
+        "The `max-width` CSS property sets the maximum width of an element. It prevents the used value of the width property from becoming larger than the value specified by `max-width`.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/max-width)"
     ],
     "min-block-size": [
+        "The `min-block-size` CSS property defines the minimum horizontal or vertical size of an element's block, depending on its writing mode. It corresponds to either the min-width or the min-height property, depending on the value of writing-mode. If the writing mode is vertically oriented, the value of `min-block-size` relates to the minimum width of the element; otherwise, it relates to the minimum height of the element. A related property is min-inline-size, which defines the other dimension of the element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/min-block-size)"
     ],
     "min-height": [
+        "The `min-height` CSS property sets the minimum height of an element. It prevents the used value of the height property from becoming smaller than the value specified for `min-height`.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/min-height)"
     ],
     "min-inline-size": [
+        "The `min-inline-size` CSS property defines the horizontal or vertical minimal size of an element's block, depending on its writing mode. It corresponds to either the min-width or the min-height property, depending on the value of writing-mode.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/min-inline-size)"
     ],
     "min-width": [
+        "The `min-width` CSS property sets the minimum width of an element. It prevents the used value of the width property from becoming smaller than the value specified for `min-width`.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/min-width)"
     ],
     "mix-blend-mode": [
-        "The mix-blend-mode CSS property sets how an element's content should blend with the content of the element's parent and the element's background.",
+        "The `mix-blend-mode` CSS property sets how an element's content should blend with the content of the element's parent and the element's background.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/mix-blend-mode)"
-    ],   
+    ],
+    "moz-animation": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation)"
+    ],
+    "moz-animation-delay": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-delay)"
+    ],
+    "moz-animation-direction": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-direction)"
+    ],
+    "moz-animation-duration": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-duration)"
+    ],
+    "moz-animation-fill-mode": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-fill-mode)"
+    ],
+    "moz-animation-iteration-count": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-iteration-count)"
+    ],
+    "moz-animation-name": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-name)"
+    ],
+    "moz-animation-play-state": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-play-state)"
+    ],
+    "moz-animation-timing-function": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-animation-timing-function)"
+    ],
+    "moz-appearance": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-appearance)"
+    ],
+    "moz-backface-visibility": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-backface-visibility)"
+    ],
+    "moz-border-end": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-end)"
+    ],
+    "moz-border-end-color": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-end-color)"
+    ],
+    "moz-border-end-style": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-end-style)"
+    ],
+    "moz-border-end-width": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-end-width)"
+    ],
+    "moz-border-image": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-image)"
+    ],
+    "moz-border-start": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-start)"
+    ],
+    "moz-border-start-color": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-start-color)"
+    ],
+    "moz-border-start-style": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-start-style)"
+    ],
+    "moz-border-start-width": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-border-start-width)"
+    ],
+    "moz-box-align": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-box-align)"
+    ],
+    "moz-box-direction": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-box-direction)"
+    ],
+    "moz-box-flex": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-box-flex)"
+    ],
+    "moz-box-ordinal-group": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-box-ordinal-group)"
+    ],
+    "moz-box-orient": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-box-orient)"
+    ],
+    "moz-box-pack": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-box-pack)"
+    ],
+    "moz-box-sizing": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-box-sizing)"
+    ],
+    "moz-float-edge": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-float-edge)"
+    ],
+    "moz-font-feature-settings": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-font-feature-settings)"
+    ],
+    "moz-font-language-override": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-font-language-override)"
+    ],
+    "moz-force-broken-image-icon": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-force-broken-image-icon)"
+    ],
+    "moz-hyphens": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-hyphens)"
+    ],
+    "moz-margin-end": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-margin-end)"
+    ],
+    "moz-margin-start": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-margin-start)"
+    ],
+    "moz-orient": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-orient)"
+    ],
+    "moz-osx-font-smoothing": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-osx-font-smoothing)"
+    ],
+    "moz-padding-end": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-padding-end)"
+    ],
+    "moz-padding-start": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-padding-start)"
+    ],
+    "moz-perspective": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-perspective)"
+    ],
+    "moz-perspective-origin": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-perspective-origin)"
+    ],
+    "moz-tab-size": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-tab-size)"
+    ],
+    "moz-text-size-adjust": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-text-size-adjust)"
+    ],
+    "moz-transform": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-transform)"
+    ],
+    "moz-transform-origin": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-transform-origin)"
+    ],
+    "moz-transform-style": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-transform-style)"
+    ],
+    "moz-user-select": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-user-select)"
+    ],
+    "moz-window-dragging": [
+        "*****************************",
+        "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/moz-window-dragging)"
+    ],
     "object-fit": [
+        "The `object-fit` CSS property sets how the content of a replaced element, such as an &lt;img&gt; or &lt;video&gt;, should be resized to fit its container.  Note: The `object-fit` property has no effect on &lt;iframe&gt;, &lt;embed&gt;, and &lt;fencedframe&gt; elements.  You can alter the alignment of the replaced element's content object within the element's box using the object-position property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit)"
     ],
     "object-position": [
+        "The `object-position` CSS property specifies the alignment of the selected replaced element's contents within the element's box. Areas of the box which aren't covered by the replaced element's object will show the element's background. You can adjust how the replaced element's object's intrinsic size (that is, its natural size) is adjusted to fit within the element's box using the object-fit property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/object-position)"
     ],
     "offset": [
+        "The `offset` CSS shorthand property sets all the properties required for animating an element along a defined path. The `offset` properties together help to define an `offset` transform, a transform that aligns a point in an element (`offset`-anchor) to an `offset` position (`offset`-position) on a path (`offset`-path) at various points along the path (`offset`-distance) and optionally rotates the element (`offset`-rotate) to follow the direction of the path.  Note: Early versions of the spec called this property motion. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/offset)"
     ],
     "offset-anchor": [
+        "The `offset-anchor` CSS property specifies the point inside the box of an element traveling along an offset-path that is actually moving along the path.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/offset-anchor)"
     ],
     "offset-distance": [
+        "The `offset-distance` CSS property specifies a position along an offset-path for an element to be placed.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/offset-distance)"
     ],
     "offset-path": [
+        "The `offset-path` CSS property specifies a path for an element to follow and determines the element's positioning within the path's parent container or the SVG coordinate system. The path is a line, a curve, or a geometrical shape along which the element gets positioned or moves. The `offset-path` property is used in combination with the offset-distance, offset-rotate, and offset-anchor properties to control the position and orientation of the element along a path.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/offset-path)"
     ],
     "offset-position": [
+        "The `offset-position` CSS property defines the initial position of an element along a path. This property is typically used in combination with the offset-path property to create a motion effect. The value of `offset-position` determines where the element gets placed initially for moving along an offset path if an offset-path function such as path() does not specify its own starting position. The `offset-position` property is part of a motion system based on offset constituent properties, including offset-anchor, offset-distance, and offset-path. These properties work together to create various motion effects along a path.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/offset-position)"
     ],
     "offset-rotate": [
+        "The `offset-rotate` CSS property defines the orientation/direction of the element as it is positioned along the offset-path.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/offset-rotate)"
     ],
     "opacity": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/opacity)"
     ],
     "order": [
+        "The `order` CSS property sets the `order` to lay out an item in a flex or grid container. Items in a container are sorted by ascending `order` value and then by their source code `order`. Items not given an explicit `order` value are assigned the default value of .",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/order)"
     ],
     "outline": [
+        "The `outline` CSS shorthand property sets most of the `outline` properties in a single declaration.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/outline)"
     ],
     "outline-color": [
+        "The `outline-color` CSS property sets the color of an element's outline.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/outline-color)"
     ],
     "outline-offset": [
+        "The `outline-offset` CSS property sets the amount of space between an outline and the edge or border of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/outline-offset)"
     ],
     "outline-style": [
+        "The `outline-style` CSS property sets the style of an element's outline. An outline is a line that is drawn around an element, outside the border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/outline-style)"
     ],
     "outline-width": [
+        "The CSS `outline-width` property sets the thickness of an element's outline. An outline is a line that is drawn around an element, outside the border.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/outline-width)"
     ],
     "overflow": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow)"
     ],
     "overflow-anchor": [
+        "The `overflow-anchor` CSS property provides a way to opt out of the browser's scroll anchoring behavior, which adjusts scroll position to minimize content shifts. Scroll anchoring behavior is enabled by default in any browser that supports it. Therefore, changing the value of this property is typically only required if you are experiencing problems with scroll anchoring in a document or part of a document and need to turn the behavior off.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-anchor)"
     ],
     "overflow-block": [
+        "The `overflow-block` CSS property sets what shows when content overflows the block start and block end edges of a box. This may be nothing, a scroll bar, or the overflow content.  Note: The `overflow-block` property maps to overflow-y or overflow-x depending on the writing mode of the document. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-block)"
     ],
     "overflow-clip-margin": [
+        "The `overflow-clip-margin` CSS property determines how far outside its bounds an element with overflow: clip may be painted before being clipped. The bound defined by this property is called the overflow clip edge of the box.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-clip-margin)"
     ],
     "overflow-inline": [
+        "The `overflow-inline` CSS property sets what shows when content overflows the inline start and end edges of a box. This may be nothing, a scroll bar, or the overflow content.  Note: The `overflow-inline` property maps to overflow-y or overflow-x depending on the writing mode of the document. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-inline)"
     ],
     "overflow-wrap": [
+        "The `overflow-wrap` CSS property applies to text, setting whether the browser should insert line breaks within an otherwise unbreakable string to prevent text from overflowing its line box.  Note: The property was originally a nonstandard and unprefixed Microsoft extension called word-wrap, and was implemented by most browsers with the same name. It has since been renamed to `overflow-wrap`, with word-wrap being an alias. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-wrap)"
     ],
     "overflow-x": [
+        "The `overflow-x` CSS property sets what shows when content overflows a block-level element's left and right edges. This may be nothing, a scroll bar, or the overflow content. This property may also be set by using the overflow shorthand property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-x)"
     ],
     "overflow-y": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overflow-y)"
     ],
     "overscroll-behavior": [
+        "The `overscroll-behavior` CSS property sets what a browser does when reaching the boundary of a scrolling area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior)"
     ],
     "overscroll-behavior-block": [
+        "The `overscroll-behavior-block` CSS property sets the browser's behavior when the block direction boundary of a scrolling area is reached. See overscroll-behavior for a full explanation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior-block)"
     ],
     "overscroll-behavior-inline": [
+        "The `overscroll-behavior-inline` CSS property sets the browser's behavior when the inline direction boundary of a scrolling area is reached. See overscroll-behavior for a full explanation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior-inline)"
     ],
     "overscroll-behavior-x": [
+        "The `overscroll-behavior-x` CSS property sets the browser's behavior when the horizontal boundary of a scrolling area is reached. See overscroll-behavior for a full explanation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior-x)"
     ],
     "overscroll-behavior-y": [
+        "The `overscroll-behavior-y` CSS property sets the browser's behavior when the vertical boundary of a scrolling area is reached. See overscroll-behavior for a full explanation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/overscroll-behavior-y)"
     ],
     "padding": [
+        "The `padding` CSS shorthand property sets the `padding` area on all four sides of an element at once.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding)"
     ],
     "padding-block": [
+        "The `padding-block` CSS shorthand property defines the logical block start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-block)"
     ],
     "padding-block-end": [
+        "The `padding-block-end` CSS property defines the logical block end padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-block-end)"
     ],
     "padding-block-start": [
+        "The `padding-block-start` CSS property defines the logical block start padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-block-start)"
     ],
     "padding-bottom": [
+        "The `padding-bottom` CSS property sets the height of the padding area on the bottom of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-bottom)"
     ],
     "padding-inline": [
+        "The `padding-inline` CSS shorthand property defines the logical inline start and end padding of an element, which maps to physical padding properties depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-inline)"
     ],
     "padding-inline-end": [
+        "The `padding-inline-end` CSS property defines the logical inline end padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-inline-end)"
     ],
     "padding-inline-start": [
+        "The `padding-inline-start` CSS property defines the logical inline start padding of an element, which maps to a physical padding depending on the element's writing mode, directionality, and text orientation.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-inline-start)"
     ],
     "padding-left": [
+        "The `padding-left` CSS property sets the width of the padding area to the left of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-left)"
     ],
     "padding-right": [
+        "The `padding-right` CSS property sets the width of the padding area on the right of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-right)"
     ],
     "padding-top": [
+        "The `padding-top` CSS property sets the height of the padding area on the top of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/padding-top)"
     ],
     "page": [
+        "The `page` CSS property is used to specify the named `page`, a specific type of `page` defined by the @`page` at-rule. If there are multiple selectors that are using a named `page` consecutively then a forced `page` break using break-after may be needed.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/page)"
     ],
     "page-break-after": [
+        "Deprecated: This feature is no longer recommended. Though some browsers might still support it, it may have already been removed from the relevant web standards, may be in the process of being dropped, or may only be kept for compatibility purposes. Avoid using it, and update existing code if possible; see the compatibility table at the bottom of this page to guide your decision. Be aware that this feature may cease to work at any time.  Warning: This property has been replaced by the break-after property.  The `page-break-after` CSS property adjusts page breaks after the current element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/page-break-after)"
     ],
     "page-break-before": [
+        "Deprecated: This feature is no longer recommended. Though some browsers might still support it, it may have already been removed from the relevant web standards, may be in the process of being dropped, or may only be kept for compatibility purposes. Avoid using it, and update existing code if possible; see the compatibility table at the bottom of this page to guide your decision. Be aware that this feature may cease to work at any time.  Warning: This property has been replaced by the break-before property.  The `page-break-before` CSS property adjusts page breaks before the current element. This property applies to block elements that generate a box. It won't apply on an empty &lt;div&gt; that won't generate a box.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/page-break-before)"
     ],
     "page-break-inside": [
+        "Deprecated: This feature is no longer recommended. Though some browsers might still support it, it may have already been removed from the relevant web standards, may be in the process of being dropped, or may only be kept for compatibility purposes. Avoid using it, and update existing code if possible; see the compatibility table at the bottom of this page to guide your decision. Be aware that this feature may cease to work at any time.  Warning: This property has been replaced by the break-inside property.  The `page-break-inside` CSS property adjusts page breaks inside the current element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/page-break-inside)"
     ],
     "paint-order": [
+        "The `paint-order` CSS property lets you control the order in which the fill and stroke (and painting markers) of text content and shapes are drawn.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/paint-order)"
     ],
     "perspective": [
+        "The `perspective` CSS property determines the distance between the z=0 plane and the user in order to give a 3D-positioned element some `perspective`.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/perspective)"
     ],
     "perspective-origin": [
+        "The `perspective-origin` CSS property determines the position at which the viewer is looking. It is used as the vanishing point by the perspective property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/perspective-origin)"
     ],
     "place-content": [
+        "The `place-content` CSS shorthand property allows you to align content along both the block and inline directions at once (i.e. the align-content and justify-content properties) in a relevant layout system such as Grid or Flexbox.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/place-content)"
     ],
     "place-items": [
+        "The CSS `place-items` shorthand property aligns items along both the block and inline directions at once. It sets the values of the align-items and justify-items properties. If the second value is not set, the first value is also used for it.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/place-items)"
     ],
     "place-self": [
+        "The `place-self` CSS shorthand property allows you to align an individual item in both the block and inline directions at once (i.e. the align-self and justify-self properties). This property applies to block-level boxes, absolutely-positioned boxes, and grid items. If the second value is not present, the first value is also used for it.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/place-self)"
     ],
     "pointer-events": [
+        "The `pointer-events` CSS property sets under what circumstances (if any) a particular graphic element can become the target of pointer events.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/pointer-events)"
     ],
     "position": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/position)"
     ],
     "print-color-adjust": [
+        "The `print-color-adjust` CSS property sets what, if anything, the user agent may do to optimize the appearance of the element on the output device. By default, the browser is allowed to make any adjustments to the element's appearance it determines to be necessary and prudent given the type and capabilities of the output device.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/print-color-adjust)"
     ],
     "quotes": [
+        "The CSS `quotes` property sets how the browser should render quotation marks that are automatically added to the HTML &lt;q&gt; element or added using the open-`quotes` or close-`quotes` (or omitted using the no-open-quote and no-close-quote) values of the of the CSS content property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/quotes)"
     ],
     "r": [
+        "The `r` CSS property defines the radius of a circle. It can only be used with the SVG &lt;circle&gt; element. If present, it overrides the circle's `r` attribute.  Note: The `r` property only applies to &lt;circle&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG elements or HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/r)"
     ],
     "resize": [
+        "The `resize` CSS property sets whether an element is resizable, and if so, in which directions.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/resize)"
     ],
     "right": [
+        "The `right` CSS property participates in specifying the horizontal position of a positioned element. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/right)"
     ],
     "rotate": [
+        "The `rotate` CSS property allows you to specify rotation transforms individually and independently of the transform property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the transform property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/rotate)"
     ],
     "row-gap": [
+        "The `row-gap` CSS property sets the size of the gap (gutter) between an element's rows. Early versions of the specification called this property grid-`row-gap`, and to maintain compatibility with legacy websites, browsers will still accept grid-`row-gap` as an alias for `row-gap`.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/row-gap)"
     ],
     "ruby-align": [
+        "The `ruby-align` CSS property defines the distribution of the different ruby elements over the base.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/ruby-align)"
     ],
     "ruby-position": [
+        "The `ruby-position` CSS property defines the position of a ruby element relative to its base element. It can be positioned over the element (over), under it (under), or between the characters on their right side (inter-character).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/ruby-position)"
     ],
     "rx": [
+        "The `rx` CSS property defines the x-axis, or horizontal, radius of an SVG &lt;ellipse&gt; and the horizontal curve of the corners of an SVG &lt;rect&gt; rectangle. If present, it overrides the shape's `rx` attribute.  Note: The `rx` property only applies to &lt;ellipse&gt; and &lt;rect&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG elements or HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/rx)"
     ],
     "ry": [
+        "The `ry` CSS property defines the y-axis, or vertical, radius of an SVG &lt;ellipse&gt; and the vertical curve of the corners of an SVG &lt;rect&gt; rectangle. If present, it overrides the shape's `ry` attribute.  Note: The `ry` property only applies to &lt;ellipse&gt; and &lt;rect&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG elements or HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/ry)"
     ],
     "scale": [
+        "The `scale` CSS property allows you to specify `scale` transforms individually and independently of the transform property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the transform value.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scale)"
     ],
     "scroll-behavior": [
+        "The `scroll-behavior` CSS property sets the behavior for a scrolling box when scrolling is triggered by the navigation or CSSOM scrolling APIs.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-behavior)"
     ],
     "scroll-margin": [
+        "The `scroll-margin` shorthand property sets all of the scroll margins of an element at once, assigning values much like the margin property does for margins of an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin)"
     ],
     "scroll-margin-block": [
+        "The `scroll-margin-block` shorthand property sets the scroll margins of an element in the block dimension.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-block)"
     ],
     "scroll-margin-block-end": [
+        "The `scroll-margin-block-end` property defines the margin of the scroll snap area at the end of the block dimension that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-block-end)"
     ],
     "scroll-margin-block-start": [
+        "The `scroll-margin-block-start` property defines the margin of the scroll snap area at the start of the block dimension that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-block-start)"
     ],
     "scroll-margin-bottom": [
+        "The `scroll-margin-bottom` property defines the bottom margin of the scroll snap area that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-bottom)"
     ],
     "scroll-margin-inline": [
+        "The `scroll-margin-inline` shorthand property sets the scroll margins of an element in the inline dimension.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-inline)"
     ],
     "scroll-margin-inline-end": [
+        "The `scroll-margin-inline-end` property defines the margin of the scroll snap area at the end of the inline dimension that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-inline-end)"
     ],
     "scroll-margin-inline-start": [
+        "The `scroll-margin-inline-start` property defines the margin of the scroll snap area at the start of the inline dimension that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-inline-start)"
     ],
     "scroll-margin-left": [
+        "The `scroll-margin-left` property defines the left margin of the scroll snap area that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-left)"
     ],
     "scroll-margin-right": [
+        "The `scroll-margin-right` property defines the right margin of the scroll snap area that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-right)"
     ],
     "scroll-margin-top": [
+        "The `scroll-margin-top` property defines the top margin of the scroll snap area that is used for snapping this box to the snapport. The scroll snap area is determined by taking the transformed border box, finding its rectangular bounding box (axis-aligned in the scroll container's coordinate space), then adding the specified outsets.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-margin-top)"
     ],
     "scroll-padding": [
+        "The `scroll-padding` shorthand property sets scroll padding on all sides of an element at once, much like the padding property does for padding on an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding)"
     ],
     "scroll-padding-block": [
+        "The `scroll-padding-block` shorthand property sets the scroll padding of an element in the block dimension.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-block)"
     ],
     "scroll-padding-block-end": [
+        "The `scroll-padding-block-end` property defines offsets for the end edge in the block dimension of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-block-end)"
     ],
     "scroll-padding-block-start": [
+        "The `scroll-padding-block-start` property defines offsets for the start edge in the block dimension of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-block-start)"
     ],
     "scroll-padding-bottom": [
+        "The `scroll-padding-bottom` property defines offsets for the bottom of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-bottom)"
     ],
     "scroll-padding-inline": [
+        "The `scroll-padding-inline` shorthand property sets the scroll padding of an element in the inline dimension.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-inline)"
     ],
     "scroll-padding-inline-end": [
+        "The `scroll-padding-inline-end` property defines offsets for the end edge in the inline dimension of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-inline-end)"
     ],
     "scroll-padding-inline-start": [
+        "The `scroll-padding-inline-start` property defines offsets for the start edge in the inline dimension of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-inline-start)"
     ],
     "scroll-padding-left": [
+        "The `scroll-padding-left` property defines offsets for the left of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-left)"
     ],
     "scroll-padding-right": [
+        "The `scroll-padding-right` property defines offsets for the right of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-right)"
     ],
     "scroll-padding-top": [
+        "The `scroll-padding-top` property defines offsets for the top of the optimal viewing region of the scrollport: the region used as the target region for placing things in view of the user. This allows the author to exclude regions of the scrollport that are obscured by other content (such as fixed-positioned toolbars or sidebars) or to put more breathing room between a targeted element and the edges of the scrollport.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-padding-top)"
     ],
     "scroll-snap-align": [
+        "The `scroll-snap-align` property specifies the box's snap position as an alignment of its snap area (as the alignment subject) within its snap container's snap port (as the alignment container).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-align)"
     ],
     "scroll-snap-stop": [
+        "The `scroll-snap-stop` CSS property defines whether or not the scroll container is allowed to \"pass over\" possible snap positions.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-stop)"
     ],
     "scroll-snap-type": [
+        "The `scroll-snap-type` CSS property is set on a scroll container, opting it into scroll snapping by setting the direction and strictness of snap point enforcement within the snap port.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scroll-snap-type)"
     ],
     "scrollbar-color": [
+        "The `scrollbar-color` CSS property sets the color of the scrollbar track and thumb. The track refers to the background of the scrollbar, which is generally fixed regardless of the scrolling position. The thumb refers to the moving part of the scrollbar, which usually floats on top of the track. When `scrollbar-color` value is set on the document's root element, the values are applied to the viewport scrollbars.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-color)"
     ],
     "scrollbar-gutter": [
+        "The `scrollbar-gutter` CSS property allows authors to reserve space for the scrollbar, preventing unwanted layout changes as the content grows while also avoiding unnecessary visuals when scrolling isn't needed. An element's scrollbar gutter is the space between the inner border edge and the outer padding edge, where the browser may display a scrollbar. If no scrollbar is present, the gutter will be painted as an extension of the padding. The browser determines whether classic scrollbars or overlay scrollbars are used:  Classic scrollbars are always placed in a gutter, consuming space when present. Overlay scrollbars are placed over the content, not in a gutter, and are usually partially transparent. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-gutter)"
     ],
     "scrollbar-width": [
+        "The `scrollbar-width` property allows the author to set the desired thickness of an element's scrollbars when they are shown. The purpose of the `scrollbar-width` is to optimize the space occupied by the scrollbar on a page or element; the purpose is not related to scrollbar aesthetics. The `scrollbar-width` predefined keyword values indicate to the user agent whether a normal or smaller scrollbar should be rendered. Avoid using none, as hiding a scrollbar negatively impacts accessibility.  Note: For elements that are scrollable only via programmatic means and not by direct user interaction, use the overflow property with a value of hidden rather than `scrollbar-width`: none. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/scrollbar-width)"
     ],
     "shape-image-threshold": [
+        "The `shape-image-threshold` CSS property sets the alpha channel threshold used to extract the shape using an image as the value for shape-outside.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/shape-image-threshold)"
     ],
     "shape-margin": [
+        "The `shape-margin` CSS property sets a margin for a CSS shape created using shape-outside.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/shape-margin)"
     ],
     "shape-outside": [
+        "The `shape-outside` CSS property defines a shape\u2014which may be non-rectangular\u2014around which adjacent inline content should wrap. By default, inline content wraps around its margin box; `shape-outside` provides a way to customize this wrapping, making it possible to wrap text around complex objects rather than rectangular boxes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/shape-outside)"
     ],
     "shape-rendering": [
+        "The `shape-rendering` CSS property provides hints to the renderer about what tradeoffs to make when rendering shapes like paths, circles, or rectangles. It only has an effect on the &lt;circle&gt;, &lt;ellipse&gt;, &lt;line&gt;, &lt;path&gt;, &lt;polygon&gt;, &lt;polyline&gt;, and &lt;rect&gt; elements. If explicitly declared, the value of the CSS property overrides the any values of the element's `shape-rendering` attribute.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/shape-rendering)"
     ],
     "stop-color": [
+        "The `stop-color` CSS property defines the color to use for an SVG &lt;stop&gt; element within a gradient. If present, it overrides the element's `stop-color` attribute.  Note: The `stop-color` property only applies to &lt;stop&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stop-color)"
     ],
     "stop-opacity": [
+        "The `stop-opacity` CSS property defines the opacity of a given color gradient stop in the SVG &lt;stop&gt; element within an SVG gradient. If present, it overrides the element's `stop-opacity` attribute. The property value impacts the stop-color's alpha channel; it can increase the transparency of a &lt;stop&gt;'s color but can not make the color defined by the stop-color property more opaque.  Note: The `stop-opacity` property only applies to &lt;stop&gt; elements nested in an &lt;svg&gt;. It doesn't apply to other SVG, HTML, or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stop-opacity)"
     ],
     "stroke": [
+        "The `stroke` CSS property defines the color or SVG paint server used to draw an element's `stroke`. As such, `stroke` only has an effect on elements that can be given a `stroke` (for example, &lt;rect&gt; or &lt;ellipse&gt;); see the page on the SVG `stroke` attribute for a complete list. When declared, the CSS value overrides any value of the element's `stroke` SVG attribute.  Note: According to the 4 April 2017 draft of the CSS Fill and Stroke Module Level 3 specification, the `stroke` property is a shorthand for a number of other `stroke` properties. In practice, as of August 2024, browsers do not support the setting of other `stroke`-related values such as width or dash patterns via the `stroke` property, treating it instead as a direct analogue of the SVG `stroke` attribute. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke)"
     ],
     "stroke-dasharray": [
+        "The `stroke-dasharray` CSS property defines a pattern of dashes and gaps used in the painting of the SVG shape's stroke. If present, it overrides the element's `stroke-dasharray` attribute. This property applies to any SVG shape or text-content element (see `stroke-dasharray` for a full list), but as an inherited property, it may be applied to elements such as &lt;g&gt; and still have the intended effect on descendant elements' strokes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke-dasharray)"
     ],
     "stroke-dashoffset": [
+        "The `stroke-dashoffset` CSS property defines an offset for the starting point of the rendering of an SVG element's associated dash array. If present, it overrides the element's `stroke-dashoffset` attribute. This property applies to any SVG shape or text-content element (see `stroke-dashoffset` for a full list), but as an inherited property, it may be applied to elements such as &lt;g&gt; and still have the intended effect on descendant elements' strokes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke-dashoffset)"
     ],
     "stroke-linecap": [
+        "The `stroke-linecap` CSS property defines the shape to be used at the end of open subpaths of SVG elements' unclosed strokes. If present, it overrides the element's `stroke-linecap` attribute. This property applies to any SVG shape that can have unclosed strokes and text-content element (see `stroke-linecap` for a full list), but as an inherited property, it may be applied to elements such as &lt;g&gt; and still have the intended effect on descendant elements' strokes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke-linecap)"
     ],
     "stroke-linejoin": [
+        "The `stroke-linejoin` CSS property defines the shape to be used at the corners of an SVG element's stroked paths. If present, it overrides the element's `stroke-linejoin` attribute. This property applies to any SVG corner-generating shape or text-content element (see `stroke-linejoin` for a full list), but as an inherited property, it may be applied to elements such as &lt;g&gt; and still have the intended effect on descendant elements'",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke-linejoin)"
     ],
     "stroke-miterlimit": [
+        "The `stroke-miterlimit` CSS property defines a limit on the ratio of the miter length to the stroke-width when the shape to be used at the corners of an SVG element's stroked path is a mitered join. If the limit defined by this property is exceeded, the join is converted from miter to bevel, thus making the corner appear truncated. This property applies to any SVG corner-generating shape or text-content element (see `stroke-miterlimit` for a full list), but as an inherited property, it may be applied to elements such as &lt;g&gt; and still have the intended effect on descendant elements' strokes. If present, it overrides the element's `stroke-miterlimit` attribute.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke-miterlimit)"
     ],
     "stroke-opacity": [
+        "The `stroke-opacity` CSS property defines the opacity of an SVG shape's stroke. The effect is identical to that of opacity, except it is applied only to the stroke, not to the entire element. If present, it overrides the element's `stroke-opacity` attribute. This property applies to SVG shapes and text-content elements (see `stroke-opacity` for a full list), but as an inherited property, it may be applied to elements such as &lt;g&gt; and still have the intended effect on descendant elements' strokes. Note that a shape's stroke partially covers the fill of that shape, so a stroke with an opacity less than 1 will show the fill blended with the stroke where they overlap. To avoid this effect, it is possible to apply a global opacity with the opacity property or to put the stroke behind the fill with the paint-order attribute.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke-opacity)"
     ],
     "stroke-width": [
+        "The `stroke-width` CSS property defines the width of a stroke applied to the SVG shape. If present, it overrides the element's `stroke-width` attribute. This property applies to any SVG shape or text-content element (see `stroke-width` for a full list), but as an inherited property, it may be applied to elements such as &lt;g&gt; and still have the intended effect on descendant elements' strokes. If the value evaluates to zero, the stroke is not drawn.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/stroke-width)"
     ],
     "tab-size": [
+        "The `tab-size` CSS property is used to customize the width of tab characters (U+0009).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/tab-size)"
     ],
     "table-layout": [
+        "The `table-layout` CSS property sets the algorithm used to lay out &lt;table&gt; cells, rows, and columns.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/table-layout)"
     ],
     "text-align": [
+        "The `text-align` CSS property sets the horizontal alignment of the inline-level content inside a block element or table-cell box. This means it works like vertical-align but in the horizontal direction.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-align)"
     ],
     "text-align-last": [
+        "The `text-align-last` CSS property sets how the last line of a block or a line, right before a forced line break, is aligned.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-align-last)"
     ],
     "text-anchor": [
+        "The `text-anchor` CSS property aligns a box containing a string of text where the wrapping area is determined from the inline-size property, and the text is then placed relative to the anchor point of the element, which is defined using the x and y (or dx and dy) attributes. If present, the value of the CSS property overrides any value of the element's `text-anchor` attribute. Each individual text fragment within an element is aligned independently; thus, a multi-line &lt;text&gt; element will have each line of text aligned as per the value of `text-anchor`. `text-anchor` values only have an effect on the &lt;text&gt;, &lt;textPath&gt;, &lt;tref&gt;, and &lt;tspan&gt; SVG elements. `text-anchor` does not apply to automatically wrapped text; for that, see text-align.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-anchor)"
     ],
     "text-combine-upright": [
+        "The `text-combine-upright` CSS property sets the combination of characters into the space of a single character. If the combined text is wider than 1em, the user agent must fit the contents within 1em. The resulting composition is treated as a single upright glyph for layout and decoration. This property only has an effect in vertical writing modes. This is used to produce an effect that is known as tate-ch\u016b-yoko \u7e26\u4e2d\u6a2a in Japanese, or as \u6a6b\u5411\u6587\u5b57 in Chinese.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-combine-upright)"
     ],
     "text-decoration": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration)"
     ],
     "text-decoration-color": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-color)"
     ],
     "text-decoration-line": [
+        "The `text-decoration-line` CSS property sets the kind of decoration that is used on text in an element, such as an underline or overline.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-line)"
     ],
     "text-decoration-skip-ink": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-skip-ink)"
     ],
     "text-decoration-style": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-style)"
     ],
     "text-decoration-thickness": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-decoration-thickness)"
     ],
     "text-emphasis": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-emphasis)"
     ],
     "text-emphasis-color": [
+        "The `text-emphasis-color` CSS property sets the color of emphasis marks. This value can also be set using the text-emphasis shorthand.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-emphasis-color)"
     ],
     "text-emphasis-position": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-emphasis-position)"
     ],
     "text-emphasis-style": [
+        "*****************************",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-emphasis-style)"
     ],
     "text-indent": [
+        "The `text-indent` CSS property sets the length of empty space (indentation) that is put before lines of text in a block.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-indent)"
     ],
     "text-justify": [
+        "The `text-justify` CSS property sets what type of justification should be applied to text when text-align: justify; is set on an element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-justify)"
     ],
     "text-orientation": [
+        "The `text-orientation` CSS property sets the orientation of the text characters in a line. It only affects text in vertical mode (when writing-mode is not horizontal-tb). It is useful for controlling the display of languages that use vertical script, and also for making vertical table headers.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-orientation)"
     ],
     "text-overflow": [
+        "The `text-overflow` CSS property sets how hidden overflow content is signaled to users. It can be clipped, display an ellipsis (\u2026), or display a custom string.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-overflow)"
     ],
     "text-rendering": [
+        "The `text-rendering` CSS property provides information to the rendering engine about what to optimize for when rendering text. The browser makes trade-offs among speed, legibility, and geometric precision.  Note: The `text-rendering` property is an SVG property that is not defined in any CSS standard. However, Gecko and WebKit browsers let you apply this property to HTML and XML content on Windows, macOS, and Linux.  One very visible effect is optimizeLegibility, which enables ligatures (ff, fi, fl, etc.) in text smaller than 20px for some fonts (for example, Microsoft's Calibri, Candara, Constantia, and Corbel, or the DejaVu font family).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-rendering)"
     ],
     "text-shadow": [
+        "The `text-shadow` CSS property adds shadows to text. It accepts a comma-separated list of shadows to be applied to the text and any of its decorations. Each shadow is described by some combination of X and Y offsets from the element, blur radius, and color.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-shadow)"
     ],
     "text-transform": [
+        "The `text-transform` CSS property specifies how to capitalize an element's text. It can be used to make text appear in all-uppercase or all-lowercase, or with each word capitalized. It also can help improve legibility for ruby.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-transform)"
     ],
     "text-underline-offset": [
+        "The `text-underline-offset` CSS property sets the offset distance of an underline text decoration line (applied using text-decoration) from its original position.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-underline-offset)"
     ],
     "text-underline-position": [
+        "The `text-underline-position` CSS property specifies the position of the underline which is set using the text-decoration property's underline value.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-underline-position)"
     ],
     "text-wrap": [
+        "The text-wrap CSS shorthand property controls how text inside an element is wrapped. The different values provide:",
+        "- Typographic improvements, for example more balanced line lengths across broken headings",
+        "- A way to turn text wrapping off completely.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-wrap)"
     ],
     "text-wrap-mode": [
+        "The `text-wrap-mode` CSS property controls whether the text inside an element is wrapped. The different values provide alternate ways of wrapping the content of a block element. It can also be set, and reset, using the text-wrap shorthand or the white-space shorthand.  Note: The white-space-collapse and `text-wrap-mode` properties can be declared together using the white-space shorthand property.   Note: The name of this property is a placeholder, pending the CSSWG finding a better name. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-wrap-mode)"
     ],
     "text-wrap-style": [
+        "The `text-wrap-style` CSS property controls how text inside an element is wrapped. The different values provide alternate ways of wrapping the content of a block element. It can also be set, and reset, using the text-wrap shorthand.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/text-wrap-style)"
     ],
     "top": [
+        "The `top` CSS property sets the vertical position of a positioned element. This inset property has no effect on non-positioned elements.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/top)"
     ],
     "touch-action": [
+        "The `touch-action` CSS property sets how an element's region can be manipulated by a touchscreen user (for example, by zooming features built into the browser). By default, panning (scrolling) and pinching gestures are handled exclusively by the browser. An application using Pointer events will receive a pointercancel event when the browser starts handling a touch gesture. By explicitly specifying which gestures should be handled by the browser, an application can supply its own behavior in pointermove and pointerup listeners for the remaining gestures. Applications using Touch events disable the browser handling of gestures by calling preventDefault(), but should also use `touch-action` to ensure the browser knows the intent of the application before any event listeners have been invoked. When a gesture is started, the browser intersects the `touch-action` values of the touched element and its ancestors, up to the one that implements the gesture (in other words, the first containing scrolling element). This means that in practice, `touch-action` is typically applied only to top-level elements which have some custom behavior, without needing to specify `touch-action` explicitly on any of that element's descendants.  Note: After a gesture starts, changes to `touch-action` will not have any impact on the behavior of the current gesture. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/touch-action)"
     ],
     "transform": [
+        "The `transform` CSS property lets you rotate, scale, skew, or translate an element. It modifies the coordinate space of the CSS visual formatting model.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transform)"
     ],
     "transform-box": [
+        "The `transform-box` CSS property defines the layout box to which the transform, individual transform properties translate, scale, and rotate, and transform-origin properties relate.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-box)"
     ],
     "transform-origin": [
+        "The `transform-origin` CSS property sets the origin for an element's transformations.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-origin)"
     ],
     "transform-style": [
+        "The `transform-style` CSS property sets whether children of an element are positioned in the 3D space or are flattened in the plane of the element.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transform-style)"
     ],
     "transition": [
+        "The `transition` CSS property is a shorthand property for `transition`-property, `transition`-duration, `transition`-timing-function, `transition`-delay, and `transition`-behavior.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transition)"
     ],
     "transition-behavior": [
+        "The transition-behavior CSS property specifies whether transitions will be started for properties whose animation behavior is discrete.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-behavior)"
     ],
     "transition-delay": [
+        "The `transition-delay` CSS property specifies the duration to wait before starting a property's transition effect when its value changes.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-delay)"
     ],
     "transition-duration": [
+        "The `transition-duration` CSS property sets the length of time a transition animation should take to complete. By default, the value is 0s, meaning that no animation will occur.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-duration)"
     ],
     "transition-property": [
+        "The `transition-property` CSS property sets the CSS properties to which a transition effect should be applied.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-property)"
     ],
     "transition-timing-function": [
+        "The `transition-timing-function` CSS property sets how intermediate values are calculated for CSS properties being affected by a transition effect.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/transition-timing-function)"
     ],
     "translate": [
+        "The `translate` CSS property allows you to specify translation transforms individually and independently of the transform property. This maps better to typical user interface usage, and saves having to remember the exact order of transform functions to specify in the transform value.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/translate)"
     ],
     "unicode-bidi": [
+        "The `unicode-bidi` CSS property, together with the direction property, determines how bidirectional text in a document is handled. For example, if a block of content contains both left-to-right and right-to-left text, the user-agent uses a complex Unicode algorithm to decide how to display the text. The `unicode-bidi` property overrides this algorithm and allows the developer to control the text embedding.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/unicode-bidi)"
     ],
     "user-select": [
+        "The `user-select` CSS property controls whether the user can select text. This doesn't have any effect on content loaded as part of a browser's user interface (its chrome), except in textboxes",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/user-select)"
     ],
     "vector-effect": [
+        "The `vector-effect` CSS property suppresses specific transformation effects in SVG, thus permitting effects like a road on a map staying the same width no matter how the map is zoomed, or allowing a diagram key to retain its position and size regardless of other transforms. It can only be used with SVG elements that accept the `vector-effect` attribute. When used, the CSS value overrides any values of the element's `vector-effect` attribute.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/vector-effect)"
     ],
     "vertical-align": [
+        "The `vertical-align` CSS property sets vertical alignment of an inline, inline-block or table-cell box.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/vertical-align)"
     ],
     "visibility": [
+        "The `visibility` CSS property shows or hides an element without changing the layout of a document. The property can also hide rows or columns in a &lt;table&gt;.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/visibility)"
-    ],   
+    ],
     "white-space": [
+        "The `white-space` CSS property sets how white space inside an element is handled.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/white-space)"
     ],
     "white-space-collapse": [
+        "The `white-space-collapse` CSS property controls how white space inside an element is collapsed.  Note: The `white-space-collapse` and text-wrap-mode properties can be declared together using the white-space shorthand property. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/white-space-collapse)"
     ],
     "width": [
-        "The `width` CSS property sets an element's width. By default, it sets the width of the content area, but if box-sizing is set to border-box, it sets the width of the border area.",
+        "The `width` CSS property sets an element's `width`. By default, it sets the `width` of the content area, but if box-sizing is set to border-box, it sets the `width` of the border area.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/width)"
     ],
     "will-change": [
+        "The `will-change` CSS property hints to browsers how an element is expected to change. Browsers may set up optimizations before an element is actually changed. These kinds of optimizations can increase the responsiveness of a page by doing potentially expensive work before they are actually required.  Warning: `will-change` is intended to be used as a last resort, in order to try to deal with existing performance problems. It should not be used to anticipate performance problems.  Proper usage of this property can be a bit tricky:  Don't apply `will-change` to too many elements. The browser already tries as hard as it can to optimize everything. Some of the stronger optimizations that are likely to be tied to `will-change` end up using a lot of a machine's resources, and when overused like this can cause the page to slow down or consume a lot of resources. Use sparingly. The normal behavior for optimizations that the browser make is to remove the optimizations as soon as it can and revert back to normal. But adding `will-change` directly in a stylesheet implies that the targeted elements are always a few moments away from changing and the browser will keep the optimizations for much longer time than it would have otherwise. So it is a good practice to switch `will-change` on and off using script code before and after the change occurs. Don't apply `will-change` to elements to perform premature optimization. If your page is performing well, don't add the `will-change` property to elements just to wring out a little more speed. `will-change` is intended to be used as something of a last resort, in order to try to deal with existing performance problems. It should not be used to anticipate performance problems. Excessive use of `will-change` will result in excessive memory use and will cause more complex rendering to occur as the browser attempts to prepare for the possible change. This will lead to worse performance. Give it sufficient time to work. This property is intended as a method for authors to let the user-agent know about properties that are likely to change ahead of time. Then the browser can choose to apply any ahead-of-time optimizations required for the property change before the property change actually happens. So it is important to give the browser some time to actually do the optimizations. Find some way to predict at least slightly ahead of time that something will change, and set `will-change` then. Be aware, that `will-change` may actually influence the visual appearance of elements, when used with property values, that create a stacking context (e.g. `will-change`: opacity), as the stacking context is created up front. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/will-change)"
     ],
     "word-break": [
+        "The `word-break` CSS property sets whether line breaks appear wherever the text would otherwise overflow its content box.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/word-break)"
     ],
     "word-spacing": [
+        "The `word-spacing` CSS property sets the length of space between words and between tags.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/word-spacing)"
     ],
     "word-wrap": [
+        "see overflow-wrap.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/word-wrap)"
     ],
     "writing-mode": [
+        "The `writing-mode` CSS property sets whether lines of text are laid out horizontally or vertically, as well as the direction in which blocks progress. When set for an entire document, it should be set on the root element (html element for HTML documents).",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/writing-mode)"
     ],
     "x": [
+        "The `x` CSS property defines the `x`-axis coordinate of the top left corner of the SVG &lt;rect&gt; shape, &lt;image&gt; image, &lt;foreignObject&gt; viewport or nested &lt;svg&gt; viewport relative to the nearest &lt;svg&gt; ancestor's user coordinate system. If present, it overrides the element's `x` attribute.  Note: The `x` property only applies to &lt;rect&gt;, &lt;image&gt;, &lt;foreignObject&gt;, and &lt;svg&gt; elements nested in an &lt;svg&gt;. It has no effect on the outermost &lt;svg&gt; elements itself, and does not apply to other SVG elements nor to HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/x)"
     ],
     "y": [
+        "The `y` CSS property defines the `y`-axis coordinate of the top left corner of the SVG &lt;rect&gt; shape, &lt;image&gt; image, &lt;foreignObject&gt; viewport and nested &lt;svg&gt; viewport relative to the nearest &lt;svg&gt; ancestor's user coordinate system. If present, it overrides the element's `y` attribute.  Note: The `y` property only applies to &lt;rect&gt;, &lt;image&gt;, &lt;foreignObject&gt;, and &lt;svg&gt; elements nested in an &lt;svg&gt;. It has no effect on outermost &lt;svg&gt; elements and does not apply to other SVG elements nor to HTML elements or pseudo-elements. ",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/y)"
     ],
     "z-index": [
+        "The `z-index` CSS property sets the z-order of a positioned element and its descendants or flex and grid items. Overlapping elements with a larger `z-index` cover those with a smaller one.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/z-index)"
     ],
     "zoom": [
+        "The `zoom` CSS property can be used to control the magnification level of an element. transform: scale() can be used as an alternative to this property. The `zoom` CSS property scales the targeted element, which can affect the page layout. When scaling, the zoomed element scales from top and center when using the default writing-mode. In contrast, an element scaled using scale() will not cause layout recalculation or move other elements on the page. If using scale() makes the contents larger than the containing element, then overflow comes into effect. Additionally, elements adjusted using scale() transform from the center by default; this can be changed with the transform-origin CSS property.",
         "- [doc](https://developer.mozilla.org/en-US/docs/Web/CSS/zoom)"
     ]
 }
