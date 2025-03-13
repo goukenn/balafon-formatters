@@ -1,4 +1,10 @@
-"use strict";
+'use strict';
+// author: C.A.D. BONDJE DOUE
+// file: utils.js
+// @date: 20250313 13:31:35
+// @desc: utility file
+//        - declare web known colors
+//        
 
 const { Formatters } = require("../formatter");
 

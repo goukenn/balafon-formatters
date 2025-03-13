@@ -15,13 +15,24 @@ const { utils } = require("./vscode");
 const { Formatters } = require("./formatter");
 const completion = require("./vscode/completion");
 const Version = "debug.0.0.1";
-
+const _completionList = {};
 function debug() {
   //if (env.debug){
   console.log(...arguments);
   //}
 }
-class VSCodeTransformEngine extends TransformEngine {}
+
+function _getCompletionDocumentation(name) {
+  if (name in _completionList) {
+    return _completionList[name];
+  }
+  const data = require('./assets/completions/docs/' + name + '.btm-completion.docs.json');
+  let c = data ? { ...data } : {};
+  _completionList[name] = c;
+  return c;
+}
+
+class VSCodeTransformEngine extends TransformEngine { }
 
 TransformEngine.Register("vscode", VSCodeTransformEngine);
 const sm_FORMATTERS = {};
@@ -76,7 +87,7 @@ function activate(context) {
   // + | ------------------------------------------------------------------------
   // + | LOAD LANGUAGE FORMATTERS 
   // + | 
-  
+
   const languageFormatter = new Map();
   ["bcss", "bview", "phtml", "bjs", "pcss", "bhtml", "vbmacros"].forEach(a => {
     let p = vscode.languages.registerDocumentFormattingEditProvider(a, {
@@ -94,6 +105,7 @@ function activate(context) {
     ...commands
   };
 
+  // + | ------------------------------------------------------------------------
   // + | subscribe command
   for (let _key in _commands) {
     let _fc = _commands[_key];
@@ -101,9 +113,8 @@ function activate(context) {
     context.subscriptions.push(c);
   }
   // + | ------------------------------------------------------------------------
-  // + |  color provider to detecd color expression in code
+  // + |  color provider to detect color expression in code
   // + |
-// console.log('loading profiles.....');
   const _clprofiles = {
     bcss: {
       ...utils.LoadProvideDocumentColor("bcss-provide-colors", vscode)
@@ -120,11 +131,11 @@ function activate(context) {
         const _idref = document.uri.toString();
         const _text = document.getText();
         const _formatter = Formatters.Load("bcolor");
-        if (!_formatter){
+        if (!_formatter) {
           console.error('missing bcolor formatter');
           return;
         }
-        if (_idref in this.colorCache){
+        if (_idref in this.colorCache) {
           return this.colorCache[_idref];
         }
         const _colors_lists = utils.ExtractColors(_formatter, _text);
@@ -150,10 +161,10 @@ function activate(context) {
         this.colorCache[_idref] = _colors;
         return _colors;
       },
-      onDidChangeTextDocument(document){
+      onDidChangeTextDocument(document) {
         delete this.colorCache[document.uri.toString()];
       },
-      onDidCloseTextDocument(document){
+      onDidCloseTextDocument(document) {
         delete this.colorCache[document.uri.toString()];
       }
     }
@@ -174,11 +185,11 @@ function activate(context) {
     );
     context.subscriptions.push(c);
     // + | register subscription changed for providing
-    if ('onDidCloseTextDocument' in _provider){
-      context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(({document})=>_provider.onDidCloseTextDocument(document)));
+    if ('onDidCloseTextDocument' in _provider) {
+      context.subscriptions.push(vscode.workspace.onDidCloseTextDocument(({ document }) => _provider.onDidCloseTextDocument(document)));
     }
-    if ('onDidChangeTextDocument' in _provider){
-      context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(({document})=>_provider.onDidChangeTextDocument(document)));
+    if ('onDidChangeTextDocument' in _provider) {
+      context.subscriptions.push(vscode.workspace.onDidChangeTextDocument(({ document }) => _provider.onDidChangeTextDocument(document)));
     }
     // console.log('register : '+i);
   }
@@ -201,6 +212,10 @@ function activate(context) {
          */
         provideCompletionItems(document, position, token, context) {
           const _provide_items = [];
+          let wordRange = document.getWordRangeAtPosition(position, /[\w-]+/);
+          const word = wordRange ? document.getText(wordRange) : false;
+          const css_complementDocumentation = _getCompletionDocumentation('bcss');
+
           // init media
           "@balafon|@def|@xsm-screen|@sm-screen|@lg-screen|@xlg-screen|@xxlg-screen"
             .split("|")
@@ -217,8 +232,37 @@ function activate(context) {
               _provide_items.push(_item);
             });
           const properties = require("../src/lib/Css/CssProperties");
+
+          // for(let j in vscode.CompletionItemKind){
+          //   const _item = new vscode.CompletionItem(j);
+          //   _item.kind = vscode.CompletionItemKind[j];
+          //   _provide_items.push(_item);  
+          // }
+          const regex = word ? new RegExp(`\\b${word}`) : null;
           properties.sort().forEach(o => {
+
+            // + | skip word
+            if (regex && !regex.test(o)) {
+              return;
+            }
+
             const _item = new vscode.CompletionItem(o);
+            _item.kind = vscode.CompletionItemKind.Constant;
+            if (word) {
+              _item.range = wordRange;
+            } else
+              _item.insertText = o;
+            if (o in css_complementDocumentation) {
+              const r = ['## ' + o];
+              const d = css_complementDocumentation[o];
+              if (!Array.isArray(d)) {
+                r.push(d)
+              } else
+                r.push(...d);
+
+              _item.documentation = new vscode.MarkdownString(r.join("\n"));
+            }
+
             _provide_items.push(_item);
           });
           const { GetProvideList } = completion.bcss;
@@ -234,10 +278,10 @@ function activate(context) {
               _provide_items.push(_item);
             }
           }
-
           return _provide_items;
         }
       },
+      // + | char that triget completion list
       "."
     )
   );

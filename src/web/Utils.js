@@ -1,4 +1,9 @@
-"use stricts";
+'use strict';
+// author: C.A.D. BONDJE DOUE
+// file: Utils.js
+// @date: 20250313 13:33:22
+// @desc: Web Utility
+
 Object.defineProperty(exports, '__esModule', { value: true });
 
 const { FormatterCloseParentInfo } = require("../lib/FormatterCloseParentInfo");
