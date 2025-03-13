@@ -215,7 +215,15 @@ function activate(context) {
           let wordRange = document.getWordRangeAtPosition(position, /[\w-]+/);
           const word = wordRange ? document.getText(wordRange) : false;
           const css_complementDocumentation = _getCompletionDocumentation('bcss');
-
+          const cdef = {
+            "@balafon":"global properties",
+            "@def":"define default global styles",
+            "@xsm-screen":"define extra small screen style",
+            "@sm-screen":"define small screen style",
+            "@lg-screen":"define large screen style",
+            "@xls-screen":"define extra large screen style",
+            "@xxsm-screen":"define extra-extra large screen style"
+          }
           // init media
           "@balafon|@def|@xsm-screen|@sm-screen|@lg-screen|@xlg-screen|@xxlg-screen"
             .split("|")
@@ -224,6 +232,7 @@ function activate(context) {
               const _item = new vscode.CompletionItem(o);
               _item.commitCharacters = ["\t"];
               _item.documentation = new vscode.MarkdownString(
+                cdef[o],
                 "define screen - type"
               );
               _item.insertText = o + "{\n}";
