@@ -22,11 +22,11 @@ function debug() {
   //}
 }
 
-function _getCompletionDocumentation(name) {
+async function _getCompletionDocumentation(name) {
   if (name in _completionList) {
     return _completionList[name];
   }
-  const data = require('./assets/completions/docs/' + name + '.btm-completion.docs.json');
+  const data = await import('./assets/completions/docs/' + name + '.btm-completion.docs.json');
   let c = data ? { ...data } : {};
   _completionList[name] = c;
   return c;

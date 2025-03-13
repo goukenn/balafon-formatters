@@ -1,11 +1,28 @@
-# balafon generic formatters
+# Balafon generic formatters - vscode extension 
+---
+ensure use of `.bcss`, `.bview`, `.phtml` file in balafon's Project development.
 
-match : string or regex data - if string will be converted to regex.
+- inspired by [marcomates.com](https://macromates.com/manual/en/language_grammars) 
+
+# features
+---
+
+# versions
+---
+- 1.0.59
+
+# license
+---
+@ igkdev - MIT
+
+
+
+
+# Generic formatters 
 
 ## usage
 
-- create a formatter with a json settings
-- inspired by [marcomates.com](https://macromates.com/manual/en/language_grammars) 
+- create a formatter with a json settings 
 
 ```js
 const { Formatters } = require('./src/lib/Formatters')
