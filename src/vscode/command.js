@@ -3,6 +3,7 @@ Object.defineProperty(exports, '__ESModule', {value:true});
 
 const vscode = require('vscode');
 const { CssTransformer } = require('../lib/Css/CssTransformer')
+// list of vscode command helper
 const commands = {
     "css.transform.toJSON": async () => { 
         const { document } = vscode.window.activeTextEditor;
@@ -25,15 +26,16 @@ const commands = {
         // })
         const src = document.getText()
 
-        const json = CssTransformer.ToJSON(src);
-        
-        console.log(`transform css to json`);
+        const json = CssTransformer.ToJSON(src); 
         vscode.workspace.openTextDocument({
             "language":"json",
             "content":json,
         }).then((a)=>{
             vscode.window.showTextDocument(a);
         });
+    },
+    "bcss.transform.toCss": async()=>{
+        //
     }
 }
 

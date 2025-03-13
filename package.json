@@ -1,12 +1,7 @@
 {
     "name": "balafon-formatters",
     "version": "1.0.59",
-    "command-production": [
-        {
-            "main": "./dist/extension/1.0.57/extension.js"
-        }
-    ],
-    "main": "./dist/extension/1.0.59/extension.js",
+    "main": "./src/extension.js",
     "description": "Javascript Generic Formatters",
     "bin": {
         "bformatter": "./src/bin/bformatter.js"
@@ -49,8 +44,7 @@
     "engines": {
         "vscode": "^1.98.0"
     },
-    "activationEvents": [
-        "onLanguage:bcolor"
+    "activationEvents":[
     ],
     "categories": [
         "Programming Languages",
@@ -83,7 +77,12 @@
                 ],
                 "extensions": [
                     ".bcolor"
-                ]
+                ],
+                "icon": {
+                    "dark": "./assets/icons/bcolor-dark.png",
+                    "light": "./assets/icons/bcolor-light.png"
+                },
+                "configuration": "./languages/bcolor.language-configuration.json"
             },
             {
                 "id": "vbmacros",
@@ -181,7 +180,7 @@
             {
                 "language": "bcolor",
                 "scopeName": "source.bcolor",
-                "path": "./src/formatters/fbcolor.btm-syntax.json"
+                "path": "./src/formatters/bcolor.btm-syntax.json"
             },
             {
                 "language": "vbmacros",

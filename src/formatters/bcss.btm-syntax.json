@@ -612,7 +612,7 @@
         },
         "meaning-a": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(auto|alphabetic|additive)\\b"
+            "match": "\\b(auto|alphabetic|additive|absolute)\\b"
         },
         "meaning-b": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -620,7 +620,7 @@
         },
         "meaning-c": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(checkbox|cyclic)\\b"
+            "match": "\\b(checkbox|cyclic|capitalize)\\b"
         },
         "meaning-e": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -632,15 +632,16 @@
         },
         "meaning-i": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(initial|inherit|inline(-(start|end))?)\\b"
+            "match": "\\b(initial|inherit|inline(-(start|end|flex|block|grid))?)\\b"
         },
         "meaning-l": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
             "match": "\\b(left)\\b"
         },
-        "meaning-v": {
+     
+        "meaning-m": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(v(isible))\\b"
+            "match": "\\b(medium|max-content|min-content)\\b"
         },
         "meaning-n": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -656,11 +657,16 @@
         },
         "meaning-t": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(top|true)\\b"
+            "match": "\\b(top|true|thick|thin)\\b"
         },
         "meaning-u": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(unset)\\b"
+            "match": "\\b(unset|uppercase)\\b"
+     
+        },
+        "meaning-v": {
+            "name": "entity.name.type.constant.css.meaning.word.bcss",
+            "match": "\\b(visible)\\b"
         },
         "function-handler-patterns": {
             "patterns": [

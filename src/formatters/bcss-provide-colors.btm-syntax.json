@@ -1,6 +1,15 @@
 {
     "scopeName":"source.provide.bcss-color",
     "repository":{
+        "string-litteral":{
+            "begin":"('|\")",
+            "end":"\\1",
+            "patterns":[
+                {
+                    "match":"\\\\."
+                }
+            ]
+        },
         "color-detection-hexcolor":{
             "match":"(?i)#\\b((?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{4}|[0-9a-f]{3}))\\b",
             "name":"entity.name.function.tag.color",
@@ -50,16 +59,27 @@
     }, 
     "patterns":[
         {
-            "begin":"color",
-            "end":";",
+            "begin":"\\b((background|border)-)?color\\b",
+            "end":";|\\}",
+            "comment":"on property that contains color",
             "name":"entity.name.type.class.color",
             "patterns":[
+                {"include":"#string-litteral"},
                 {"include":"#color-detection"},
                 {"include":"#color-string"}
             ]
         },
         { 
             "include":"#color-comment"
-        }
+        },
+        {
+            "begin":":",
+            "end":";|\\}",
+            "patterns":[
+                {"include":"#string-litteral"},
+                {"include":"#color-detection"},
+                {"include":"#color-string"}
+            ]
+        } 
     ]
 }
