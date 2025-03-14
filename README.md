@@ -9,7 +9,7 @@ ensure use of `.bcss`, `.bview`, `.phtml` file in balafon's Project development.
 
 # versions
 ---
-- 1.0.59
+- 1.0.60
 
 # license
 ---
