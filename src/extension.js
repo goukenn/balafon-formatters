@@ -81,7 +81,7 @@ function formatAllDocument(document, format) {
  * @param {vscode.ExtensionContext} context 
  */
 function activate(context) {
-  return;
+
   // + | register language formatters
   debug(`activate ${APP_NAME}`);
 
