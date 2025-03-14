@@ -26,7 +26,11 @@ async function _getCompletionDocumentation(name) {
   if (name in _completionList) {
     return _completionList[name];
   }
-  const data = await import('./assets/completions/docs/' + name + '.btm-completion.docs.json');
+  // + | -----------------------------------------------
+  // + | bundle with webpack do not accept import in vscode
+  // + | will grow the bundle
+  // + | -----------------------------------------------
+  const data = require('./assets/completions/docs/' + name + '.btm-completion.docs.json');
   let c = data ? { ...data } : {};
   _completionList[name] = c;
   return c;
