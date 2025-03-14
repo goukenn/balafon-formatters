@@ -112,7 +112,7 @@
                 }
             ]
         },
-        "bcss-comments-definition":{
+        "bcss-comments-definition": {
             "patterns": [
                 {
                     "include": "#bcss-single-line-comment"
@@ -139,7 +139,7 @@
             "comment": "css value definition",
             "patterns": [
                 {
-                    "include":"#bcss-comments-definition"
+                    "include": "#bcss-comments-definition"
                 },
                 {
                     "include": "#css-value-definition"
@@ -464,6 +464,9 @@
                 },
                 {
                     "include": "#css-name"
+                },
+                {
+                    "include": "#important-word"
                 }
             ]
         },
@@ -478,13 +481,12 @@
                     ]
                 },
                 {
-                    "include":"#bcss-comments-definition"
+                    "include": "#bcss-comments-definition"
                 },
                 {
                     "name": "keyword.operator.punctuation.operator.property.separator.bcss",
                     "match": ","
                 },
-              
                 {
                     "include": "#system-block-definition"
                 },
@@ -514,8 +516,19 @@
                 },
                 {
                     "include": "#meaning-words"
+                },
+                {
+                    "include": "#important-word"
+                }, 
+                {
+                    "match": "\\b(top|right|bottom|font-size|color|opacity|transform|height|margin(-(left|right|bottom|top))?|padding(-(left|right|bottom|top))?|width)\\b",
+                    "name": "string.constant.property-definition.bcss"
                 }
             ]
+        },
+        "important-word": {
+            "match": "\\!important\\b",
+            "name": "keyword.operator.important-word.css string.css.important-word.bcss"
         },
         "meaning-words": {
             "tokenID": "meaning",
@@ -612,7 +625,7 @@
         },
         "meaning-a": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(auto|alphabetic|additive|absolute)\\b"
+            "match": "\\b(auto|alternate|alphabetic|additive|absolute|all)\\b"
         },
         "meaning-b": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -640,13 +653,12 @@
         },
         "meaning-i": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(initial|inherit|inline(-(start|end|flex|block|grid))?)\\b"
+            "match": "\\b(initial|infinite|inherit|inline(-(start|end|flex|block|grid))?)\\b"
         },
         "meaning-l": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(left)\\b"
+            "match": "\\b(left|linear)\\b"
         },
-     
         "meaning-m": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
             "match": "\\b(medium|max-content|min-content|multiply)\\b"
@@ -665,11 +677,11 @@
         },
         "meaning-r": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(revert(-layer)?|right)\\b"
+            "match": "\\b(revert(-layer)?|right|reverse)\\b"
         },
         "meaning-s": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(symbols|symbolic|screen|soft-light|saturation)\\b"
+            "match": "\\b(symbols|symbolic|screen|soft-light|saturation|slidein)\\b"
         },
         "meaning-t": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -678,7 +690,6 @@
         "meaning-u": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
             "match": "\\b(unset|uppercase)\\b"
-     
         },
         "meaning-v": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -711,7 +722,7 @@
                     "end": "\\)",
                     "beginCaptures": {
                         "1": {
-                            "name": "native.css.function.name.url"
+                            "name": "entity.name.function native.css.function.name.url"
                         }
                     },
                     "patterns": [
@@ -743,7 +754,7 @@
             ]
         },
         "time-constant-unit": {
-            "name": "constant.type.time.bcss",
+            "name": "constant.numeric.bcss constant.type.time.bcss",
             "match": "(-|\\+)?((\\d+)?\\.)?\\d+((m)?s)"
         },
         "length-with-unit": {
@@ -765,7 +776,7 @@
                     "include": "#string"
                 },
                 {
-                    "name": "constant.url.bcss",
+                    "name": "string.constant.url.bcss",
                     "match": "(?i)(((ftp|http(s)|[a-z]+)?:(\\/{,2}))|(\\.)|\\s*)[^\\s\\/\\)]+(\\/[^\\s\\/\\)]+)*(\\/)?"
                 }
             ]
@@ -2577,8 +2588,8 @@
                     ]
                 },
                 {
-                    "include":"#bcss-css-define-properties"
-                },                
+                    "include": "#bcss-css-define-properties"
+                },
                 {
                     "include": "#bcss-root-html5-tag-property"
                 },
