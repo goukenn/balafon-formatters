@@ -1,18 +1,17 @@
 # Balafon generic formatters - vscode extension 
----
-ensure use of `.bcss`, `.bview`, `.phtml` file in balafon's Project development.
+
+ensure use of `.bcss`, `.bview`, `.bjs` file in balafon's Project development.
 
 - inspired by [marcomates.com](https://macromates.com/manual/en/language_grammars) 
 
 # features
----
 
 # versions
----
+
 - 1.0.60
 
 # license
----
+
 @ igkdev - MIT
 
 

@@ -110,7 +110,7 @@
                     "DemoData",
                     "demodata"
                 ],
-                "configuration": "./languages/bview.language-configuration.json"
+                "configuration": "./languages/demodata.language-configuration.json"
             },
             {
                 "id": "bview",
@@ -121,7 +121,7 @@
                     "Balafon bview",
                     "bview"
                 ],
-                "configuration": "./languages/bview.language-configuration.json"
+                "configuration-": "./languages/bview.language-configuration.json"
             },
             {
                 "id": "phtml",
@@ -265,6 +265,16 @@
                     "light": "#FF00FF",
                     "highContrast": "#010203",
                     "highContrastLight": "#feedc3"
+                }
+            },
+            {
+                "id": "balafon.background",
+                "description": "background color",
+                "defaults": {
+                    "dark": "#040816",
+                    "light": "#FBF7e9",
+                    "highContrast": "#040816",
+                    "highContrastLight": "#fbf7e9"
                 }
             }
         ],

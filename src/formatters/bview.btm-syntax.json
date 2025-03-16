@@ -362,6 +362,9 @@
                             }
                         },
                         {
+                            "include": "#unit-number"
+                        },
+                        {
                             "include": "#number"
                         },
                         {
@@ -389,6 +392,9 @@
                     "patterns": [
                         {
                             "include": "#hex-number"
+                        },
+                        {
+                            "include": "#unit-number"
                         },
                         {
                             "include": "#number"
@@ -425,7 +431,11 @@
         "tag-active-attrib": {
             "match": "(?i)\\!([a-z_]+[a-z0-9\\-_]*)",
             "comment": "selector identifier. id attribute",
-            "name": "constant.selector.tagname.active.attrib.bview"
+            "name": "constant.selector.tagname.active.attrib.bview"            
+        },
+        "unit-number": {
+            "name": "constant.numeric.bview",
+            "match": "((\\d+)?\\.\\d+)|(\\d+)(\\.\\d+)?(px|pt|em|rem|%|pica|s|ms)"
         },
         "number": {
             "name": "constant.numeric.bview",

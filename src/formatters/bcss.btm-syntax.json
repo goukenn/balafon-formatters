@@ -633,7 +633,7 @@
         },
         "meaning-c": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(checkbox|cyclic|capitalize)\\b"
+            "match": "\\b(clip|checkbox|cyclic|capitalize)\\b"
         },
         "meaning-d": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -641,7 +641,7 @@
         },
         "meaning-e": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(ease(-(in|out|inout))?)\\b"
+            "match": "\\b(ellipsis|ease(-(in|out|inout))?)\\b"
         },
         "meaning-f": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
