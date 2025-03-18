@@ -242,6 +242,7 @@ class utils {
     if (!_formatter) {
       throw new Error("missing formatter ");
     }
+    // console.log("load provider : ", {name});
     return {
       provideDocumentColors(document, token) {
         const _text = document.getText(); 

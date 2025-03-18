@@ -16,10 +16,10 @@ const { Formatters } = require("./formatter");
 const completion = require("./vscode/completion");
 const Version = "debug.0.0.1";
 const _completionList = {};
-function debug() {
-  //if (env.debug){
-  console.log(...arguments);
-  //}
+const _debug = process.env.NODE_MODE == 'development';
+function debug(){
+
+  _debug && console.log(process, ...arguments);
 }
 
 async function _getCompletionDocumentation(name) {

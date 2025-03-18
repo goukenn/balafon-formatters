@@ -467,6 +467,9 @@
                 },
                 {
                     "include": "#important-word"
+                },{
+                    "match":"[\\w\\-]+",
+                    "name":"word.bcss"
                 }
             ]
         },
@@ -519,7 +522,7 @@
                 },
                 {
                     "include": "#important-word"
-                }, 
+                },
                 {
                     "match": "\\b(top|right|bottom|font-size|color|opacity|transform|height|margin(-(left|right|bottom|top))?|padding(-(left|right|bottom|top))?|width)\\b",
                     "name": "string.constant.property-definition.bcss"
@@ -625,7 +628,7 @@
         },
         "meaning-a": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(auto|alternate|alphabetic|additive|absolute|all)\\b"
+            "match": "\\b(auto|alternate|alphabetic|additive|absolute|all|any-(hover|pointer)|aspect-ratio)\\b"
         },
         "meaning-b": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -633,11 +636,11 @@
         },
         "meaning-c": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(clip|checkbox|cyclic|capitalize)\\b"
+            "match": "\\b(clip|checkbox|cyclic|capitalize|color(-(gamut|index))?)\\b"
         },
         "meaning-d": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(difference)\\b"
+            "match": "\\b(difference|display-mode|dynamic-range)\\b"
         },
         "meaning-e": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -645,15 +648,19 @@
         },
         "meaning-f": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(fixed|false)\\b"
+            "match": "\\b(fixed|false|forced-colors)\\b"
         },
         "meaning-h": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(hard-light)\\b"
+            "match": "\\b(hard-light|height|hover)\\b"
         },
         "meaning-i": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(initial|infinite|inherit|inline(-(start|end|flex|block|grid))?)\\b"
+            "match": "\\b(initial|infinite|inverted-colors|inherit|inline(-(start|end|flex|block|grid))?)\\b"
+        },
+        "meaning-g": {
+            "name": "entity.name.type.constant.css.meaning.word.bcss",
+            "match": "\\b(grid)\\b"
         },
         "meaning-l": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -661,7 +668,7 @@
         },
         "meaning-m": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(medium|max-content|min-content|multiply)\\b"
+            "match": "\\b(medium|max-content|min-content|multiply|monocrhome)\\b"
         },
         "meaning-n": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -669,19 +676,19 @@
         },
         "meaning-o": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(revert(-layer)?|right)\\b"
+            "match": "\\b(revert(-layer)?|right|orientation|overflow(-(block|inline)))\\b"
         },
         "meaning-p": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(plus(-(darker|lighter)))\\b"
+            "match": "\\b(prefers-color-scheme|prefers-contrast|prefers-reduced-motion|pointer|plus(-(darker|lighter)))\\b"
         },
         "meaning-r": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(revert(-layer)?|right|reverse)\\b"
+            "match": "\\b(revert(-layer)?|right|reverse|resolution)\\b"
         },
         "meaning-s": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(symbols|symbolic|screen|soft-light|saturation|slidein)\\b"
+            "match": "\\b(symbols|symbolic|screen|soft-light|saturation|slidein|scripting)\\b"
         },
         "meaning-t": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
@@ -689,11 +696,15 @@
         },
         "meaning-u": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(unset|uppercase)\\b"
+            "match": "\\b(unset|uppercase|update)\\b"
         },
         "meaning-v": {
             "name": "entity.name.type.constant.css.meaning.word.bcss",
-            "match": "\\b(visible)\\b"
+            "match": "\\b(visible|video-dynamic-range)\\b"
+        },
+        "meaning-w": {
+            "name": "entity.name.type.constant.css.meaning.word.bcss",
+            "match": "\\b(width)\\b"
         },
         "function-handler-patterns": {
             "patterns": [
@@ -1355,6 +1366,33 @@
             ],
             "isBlock": true
         },
+        "media-css-block-capture": {
+            "begin": "\\{",
+            "end": "\\}",
+            "comment": "media css style block capture",
+            "name": "css.block-capture.bcss",
+            "patterns": [
+                {
+                    "include":"source.css"
+                },
+                {
+                    "include": "#media-css-block-capture"
+                }
+            ],
+            "isBlock": true
+        },
+        "block-capture": {
+            "begin": "\\{",
+            "end": "\\}",
+            "comment": "general css style block capture",
+            "name": "css.block-capture.bcss",
+            "patterns": [
+                {
+                    "include": "#block-capture"
+                }
+            ],
+            "isBlock": true
+        },
         "list-selector-class": {
             "match": "\\s*\\.[\\w\\-%]+(\\\\%[\\w\\-%]+)*",
             "name": "entity.name.class.native.css.type.class.bcss"
@@ -1464,7 +1502,7 @@
                     "include": "#inside-block-conditional"
                 },
                 {
-                    "include": "#condition-block"
+                    "include": "#css-condition-block"
                 },
                 {
                     "match": "\\b([\\w\\-]+)\\b\\s*",
@@ -1480,30 +1518,70 @@
             ]
         },
         "media-rule": {
-            "begin": "\\s*(@\\b(media))\\b",
-            "end": "$",
+            "begin": "\\s*(@\\bmedia\\b)",
+            "end": "(?<=\\})|$",
+            "name": "css.bn.media-capture.bcss",
             "beginCaptures": {
                 "1": {
-                    "name": "meta.global.directive.media.bcss"
+                    "name": "keyword.control.media.css.bcss meta.global.directive.media.bcss"
                 }
             },
             "patterns": [
                 {
-                    "include": "#inside-block-conditional"
+                    "include-": "#inside-block-conditional"
                 },
                 {
-                    "include": "#media-constant-operator"
+                    "include-": "#media-constant-operator"
                 },
                 {
-                    "include": "#condition-operator-litteral"
+                    "include": "#css-media-condition-operator-litteral"
                 },
                 {
-                    "include": "#condition-block"
+                    "include": "#css-media-condition-block"
                 },
                 {
-                    "include": "#block-capture"
+                    "include": "#media-css-block-capture"
+                },{
+                    "match":"\\b(?:print|screen|all)\\b",
+                    "name":"entity.name.type.class.type.variable.media-device.bcss"
+                },{
+                    "match":",",
+                    "name":"punctuation.media-join.bcss"
                 }
             ]
+        },
+        "css-media-condition-block": {
+            "begin": "\\(",
+            "end": "\\)",
+            "name": "meta.condition.block.bcss",
+            "patterns": [
+                {
+                    "begin": "\\b[\\w\\-]+\\b",
+                    "end": "(?=\\)|:|\\()",
+                    "name": "support.type.property-name"
+                },
+                {
+                    "begin": "(?=:)",
+                    "end": "(?=\\)|\\()",
+                    "patterns": [
+                        {
+                            "match": ":",
+                            "name": "media.punctuation.bcss"
+                        },
+                        {
+                            "match": "[\\w\\-!,]+",
+                            "name": "value.bcss"
+                        }
+                    ]
+                },
+                {
+                    "include": "#css-media-condition-block"
+                }
+            ]
+        },
+        "css-media-condition-operator-litteral": {
+            "match": "\\b(and|or|not)\\b",
+            "name": "entity.name.tag.operator.css-litteral.bcss"
         },
         "charset-rule": {
             "begin": "\\s*(@\\b(charset))\\b",
@@ -1642,6 +1720,9 @@
         "css-rules": {
             "patterns": [
                 {
+                    "include": "#media-rule"
+                },
+                {
                     "include": "#page-rule"
                 },
                 {
@@ -1664,9 +1745,6 @@
                 },
                 {
                     "include": "#container-rule"
-                },
-                {
-                    "include": "#media-rule"
                 },
                 {
                     "include": "#charset-rule"

@@ -1,7 +1,7 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.67",
-    "main": "./dist/extension/1.0.67/extension.js",
+    "version": "1.0.68",
+    "main": "./dist/extension/1.0.68/extension.js",
     "displayName": "Balafon - VSCode Extension",
     "description": "This extension add generics formatters and command that help work with Balafon Framework's Project",
     "keywords": [
