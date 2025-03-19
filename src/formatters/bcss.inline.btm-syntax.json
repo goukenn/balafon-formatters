@@ -9,14 +9,14 @@
     ],
     "repository":{
         "bcss-here-doc":{
-            "begin":"(?i)\\<\\<\\<('|\")\\b(bcss)\\b('|\")$",
+            "begin":"(?i)\\<\\<\\<('|\")?\\b(bcss)\\b(\\1)?$",
             "end":"^\\2((\\s*;|\\))|$)",
             "beginCaptures":{
                 "0":{
                     "name":"string"
                 },
                 "2":{
-                    "name":"keyword.operator.nowdoc.php"
+                    "name":"keyword.operator.bcss.nowdoc.php"
                 }
             },
             "endCaptures":{

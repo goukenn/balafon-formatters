@@ -1,7 +1,7 @@
 {
     "name": "balafon-formatters",
-    "version": "1.0.68",
-    "main": "./dist/extension/1.0.68/extension.js",
+    "version": "1.0.69",
+    "main": "./dist/extension/1.0.69/extension.js",
     "displayName": "Balafon - VSCode Extension",
     "description": "This extension add generics formatters and command that help work with Balafon Framework's Project",
     "keywords": [
@@ -51,7 +51,11 @@
     "engines": {
         "vscode": "^1.98.0"
     },
-    "activationEvents": [],
+    "activationEvents": [
+        "onLanguage:css",
+        "onLanguage:phtml",
+        "onLanguage:php"
+    ],
     "categories": [
         "Programming Languages",
         "Formatters",

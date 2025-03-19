@@ -17,9 +17,38 @@ const completion = require("./vscode/completion");
 const Version = "debug.0.0.1";
 const _completionList = {};
 const _debug = process.env.NODE_MODE == 'development';
-function debug(){
+function debug() {
 
   _debug && console.log(process, ...arguments);
+}
+function _bindColor(formatter, document) {
+  const _idref = document.uri.toString();
+  const _text = document.getText();
+  const _formatter = formatter;
+  if (!_formatter) {
+    console.error('missing bcolor formatter');
+    return;
+  }
+  const _colors_lists = utils.ExtractColors(_formatter, _text);
+  const _colors = [];
+  if (_colors_lists) {
+    try {
+      _colors_lists.forEach(i => {
+        let x = document.positionAt(i.sourceOffset * 1.0);
+        let y = document.positionAt(i.sourceOffset + i.value.length);
+        const _range = new vscode.Range(x, y);
+        const _color = utils.GetColor(
+          i.type == "webcolor" ? utils.ReverseColor(i.value) : i.value,
+          vscode
+        );
+        const _clinfo = new vscode.ColorInformation(_range, _color);
+        _colors.push(_clinfo);
+      });
+    } catch (ex) {
+      console.debug("error ", ex);
+    }
+  }
+  return _colors;
 }
 
 async function _getCompletionDocumentation(name) {
@@ -172,6 +201,12 @@ function activate(context) {
       onDidCloseTextDocument(document) {
         delete this.colorCache[document.uri.toString()];
       }
+    },
+    php: {
+      async provideDocumentColors(document, token) {
+        const _formatter = Formatters.Load('php.color-extractor');
+        return _formatter ? _bindColor(_formatter, document) : null;
+      }
     }
   };
 
@@ -221,13 +256,13 @@ function activate(context) {
           const word = wordRange ? document.getText(wordRange) : false;
           const css_complementDocumentation = _getCompletionDocumentation('bcss');
           const cdef = {
-            "@balafon":"global properties",
-            "@def":"define default global styles",
-            "@xsm-screen":"define extra small screen style",
-            "@sm-screen":"define small screen style",
-            "@lg-screen":"define large screen style",
-            "@xls-screen":"define extra large screen style",
-            "@xxsm-screen":"define extra-extra large screen style"
+            "@balafon": "global properties",
+            "@def": "define default global styles",
+            "@xsm-screen": "define extra small screen style",
+            "@sm-screen": "define small screen style",
+            "@lg-screen": "define large screen style",
+            "@xls-screen": "define extra large screen style",
+            "@xxsm-screen": "define extra-extra large screen style"
           }
           // init media
           "@balafon|@def|@xsm-screen|@sm-screen|@lg-screen|@xlg-screen|@xxlg-screen"
